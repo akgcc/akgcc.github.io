@@ -1,0 +1,22 @@
+:root {
+	--nameplate-height: 20px;
+	--main-background-color: #333333;
+	--operator-image-size: 75px;
+}
+
+.operatorCheckbox {
+	background-color: rgb(25, 25, 25);
+}
+
+.operatorCheckbox img {
+	opacity: 1;
+}
+
+.operatorCheckbox:hover {
+	transform: none;
+	cursor: default;
+}
+
+#info {
+	padding: 0 0 1em 0;
+}

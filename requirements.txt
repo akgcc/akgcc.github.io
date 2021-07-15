@@ -1,0 +1,8 @@
+certifi==2021.5.30
+chardet==4.0.0
+idna==2.10
+lxml==4.6.3
+numpy==1.21.0
+opencv-contrib-python==4.5.3.56
+requests==2.25.1
+urllib3==1.26.6

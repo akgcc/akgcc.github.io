@@ -1,0 +1,238 @@
+.cardContainer img {
+	width: 256px;
+	height: 144px;
+}
+
+.riskHeader>span,
+hr {
+	font-size: 3em;
+	flex-basis: 100%;
+}
+
+hr {
+	border: 0;
+	margin: 0 0 .5rem 0;
+	height: 2px;
+	background-color: white;
+	background: linear-gradient(to right, rgba(255, 255, 255, 0.75), rgba(0, 0, 0, 0));
+}
+
+.riskHeader {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.cardContainer {
+	flex-direction: column;
+	margin: .5em;
+	box-shadow: 0 0 2pt 1pt var(--week1-color);
+	transition: all .1s ease-in-out;
+}
+
+.cardContainer.week2 {
+	box-shadow: 0 0 2pt 1pt var(--week2-color);
+}
+
+.cardContainer.day1 {
+	box-shadow: 0 0 2pt 1pt var(--day1-color);
+}
+
+.legend.week1 {
+	text-shadow: 0px 0px 2px var(--week1-color);
+	color: var(--week1-color);
+}
+
+.legend.day1 {
+	text-shadow: 0px 0px 2px var(--day1-color);
+	color: var(--day1-color);
+}
+
+.legend.week2 {
+	text-shadow: 0px 0px 2px var(--week2-color);
+	color: var(--week2-color);
+}
+
+.cardContainer:hover {
+	transform: scale(1.15)
+}
+
+html {
+	/* overflow-y: scroll; */
+}
+
+html * {
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+ :root {
+	--nameplate-height: 16px;
+	--main-background-color: #222222;
+	--operator-image-size: 45px;
+	--day1-color: #c69a24;
+	--week2-color: #d63e3e;
+	--week1-color: #d6d6d6;
+}
+
+.operatorCheckbox {
+	display: none;
+	flex-direction: column;
+	width: var(--operator-image-size);
+	height: calc(var(--operator-image-size) + var(--nameplate-height));
+	padding-bottom: 0px;
+	margin: 5px;
+	background-color: rgb(45, 45, 45);
+	color: black;
+	transition: all .1s ease-in-out;
+	cursor: pointer;
+	position: relative;
+}
+
+.operatorCheckbox.show {
+	display: flex;
+}
+
+#checkboxes {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	margin: auto;
+	padding: 4px;
+	width: calc(100vw-(100vw - 100%));
+}
+
+#checkboxes.filtered {
+	outline-color: white;
+}
+
+.operatorCheckbox img {
+	width: 100%;
+	height: calc(100% - var(--nameplate-height));
+	opacity: .75;
+}
+
+.operatorCheckbox._selected img {
+	opacity: 1;
+}
+
+.operatorCheckbox._selected {
+	box-shadow: 0 0 2pt 1pt #dddddd;
+	background-color: rgb(35, 35, 35);
+}
+
+.operatorCheckbox:hover {
+	background-color: rgb(25, 25, 25);
+	transform: scale(1.1);
+	image-rendering: -moz-crisp-edges;
+	image-rendering: -o-crisp-edges;
+	image-rendering: -webkit-optimize-contrast;
+	image-rendering: crisp-edges;
+	-ms-interpolation-mode: nearest-neighbor;
+}
+
+.operatorCheckbox .name {
+	height: var(--nameplate-height);
+	line-height: var(--nameplate-height);
+	text-align: center;
+	color: white;
+	font-family: 'Novecentosanswide Normal', Arial, sans-serif;
+	background-color: rgba(255, 255, 255, .15);
+	font-size: calc(0.6 * var(--nameplate-height));
+	cursor: pointer;
+	overflow: hidden;
+}
+
+.operatorCheckbox>.data1,
+.operatorCheckbox>.data2 {
+	position: absolute;
+	color: white;
+	border: 1px solid grey;
+	min-width: 1em;
+	line-height: 1em;
+	font-size: .9em;
+	text-align: center;
+	background: rgba(128, 128, 128, .8);
+}
+
+.operatorCheckbox>.data1 {
+	right: 0;
+}
+
+.operatorCheckbox>.data2 {
+	left: 0;
+}
+
+body {
+	background-color: var(--main-background-color);
+	color: #c8c8c8;
+	background-image: url(data:image/png;base64,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);
+}
+
+div.button,
+.floatButton {
+	display: inline-block;
+	border: 1px solid white;
+	padding: .2em;
+	border-radius: .3em;
+	cursor: pointer;
+	transition: all .1s ease-in-out;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.floatButton {
+	position: fixed;
+	z-index: 1;
+	font-size: 1.5em;
+	top: .5em;
+	right: .5em;
+	background-color: rgba(0, 0, 0, .5);
+	padding: 0 .5em 0 .5em;
+	text-align: center;
+	line-height: 1.5em;
+	height: 1.5em;
+	color: white;
+}
+
+.floatButton:hover {
+	color: black;
+	background: rgba(255, 255, 255, .5);
+	;
+}
+
+div.button:hover {
+	color: black;
+	background-color: white;
+}
+
+div.button:active,
+.floatButton:active {
+	background: #cccccc;
+}
+
+#homeButton {
+	top: 2.5em;
+}
+
+#checkboxes.hidden {
+	display: none;
+}
+
+#filters {
+	display: inline;
+}
+
+#filters.hidden,
+img.hidden,
+div.hidden {
+	display: none;
+}
+
+h1 {
+	font-size: 3em;
+	margin: 0 0 .5em 0;
+}
+
