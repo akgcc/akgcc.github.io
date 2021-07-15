@@ -48,6 +48,7 @@ var cardData
 var headersMap = {}
 var headerCount = {}
 var filterSortType = true
+var invertFilter = false
 var lightboxElements
 fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')
 // fetch('./character_table.json')
@@ -137,6 +138,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		//click listeners
 		document.getElementById('filterToggle').onclick = () => {
 			filtercontainer.classList.toggle('hidden')
+			document.getElementById('checkboxes').classList.toggle('hidden')
 			document.getElementById('filterToggle').innerHTML = filtercontainer.classList.contains('hidden') ? "Show Filters" : "Hide Filters"
 		}
 		document.getElementById('filterSort').onclick = () => {
@@ -146,6 +148,12 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			else
 				Object.values(operatorData).sort((a, b) =>
 					a.rarity == b.rarity ? (a.name > b.name ? 1 : -1) : (a.rarity < b.rarity ? 1 : -1)).forEach((x, i) => divMap[x.name].style.order = i);
+		}
+		document.getElementById('filterInvert').onclick = (e) => {
+			thisButton=e.target;
+			invertFilter = !invertFilter
+			thisButton.innerHTML = invertFilter ? "Excludes" : "Includes"
+			applyAllFilters()
 		}
 
 		document.getElementById('filterReset').onclick = resetFilters
@@ -193,24 +201,34 @@ function showCard(key, show = true) {
 	else
 		headersMap[cardData[key].risk].classList.remove('hidden')
 }
-
+function applyAllFilters() {
+	if (totalChecked != 0)
+	Object.keys(divMap).forEach(k => {
+		// applyFilters(charIdMap[k],!divMap[k].classList.contains('hidden'))
+		opname = charIdMap[k]
+			if (opname in cardOperatorMap) {
+		cardOperatorMap[opname].forEach(j => {
+			updateFilterStatus(j, 0)
+		})
+	}
+	})
+}
 function updateFilterStatus(key, delta) {
 	// update filtering count for a card, if 0 will hide
 	filterStatus[key] += delta
 	if (0 == filterStatus[key]) {
-		showCard(key, false)
+		showCard(key, false ^ invertFilter)
 	} else {
-		showCard(key)
+		showCard(key, true ^ invertFilter)
 	}
 }
 
 function applyFilters(opname, checked) {
-	console.log(opname)
 	let prev = totalChecked
 	totalChecked += checked ? 1 : -1
 	console.log(totalChecked)
 	if (prev == 0 && totalChecked)
-		showAllCards(false)
+		showAllCards(false ^ invertFilter)
 
 	if (opname in cardOperatorMap) {
 		cardOperatorMap[opname].forEach(k => {
@@ -219,9 +237,8 @@ function applyFilters(opname, checked) {
 		})
 	}
 
-
 	if (0 == totalChecked)
-		showAllCards()
+		showAllCards(true)// special case, always show all when 0 checked //^ invertFilter)
 
 }
 

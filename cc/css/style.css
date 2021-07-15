@@ -168,7 +168,7 @@ html * {
 	margin: 8px;
 }
 #filterToggle {
-	margin-left: 12px;
+	margin-left: 8px;
 }
 body {
 	margin: 8px;
@@ -229,14 +229,18 @@ div.button:active,
 	display: none;
 }
 
-#filters {
-	display: inline;
+#filters,
+#filterToggle {
+	display: inline-block;
 }
 
 #filters.hidden,
 img.hidden,
 div.hidden {
 	display: none;
+}
+#legend {
+	margin: 8px 0 0 8px;
 }
 
 h1 {
