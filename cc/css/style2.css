@@ -20,3 +20,7 @@
 #info {
 	padding: 0 0 1em 0;
 }
+
+html {
+	overflow-y: auto;
+}
