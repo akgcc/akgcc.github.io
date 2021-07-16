@@ -179,7 +179,7 @@ function updateLightbox() {
 	if (totalChecked == 0)
 		lightbox.elements = lightboxElements
 	else
-		lightbox.elements = lightboxElements.filter(x => filterStatus[x.href.split('/').slice(-1)[0]] != 0)
+		lightbox.elements = lightboxElements.filter(x => (filterStatus[x.href.split('/').slice(-1)[0]] != 0) ^ invertFilter)
 }
 
 function showCard(key, show = true) {
