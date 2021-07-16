@@ -93,7 +93,6 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			cardDate = parseInt(k.split('.')[0])
 			if (cardDate) {
 				cardDate /= 1000
-				console.log(cardDate + ',' + cc_week_2)
 				if (cardDate > cc_week_2)
 					div.classList.add('week2')
 				if (cardDate < cc_day_1)
@@ -112,7 +111,6 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			headersMap[k].setAttribute('cardCount', headerCount[k])
 		})
 
-		console.log(headerCount)
 		// create filter
 		for (var key in operatorData) {
 			if (!all_ops.has(key))
@@ -126,7 +124,6 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		for (var key in operatorData) {
 			charIdMap[operatorData[key].name] = key;
 		}
-		console.log(cardOperatorMap)
 		let filtercontainer = document.getElementById('filters')
 		divMap = {}
 		Object.keys(operatorData).forEach(x => {
@@ -226,7 +223,6 @@ function updateFilterStatus(key, delta) {
 function applyFilters(opname, checked) {
 	let prev = totalChecked
 	totalChecked += checked ? 1 : -1
-	console.log(totalChecked)
 	if (prev == 0 && totalChecked)
 		showAllCards(false ^ invertFilter)
 
