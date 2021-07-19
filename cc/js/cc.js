@@ -16,17 +16,6 @@ const CCMAP = {
 		title: 'Operation Beta (CCβ)'
 	}
 }
-const CC_START_DATES = {
-	'#b': 1592002800, //2020 june 12 16:00 UTC-7
-	'#0': 1599750000, //2020 sept 10 8:00 UTC-7
-	'#1': 1605114000, //2020 nov 11 10:00 UTC-7
-	'#2': 1612458000, //2021 feb 4 10:00 UTC-7
-	'#3': 1622221200, //2021 may 28 10:00 UTC-7
-	'#4': 1626195600, //2021 july 13 10:00 UTC-7
-	// server reset and therefore week 2 is at 0400 UTC-7
-}
-// start + 7 days, mod 1 day, add 11 hrs
-// week2 = (ccstart + 604800) - (ccstart % (60*60*24)) + 39600
 
 const lightbox = GLightbox({
 	selector: '.glightbox',
@@ -39,7 +28,6 @@ if (!window.location.hash)
 CCTAG = CCMAP[window.location.hash].tag
 document.getElementById('pageTitle').innerHTML = CCMAP[window.location.hash].title
 document.getElementById('usageLink').href = './cc-usage.html' + window.location.hash
-CCSTART = CC_START_DATES[window.location.hash]
 var charIdMap = {}
 var cardOperatorMap = {}
 var filterStatus = {}
@@ -60,7 +48,25 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 	.then(res => res.json())
 	.then(js => {
 		cardData = js
-		s = Array.from(new Set(Object.values(js).map(x => x.risk))).sort((a, b) => (b - a))
+		// filter out duplicates, keep max 1 per group (day1,week1,week2)
+		dupe_groups = {}
+		Object.keys(cardData).forEach(x=>{
+			if (cardData[x].duplicate_of) {
+				dupe_groups[cardData[x].duplicate_of] = dupe_groups[cardData[x].duplicate_of] || {}
+				dupe_groups[cardData[x].duplicate_of][cardData[x].group] = (dupe_groups[cardData[x].duplicate_of][cardData[x].group] || []).concat([x])
+			}
+		})
+		Object.keys(dupe_groups).forEach(x=>{
+			dupe_groups[x][cardData[x].group] = (dupe_groups[x][cardData[x].group] || []).concat([x])
+		})
+		Object.values(dupe_groups).forEach(x=>{
+			Object.values(x).forEach(y=>{
+				y.sort((a,b)=>parseInt(b.split('.')[0])-parseInt(a.split('.')[0])).slice(1).forEach(z=>{
+					delete cardData[z]
+				})
+			})
+		})
+		s = Array.from(new Set(Object.values(cardData).map(x => x.risk))).sort((a, b) => (b - a))
 		let container = document.getElementById('cards')
 		s.forEach(risk => {
 			let div = document.createElement('div')
@@ -75,32 +81,26 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			headerCount[risk] = 0
 		})
 		let all_ops = new Set()
-		cc_week_2 = (CCSTART + 604800) - (CCSTART % (60 * 60 * 24)) + 39600
-		cc_day_1 = (CCSTART + 172800) - (CCSTART % (60 * 60 * 24)) + 39600
-		Object.keys(js).forEach(k => {
+		Object.keys(cardData).forEach(k => {
 			filterStatus[k] = 0
 			let div = document.createElement('div')
 			let a = document.createElement('a')
+			let is_dupe = cardData[k].duplicate_of !== undefined
+			if (is_dupe)
+				div.setAttribute('data-dupe',cardData[k].duplicate_of)
 			a.classList.add('glightbox')
 			a.setAttribute('data-gallery', 'gallery1')
-			a.href = './cropped' + CCTAG + '/' + k
+			a.href = './cropped' + CCTAG + '/' + (is_dupe ? 'duplicates/' : '') + k
 			let img = document.createElement('img')
 			img.src = './thumbs' + CCTAG + '/' + k
 			a.appendChild(img)
 			div.appendChild(a)
 			div.id = k
+			div.setAttribute('data-group',cardData[k].group)
 			div.classList.add('cardContainer')
-			cardDate = parseInt(k.split('.')[0])
-			if (cardDate) {
-				cardDate /= 1000
-				if (cardDate > cc_week_2)
-					div.classList.add('week2')
-				if (cardDate < cc_day_1)
-					div.classList.add('day1')
-			}
-			headersMap[js[k].risk].appendChild(div)
-			headerCount[js[k].risk] += 1
-			js[k]['squad'].forEach(op => {
+			headersMap[cardData[k].risk].appendChild(div)
+			headerCount[cardData[k].risk] += 1
+			cardData[k]['squad'].forEach(op => {
 				all_ops.add(op)
 				if (!(op in cardOperatorMap))
 					cardOperatorMap[op] = []
