@@ -11,6 +11,10 @@ const CCMAP = {
 		tag: '-cc2clear',
 		title: 'Operation Blade (CC#2)'
 	},
+	'#0': {
+		tag: '-cc0clear',
+		title: 'Operation Barrenland (CC#0)'
+	},
 	'#b': {
 		tag: '-ccb',
 		title: 'Operation Beta (CCβ)'
