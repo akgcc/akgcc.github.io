@@ -41,6 +41,7 @@ var headersMap = {}
 var headerCount = {}
 var filterSortType = true
 var invertFilter = false
+var includesAll = true
 var lightboxElements
 fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')
 // fetch('./character_table.json')
@@ -152,8 +153,17 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		}
 		document.getElementById('filterInvert').onclick = (e) => {
 			thisButton=e.target;
-			invertFilter = !invertFilter
-			thisButton.innerHTML = invertFilter ? "Excludes" : "Includes"
+			if (invertFilter) {
+				invertFilter = !invertFilter
+			}
+			else if (includesAll) {
+				includesAll = !includesAll
+			}
+			else {
+				invertFilter = !invertFilter
+				includesAll = !includesAll
+			}
+			thisButton.innerHTML = invertFilter ? "Excludes" : includesAll ? "Includes (All)" : "Includes (Any)"
 			applyAllFilters()
 		}
 
@@ -196,7 +206,6 @@ function showCard(key, show = true) {
 		if (!prev)
 			headerCount[cardData[key].risk] -= 1
 	}
-	updateLightbox()
 	if (0 == headerCount[cardData[key].risk])
 		headersMap[cardData[key].risk].classList.add('hidden')
 	else
@@ -220,7 +229,10 @@ function updateFilterStatus(key, delta) {
 	if (0 == filterStatus[key]) {
 		showCard(key, false ^ invertFilter)
 	} else {
-		showCard(key, true ^ invertFilter)
+		if (!invertFilter && includesAll)
+			showCard(key, filterStatus[key]==totalChecked)
+		else
+			showCard(key, true ^ invertFilter)
 	}
 }
 
@@ -233,19 +245,21 @@ function applyFilters(opname, checked) {
 	if (opname in cardOperatorMap) {
 		cardOperatorMap[opname].forEach(k => {
 			updateFilterStatus(k, checked ? 1 : -1)
-
 		})
 	}
-
+	if (!invertFilter && totalChecked)
+		applyAllFilters()
+	
 	if (0 == totalChecked)
 		showAllCards(true)// special case, always show all when 0 checked //^ invertFilter)
-
+	updateLightbox()
 }
 
 function showAllCards(show = true) {
 	Object.keys(cardData).forEach(k => {
 		showCard(k, show)
 	})
+	updateLightbox()
 }
 
 function CreateOpCheckbox(operator) {
