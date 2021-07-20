@@ -188,7 +188,7 @@ function resetFilters() {
 }
 
 function updateLightbox() {
-	// you can directly assing to lightbox.elements and its a bit quicker, but we avoid it as it might break something unknown
+	// you can directly assign to lightbox.elements and its a bit quicker, we avoid it as it might break something unknown
 	if (totalChecked == 0)
 		lightbox.setElements(lightboxElements)
 	else
@@ -227,25 +227,17 @@ function applyAllFilters() {
 	Object.keys(divMap).forEach(k => {
 		// applyFilters(charIdMap[k],!divMap[k].classList.contains('hidden'))
 		opname = charIdMap[k]
-			if (opname in cardOperatorMap) {
-		cardOperatorMap[opname].forEach(j => {
-			updateFilterStatus(j, 0)
-		})
-	}
+		if (opname in cardOperatorMap) {
+			cardOperatorMap[opname].forEach(j => {
+				updateFilterStatus(j, 0)
+			})
+		}
 	})
 }
 function updateFilterStatus(key, delta) {
-	// update filtering count for a card, if 0 will hide
+	// update filtering count for a card, then show/hide as necessary
 	filterStatus[key] += delta
 	showCard(key, _filterShouldShow(key))
-	// if (0 == filterStatus[key]) {
-		// showCard(key, false ^ invertFilter)
-	// } else {
-		// if (!invertFilter && includesAll)
-			// showCard(key, filterStatus[key]==totalChecked)
-		// else
-			// showCard(key, true ^ invertFilter)
-	// }
 }
 
 function applyFilters(opname, checked) {
