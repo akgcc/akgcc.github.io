@@ -165,6 +165,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			}
 			thisButton.innerHTML = invertFilter ? "Excludes" : includesAll ? "Includes (All)" : "Includes (Any)"
 			applyAllFilters()
+			updateLightbox()
 		}
 
 		document.getElementById('filterReset').onclick = resetFilters
@@ -187,10 +188,11 @@ function resetFilters() {
 }
 
 function updateLightbox() {
+	// you can directly assing to lightbox.elements and its a bit quicker, but we avoid it as it might break something unknown
 	if (totalChecked == 0)
-		lightbox.elements = lightboxElements
+		lightbox.setElements(lightboxElements)
 	else
-		lightbox.elements = lightboxElements.filter(x => (filterStatus[x.href.split('/').slice(-1)[0]] != 0) ^ invertFilter)
+		lightbox.setElements(lightboxElements.filter(x => (filterStatus[x.href.split('/').slice(-1)[0]] != 0) ^ invertFilter))
 }
 
 function showCard(key, show = true) {
@@ -259,7 +261,6 @@ function showAllCards(show = true) {
 	Object.keys(cardData).forEach(k => {
 		showCard(k, show)
 	})
-	updateLightbox()
 }
 
 function CreateOpCheckbox(operator) {
