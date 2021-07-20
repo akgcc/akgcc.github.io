@@ -49,12 +49,12 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 	.then(js => {
 		usedata = js;
 		Object.values(usedata).forEach(x => {
-			if (!x.duplicate_of) {
 				x['squad'].forEach(y => {
-					useCount[y] = (useCount[y] || 0) + 1
+					if (!x.duplicate_of) {
+						useCount[y] = (useCount[y] || 0) + 1
+					}
 					maxRisk[y] = Math.max(maxRisk[y] || 0, x.risk)
 				})
-			}
 		})
 		Object.keys(operatorData).forEach(x => {
 			useCountMap[operatorData[x].name] = useCount[x] || 0
