@@ -192,9 +192,18 @@ function updateLightbox() {
 	if (totalChecked == 0)
 		lightbox.setElements(lightboxElements)
 	else
-		lightbox.setElements(lightboxElements.filter(x => (filterStatus[x.href.split('/').slice(-1)[0]] != 0) ^ invertFilter))
+		lightbox.setElements(lightboxElements.filter(x => _filterShouldShow(x.href.split('/').slice(-1)[0])))
 }
 
+function _filterShouldShow(key) {
+	if (totalChecked==0)
+		return true
+	if (filterStatus[key]==0)
+		return false ^ invertFilter
+	if (!invertFilter && includesAll)
+		return filterStatus[key]==totalChecked
+	return true ^ invertFilter
+}
 function showCard(key, show = true) {
 	let prev = document.getElementById(key).classList.contains('hidden')
 	if (show) {
@@ -228,14 +237,15 @@ function applyAllFilters() {
 function updateFilterStatus(key, delta) {
 	// update filtering count for a card, if 0 will hide
 	filterStatus[key] += delta
-	if (0 == filterStatus[key]) {
-		showCard(key, false ^ invertFilter)
-	} else {
-		if (!invertFilter && includesAll)
-			showCard(key, filterStatus[key]==totalChecked)
-		else
-			showCard(key, true ^ invertFilter)
-	}
+	showCard(key, _filterShouldShow(key))
+	// if (0 == filterStatus[key]) {
+		// showCard(key, false ^ invertFilter)
+	// } else {
+		// if (!invertFilter && includesAll)
+			// showCard(key, filterStatus[key]==totalChecked)
+		// else
+			// showCard(key, true ^ invertFilter)
+	// }
 }
 
 function applyFilters(opname, checked) {
