@@ -224,6 +224,7 @@ div.button,
 	div.button:hover {
 		color: black;
 		background-color: white;
+		text-shadow: none;
 	}
 }
 
@@ -231,6 +232,15 @@ div.button:active,
 .floatButton:active {
 	color: black;
 	background: #cccccc;
+}
+
+div.button.disabled {
+	border: 1px solid gray;
+}
+
+div.button.disabled.legend {
+	text-shadow: none;
+	opacity: .5;
 }
 
 #homeButton {

@@ -42,6 +42,7 @@ var headerCount = {}
 var filterSortType = true
 var invertFilter = false
 var includesAll = true
+var weekFilter = 7
 var lightboxElements
 fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')
 // fetch('./character_table.json')
@@ -136,8 +137,15 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		})
 		Object.values(operatorData).sort((a, b) => a.name > b.name ? 1 : -1).forEach((x, i) => divMap[x.name].style.order = i);
 
-
 		//click listeners
+		Array.from(document.getElementsByClassName('weekFilter')).forEach(x=>{
+			x.onclick = (e) => {
+				weekFilter ^= 2**(e.target.getAttribute('data-group'))
+				x.classList.toggle('disabled')
+				applyAllFilters()
+				updateLightbox()
+			}
+		})
 		document.getElementById('filterToggle').onclick = () => {
 			filtercontainer.classList.toggle('hidden')
 			document.getElementById('checkboxes').classList.toggle('hidden')
@@ -175,6 +183,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 
 function resetFilters() {
 	totalChecked = 0
+	weekFilter = 7
 	Object.keys(headersMap).forEach(k => {
 		headerCount[k] = parseInt(headersMap[k].getAttribute('cardCount'))
 	})
@@ -184,25 +193,24 @@ function resetFilters() {
 	})
 	Array.from(document.getElementsByClassName('operatorCheckbox')).forEach(x => x.classList.remove('_selected'))
 	Array.from(document.getElementsByClassName('riskHeader')).forEach(x => x.classList.remove('hidden'))
+	Array.from(document.getElementsByClassName('weekFilter')).forEach(x => x.classList.remove('disabled'))
 	updateLightbox()
 }
 
 function updateLightbox() {
 	// you can directly assign to lightbox.elements and its a bit quicker, we avoid it as it might break something unknown
-	if (totalChecked == 0)
-		lightbox.setElements(lightboxElements)
-	else
-		lightbox.setElements(lightboxElements.filter(x => _filterShouldShow(x.href.split('/').slice(-1)[0])))
+	lightbox.setElements(lightboxElements.filter(x => _filterShouldShow(x.href.split('/').slice(-1)[0])))
 }
 
 function _filterShouldShow(key) {
+	let shouldShow = 2**document.getElementById(key).getAttribute('data-group') & weekFilter
 	if (totalChecked==0)
-		return true
+		return shouldShow && true 
 	if (filterStatus[key]==0)
-		return false ^ invertFilter
+		return shouldShow && (false ^ invertFilter)
 	if (!invertFilter && includesAll)
-		return filterStatus[key]==totalChecked
-	return true ^ invertFilter
+		return shouldShow && (filterStatus[key]==totalChecked)
+	return shouldShow && (true ^ invertFilter)
 }
 function showCard(key, show = true) {
 	let prev = document.getElementById(key).classList.contains('hidden')
@@ -223,9 +231,7 @@ function showCard(key, show = true) {
 		headersMap[cardData[key].risk].classList.remove('hidden')
 }
 function applyAllFilters() {
-	if (totalChecked != 0)
 	Object.keys(divMap).forEach(k => {
-		// applyFilters(charIdMap[k],!divMap[k].classList.contains('hidden'))
 		opname = charIdMap[k]
 		if (opname in cardOperatorMap) {
 			cardOperatorMap[opname].forEach(j => {
@@ -243,8 +249,8 @@ function updateFilterStatus(key, delta) {
 function applyFilters(opname, checked) {
 	let prev = totalChecked
 	totalChecked += checked ? 1 : -1
-	if (prev == 0 && totalChecked)
-		showAllCards(false ^ invertFilter)
+	if (totalChecked == checked) //went from 0 to 1
+		applyAllFilters()
 
 	if (opname in cardOperatorMap) {
 		cardOperatorMap[opname].forEach(k => {
@@ -255,14 +261,8 @@ function applyFilters(opname, checked) {
 		applyAllFilters()
 	
 	if (0 == totalChecked)
-		showAllCards(true)// special case, always show all when 0 checked //^ invertFilter)
+		applyAllFilters()
 	updateLightbox()
-}
-
-function showAllCards(show = true) {
-	Object.keys(cardData).forEach(k => {
-		showCard(k, show)
-	})
 }
 
 function CreateOpCheckbox(operator) {
