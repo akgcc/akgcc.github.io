@@ -218,7 +218,11 @@ div.button,
 	line-height: 1.5em;
 	height: 1.5em;
 	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
+
 @media (hover: hover) {
 	.floatButton:hover,
 	div.button:hover {
@@ -243,8 +247,11 @@ div.button.disabled.legend {
 	opacity: .5;
 }
 
-#homeButton {
-	top: 2.5em;
+a #homeButton.floatButton {
+	top: 2.2em;
+	height: 1.5em;
+	width: 1.5em;
+	padding: 0;
 }
 
 #checkboxes.hidden {
