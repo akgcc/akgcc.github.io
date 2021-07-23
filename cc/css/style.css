@@ -345,20 +345,21 @@ div.button.disabled.legend {
 }
 /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
 .filterSlider::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Override default look */
+  -webkit-appearance: none; 
   appearance: none;
-  width: 1.3em; /* Set a specific slider handle width */
-  height: 1.3em; /* Slider handle height */
-  background: #dddddd; /* Green background */
-  cursor: pointer; /* Cursor on hover */
- border-radius: 50%;
+  width: 1.3em;
+  height: 1.3em; 
+  background: #dddddd; 
+  cursor: pointer;
+  border-radius: 50%;
 }
 
 .filterSlider::-moz-range-thumb {
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
-  background: #04aa6d; /* Green background */
-  cursor: pointer; /* Cursor on hover */
+  width: 1.3em;
+  height: 1.3em;
+  background: #dddddd;
+  cursor: pointer;
+  border-radius: 50%;
 }
 
 #raritySlider {
