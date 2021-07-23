@@ -22,9 +22,22 @@
 }
 
 #info {
-	padding: 0 0 1em 0;
+	padding: 1em 0 1em 0;
+}
+
+#info,
+#sort {
+	padding-left: 8px;
 }
 
 html {
 	overflow-y: auto;
 }
+
+#pageTitle {
+	flex-grow: 1;
+}
+
+/* body { */
+	/* margin: 0 8px; */
+/* } */

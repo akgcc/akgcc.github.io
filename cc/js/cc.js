@@ -39,13 +39,16 @@ var totalChecked = 0
 var cardData
 var headersMap = {}
 var headerCount = {}
+var riskMap = {}
 var filterSortType = true
 var invertFilter = false
 var includesAll = true
 var weekFilter = 7
+var maxOpCount = 13
+var maxAvgRarity = 6
 var lightboxElements
 fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')
-// fetch('./character_table.json')
+	// fetch('./character_table.json')
 	.then(res => res.json())
 	.then(js => {
 		operatorData = js;
@@ -56,18 +59,18 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		cardData = js
 		// filter out duplicates, keep max 1 per group (day1,week1,week2)
 		dupe_groups = {}
-		Object.keys(cardData).forEach(x=>{
+		Object.keys(cardData).forEach(x => {
 			if (cardData[x].duplicate_of) {
 				dupe_groups[cardData[x].duplicate_of] = dupe_groups[cardData[x].duplicate_of] || {}
 				dupe_groups[cardData[x].duplicate_of][cardData[x].group] = (dupe_groups[cardData[x].duplicate_of][cardData[x].group] || []).concat([x])
 			}
 		})
-		Object.keys(dupe_groups).forEach(x=>{
+		Object.keys(dupe_groups).forEach(x => {
 			dupe_groups[x][cardData[x].group] = (dupe_groups[x][cardData[x].group] || []).concat([x])
 		})
-		Object.values(dupe_groups).forEach(x=>{
-			Object.values(x).forEach(y=>{
-				y.sort((a,b)=>parseInt(b.split('.')[0])-parseInt(a.split('.')[0])).slice(1).forEach(z=>{
+		Object.values(dupe_groups).forEach(x => {
+			Object.values(x).forEach(y => {
+				y.sort((a, b) => parseInt(b.split('.')[0]) - parseInt(a.split('.')[0])).slice(1).forEach(z => {
 					delete cardData[z]
 				})
 			})
@@ -75,15 +78,22 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		s = Array.from(new Set(Object.values(cardData).map(x => x.risk))).sort((a, b) => (b - a))
 		let container = document.getElementById('cards')
 		s.forEach(risk => {
+			let wrap = document.createElement('div')
+			wrap.classList.add('riskWrapper')
 			let div = document.createElement('div')
-			div.classList.add('riskHeader')
+			div.classList.add('riskContainer')
+			let div2 = document.createElement('div')
+			div2.classList.add('riskHeader')
 			let span = document.createElement('span')
 			span.innerHTML = 'RISK ' + risk
 			let hl = document.createElement('hr')
-			div.appendChild(span)
-			div.appendChild(hl)
-			container.appendChild(div)
+			div2.appendChild(span)
+			div2.appendChild(hl)
+			wrap.appendChild(div2)
+			wrap.appendChild(div)
+			container.appendChild(wrap)
 			headersMap[risk] = div
+			riskMap[risk] = wrap
 			headerCount[risk] = 0
 		})
 		let all_ops = new Set()
@@ -93,7 +103,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			let a = document.createElement('a')
 			let is_dupe = cardData[k].duplicate_of !== undefined
 			if (is_dupe)
-				div.setAttribute('data-dupe',cardData[k].duplicate_of)
+				div.setAttribute('data-dupe', cardData[k].duplicate_of)
 			a.classList.add('glightbox')
 			a.setAttribute('data-gallery', 'gallery1')
 			a.href = './cropped' + CCTAG + '/' + (is_dupe ? 'duplicates/' : '') + k
@@ -102,7 +112,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			a.appendChild(img)
 			div.appendChild(a)
 			div.id = k
-			div.setAttribute('data-group',cardData[k].group)
+			div.setAttribute('data-group', cardData[k].group)
 			div.classList.add('cardContainer')
 			headersMap[cardData[k].risk].appendChild(div)
 			headerCount[cardData[k].risk] += 1
@@ -113,8 +123,8 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 				cardOperatorMap[op].push(k)
 			})
 		})
-		Object.keys(headersMap).forEach(k => {
-			headersMap[k].setAttribute('cardCount', headerCount[k])
+		Object.keys(riskMap).forEach(k => {
+			riskMap[k].setAttribute('cardCount', headerCount[k])
 		})
 
 		// create filter
@@ -130,7 +140,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		for (var key in operatorData) {
 			charIdMap[operatorData[key].name] = key;
 		}
-		let filtercontainer = document.getElementById('filters')
+		var filtercontainer = document.getElementById('filters')
 		divMap = {}
 		Object.keys(operatorData).forEach(x => {
 			divMap[operatorData[x].name] = CreateOpCheckbox(x);
@@ -138,18 +148,61 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		Object.values(operatorData).sort((a, b) => a.name > b.name ? 1 : -1).forEach((x, i) => divMap[x.name].style.order = i);
 
 		//click listeners
-		Array.from(document.getElementsByClassName('weekFilter')).forEach(x=>{
+		Array.from(document.getElementsByClassName('weekFilter')).forEach(x => {
 			x.onclick = (e) => {
-				weekFilter ^= 2**(e.target.getAttribute('data-group'))
+				weekFilter ^= 2 ** (e.currentTarget.getAttribute('data-group'))
 				x.classList.toggle('disabled')
 				applyAllFilters()
 				updateLightbox()
 			}
 		})
-		document.getElementById('filterToggle').onclick = () => {
+		// let stylesheet = document.createElement('style')
+		// document.head.appendChild(stylesheet)
+		// new ResizeObserver(()=>{
+		// stylesheet.sheet.insertRule("@media (hover: hover) { body #filters.hidden {"+"top: calc(-"+(filtercontainer.offsetHeight-10)+"px + var(--topNav-height) + 10px);"+"}}", 0);
+		// }).observe(filtercontainer)
+		var filtertoggle = document.getElementById('filterToggle')
+		window.onscroll = () => {
+			if ((window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop) > filtercontainer.offsetHeight) {
+				filtercontainer.classList.add('canSlide')
+				filtertoggle.classList.remove('hidden')
+			}
+			else {
+				filtercontainer.classList.remove('canSlide')
+				filtertoggle.classList.add('hidden')
+			}
+			
+		}
+
+		let rarityDisp = document.getElementById('rarityDisp')
+		document.getElementById('raritySlider').oninput = function() {
+			rarityDisp.innerHTML = this.value;
+			maxAvgRarity = this.value;
+			applyAllFilters()
+			updateLightbox()
+		}
+		let opcountDisp = document.getElementById('opcountDisp')
+		document.getElementById('opcountSlider').oninput = function() {
+			opcountDisp.innerHTML = this.value;
+			maxOpCount = this.value;
+			applyAllFilters()
+			updateLightbox()
+		}
+		filtertoggle.onclick = (e) => {
+			if (e.currentTarget.querySelector("i").classList.contains('fa-caret-up')) {
+				e.currentTarget.querySelector("i").classList.remove('fa-caret-up')
+				e.currentTarget.querySelector("i").classList.add('fa-caret-down')
+				filtercontainer.classList.remove('canSlide')
+				var canSlideOnLeave = (e) => {
+					filtercontainer.classList.add('canSlide')
+					filtertoggle.removeEventListener('mouseleave', canSlideOnLeave)
+				}
+				filtertoggle.addEventListener('mouseleave', canSlideOnLeave)
+			} else {
+				e.currentTarget.querySelector("i").classList.add('fa-caret-up')
+				e.currentTarget.querySelector("i").classList.remove('fa-caret-down')
+			}
 			filtercontainer.classList.toggle('hidden')
-			document.getElementById('checkboxes').classList.toggle('hidden')
-			document.getElementById('filterToggle').innerHTML = filtercontainer.classList.contains('hidden') ? "Show Filters" : "Hide Filters"
 		}
 		document.getElementById('filterSort').onclick = () => {
 			filterSortType = !filterSortType
@@ -160,14 +213,12 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 					a.rarity == b.rarity ? (a.name > b.name ? 1 : -1) : (a.rarity < b.rarity ? 1 : -1)).forEach((x, i) => divMap[x.name].style.order = i);
 		}
 		document.getElementById('filterInvert').onclick = (e) => {
-			thisButton=e.target;
+			thisButton = e.currentTarget;
 			if (invertFilter) {
 				invertFilter = !invertFilter
-			}
-			else if (includesAll) {
+			} else if (includesAll) {
 				includesAll = !includesAll
-			}
-			else {
+			} else {
 				invertFilter = !invertFilter
 				includesAll = !includesAll
 			}
@@ -184,16 +235,23 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 function resetFilters() {
 	totalChecked = 0
 	weekFilter = 7
-	Object.keys(headersMap).forEach(k => {
-		headerCount[k] = parseInt(headersMap[k].getAttribute('cardCount'))
+	Object.keys(riskMap).forEach(k => {
+		headerCount[k] = parseInt(riskMap[k].getAttribute('cardCount'))
+		riskMap[k].classList.remove('hidden')
 	})
 	Object.keys(filterStatus).forEach(k => filterStatus[k] = 0)
 	Object.keys(cardData).forEach(k => {
 		document.getElementById(k).classList.remove('hidden')
 	})
 	Array.from(document.getElementsByClassName('operatorCheckbox')).forEach(x => x.classList.remove('_selected'))
-	Array.from(document.getElementsByClassName('riskHeader')).forEach(x => x.classList.remove('hidden'))
+	Array.from(document.getElementsByClassName('riskContainer')).forEach(x => x.classList.remove('hidden'))
 	Array.from(document.getElementsByClassName('weekFilter')).forEach(x => x.classList.remove('disabled'))
+	document.getElementById('opcountSlider').value = 13
+	document.getElementById('opcountDisp').innerHTML = 13
+	maxOpCount = 13;
+	document.getElementById('raritySlider').value = 6
+	document.getElementById('rarityDisp').innerHTML = 6
+	maxAvgRarity = 6
 	updateLightbox()
 }
 
@@ -203,15 +261,18 @@ function updateLightbox() {
 }
 
 function _filterShouldShow(key) {
-	let shouldShow = 2**document.getElementById(key).getAttribute('data-group') & weekFilter
-	if (totalChecked==0)
-		return shouldShow && true 
-	if (filterStatus[key]==0)
+	let shouldShow = 2 ** document.getElementById(key).getAttribute('data-group') & weekFilter
+	shouldShow = shouldShow && (cardData[key].opcount <= maxOpCount)
+	shouldShow = shouldShow && (cardData[key].avgRarity <= maxAvgRarity)
+	if (totalChecked == 0)
+		return shouldShow && true
+	if (filterStatus[key] == 0)
 		return shouldShow && (false ^ invertFilter)
 	if (!invertFilter && includesAll)
-		return shouldShow && (filterStatus[key]==totalChecked)
+		return shouldShow && (filterStatus[key] == totalChecked)
 	return shouldShow && (true ^ invertFilter)
 }
+
 function showCard(key, show = true) {
 	let prev = document.getElementById(key).classList.contains('hidden')
 	if (show) {
@@ -226,20 +287,17 @@ function showCard(key, show = true) {
 			headerCount[cardData[key].risk] -= 1
 	}
 	if (0 == headerCount[cardData[key].risk])
-		headersMap[cardData[key].risk].classList.add('hidden')
+		riskMap[cardData[key].risk].classList.add('hidden')
 	else
-		headersMap[cardData[key].risk].classList.remove('hidden')
+		riskMap[cardData[key].risk].classList.remove('hidden')
 }
+
 function applyAllFilters() {
-	Object.keys(divMap).forEach(k => {
-		opname = charIdMap[k]
-		if (opname in cardOperatorMap) {
-			cardOperatorMap[opname].forEach(j => {
-				updateFilterStatus(j, 0)
-			})
-		}
+	Object.keys(filterStatus).forEach(key => {
+		showCard(key, _filterShouldShow(key))
 	})
 }
+
 function updateFilterStatus(key, delta) {
 	// update filtering count for a card, then show/hide as necessary
 	filterStatus[key] += delta
@@ -259,7 +317,7 @@ function applyFilters(opname, checked) {
 	}
 	if (!invertFilter && totalChecked)
 		applyAllFilters()
-	
+
 	if (0 == totalChecked)
 		applyAllFilters()
 	updateLightbox()
@@ -288,4 +346,3 @@ function CreateOpCheckbox(operator) {
 	document.getElementById("checkboxes").appendChild(checkboxDiv);
 	return checkboxDiv;
 }
-

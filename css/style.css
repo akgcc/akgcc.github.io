@@ -2,3 +2,10 @@ img {
 	width:120px;
 	height:120px;
 }
+#cc {
+	display: flex;
+	padding: 8px;
+}
+#cc a {
+	margin: 8px;
+}

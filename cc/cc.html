@@ -1,31 +1,61 @@
 <html>
-<head>
-<link type="text/css" href="./css/style.css" rel="stylesheet"/>
-<link type="text/css" href="./css/glightbox.min.css" rel="stylesheet"/>
-<link type="text/css" rel="stylesheet" href="./css/all.min.css"/>
-<script type="text/javascript" src="./js/glightbox.min.js"></script>
-</head>
-<body ontouchstart>
-<a id="usageLink" href="./cc-usage.html">
-<div class="floatButton" id="usageButton">Operator Usage</div>
-</a>
-<a href="./../index.html">
-<div class="floatButton" id="homeButton"><i class="fas fa-home"></i></div>
-</a>
-<h1 id="pageTitle">CC Clears</h1>
-<div class="button" id="filterToggle">Hide Filters</div>
-<div id="filters">
-<div class="button" id="filterSort">Sort</div>
-<div class="button" id="filterReset">Reset</div>
-<div class="button" id="filterInvert">Includes (All)</div>
-</div>
-<div id="checkboxes"></div>
-<div id="legend">
-<div class="legend day1 button weekFilter" data-group=0>Day 1</div>
-<div class="legend week1 button weekFilter" data-group=1>Week 1</div>
-<div class="legend week2 button weekFilter" data-group=2>Week 2</div>
-</div>
-<div id="cards"></div>
-<script type="text/javascript" src="./js/cc.js"></script>
-</body>
+  <head>
+    <link type="text/css" href="./css/style.css" rel="stylesheet" />
+    <link type="text/css" href="./css/glightbox.min.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="./css/all.min.css" />
+    <script type="text/javascript" src="./js/glightbox.min.js"></script>
+  </head>
+  <body ontouchstart>
+    <div id="topNav">
+      <span id="pageTitle"></span>
+      <div id="legend">
+        <div class="legend day1 button weekFilter" data-group="0">Day 1</div>
+        <div class="legend week1 button weekFilter" data-group="1">Week 1</div>
+        <div class="legend week2 button weekFilter" data-group="2">Week 2</div>
+      </div>
+      <div class="button iconButton rightButton hidden" id="filterToggle">
+        <i class="fas fa-caret-down"></i>
+      </div>
+      <a class="rightButton" id="usageLink" href="./cc-usage.html">
+        <div class="button" id="usageButton">Operator Usage</div>
+      </a>
+      <a class="rightButton" href="./../index.html">
+        <div class="button iconButton" id="homeButton">
+          <i class="fas fa-home"></i>
+        </div>
+      </a>
+    </div>
+    <!-- <div class="button" id="filterToggle">Hide Filters</div> -->
+    <div id="filters" class="hidden">
+      <div class="button" id="filterSort">Sort</div>
+      <div class="button" id="filterReset">Reset</div>
+      <div class="button" id="filterInvert">Includes (All)</div>
+      <div class="sliderBox" id="filterRarity">
+        <span>Average Rarity: </span><span id="rarityDisp">6</span>
+        <input
+          class="filterSlider"
+          id="raritySlider"
+          type="range"
+          min="1"
+          max="6"
+          value="6"
+        />
+      </div>
+      <div class="sliderBox" id="filterOpCount">
+        <span>Operators: </span><span id="opcountDisp">13</span>
+        <input
+          class="filterSlider"
+          id="opcountSlider"
+          type="range"
+          min="1"
+          max="13"
+          value="13"
+        />
+      </div>
+      <div id="checkboxes"></div>
+    </div>
+
+    <div id="cards"></div>
+    <script type="text/javascript" src="./js/cc.js"></script>
+  </body>
 </html>
