@@ -189,19 +189,17 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			updateLightbox()
 		}
 		filtertoggle.onclick = (e) => {
-			if (e.currentTarget.querySelector("i").classList.contains('fa-caret-up')) {
-				e.currentTarget.querySelector("i").classList.remove('fa-caret-up')
-				e.currentTarget.querySelector("i").classList.add('fa-caret-down')
+			icon = e.currentTarget.querySelector("i")
+			if (icon.classList.contains('fa-caret-up')) {
 				filtercontainer.classList.remove('canSlide')
 				var canSlideOnLeave = (e) => {
 					filtercontainer.classList.add('canSlide')
 					filtertoggle.removeEventListener('mouseleave', canSlideOnLeave)
 				}
 				filtertoggle.addEventListener('mouseleave', canSlideOnLeave)
-			} else {
-				e.currentTarget.querySelector("i").classList.add('fa-caret-up')
-				e.currentTarget.querySelector("i").classList.remove('fa-caret-down')
 			}
+			icon.classList.toggle('fa-caret-up')
+			icon.classList.toggle('fa-caret-down')
 			filtercontainer.classList.toggle('hidden')
 		}
 		document.getElementById('filterSort').onclick = () => {
