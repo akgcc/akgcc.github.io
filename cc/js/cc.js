@@ -166,7 +166,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		// stylesheet.sheet.insertRule("@media (hover: hover) { body #filters.hidden {"+"top: calc(-"+(filtercontainer.offsetHeight-10)+"px + var(--topNav-height) + 10px);"+"}}", 0);
 		// }).observe(filtercontainer)
 		var filtertoggle = document.getElementById('filterToggle')
-		window.onscroll = () => {
+		function adjustBasedOnScroll () {
 			if ((window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop) > filtercontainer.offsetHeight) {
 				filtercontainer.classList.add('canSlide')
 				filtertoggle.classList.remove('hidden')
@@ -177,6 +177,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			}
 			
 		}
+		window.onscroll = adjustBasedOnScroll
 
 		let rarityDisp = document.getElementById('rarityDisp')
 		document.getElementById('raritySlider').oninput = function() {
@@ -197,13 +198,14 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			if (icon.classList.contains('fa-caret-up')) {
 				filtercontainer.classList.remove('canSlide')
 				var canSlideOnLeave = (e) => {
-					filtercontainer.classList.add('canSlide')
+					adjustBasedOnScroll()
 					filtertoggle.removeEventListener('mouseleave', canSlideOnLeave)
 				}
 				filtertoggle.addEventListener('mouseleave', canSlideOnLeave)
 			}
 			icon.classList.toggle('fa-caret-up')
 			icon.classList.toggle('fa-caret-down')
+			filtertoggle.classList.toggle('forceShow')
 			filtercontainer.classList.toggle('hidden')
 		}
 		document.getElementById('filterSort').onclick = () => {

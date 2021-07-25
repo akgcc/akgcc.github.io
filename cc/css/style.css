@@ -203,7 +203,6 @@ html * {
   left: 0;
 }
 
-#filters,
 .riskHeader span {
   padding: 0 8px;
 }
@@ -299,6 +298,7 @@ div.button.disabled.legend {
 }
 #filters {
   z-index: 3;
+  width:100%;
   position: -webkit-sticky;
   position: sticky;
   padding-top: 5px;
@@ -314,9 +314,11 @@ div.button.disabled.legend {
   body #topNav:hover + #filters.hidden.canSlide {
     top: calc(10px + var(--topNav-height));
   }
-  body #filters.canSlide {
+  body #filters.canSlide,
+  body #filters:not(.canSlide):not(.hidden) {
     border-bottom: 1px solid white;
     margin-bottom: -1px;
+    box-shadow: 0 3px 8px #222222;
   }
 }
 #filters.hidden {
@@ -374,8 +376,8 @@ div.button.disabled.legend {
   text-align: right;
 }
 
-img.hidden,
-div.hidden {
+img.hidden:not(.forceShow),
+div.hidden:not(.forceShow) {
   display: none;
 }
 #legend {
