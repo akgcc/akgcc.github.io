@@ -1,30 +1,3 @@
-const CCMAP = {
-	'#4': {
-		tag: '-cc4clear',
-		title: 'Operation Lead Seal (CC#4)'
-	},
-	'#3': {
-		tag: '-cc3clear',
-		title: 'Operation Cinder (CC#3)'
-	},
-	'#2': {
-		tag: '-cc2clear',
-		title: 'Operation Blade (CC#2)'
-	},
-	'#1': {
-		tag: '-cc1clear',
-		title: 'Operation Pyrite (CC#1)'
-	},
-	'#0': {
-		tag: '-cc0clear',
-		title: 'Operation Barrenland (CC#0)'
-	},
-	'#b': {
-		tag: '-ccb',
-		title: 'Operation Beta (CCβ)'
-	}
-}
-
 const lightbox = GLightbox({
 	selector: '.glightbox',
 	touchNavigation: true,
@@ -33,8 +6,8 @@ const lightbox = GLightbox({
 });
 if (!window.location.hash)
 	window.location.hash = '#4'
-CCTAG = CCMAP[window.location.hash].tag
-document.getElementById('pageTitle').innerHTML = CCMAP[window.location.hash].title
+
+
 document.getElementById('usageLink').href = './cc-usage.html' + window.location.hash
 var charIdMap = {}
 var cardOperatorMap = {}
@@ -51,8 +24,14 @@ var weekFilter = 7
 var maxOpCount = 13
 var maxAvgRarity = 6
 var lightboxElements
-fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')
-	// fetch('./character_table.json')
+var CCTAG
+fetch('./cctitles.json')
+.then(res => res.json())
+.then(json => {
+CCMAP = json; 
+CCTAG = CCMAP[window.location.hash].tag
+document.getElementById('pageTitle').innerHTML = CCMAP[window.location.hash].title
+return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')})
 	.then(res => res.json())
 	.then(js => {
 		operatorData = js;

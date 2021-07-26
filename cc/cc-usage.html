@@ -3,6 +3,7 @@
     <link type="text/css" href="./css/style.css" rel="stylesheet" />
     <link type="text/css" href="./css/style2.css" rel="stylesheet" />
     <link type="text/css" rel="stylesheet" href="./css/all.min.css" />
+	<script type="text/javascript" src="./js/Chart.2.8.0.min.js"></script>
   </head>
   <body ontouchstart>
     <div id="topNav">
@@ -17,17 +18,23 @@
       </a>
     </div>
     <div id="info">
+	<span>Risk 18+, duplicates not included</span><br />
       <span>Left: Highest risk achieved</span><br />
       <span>Right: Total appearances</span>
     </div>
+	<div id="chartjs-tooltip"></div>
     <div id="sort">
       Sort By:
       <div class="sorter button" id="s_name">Name</div>
       <div class="sorter button" id="s_rarity">Rarity</div>
-      <div class="sorter button" id="s_uses">Uses</div>
+      <div class="sorter button checked" id="s_uses">Uses</div>
       <div class="sorter button" id="s_maxrisk">Highest Risk</div>
+	  <div class="sorter button" id="viewType">View: Chart</div>
     </div>
-    <div id="checkboxes"></div>
-    <script type="text/javascript" src="./js/usage.js"></script>
+	<div id="chartDiv">
+	<canvas id="opChart"></canvas>
+	</div>
+    <div id="checkboxes" class="hidden"></div>
+	<script type="text/javascript" src="./js/usage.js"></script>
   </body>
 </html>

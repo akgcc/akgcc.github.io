@@ -264,7 +264,8 @@ body {
   }
 }
 
-div.button:active {
+div.button:active,
+div.button.checked {
   color: black;
   background: #cccccc;
 }
