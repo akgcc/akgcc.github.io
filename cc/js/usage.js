@@ -59,19 +59,18 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
             return
         }
         tooltipEl.classList.remove('hidden')
-        // tooltipEl.classList.remove('above');
-        // tooltipEl.classList.remove('below');
-        // tooltipEl.classList.add(tooltip.yAlign);
-        var innerHtml = '<img src="https://aceship.github.io/AN-EN-Tags/img/avatars/' + charIdMap[tooltip.title[0]] + '.png"> <div> <span><b>' + tooltip.title[0] + '</b></span>';
+        tooltipEl.style.cssText = ''
+        var innerHtml = ''
+        let rpos = tooltip.width - (tooltip.caretX - tooltip.x) + 50 - 10 // image is 50px, caret is 10px
+        innerHtml = '<span class="caret x' + tooltip.xAlign + ' y' + tooltip.yAlign + '" style="right: ' + rpos + 'px; "></span><img src="https://aceship.github.io/AN-EN-Tags/img/avatars/' + charIdMap[tooltip.title[0]] + '.png"> <div> <span><b>' + tooltip.title[0] + '</b></span>';
         for (const [i, b] of tooltip.body.entries()) {
             innerHtml += '<span><i class="fas fa-square-full" style="color: ' + tooltip.labelColors[i].backgroundColor + '; font-size:' + (parseInt(tooltip.bodyFontSize) - 2) + '"></i>' + b.lines[0] + '</span>'
         }
         innerHtml += '</div>'
-
         tooltipEl.innerHTML = innerHtml
-        tooltipEl.style.opacity = 1,
-            tooltipEl.style.left = document.getElementById('opChart').offsetLeft + barGraph.chartArea.left + tooltip.x + 'px',
-            tooltipEl.style.top = document.getElementById('opChart').offsetTop + barGraph.chartArea.top + tooltip.y + 'px',
+        tooltipEl.style.opacity = 1
+        tooltipEl.style.right = 'max( calc(100% - ' + (parseInt(document.getElementById('opChart').offsetLeft) + parseInt(tooltip.x) + parseInt(tooltip.width) + 50) + 'px), 8px)'
+        tooltipEl.style.top = document.getElementById('opChart').offsetTop + tooltip.y + 'px',
             tooltipEl.style.fontFamily = tooltip._bodyFontFamily,
             tooltipEl.style.fontSize = tooltip.bodyFontSize,
             tooltipEl.style.fontStyle = tooltip._bodyFontStyle
@@ -103,7 +102,8 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
             tooltips: {
                 enabled: false,
                 position: 'nearest',
-                custom: ttfunc
+                custom: ttfunc,
+                xAlign: 'left'
             },
             maintainAspectRatio: false,
             responsive: true,

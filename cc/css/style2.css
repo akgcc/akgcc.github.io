@@ -38,14 +38,30 @@ html {
 	flex-grow: 1;
 }
 
-/* body { */
-	/* margin: 0 8px; */
-/* } */
-
 #chartDiv {
 	height: 2500px;
 }
-
+#chartjs-tooltip .caret {
+	position: absolute;
+	width: 0;
+	height: 0;
+	display: inline-block;
+	border: 5px solid transparent;
+	margin:0;
+}
+#chartjs-tooltip .caret.ytop {
+	top: -10px;
+	border-bottom-color: rgba(0, 0, 0, .7);
+}
+#chartjs-tooltip .caret.ybottom {
+	top: 100%;
+	border-top-color: rgba(0, 0, 0, .7);
+}
+#chartjs-tooltip .caret.ycenter {
+	top: calc(50% - 5px);
+	margin-left: 2px;
+	border-right-color: rgba(0, 0, 0, .7);
+}
 #chartjs-tooltip {
 	display: flex;
 	opacity: 0;
@@ -57,8 +73,6 @@ html {
      /* -webkit-transition: all .1s ease; */
      /* transition: all .1s ease; */
 	pointer-events: none;
-	-webkit-transform: translate(-50%, 0);
-	transform: translate(-50%, 0);
 	width: fit-content;
 }
 
@@ -67,7 +81,7 @@ html {
 }
 
 #chartjs-tooltip > img {
-	height: 4em;
+	height: 50px;
 	float: left;
 }
 
