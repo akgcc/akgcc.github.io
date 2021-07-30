@@ -283,7 +283,15 @@ div.button.disabled.legend {
   align-self: center;
   margin-right: 5px;
 }
-
+#topNav,
+#filters,
+#cards {
+user-select: none;
+-moz-user-select: none;
+-khtml-user-select: none;
+-webkit-user-select: none;
+-o-user-select: none;
+}
 #topNav {
   background: var(--main-background-color);
   overflow: hidden;

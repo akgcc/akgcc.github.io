@@ -100,3 +100,13 @@ html {
 	margin-right: 2px;
 	text-shadow: -1px 0 #fff, 0 1px #fff, 1px 0 #fff, 0 -1px #fff;
 }
+
+#sort,
+#chartDiv,
+#checkboxes {
+	user-select: none;
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	-o-user-select: none;
+}
