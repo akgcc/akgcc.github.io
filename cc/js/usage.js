@@ -31,8 +31,8 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
             if (x.risk >= 18) {
                 if (!x.duplicate_of) {
                     useCount[y] = (useCount[y] || 0) + 1
+					maxRisk[y] = Math.max(maxRisk[y] || 0, x.risk)
                 }
-                maxRisk[y] = Math.max(maxRisk[y] || 0, x.risk)
             }
         })
     })
