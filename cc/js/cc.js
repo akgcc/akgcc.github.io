@@ -144,9 +144,23 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 		// new ResizeObserver(()=>{
 		// stylesheet.sheet.insertRule("@media (hover: hover) { body #filters.hidden {"+"top: calc(-"+(filtercontainer.offsetHeight-10)+"px + var(--topNav-height) + 10px);"+"}}", 0);
 		// }).observe(filtercontainer)
+		function activatefiltercontainer(e) {
+			if (e.type=='mousedown')
+				filtercontainer.classList.add('active')
+			else
+				filtercontainer.classList.remove('active')
+		}
+		filtercontainer.addEventListener('mousedown', activatefiltercontainer)
+		filtercontainer.addEventListener('mouseup', activatefiltercontainer)
+		filtercontainer.addEventListener('mouseleave', activatefiltercontainer)
+
 		var filtertoggle = document.getElementById('filterToggle')
 		function adjustBasedOnScroll () {
 			if ((window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop) > filtercontainer.offsetHeight) {
+				filtercontainer.classList.add('canSlide')
+				filtertoggle.classList.remove('hidden')
+			}
+			else if ((window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop) > 0 && filtercontainer.classList.contains('active')) {
 				filtercontainer.classList.add('canSlide')
 				filtertoggle.classList.remove('hidden')
 			}

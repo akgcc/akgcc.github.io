@@ -310,8 +310,13 @@ div.button.disabled.legend {
   -moz-transition: top 0.1s ease-in-out;
   -webkit-transition: top 0.1s ease-in-out;
 }
+#filters.hidden {
+  top: -1000%;
+}
+
 @media (hover: hover) {
   body #filters.hidden.canSlide:hover,
+  body #filters.hidden.canSlide.active,
   body #topNav:hover + #filters.hidden.canSlide {
     top: calc(10px + var(--topNav-height));
   }
@@ -321,9 +326,6 @@ div.button.disabled.legend {
     margin-bottom: -1px;
     box-shadow: 0 3px 8px #222222;
   }
-}
-#filters.hidden {
-  top: -1000%;
 }
 
 #checkboxes.hidden {
