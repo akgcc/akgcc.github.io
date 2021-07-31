@@ -283,6 +283,10 @@ div.button.disabled.legend {
   align-self: center;
   margin-right: 5px;
 }
+
+.fa-home {
+  transform: translateX(-4%);
+}
 #topNav,
 #filters,
 #cards {
