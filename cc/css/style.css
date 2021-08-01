@@ -42,30 +42,59 @@ hr {
 .cardContainer {
   flex-direction: column;
   margin: 0.5em;
-  box-shadow: 0 0 2pt 1pt var(--week1-color);
   transition: all 0.1s ease-in-out;
 }
 
-.cardContainer[data-group="2"] {
+.cardContainer[data-group="2"],
+.gslide[data-group="2"] .gslide-media {
   box-shadow: 0 0 2pt 1pt var(--week2-color);
 }
-
-.cardContainer[data-group="0"] {
+.cardContainer[data-group="1"],
+.gslide[data-group="1"] .gslide-media {
+  box-shadow: 0 0 2pt 1pt var(--week1-color);
+}
+.cardContainer[data-group="0"],
+.gslide[data-group="0"] .gslide-media {
   box-shadow: 0 0 2pt 1pt var(--day1-color);
 }
+
+.gslide[data-dupe] .gslide-media {
+	position: relative;
+}
+/* .gslide[data-dupe] .gslide-media:before, */
 .cardContainer[data-dupe]:before {
   display: block;
   position: absolute;
   height: 16px;
   width: 18px;
-  margin: 2px 0 0 2px;
   content: "";
   background: no-repeat;
-  background-position: center;
+  background-position: 1px 2px;
   opacity: 0.35;
   background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSIxOCIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDEwOCAxMDAuMzEiPjxwYXRoIGZpbGw9IiMwMEZGMDAiIGQ9Im0xNTQgNDUyLjA1bC0xOCAzMS4xOSAyMiAxMi42OCAxNC0yNC4yNSA0Ljg4IDguNjMtNS44MiAzLjM3IDIyLjM4LTAuMjUgNy40NC0xMi41NiAzLjkzLTYuNjktNS44NyAzLjM4LTguOTQtMTUuNWgtMzZ6bTU0IDMxLjE5bC0yMi4xOSAxMi44MSAxMy41IDIzLjc1LTkuMTggMC4wNnYtNi41bC0zLjYzIDYuNS03LjM3IDEzdjAuMDZsNy4xOCAxMi42OSAzLjgyIDYuNzV2LTYuNzVoMTcuODdsMTgtMzEuMTktMTgtMzEuMTh6bS04Ni45NCAxMi4yNWw1Ljk0IDMuNDMtOSAxNS41IDE4IDMxLjE5aDM2di0yNS42MmwtMjggMC4xOCA0Ljk0LTguNTYgNS44NyAzLjM4LTExLjM3LTE5LjI1LTIyLjM4LTAuMjV6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMTE4IC00NTIuMDUpIj48L3BhdGg+PC9zdmc+");
+  pointer-events: none;
+}
+.gslide[data-dupe] .gslide-media:before {
+	z-index: 1;
+	height: 100%;
+	width: 100%;
 }
 
+.gslide[data-dupe] .gslide-description {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 12em;
+	margin-top: 1em;
+	background: 0;
+}
+.gslide[data-dupe] .gdesc-inner {
+	padding: 0;
+	font-size: 1.2em;
+	line-height: 1.2em;
+	text-align: center;
+}
 .legend.week1 {
   text-shadow: 0px 0px 1px var(--week1-color);
   color: var(--week1-color);
@@ -257,13 +286,15 @@ body {
 }
 
 @media (hover: hover) {
-  div.button:hover {
+  div.button:hover,
+.gslide[data-dupe] .gslide-description:hover  {
     color: black;
     background-color: white;
     text-shadow: none;
   }
 }
 
+.gslide[data-dupe] .gslide-description:active,
 div.button:active,
 div.button.checked {
   color: black;

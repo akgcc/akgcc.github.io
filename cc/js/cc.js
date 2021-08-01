@@ -227,6 +227,70 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 		document.getElementById('filterReset').onclick = resetFilters
 		lightbox.reload()
 		lightboxElements = lightbox.elements
+		lightboxMapping = {}
+		// map to lightbox elements for easy access
+		for (let e in Object.keys(lightboxElements))
+			lightboxMapping[lightboxElements[e].href.split('/').slice(-1)[0]] = e
+		Object.entries(lightboxMapping).forEach(([k,v]) => {
+			// hack: store data in content field of slideConfig
+			lightboxElements[v].content = ''+v
+			lightboxElements[v].content += ','+cardData[k].group
+			has_dupe = cardData[k].duplicate_of || ((k in dupe_groups) ? k : undefined)
+			if (has_dupe) {
+				next_dupe = (dupe_groups[has_dupe][(cardData[k].group+1)%3] || dupe_groups[has_dupe][(cardData[k].group+2)%3] || dupe_groups[has_dupe][(cardData[k].group+3)%3])[0]
+				if (next_dupe != k) {
+					// don't set next dupe to self.
+					lightboxElements[v].content += ','+next_dupe
+				}
+			}
+		})
+		
+		lightbox.on('slide_before_load', (data) => {
+			const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+			let [index, group, dupe] = slideConfig.content.split(',')
+			slideNode.setAttribute('data-group', group);
+			if (dupe) {
+				slideNode.setAttribute('data-dupe', dupe)
+				slideConfig.description='More from this doctor <i class="fas fa-arrow-alt-circle-right"></i>'
+				slideNode.querySelector('.gslide-description').classList.add('button')
+			}
+		});
+		lightbox.on('slide_after_load', (data) => {
+			const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+			let [index, group,dupe] = slideConfig.content.split(',')
+			let dupeDiv = slideNode.querySelector('.gdesc-inner')
+			if (dupeDiv)
+				dupeDiv.onclick = () => {
+					// check slide at expected index, if its a match just scroll to it.
+					// if not a match you need to traverse backwards until you find either the slide or an earlier slide.
+					// if you found an earlier slide, insert the slide right after it.
+					idx = parseInt(lightboxElements[lightboxMapping[dupe]].index)
+					function getIndex(lightboxElement) {
+						return parseInt(lightboxElement.slideConfig.content.split(',')[0])
+					}
+					if (lightbox.elements[idx] && getIndex(lightbox.elements[idx]) == idx) {
+						// found slide at expected index
+						lightbox.goToSlide(idx)
+						return
+					}
+					let i = Math.min(idx, lightbox.elements.length-1)
+					for (; i >= 0; i--) {
+						if (getIndex(lightbox.elements[i]) == parseInt(idx)) {
+							// found exact match
+							lightbox.goToSlide(i)
+							return
+						}
+						if (getIndex(lightbox.elements[i]) < parseInt(idx)) {
+							// could not find exact match, need to insert new slide.
+							break
+						}
+					}
+					lightbox.insertSlide(lightboxElements[lightboxMapping[dupe]],i+1)
+					lightbox.goToSlide(i+1)
+				}
+
+		});
+		updateLightbox()
 	})
 
 function resetFilters() {
@@ -253,7 +317,7 @@ function resetFilters() {
 }
 
 function updateLightbox() {
-	// you can directly assign to lightbox.elements and its a bit quicker, we avoid it as it might break something unknown
+	// you can directly assign to lightbox.elements and its a bit quicker, we avoid it as it might break something unknown (for one thing, the .index property won't be correct)
 	lightbox.setElements(lightboxElements.filter(x => _filterShouldShow(x.href.split('/').slice(-1)[0])))
 }
 
