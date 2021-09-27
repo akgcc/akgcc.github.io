@@ -9,6 +9,7 @@ var charIdMap = {},
     useCountMap = {},
     maxRiskMap = {},
     divMap = {},
+	classMap = {},
     CCTAG;
 fetch('./cctitles.json').then(res => res.json()).then(json => {
     CCMAP = json;
@@ -38,6 +39,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
     })
     Object.keys(operatorData).forEach(x => {
         useCountMap[operatorData[x].name] = useCount[x] || 0
+		classMap[operatorData[x].name] = operatorData[x].profession || ""
         maxRiskMap[operatorData[x].name] = maxRisk[x] || 0
     })
     Object.keys(operatorData).forEach(x => {
@@ -181,6 +183,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
     document.getElementById('s_rarity').onclick = (e) => clickFunc(e, (a, b) => a.rarity == b.rarity ? (a.name > b.name ? 1 : -1) : (a.rarity < b.rarity ? 1 : -1))
     document.getElementById('s_uses').onclick = (e) => clickFunc(e, (a, b) => useCountMap[a.name] == useCountMap[b.name] ? (a.name > b.name ? 1 : -1) : (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1))
     document.getElementById('s_maxrisk').onclick = (e) => clickFunc(e, (a, b) => maxRiskMap[a.name] == maxRiskMap[b.name] ? (a.name > b.name ? 1 : -1) : (maxRiskMap[a.name] < maxRiskMap[b.name] ? 1 : -1))
+	document.getElementById('s_class').onclick = (e) => clickFunc(e, (a, b) => classMap[a.name] == classMap[b.name] ? (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1) : (classMap[a.name] < classMap[b.name] ? 1 : -1))
     document.getElementById('viewType').onclick = () => {
         document.getElementById('checkboxes').classList.toggle('hidden')
         document.getElementById('chartDiv').classList.toggle('hidden')
