@@ -1,6 +1,8 @@
 var labels = ['Red Vans', 'Blue Vans', 'Green Vans', 'Gray Vans'];
 var images = ['https://i.stack.imgur.com/2RAv2.png', 'https://i.stack.imgur.com/Tq5DA.png', 'https://i.stack.imgur.com/3KRtW.png', 'https://i.stack.imgur.com/iLyVi.png'];
 var values = [48, 56, 33, 44];
+const mean = (array) => array.reduce((a, b) => a + b) / array.length;
+var UPPER_BOUNDS = 50, LOWER_BOUNDS = 10;
 if (!window.location.hash) window.location.hash = '#4'
 document.getElementById('clearsLink').href = './cc.html' + window.location.hash
 var charIdMap = {},
@@ -42,6 +44,10 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 		classMap[operatorData[x].name] = operatorData[x].profession || ""
         maxRiskMap[operatorData[x].name] = maxRisk[x] || 0
     })
+	
+	LOWER_BOUNDS = mean(Object.values(useCountMap).filter(x=>x!=0))
+	UPPER_BOUNDS = LOWER_BOUNDS + getStandardDeviation(Object.values(useCountMap).filter(x=>x!=0))
+	
     Object.keys(operatorData).forEach(x => {
         divMap[operatorData[x].name] = CreateOpCheckbox(operatorData[x]);
     })
@@ -190,7 +196,11 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
         document.getElementById('viewType').innerHTML = document.getElementById('checkboxes').classList.contains('hidden') ? 'View: Chart' : 'View: Grid'
     }
 })
-
+function getStandardDeviation (array) {
+  const n = array.length
+  const mean = array.reduce((a, b) => a + b) / n
+  return Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n)
+}
 function CreateOpCheckbox(operator) {
     let operatorName = operator.name;
     var checkboxDiv = document.createElement("div");
@@ -207,8 +217,8 @@ function CreateOpCheckbox(operator) {
     riskDiv.classList.add('data2');
     riskDiv.innerHTML = maxRiskMap[operatorName] || 0
     checkboxDiv.appendChild(riskDiv);
-    if (count == 0 || count == '?') {} else if (count <= 10) checkboxDiv.style.cssText = 'background: rgba(237,248,177,.3);'
-    else if (count <= 50) checkboxDiv.style.cssText = 'background: rgba(127,205,187,.6);'
+    if (count == 0 || count == '?') {} else if (count <= LOWER_BOUNDS) checkboxDiv.style.cssText = 'background: rgba(237,248,177,.3);'
+    else if (count <= UPPER_BOUNDS) checkboxDiv.style.cssText = 'background: rgba(127,205,187,.6);'
     else checkboxDiv.style.cssText = 'background: rgba(44,127,184,.6);'
     if (charIdMap[operatorName]) {
         let im = document.createElement('img');
