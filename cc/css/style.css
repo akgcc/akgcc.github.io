@@ -58,10 +58,10 @@ hr {
   box-shadow: 0 0 2pt 1pt var(--day1-color);
 }
 
-.gslide[data-dupe] .gslide-media {
+.gslide-media {
 	position: relative;
 }
-/* .gslide[data-dupe] .gslide-media:before, */
+/* .gslide-media:before, */
 .cardContainer[data-dupe]:before {
   display: block;
   position: absolute;
@@ -74,13 +74,12 @@ hr {
   background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSIxOCIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDEwOCAxMDAuMzEiPjxwYXRoIGZpbGw9IiMwMEZGMDAiIGQ9Im0xNTQgNDUyLjA1bC0xOCAzMS4xOSAyMiAxMi42OCAxNC0yNC4yNSA0Ljg4IDguNjMtNS44MiAzLjM3IDIyLjM4LTAuMjUgNy40NC0xMi41NiAzLjkzLTYuNjktNS44NyAzLjM4LTguOTQtMTUuNWgtMzZ6bTU0IDMxLjE5bC0yMi4xOSAxMi44MSAxMy41IDIzLjc1LTkuMTggMC4wNnYtNi41bC0zLjYzIDYuNS03LjM3IDEzdjAuMDZsNy4xOCAxMi42OSAzLjgyIDYuNzV2LTYuNzVoMTcuODdsMTgtMzEuMTktMTgtMzEuMTh6bS04Ni45NCAxMi4yNWw1Ljk0IDMuNDMtOSAxNS41IDE4IDMxLjE5aDM2di0yNS42MmwtMjggMC4xOCA0Ljk0LTguNTYgNS44NyAzLjM4LTExLjM3LTE5LjI1LTIyLjM4LTAuMjV6IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMTE4IC00NTIuMDUpIj48L3BhdGg+PC9zdmc+");
   pointer-events: none;
 }
-.gslide[data-dupe] .gslide-media:before {
+.gslide-media:before {
 	z-index: 1;
 	height: 100%;
 	width: 100%;
 }
-
-.gslide[data-dupe] .gslide-description {
+.gslide .gslide-inner-content .gslide-description {
 	position: absolute;
 	top: 100%;
 	left: 50%;
@@ -89,12 +88,18 @@ hr {
 	margin-top: 1em;
 	background: 0;
 }
-.gslide[data-dupe] .gdesc-inner {
+
+.gslide .gslide-inner-content .gslide-description .gdesc-inner {
 	padding: 0;
 	font-size: 1.2em;
 	line-height: 1.2em;
 	text-align: center;
 }
+
+.glightbox-clean .gslide-inner-content .gslide-description {
+	background: 0;
+}
+
 .legend.week1 {
   text-shadow: 0px 0px 1px var(--week1-color);
   color: var(--week1-color);
@@ -441,4 +446,32 @@ div.hidden:not(.forceShow) {
 body {
   margin-top: calc(10px + var(--topNav-height));
   /* margin-top: 4rem; */
+}
+
+body.soul-mode .glightbox-container .gslide.current .gslide-description::after {
+    font-size: 1.5em;
+    content: "SOVL: " attr(data-soul);
+    position: absolute;
+    font-weight: 500;
+	text-align: center;
+	margin: auto;
+	color: #0ff;
+	top: -1.5em;
+	width: 100%;
+}
+body.soul-mode .cardContainer::after {
+    content: attr(data-soul);
+    position: absolute;
+    transform: translate(calc(-256px + 6px),calc(144px - 100% - 6px));
+	margin: auto;
+	/* bottom: .2em; */
+	/* left: .2em; */
+	font-weight: 700;
+	color: #0ff;
+	background: #000a;
+}
+.gslide:not(.current) .gslide-description,
+.gslide:not([data-dupe]) .gslide-description {
+	border-color: 0;
+	pointer-events: none;
 }

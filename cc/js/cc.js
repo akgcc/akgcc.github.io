@@ -24,6 +24,9 @@ var weekFilter = 7
 var maxOpCount = 13
 var maxAvgRarity = 6
 var lightboxElements
+var lightboxDateOrder = {}
+var lightboxMapping
+var lightboxSoulOrder = {}
 var CCTAG
 fetch('./cctitles.json')
 .then(res => res.json())
@@ -80,6 +83,7 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 			headerCount[risk] = 0
 		})
 		let all_ops = new Set()
+		// let date_index = 0;
 		Object.keys(cardData).forEach(k => {
 			filterStatus[k] = 0
 			let div = document.createElement('div')
@@ -87,6 +91,7 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 			let is_dupe = cardData[k].duplicate_of !== undefined
 			if (is_dupe)
 				div.setAttribute('data-dupe', cardData[k].duplicate_of)
+			div.setAttribute('data-soul', cardData[k].soul)
 			a.classList.add('glightbox')
 			a.setAttribute('data-gallery', 'gallery1')
 			a.href = './cropped' + CCTAG + '/' + (is_dupe ? 'duplicates/' : '') + k
@@ -97,6 +102,9 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 			div.id = k
 			div.setAttribute('data-group', cardData[k].group)
 			div.classList.add('cardContainer')
+			div.setAttribute('data-dateorder', headersMap[cardData[k].risk].childElementCount)
+			// lightboxDateOrder[a.href] = date_index++
+			// div.style.order = headersMap[cardData[k].risk].childElementCount
 			headersMap[cardData[k].risk].appendChild(div)
 			headerCount[cardData[k].risk] += 1
 			cardData[k]['squad'].forEach(op => {
@@ -109,6 +117,53 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 		Object.keys(riskMap).forEach(k => {
 			riskMap[k].setAttribute('cardCount', headerCount[k])
 		})
+		
+		//create initial soul order:
+		let soul_index = 0;
+		Object.keys(riskMap).slice().reverse().forEach(k => {
+			Array.from(riskMap[k].querySelectorAll('.cardContainer')).sort((a, b) => b.dataset.soul - a.dataset.soul).forEach((clear, i) => {
+				lightboxSoulOrder[clear.querySelector('a').href] = soul_index++
+			})
+		})
+		//create initial date order:
+		let date_index = 0;
+		Object.keys(riskMap).slice().reverse().forEach(k => {
+			Array.from(riskMap[k].querySelectorAll('.cardContainer')).forEach((clear, i) => {
+				lightboxDateOrder[clear.querySelector('a').href] = date_index++
+			})
+		})
+		const orderBtn = document.getElementById('sortOrder')
+		orderBtn.onclick = (e) => {
+			switch (orderBtn.innerHTML) {
+				case 'Order by: Date':
+					Object.keys(riskMap).forEach(k => {
+						Array.from(riskMap[k].querySelectorAll('.cardContainer')).sort((a, b) => b.dataset.soul - a.dataset.soul).forEach((clear, i) => {
+							// clear.style.order = i
+							clear.parentElement.append(clear)
+						})
+					})
+					orderBtn.innerHTML = 'Order by: Soul'
+					document.body.classList.toggle('soul-mode')
+					lightboxElements.sort((a,b) => lightboxSoulOrder[a.href] - lightboxSoulOrder[b.href])
+
+				break;
+				case 'Order by: Soul':
+					Object.keys(riskMap).forEach(k => {
+						Array.from(riskMap[k].querySelectorAll('.cardContainer')).sort((a, b) => a.dataset.dateorder - b.dataset.dateorder).forEach((clear, i) => {
+							// clear.style.order = i
+							clear.parentElement.append(clear)
+						})
+					})
+					orderBtn.innerHTML = 'Order by: Date'
+					document.body.classList.toggle('soul-mode')
+					lightboxElements.sort((a,b) => lightboxDateOrder[a.href] - lightboxDateOrder[b.href])
+				break;
+			}
+			// update must be done first, to set lightbox elements to new sort order.
+			updateLightbox()
+			reloadLightbox()
+		}
+		
 
 		// create filter
 		for (var key in operatorData) {
@@ -225,39 +280,26 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 		}
 
 		document.getElementById('filterReset').onclick = resetFilters
+		
 		lightbox.reload()
 		lightboxElements = lightbox.elements
-		lightboxMapping = {}
-		// map to lightbox elements for easy access
-		for (let e in Object.keys(lightboxElements))
-			lightboxMapping[lightboxElements[e].href.split('/').slice(-1)[0]] = e
-		Object.entries(lightboxMapping).forEach(([k,v]) => {
-			// hack: store data in content field of slideConfig
-			lightboxElements[v].content = ''+v
-			lightboxElements[v].content += ','+cardData[k].group
-			has_dupe = cardData[k].duplicate_of || ((k in dupe_groups) ? k : undefined)
-			if (has_dupe) {
-				next_dupe = (dupe_groups[has_dupe][(cardData[k].group+1)%3] || dupe_groups[has_dupe][(cardData[k].group+2)%3] || dupe_groups[has_dupe][(cardData[k].group+3)%3])[0]
-				if (next_dupe != k) {
-					// don't set next dupe to self.
-					lightboxElements[v].content += ','+next_dupe
-				}
-			}
-		})
+		reloadLightbox()
 		
 		lightbox.on('slide_before_load', (data) => {
 			const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-			let [index, group, dupe] = slideConfig.content.split(',')
+			let [index, soul, group, dupe] = slideConfig.content.split(',')
 			slideNode.setAttribute('data-group', group);
+			slideConfig.description = '&nbsp'
+			slideNode.querySelector('.gslide-description').setAttribute('data-soul', soul);
+			slideNode.querySelector('.gslide-description').classList.add('button')
 			if (dupe) {
 				slideNode.setAttribute('data-dupe', dupe)
-				slideConfig.description='More from this doctor <i class="fas fa-arrow-alt-circle-right"></i>'
-				slideNode.querySelector('.gslide-description').classList.add('button')
+				slideConfig.description+='More from this doctor <i class="fas fa-arrow-alt-circle-right"></i>'
 			}
 		});
 		lightbox.on('slide_after_load', (data) => {
 			const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-			let [index, group,dupe] = slideConfig.content.split(',')
+			let [index, soul, group, dupe] = slideConfig.content.split(',')
 			let dupeDiv = slideNode.querySelector('.gdesc-inner')
 			if (dupeDiv)
 				dupeDiv.onclick = () => {
@@ -292,7 +334,30 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 		});
 		updateLightbox()
 	})
-
+function reloadLightbox() {
+	lightboxMapping = {}
+	// map to lightbox elements for easy access
+	for (let e in Object.keys(lightboxElements))
+		lightboxMapping[lightboxElements[e].href.split('/').slice(-1)[0]] = e
+	Object.entries(lightboxMapping).forEach(([k,v]) => {
+		// hack: store data in content field of slideConfig
+		lightboxElements[v].slideConfig.content = ''+v
+		lightboxElements[v].slideConfig.content += ','+cardData[k].soul
+		lightboxElements[v].slideConfig.content += ','+cardData[k].group
+		lightboxElements[v].content = ''+v
+		lightboxElements[v].content += ','+cardData[k].soul
+		lightboxElements[v].content += ','+cardData[k].group
+		has_dupe = cardData[k].duplicate_of || ((k in dupe_groups) ? k : undefined)
+		if (has_dupe) {
+			next_dupe = (dupe_groups[has_dupe][(cardData[k].group+1)%3] || dupe_groups[has_dupe][(cardData[k].group+2)%3] || dupe_groups[has_dupe][(cardData[k].group+3)%3])[0]
+			if (next_dupe != k) {
+				// don't set next dupe to self.
+				lightboxElements[v].content += ','+next_dupe
+				lightboxElements[v].slideConfig.content += ','+next_dupe
+			}
+		}
+	})
+}
 function resetFilters() {
 	totalChecked = 0
 	weekFilter = 7
