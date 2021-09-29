@@ -159,9 +159,9 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 					lightboxElementsOriginal.sort((a,b) => lightboxDateOrder[a.href] - lightboxDateOrder[b.href])
 				break;
 			}
-			// update must be done first, to set lightbox elements to new sort order.
-			updateLightbox()
+			// reload must be followed by update to assign new data to lightbox.elements
 			reloadLightbox()
+			updateLightbox()
 		}
 		
 
