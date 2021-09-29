@@ -23,9 +23,9 @@ var includesAll = true
 var weekFilter = 7
 var maxOpCount = 13
 var maxAvgRarity = 6
-var lightboxElements
+var lightboxElementsOriginal
 var lightboxDateOrder = {}
-var lightboxMapping
+var lightboxOriginalIndexMapping
 var lightboxSoulOrder = {}
 var CCTAG
 fetch('./cctitles.json')
@@ -144,7 +144,7 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 					})
 					orderBtn.innerHTML = 'Order by: Soul'
 					document.body.classList.toggle('soul-mode')
-					lightboxElements.sort((a,b) => lightboxSoulOrder[a.href] - lightboxSoulOrder[b.href])
+					lightboxElementsOriginal.sort((a,b) => lightboxSoulOrder[a.href] - lightboxSoulOrder[b.href])
 
 				break;
 				case 'Order by: Soul':
@@ -156,7 +156,7 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 					})
 					orderBtn.innerHTML = 'Order by: Date'
 					document.body.classList.toggle('soul-mode')
-					lightboxElements.sort((a,b) => lightboxDateOrder[a.href] - lightboxDateOrder[b.href])
+					lightboxElementsOriginal.sort((a,b) => lightboxDateOrder[a.href] - lightboxDateOrder[b.href])
 				break;
 			}
 			// update must be done first, to set lightbox elements to new sort order.
@@ -282,12 +282,12 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 		document.getElementById('filterReset').onclick = resetFilters
 		
 		lightbox.reload()
-		lightboxElements = lightbox.elements
+		lightboxElementsOriginal = lightbox.elements
 		reloadLightbox()
 		
 		lightbox.on('slide_before_load', (data) => {
 			const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-			let [index, soul, group, dupe] = slideConfig.content.split(',')
+			let [soul, group, dupe] = slideConfig.content.split(',')
 			slideNode.setAttribute('data-group', group);
 			slideConfig.description = '&nbsp'
 			slideNode.querySelector('.gslide-description').setAttribute('data-soul', soul);
@@ -297,66 +297,53 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 				slideConfig.description+='More from this doctor <i class="fas fa-arrow-alt-circle-right"></i>'
 			}
 		});
+
 		lightbox.on('slide_after_load', (data) => {
 			const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-			let [index, soul, group, dupe] = slideConfig.content.split(',')
+			let [soul, group, dupe] = slideConfig.content.split(',')
 			let dupeDiv = slideNode.querySelector('.gdesc-inner')
 			if (dupeDiv)
 				dupeDiv.onclick = () => {
 					// check slide at expected index, if its a match just scroll to it.
 					// if not a match you need to traverse backwards until you find either the slide or an earlier slide.
 					// if you found an earlier slide, insert the slide right after it.
-					idx = parseInt(lightboxElements[lightboxMapping[dupe]].index)
-					// index attribute is not accurate, it won't be updated if order is changed.
-					// instead we use the key from lightboxElements
-					idx = parseInt(lightboxMapping[dupe])
-					function getIndex(lightboxElement) {
-						return parseInt(lightboxElement.slideConfig.content.split(',')[0])
-					}
-					if (lightbox.elements[idx] && getIndex(lightbox.elements[idx]) == idx) {
-						// found slide at expected index
-						lightbox.goToSlide(idx)
-						return
-					}
-					let i = Math.min(idx, lightbox.elements.length-1)
-					for (; i >= 0; i--) {
-						if (getIndex(lightbox.elements[i]) == parseInt(idx)) {
-							// found exact match
+					
+					// this is the original index of the slide, before any filters are applied.
+					let max_idx = parseInt(lightboxOriginalIndexMapping[dupe]) 
+					for (let i = Math.min(max_idx, lightbox.elements.length-1); i >= 0; i--) {
+						if (lightbox.elements[i].filename == dupe) {
 							lightbox.goToSlide(i)
 							return
 						}
-						if (getIndex(lightbox.elements[i]) < parseInt(idx)) {
-							// could not find exact match, need to insert new slide.
-							break
+						if (parseInt(lightbox.elements[i].original_idx) < max_idx) {
+							lightbox.insertSlide(lightboxElementsOriginal[lightboxOriginalIndexMapping[dupe]],i+1)
+							lightbox.goToSlide(i+1)
+							return
 						}
 					}
-					lightbox.insertSlide(lightboxElements[lightboxMapping[dupe]],i+1)
-					lightbox.goToSlide(i+1)
+					lightbox.insertSlide(lightboxElementsOriginal[lightboxOriginalIndexMapping[dupe]],0)
+					lightbox.goToSlide(0)
+					return
 				}
 
 		});
 		updateLightbox()
 	})
 function reloadLightbox() {
-	lightboxMapping = {}
-	// map to lightbox elements for easy access
-	for (let e in Object.keys(lightboxElements))
-		lightboxMapping[lightboxElements[e].href.split('/').slice(-1)[0]] = e
-	Object.entries(lightboxMapping).forEach(([k,v]) => {
-		// hack: store data in content field of slideConfig
-		lightboxElements[v].slideConfig.content = ''+v
-		lightboxElements[v].slideConfig.content += ','+cardData[k].soul
-		lightboxElements[v].slideConfig.content += ','+cardData[k].group
-		lightboxElements[v].content = ''+v
-		lightboxElements[v].content += ','+cardData[k].soul
-		lightboxElements[v].content += ','+cardData[k].group
+	lightboxOriginalIndexMapping = {}
+	for (let e in Object.keys(lightboxElementsOriginal))
+		lightboxOriginalIndexMapping[lightboxElementsOriginal[e].href.split('/').slice(-1)[0]] = e
+	Object.entries(lightboxOriginalIndexMapping).forEach(([k,v]) => {
+		lightboxElementsOriginal[v].filename = k
+		lightboxElementsOriginal[v].original_idx = v
+		lightboxElementsOriginal[v].content = ''+cardData[k].soul
+		lightboxElementsOriginal[v].content += ','+cardData[k].group
 		has_dupe = cardData[k].duplicate_of || ((k in dupe_groups) ? k : undefined)
 		if (has_dupe) {
 			next_dupe = (dupe_groups[has_dupe][(cardData[k].group+1)%3] || dupe_groups[has_dupe][(cardData[k].group+2)%3] || dupe_groups[has_dupe][(cardData[k].group+3)%3])[0]
 			if (next_dupe != k) {
 				// don't set next dupe to self.
-				lightboxElements[v].content += ','+next_dupe
-				lightboxElements[v].slideConfig.content += ','+next_dupe
+				lightboxElementsOriginal[v].content += ','+next_dupe
 			}
 		}
 	})
@@ -386,7 +373,7 @@ function resetFilters() {
 
 function updateLightbox() {
 	// you can directly assign to lightbox.elements and its a bit quicker, we avoid it as it might break something unknown (for one thing, the .index property won't be correct ** actually .index is never correct after resorting, so don't rely on it.)
-	lightbox.setElements(lightboxElements.filter(x => _filterShouldShow(x.href.split('/').slice(-1)[0])))
+	lightbox.setElements(lightboxElementsOriginal.filter(x => _filterShouldShow(x.href.split('/').slice(-1)[0])))
 }
 
 function _filterShouldShow(key) {
