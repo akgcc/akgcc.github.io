@@ -307,6 +307,9 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 					// if not a match you need to traverse backwards until you find either the slide or an earlier slide.
 					// if you found an earlier slide, insert the slide right after it.
 					idx = parseInt(lightboxElements[lightboxMapping[dupe]].index)
+					// index attribute is not accurate, it won't be updated if order is changed.
+					// instead we use the key from lightboxElements
+					idx = parseInt(lightboxMapping[dupe])
 					function getIndex(lightboxElement) {
 						return parseInt(lightboxElement.slideConfig.content.split(',')[0])
 					}
@@ -382,7 +385,7 @@ function resetFilters() {
 }
 
 function updateLightbox() {
-	// you can directly assign to lightbox.elements and its a bit quicker, we avoid it as it might break something unknown (for one thing, the .index property won't be correct)
+	// you can directly assign to lightbox.elements and its a bit quicker, we avoid it as it might break something unknown (for one thing, the .index property won't be correct ** actually .index is never correct after resorting, so don't rely on it.)
 	lightbox.setElements(lightboxElements.filter(x => _filterShouldShow(x.href.split('/').slice(-1)[0])))
 }
 
