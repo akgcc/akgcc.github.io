@@ -458,6 +458,7 @@ body.soul-mode .glightbox-container .gslide.current .gslide-description::after {
 	color: #0ff;
 	top: -1.5em;
 	width: 100%;
+	pointer-events: none;
 }
 body.soul-mode .cardContainer::after {
     content: attr(data-soul);
@@ -474,4 +475,16 @@ body.soul-mode .cardContainer::after {
 .gslide:not([data-dupe]) .gslide-description {
 	border-color: 0;
 	pointer-events: none;
+}
+body.soul-mode #deco {
+    position: fixed;
+    width: 100%;
+    height: calc(100% - var(--topNav-height) - 10px);
+    box-shadow: inset 0 0 3em 0em #0ff2;
+    z-index: 99;
+    pointer-events: none;
+}
+
+#deco {
+	display:none;
 }
