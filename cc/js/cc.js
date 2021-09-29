@@ -84,7 +84,7 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 		})
 		let all_ops = new Set()
 		// let date_index = 0;
-		Object.keys(cardData).forEach(k => {
+		Object.keys(cardData).sort().forEach(k => {
 			filterStatus[k] = 0
 			let div = document.createElement('div')
 			let a = document.createElement('a')
