@@ -1,6 +1,3 @@
-var labels = ['Red Vans', 'Blue Vans', 'Green Vans', 'Gray Vans'];
-var images = ['https://i.stack.imgur.com/2RAv2.png', 'https://i.stack.imgur.com/Tq5DA.png', 'https://i.stack.imgur.com/3KRtW.png', 'https://i.stack.imgur.com/iLyVi.png'];
-var values = [48, 56, 33, 44];
 const mean = (array) => array.reduce((a, b) => a + b) / array.length;
 var UPPER_BOUNDS = 50, LOWER_BOUNDS = 10;
 if (!window.location.hash) window.location.hash = '#4'
@@ -44,6 +41,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 		classMap[operatorData[x].name] = operatorData[x].profession || ""
         maxRiskMap[operatorData[x].name] = maxRisk[x] || 0
     })
+	document.getElementById('barChartContainer').style.height = Object.keys(operatorData).length*parseFloat(getComputedStyle(document.body).fontSize) * 3/4;
 	
 	LOWER_BOUNDS = mean(Object.values(useCountMap).filter(x=>x!=0))
 	UPPER_BOUNDS = LOWER_BOUNDS + getStandardDeviation(Object.values(useCountMap).filter(x=>x!=0))
@@ -54,7 +52,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
     var sortedData = {}
     Object.values(operatorData).sort((a, b) => useCountMap[a.name] == useCountMap[b.name] ? (a.name > b.name ? 1 : -1) : (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1)).forEach((x, i) => {
         divMap[x.name].style.order = i
-        sortedData[i] = [x.name, useCountMap[x.name], maxRiskMap[x.name]]
+        sortedData[i] = [x.name, useCountMap[x.name], maxRiskMap[x.name], charIdMap[x.name]]
     })
     labels = Object.values(sortedData).map(x => x[0])
     values = Object.values(sortedData).map(x => x[1])
@@ -168,6 +166,101 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
             }
         }
     });
+		Chart.scaleService.updateScaleDefaults('logarithmic', {
+	  ticks: {
+		callback: function(tick, index, ticks) {
+		  return tick.toLocaleString()
+		}
+	  }
+	});
+	let scatterData = Object.values(sortedData).map(d => {return {x: d[1], y: d[2]}})
+	var imgSize = window.innerWidth/30;
+	let scatterImages = Object.values(sortedData).map(x => {i = new Image(); i.src='./avatars/'+x[3]+'.png'; return i})
+	scatterImages.forEach(i=> {i.width = imgSize;i.height=imgSize});
+  
+	window.onresize = () => {
+		imgSize = window.innerWidth/30;
+		scatterImages.forEach(i=> {i.width = imgSize;i.height=imgSize});
+		scatterPlot.update();
+	}
+  
+	scatterPlot = new Chart(document.getElementById("scatterChart"), {
+		type: 'bubble',
+		data: {
+			labels: labels,
+			datasets: [{
+				  label: 'Data',
+				  radius: imgSize/2,
+				  pointStyle: scatterImages,
+				data: scatterData
+			}]
+		},
+		options: {
+			onResize: (chrt) => {
+				chrt.options.layout.padding.top = imgSize/2
+				chrt.options.layout.padding.right = imgSize/2
+			},
+			maintainAspectRatio: true,
+			responsive: true,
+			layout: {
+            padding: {
+                top: imgSize/2,
+				right: imgSize/2,
+            }
+        },
+		scales: {
+			xAxes: [{
+				type: "logarithmic",
+				afterFit: (scale) => {
+					
+					scale.options.ticks.minor.padding = imgSize/2;
+					scale.options.ticks.major.padding = imgSize/2;
+					scale.options.ticks.padding = imgSize/2;
+				},
+				scaleLabel: {
+					display: true,
+					labelString: "Uses",
+					fontColor:"#dddddd"
+				},
+				ticks: {
+					fontColor: "#dddddd",
+					padding:imgSize/2,
+					min:1,
+				}
+			}],
+			yAxes: [{
+				afterFit: (scale) => {
+					scale.options.ticks.minor.padding = imgSize/2;
+					scale.options.ticks.major.padding = imgSize/2;
+					scale.options.ticks.padding = imgSize/2;
+				},
+				scaleLabel: {
+					display: true,
+					labelString: "Highest Risk",
+					fontColor:"#dddddd"
+				},
+				ticks: {
+					min: 18,
+					fontColor: "#dddddd",
+					padding:imgSize/2,
+				},
+			}],
+		},
+		legend: {
+			display: false
+		},
+		  tooltips: {
+			  displayColors: false,
+			 callbacks: {
+				label: function(tooltipItem, data) {
+				   var label = data.labels[tooltipItem.index];
+				   return label + ' (' + tooltipItem.xLabel +  ')';
+				}
+			 }
+		  }
+		}
+	});
+
 
     function redrawChart() {
         barGraph.data.labels = Object.values(sortedData).map(x => x[0])
@@ -190,12 +283,35 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
     document.getElementById('s_uses').onclick = (e) => clickFunc(e, (a, b) => useCountMap[a.name] == useCountMap[b.name] ? (a.name > b.name ? 1 : -1) : (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1))
     document.getElementById('s_maxrisk').onclick = (e) => clickFunc(e, (a, b) => maxRiskMap[a.name] == maxRiskMap[b.name] ? (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1) : (maxRiskMap[a.name] < maxRiskMap[b.name] ? 1 : -1))
 	document.getElementById('s_class').onclick = (e) => clickFunc(e, (a, b) => classMap[a.name] == classMap[b.name] ? (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1) : (classMap[a.name] < classMap[b.name] ? 1 : -1))
+	var viewType = 1;
     document.getElementById('viewType').onclick = () => {
-        document.getElementById('checkboxes').classList.toggle('hidden')
-        document.getElementById('chartDiv').classList.toggle('hidden')
-        document.getElementById('viewType').innerHTML = document.getElementById('checkboxes').classList.contains('hidden') ? 'View: Chart' : 'View: Grid'
+		viewType = (viewType+1)%3
+		Array.from(document.getElementById('chartDiv').querySelectorAll('.chartOption')).forEach(n=>n.classList.add('hidden'))
+			Array.from(document.getElementById('sort').querySelectorAll('.button')).forEach(e=>e.classList.remove('disabled'))
+		switch (viewType) {
+			case 0: // scatter
+				document.getElementById('scatterChart').classList.remove('hidden')
+				document.getElementById('viewType').innerHTML = 'View: Scatter'
+				Array.from(document.getElementById('sort').querySelectorAll('.button:not(#viewType)')).forEach(e=>e.classList.add('disabled'))
+			break;
+			case 1: // bar chart
+				document.getElementById('barChartContainer').classList.remove('hidden')
+				document.getElementById('viewType').innerHTML = 'View: Chart'
+			break;
+			case 2: // grid
+				document.getElementById('checkboxes').classList.remove('hidden')
+				document.getElementById('viewType').innerHTML = 'View: Grid'
+			break;
+		}
     }
+	
+	document.getElementById('infoButton').onclick = () => {
+		document.getElementById('info').classList.toggle('hidden')
+	}
+	
 })
+
+	
 function getStandardDeviation (array) {
   const n = array.length
   const mean = array.reduce((a, b) => a + b) / n

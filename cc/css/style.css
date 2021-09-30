@@ -291,7 +291,7 @@ body {
 }
 
 @media (hover: hover) {
-  div.button:hover,
+  div.button:not(.disabled):hover,
 .gslide[data-dupe] .gslide-description:hover  {
     color: black;
     background-color: white;
@@ -300,17 +300,22 @@ body {
 }
 
 .gslide[data-dupe] .gslide-description:active,
-div.button:active,
+div.button:not(.disabled):active,
 div.button.checked {
   color: black;
   background: #cccccc;
 }
 
+div.button.toggled,
 div.button.disabled {
   border: 1px solid gray;
 }
 
-div.button.disabled.legend {
+div.button.disabled {
+	background: dimgrey;
+}
+
+div.button.toggled.legend {
   text-shadow: none;
   opacity: 0.5;
 }
@@ -427,8 +432,8 @@ user-select: none;
   text-align: right;
 }
 
-img.hidden:not(.forceShow),
-div.hidden:not(.forceShow) {
+img:not(.chartjs-size-monitor).hidden:not(.forceShow),
+div:not(.chartjs-size-monitor).hidden:not(.forceShow) {
   display: none;
 }
 #legend {

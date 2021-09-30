@@ -189,7 +189,7 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 		Array.from(document.getElementsByClassName('weekFilter')).forEach(x => {
 			x.onclick = (e) => {
 				weekFilter ^= 2 ** (e.currentTarget.getAttribute('data-group'))
-				x.classList.toggle('disabled')
+				x.classList.toggle('toggled')
 				applyAllFilters()
 				updateLightbox()
 			}
@@ -361,7 +361,7 @@ function resetFilters() {
 	})
 	Array.from(document.getElementsByClassName('operatorCheckbox')).forEach(x => x.classList.remove('_selected'))
 	Array.from(document.getElementsByClassName('riskContainer')).forEach(x => x.classList.remove('hidden'))
-	Array.from(document.getElementsByClassName('weekFilter')).forEach(x => x.classList.remove('disabled'))
+	Array.from(document.getElementsByClassName('weekFilter')).forEach(x => x.classList.remove('toggled'))
 	document.getElementById('opcountSlider').value = 13
 	document.getElementById('opcountDisp').innerHTML = 13
 	maxOpCount = 13;

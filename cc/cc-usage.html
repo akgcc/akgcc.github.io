@@ -8,6 +8,11 @@
   <body ontouchstart>
     <div id="topNav">
       <span id="pageTitle"></span>
+	  <a class="rightButton" id="infoHover">
+        <div class="button iconButton" id="infoButton">
+			<i class="fas fa-info"></i>
+		</div>
+      </a>
       <a class="rightButton" id="clearsLink" href="./cc.html">
         <div class="button" id="usageButton">Clear Cards</div>
       </a>
@@ -17,7 +22,7 @@
         </div>
       </a>
     </div>
-    <div id="info">
+    <div id="info" class="hidden">
 	<span>Risk 18+, duplicates not included <i>in use count</i></span><br />
       <span>Left: Highest risk achieved</span><br />
       <span>Right: Total appearances</span>
@@ -33,9 +38,12 @@
 	  <div class="sorter button" id="viewType">View: Chart</div>
     </div>
 	<div id="chartDiv">
+	<div class="chartContainer chartOption" id="barChartContainer">
 	<canvas id="opChart"></canvas>
 	</div>
-    <div id="checkboxes" class="hidden"></div>
+	<canvas id="scatterChart" class="hidden chartOption"></canvas>
+    <div id="checkboxes" class="hidden chartOption"></div>
+	</div>
 	<script type="text/javascript" src="./js/usage.js"></script>
   </body>
 </html>

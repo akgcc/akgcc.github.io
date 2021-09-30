@@ -20,11 +20,10 @@
 .operatorCheckbox .name {
 	cursor: default;
 }
-
+#sort,
 #info {
-	padding: 1em 0 1em 0;
+	padding: 8px 0 0 0;
 }
-
 #info,
 #sort {
 	padding-left: 8px;
@@ -38,9 +37,6 @@ html {
 	flex-grow: 1;
 }
 
-#chartDiv {
-	height: 2500px;
-}
 #chartjs-tooltip .caret {
 	position: absolute;
 	width: 0;
@@ -109,4 +105,7 @@ html {
 	-khtml-user-select: none;
 	-webkit-user-select: none;
 	-o-user-select: none;
+}
+#chartDiv canvas.hidden {
+	display: none !important;
 }
