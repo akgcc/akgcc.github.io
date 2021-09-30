@@ -91,7 +91,7 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 			let is_dupe = cardData[k].duplicate_of !== undefined
 			if (is_dupe)
 				div.setAttribute('data-dupe', cardData[k].duplicate_of)
-			div.setAttribute('data-soul', cardData[k].soul)
+			div.setAttribute('data-soul', cardData[k].soul.toFixed(2))
 			a.classList.add('glightbox')
 			a.setAttribute('data-gallery', 'gallery1')
 			a.href = './cropped' + CCTAG + '/' + (is_dupe ? 'duplicates/' : '') + k
@@ -336,7 +336,7 @@ function reloadLightbox() {
 	Object.entries(lightboxOriginalIndexMapping).forEach(([k,v]) => {
 		lightboxElementsOriginal[v].filename = k
 		lightboxElementsOriginal[v].original_idx = v
-		lightboxElementsOriginal[v].content = ''+cardData[k].soul
+		lightboxElementsOriginal[v].content = ''+cardData[k].soul.toFixed(2)
 		lightboxElementsOriginal[v].content += ','+cardData[k].group
 		has_dupe = cardData[k].duplicate_of || ((k in dupe_groups) ? k : undefined)
 		if (has_dupe) {
