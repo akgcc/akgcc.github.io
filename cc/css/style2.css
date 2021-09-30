@@ -109,3 +109,6 @@ html {
 #chartDiv canvas.hidden {
 	display: none !important;
 }
+.chartContainer {
+	width:100%;
+}

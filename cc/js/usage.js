@@ -175,7 +175,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 	});
 	let scatterData = Object.values(sortedData).map(d => {return {x: d[1], y: d[2]}})
 	var imgSize = window.innerWidth/30;
-	let scatterImages = Object.values(sortedData).map(x => {i = new Image(); i.src='./avatars/'+x[3]+'.png'; return i})
+	let scatterImages = Object.values(sortedData).map(x => {i = new Image(); i.src='https://aceship.github.io/AN-EN-Tags/img/avatars/'+x[3]+'.png'; return i})
 	scatterImages.forEach(i=> {i.width = imgSize;i.height=imgSize});
   
 	window.onresize = () => {
