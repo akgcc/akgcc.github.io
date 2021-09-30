@@ -470,8 +470,7 @@ body.soul-mode .cardContainer::after {
     position: absolute;
     transform: translate(calc(-256px + 6px),calc(144px - 100% - 6px));
 	margin: auto;
-	/* bottom: .2em; */
-	/* left: .2em; */
+	pointer-events: none;
 	font-weight: 700;
 	color: #0ff;
 	background: #000a;
