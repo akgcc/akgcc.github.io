@@ -199,6 +199,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 			onResize: (chrt) => {
 				chrt.options.layout.padding.top = imgSize/2
 				chrt.options.layout.padding.right = imgSize/2
+				chrt.chart.data.datasets.forEach(x => x.radius = imgSize/2)
 			},
 			maintainAspectRatio: true,
 			responsive: true,
