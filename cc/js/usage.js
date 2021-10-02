@@ -26,16 +26,33 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
     return fetch('./data' + CCTAG + '.json')
 }).then(res => res.json()).then(js => {
     usedata = js;
+	
+	
     Object.values(usedata).forEach(x => {
         x['squad'].forEach(y => {
             if (x.risk >= 18) {
-                if (!x.duplicate_of) {
-                    useCount[y] = (useCount[y] || 0) + 1
-                }
 				maxRisk[y] = Math.max(maxRisk[y] || 0, x.risk)
             }
         })
     })
+	// union all clears from the same doctor, so their ops are only counted once towards use count.
+	Object.keys(usedata).forEach(k => {
+		if (usedata[k].duplicate_of) {
+			usedata[usedata[k].duplicate_of].squad = [...new Set(usedata[usedata[k].duplicate_of].squad.concat(usedata[k].squad))]
+			delete usedata[k]
+		}
+	})
+	
+	Object.values(usedata).forEach(x => {
+        x['squad'].forEach(y => {
+            if (x.risk >= 18) {
+				useCount[y] = (useCount[y] || 0) + 1
+            }
+        })
+    })
+	// null usedata as we mangled it badly.
+	usedata = null
+	
     Object.keys(operatorData).forEach(x => {
         useCountMap[operatorData[x].name] = useCount[x] || 0
 		classMap[operatorData[x].name] = operatorData[x].profession || ""
