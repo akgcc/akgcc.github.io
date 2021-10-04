@@ -2,6 +2,7 @@ const mean = (array) => array.reduce((a, b) => a + b) / array.length;
 var UPPER_BOUNDS = 50, LOWER_BOUNDS = 10;
 if (!window.location.hash) window.location.hash = '#4'
 document.getElementById('clearsLink').href = './cc.html' + window.location.hash
+window.onhashchange = () => window.location.reload()
 var charIdMap = {},
     operatorData, useCount = {},
     maxRisk = {},

@@ -6,9 +6,9 @@ const lightbox = GLightbox({
 });
 if (!window.location.hash)
 	window.location.hash = '#4'
-
-
 document.getElementById('usageLink').href = './cc-usage.html' + window.location.hash
+window.onhashchange = () => window.location.reload()
+
 var charIdMap = {}
 var cardOperatorMap = {}
 var filterStatus = {}
