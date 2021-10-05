@@ -10,6 +10,7 @@ var charIdMap = {},
     maxRiskMap = {},
     divMap = {},
 	classMap = {},
+	classList = {},
     CCTAG;
 fetch('./cctitles.json').then(res => res.json()).then(json => {
     CCMAP = json;
@@ -57,9 +58,11 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
     Object.keys(operatorData).forEach(x => {
         useCountMap[operatorData[x].name] = useCount[x] || 0
 		classMap[operatorData[x].name] = operatorData[x].profession || ""
+		classList[operatorData[x].profession] = null
         maxRiskMap[operatorData[x].name] = maxRisk[x] || 0
     })
-	document.getElementById('barChartContainer').style.height = Object.keys(operatorData).length*parseFloat(getComputedStyle(document.body).fontSize) * 3/4;
+	// document.getElementById('barChartContainer').style.height = Object.keys(operatorData).length*parseFloat(getComputedStyle(document.body).fontSize) * 3/4;
+	document.getElementById('barChartContainer').style.height = Object.values(useCountMap).filter(x=>x>0).length*parseFloat(getComputedStyle(document.body).fontSize) * 4/5;
 	
 	LOWER_BOUNDS = mean(Object.values(useCountMap).filter(x=>x!=0))
 	UPPER_BOUNDS = LOWER_BOUNDS + getStandardDeviation(Object.values(useCountMap).filter(x=>x!=0))
@@ -67,14 +70,19 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
     Object.keys(operatorData).forEach(x => {
         divMap[operatorData[x].name] = CreateOpCheckbox(operatorData[x]);
     })
-    var sortedData = {}
-    Object.values(operatorData).sort((a, b) => useCountMap[a.name] == useCountMap[b.name] ? (a.name > b.name ? 1 : -1) : (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1)).forEach((x, i) => {
-        divMap[x.name].style.order = i
-        sortedData[i] = [x.name, useCountMap[x.name], maxRiskMap[x.name], charIdMap[x.name]]
-    })
-    labels = Object.values(sortedData).map(x => x[0])
-    values = Object.values(sortedData).map(x => x[1])
-    values2 = Object.values(sortedData).map(x => x[2])
+    var sortedData = []
+	function buildSortedData(opdata) {
+		sortedData = []
+		opdata.forEach((x, i) => {
+			divMap[x.name].style.order = i
+			if (useCountMap[x.name] > 0)
+				sortedData.push([x, useCountMap[x.name], maxRiskMap[x.name], charIdMap[x.name]])
+		})
+	}
+    buildSortedData(Object.values(operatorData).sort((a, b) => useCountMap[a.name] == useCountMap[b.name] ? (a.name > b.name ? 1 : -1) : (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1)))
+    labels = sortedData.map(x => x[0].name)
+    values = sortedData.map(x => x[1])
+    values2 = sortedData.map(x => x[2])
 
     function ttfunc(tooltip) {
         var tooltipEl = document.getElementById('chartjs-tooltip')
@@ -191,10 +199,9 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 		}
 	  }
 	});
-	let scatterData = Object.values(sortedData).map(d => {return {x: d[1], y: d[2]}})
-	var imgSize = window.innerWidth/30;
-	let scatterImages = Object.values(sortedData).map(x => {i = new Image(); i.src='https://aceship.github.io/AN-EN-Tags/img/avatars/'+x[3]+'.png'; return i})
-	scatterImages.forEach(i=> {i.width = imgSize;i.height=imgSize});
+	let imgSize = window.innerWidth/30;
+	let scatterData = sortedData.map(d => {return {x: d[1], y: d[2]}})
+	let scatterImages = sortedData.map(x => {i = new Image(imgSize,imgSize); i.src='https://aceship.github.io/AN-EN-Tags/img/avatars/'+x[3]+'.png'; i.opname = x[0].name; return i})
   
 	window.onresize = () => {
 		imgSize = window.innerWidth/30;
@@ -281,20 +288,63 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 	});
 
 
-    function redrawChart() {
-        barGraph.data.labels = Object.values(sortedData).map(x => x[0])
-        barGraph.data.datasets[0].data = Object.values(sortedData).map(x => x[1])
-        barGraph.data.datasets[1].data = Object.values(sortedData).map(x => x[2])
+    function redrawCharts(sortName) {
+		
+		labels = sortedData.map(x => x[0].name)
+		
+		////// BAR GRAPH ///////
+        barGraph.data.labels = labels
+        barGraph.data.datasets[0].data = sortedData.map(x => x[1])
+        barGraph.data.datasets[1].data = sortedData.map(x => x[2])
         barGraph.update();
+		
+		
+		////// SCATTER PLOT ///////
+		scatterPlot.options.scales.yAxes[0].scaleLabel.labelString = sortName
+		// reset some axes options to defaults
+		scatterPlot.options.scales.yAxes[0].ticks.min = undefined
+		scatterPlot.options.scales.yAxes[0].type = 'linear'
+		scatterPlot.options.scales.yAxes[0].ticks.callback = (value, index, values) => value
+		switch(sortName) {
+			case 'Rarity':
+				scatterData = sortedData.map(d => {return {x: d[1], y: d[0].rarity}})
+				scatterPlot.options.scales.yAxes[0].ticks.stepSize = 1
+				scatterPlot.options.scales.yAxes[0].ticks.callback = (value, index, values) => '★'.repeat(value+1)
+			break
+			case 'Class':
+				scatterData = sortedData.map(d => {return {x: d[1], y: Object.keys(classList).indexOf(classMap[d[0].name])}})
+				scatterPlot.options.scales.yAxes[0].ticks.callback = (value, index, values) => Object.keys(classList)[value]
+			break
+			case 'NOT!Uses':
+				scatterData = sortedData.map(d => {return {x: d[1], y: d[1]}})
+				scatterPlot.options.scales.yAxes[0].type = 'logarithmic'
+				scatterPlot.options.scales.yAxes[0].ticks.min = 1
+				// scatterPlot.options.scales.yAxes[0].ticks.callback = (value, index, values) => Object.keys(classList)[value]
+			break
+			default:// == 'Highest Risk'
+				scatterData = sortedData.map(d => {return {x: d[1], y: d[2]}})
+				scatterPlot.options.scales.yAxes[0].ticks.min = 18
+				scatterPlot.options.scales.yAxes[0].scaleLabel.labelString = 'Highest Risk'
+			break
+			
+		}
+		// filter 0 results
+		// scatterData = scatterData.filter(d=> d.x>0)
+		// sort images by sortedData
+		scatterImages.sort((a,b) => labels.indexOf(a.opname) - labels.indexOf(b.opname))
+
+		
+		scatterPlot.data.labels = labels
+		scatterPlot.data.datasets[0].data = scatterData
+		scatterPlot.data.datasets[0].pointStyle = scatterImages
+		
+		scatterPlot.update()
     }
 
     function clickFunc(e, sorter) {
         Array.from(document.getElementById('sort').querySelectorAll('.checked')).forEach(x => x.classList.remove('checked'))
-        Object.values(operatorData).sort(sorter).forEach((x, i) => {
-            divMap[x.name].style.order = i
-            sortedData[i] = [x.name, useCountMap[x.name], maxRiskMap[x.name]]
-        })
-        redrawChart()
+		buildSortedData(Object.values(operatorData).sort(sorter))
+        redrawCharts(e.currentTarget.innerText)
         e.currentTarget.classList.toggle('checked')
     }
     document.getElementById('s_name').onclick = (e) => clickFunc(e, (a, b) => a.name > b.name ? 1 : -1)
@@ -311,7 +361,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 			case 0: // scatter
 				document.getElementById('scatterChart').classList.remove('hidden')
 				document.getElementById('viewType').innerHTML = 'View: Scatter'
-				Array.from(document.getElementById('sort').querySelectorAll('.button:not(#viewType)')).forEach(e=>e.classList.add('disabled'))
+				// Array.from(document.getElementById('sort').querySelectorAll('.button:not(#viewType)')).forEach(e=>e.classList.add('disabled'))
 			break;
 			case 1: // bar chart
 				document.getElementById('barChartContainer').classList.remove('hidden')
