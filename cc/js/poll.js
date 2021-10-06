@@ -15,7 +15,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 }).then(res => res.json()).then(js => {
 	let polldata = js
 	let sortMetrics = Object.keys(Object.values(polldata)[0])
-	let axesMetrics = sortMetrics.slice(0,2)
+	let axesMetrics = ['Power','Utility']
 	
 	let btns = document.getElementById('sort')
 	Array.from(['x-Axis:','y-Axis:']).forEach((axes,i) => {
@@ -25,7 +25,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		sortMetrics.forEach((n,j) => {
 			let btn = document.createElement('div')
 			btn.classList = 'sorter button'
-			if (i==j)
+			if (axesMetrics[i]==n)
 				btn.classList.add('checked')
 			btn.setAttribute('data-name',n)
 			btn.setAttribute('data-axes',i)
