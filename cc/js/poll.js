@@ -13,17 +13,31 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
     }
     return fetch('./poll_results_' + PTAG + '.json')
 }).then(res => res.json()).then(js => {
-	let polldata = js
-	let sortMetrics = Object.keys(Object.values(polldata)[0])
+	let scatter_data = js['scatter']['data']
+	console.log(js)
+	let bar_data = js['bar']['data']
+	let bar_total = js['bar']['total']
+	let barMetrics = Object.keys(Object.values(bar_data)[0])
+	let barDefaultSort = 'Ownership'
+	Object.keys(bar_data).forEach(k => {
+		bar_data[k]['name'] = k
+	})
+	let sortMetrics = Object.keys(Object.values(scatter_data)[0])
+	
 	let axesMetrics = ['Power','Utility']
 	
-	let btns = document.getElementById('sort')
+
+	
+	btns = document.createElement('div')
+	btns.id ='scatterSort'
+	btns.classList.add('sortdiv')
+	document.getElementById('sort').appendChild(btns)
 	Array.from(['x-Axis:','y-Axis:']).forEach((axes,i) => {
-		let label = document.createElement('label')
+		label = document.createElement('label')
 		label.innerHTML = axes
 		btns.appendChild(label)
 		sortMetrics.forEach((n,j) => {
-			let btn = document.createElement('div')
+			btn = document.createElement('div')
 			btn.classList = 'sorter button'
 			if (axesMetrics[i]==n)
 				btn.classList.add('checked')
@@ -39,15 +53,76 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 				redrawCharts()
 				e.currentTarget.classList.toggle('checked')
 			}
-			
 			btns.appendChild(btn)
 		})
 	})
 	
-	let labels = Object.keys(polldata)
+	btns = document.createElement('div')
+	btns.id = 'barSort'
+	btns.classList.add('sortdiv')
+	document.getElementById('sort').appendChild(btns)
+	label = document.createElement('label')
+	label.innerHTML = 'Sort By:'
+	btns.appendChild(label)
+	barMetrics.forEach((n,j) => {
+		btn = document.createElement('div')
+		btn.classList = 'sorter button'
+		if (n==barDefaultSort)
+			btn.classList.add('checked')
+		btn.setAttribute('data-name',n)
+		// btn.setAttribute('data-axes',i)
+		btn.innerHTML = n
+		
+		btn.onclick = (e) => {
+			// change axesMetrics
+			// let axis = e.currentTarget.getAttribute('data-axes')
+			// axesMetrics[axis] = e.currentTarget.innerText
+			Array.from(document.getElementById('sort').querySelectorAll('#barSort .checked')).forEach(x => x.classList.remove('checked'))
+			sorted_bar_data = Object.values(bar_data).sort((a,b) => b[barMetrics[j]] - a[barMetrics[j]])
+			redrawCharts()
+			e.currentTarget.classList.toggle('checked')
+			
+		}
+		btns.appendChild(btn)
+	})
+	
+
+
+
+	function swapCharts(e) {
+		if (!e.currentTarget.classList.contains('checked')) {
+			Array.from(document.querySelectorAll('.sortdiv')).forEach(e=>e.classList.toggle('hidden'))
+			Array.from(document.querySelectorAll('#chartPicker .button')).forEach(e=>e.classList.toggle('checked'))
+			document.getElementById('barChartContainer').classList.toggle('hidden')
+			document.getElementById('scatterChart').classList.toggle('hidden')
+		}
+	}
+	btns = document.getElementById('chartPicker')
+	label = document.createElement('label')
+	label.innerHTML = 'Chart:'
+	btns.appendChild(label)
+	// Add scatter plot
+	btn = document.createElement('div')
+	btn.classList = 'sorter button checked'
+	btn.innerHTML = 'Rating'
+	btns.appendChild(btn)
+	btn.onclick = swapCharts
+	
+	// Add bar graph
+	btn = document.createElement('div')
+	btn.classList = 'sorter button'
+	btn.innerHTML = 'Ownership'
+	btns.appendChild(btn)
+	btn.onclick = swapCharts
+	document.getElementById('barChartContainer').classList.toggle('hidden')
+	document.getElementById('barSort').classList.toggle('hidden')
+
+
+
+	let labels = Object.keys(scatter_data)
 
 	let imgSize = window.innerWidth/30;
-	let scatterData = Object.values(polldata).map(d => {return {x: d[axesMetrics[0]], y: d[axesMetrics[1]]}})
+	let scatterData = Object.values(scatter_data).map(d => {return {x: d[axesMetrics[0]], y: d[axesMetrics[1]]}})
 	let scatterImages = labels.map(x => {i = new Image(imgSize,imgSize); i.src='https://aceship.github.io/AN-EN-Tags/img/avatars/'+charIdMap[x]+'.png'; return i})
 
 	window.onresize = () => {
@@ -55,7 +130,110 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		scatterImages.forEach(i=> {i.width = imgSize;i.height=imgSize});
 		scatterPlot.update();
 	}
-  
+	
+	document.getElementById('barChartContainer').style.height = labels.length*parseFloat(getComputedStyle(document.body).fontSize) * 4/5 * 2;
+	
+	let sorted_bar_data = Object.values(bar_data).sort((a,b) => b[barDefaultSort] - a[barDefaultSort])
+	// let sorted_bar_data = Object.values(bar_data).sort((a,b) => parseInt(charIdMap[b.name].split('_')[1]) - parseInt(charIdMap[a.name].split('_')[1]))
+	
+	let barGraph = new Chart(document.getElementById("opChart"), {
+        type: "horizontalBar",
+        data: {
+            labels: sorted_bar_data.map(x => x.name),
+            datasets: [{
+                label: barMetrics[0],
+                data: sorted_bar_data.map(x=> 100*x[barMetrics[0]]),
+                backgroundColor: "#855f93",
+                yAxisID: 'y-axis-1',
+                xAxisID: 'x-axis-1'
+            }, {
+                label: barMetrics[1],
+                data: sorted_bar_data.map(x=> 100*x[barMetrics[1]]),
+                backgroundColor: "#938e5f",
+                yAxisID: 'y-axis-2',
+                xAxisID: 'x-axis-2'
+            }]
+        },
+        options: {
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            tooltips: {
+                enabled: true,
+                position: 'nearest',
+                // custom: ttfunc,
+                xAlign: 'left'
+            },
+            maintainAspectRatio: false,
+            responsive: true,
+            legend: {
+                display: true
+            },
+            scales: {
+                yAxes: [{
+                    id: 'y-axis-1',
+                    type: 'category',
+                    categoryPercentage: 1,
+                    barPercentage: .8,
+                    offset: true,
+                    // stacked: true,
+                    ticks: {
+                        fontColor: "#dddddd",
+                        beginAtZero: true
+                    }
+                }, {
+                    id: 'y-axis-2',
+                    type: 'category',
+                    display: false,
+                    // stacked: true,
+                    categoryPercentage: 1,
+                    barPercentage: .8,
+                    offset: true,
+                    gridLines: {
+                        display: false,
+                        offsetGridLines: true
+                    },
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }],
+                xAxes: [{
+                    id: 'x-axis-1',
+                    type: 'linear',
+                    ticks: {
+                        fontColor: "#dddddd",
+						stepSize: 5,
+						beginAtZero: true,
+						max: 100,
+                    }
+                }, {
+                    id: 'x-axis-2',
+                    type: 'linear',
+                    display: false,
+                    gridLines: {
+                        display: false,
+                        offsetGridLines: true
+                    },
+                    ticks: {
+                        fontColor: "#dddddd",
+						stepSize: 5,
+						beginAtZero: true,
+						max: 100,
+                    },
+                }],
+            },
+			tooltips: {
+			 callbacks: {
+				label: function(tooltipItem, data) {
+				   if (barMetrics[tooltipItem.datasetIndex].includes('E2'))
+						return barMetrics[tooltipItem.datasetIndex] + ' (' + tooltipItem.xLabel.toFixed(1) +  '%) [' + (tooltipItem.xLabel/data.datasets[tooltipItem.datasetIndex^1].data[tooltipItem.index]*100).toFixed(1) + '%]';
+				   return barMetrics[tooltipItem.datasetIndex] + ' (' + tooltipItem.xLabel.toFixed(1) +  '%)';
+				}
+			 }
+		  }
+        }
+    });
 	let scatterPlot = new Chart(document.getElementById("scatterChart"), {
 		type: 'bubble',
 		data: {
@@ -135,9 +313,14 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
     function redrawCharts() {
 		scatterPlot.options.scales.xAxes[0].scaleLabel.labelString = axesMetrics[0]
 		scatterPlot.options.scales.yAxes[0].scaleLabel.labelString = axesMetrics[1]
-		scatterData = Object.values(polldata).map(d => {return {x: d[axesMetrics[0]], y: d[axesMetrics[1]]}})
+		scatterData = Object.values(scatter_data).map(d => {return {x: d[axesMetrics[0]], y: d[axesMetrics[1]]}})
 		scatterPlot.data.datasets[0].data = scatterData
 		scatterPlot.update()
+		
+		barGraph.data.labels = sorted_bar_data.map(x => x.name)
+		for (i=0; i< barGraph.data.datasets.length; i++)
+			barGraph.data.datasets[i].data = sorted_bar_data.map(x=> 100*x[barMetrics[i]])
+        barGraph.update();
     }
 
 })

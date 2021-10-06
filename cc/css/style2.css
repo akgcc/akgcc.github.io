@@ -20,12 +20,12 @@
 .operatorCheckbox .name {
 	cursor: default;
 }
-#sort,
+.btnPanel,
 #info {
 	padding: 8px 0 0 0;
 }
 #info,
-#sort {
+.btnPanel {
 	padding-left: 8px;
 }
 
@@ -97,7 +97,7 @@ html {
 	text-shadow: -1px 0 #fff, 0 1px #fff, 1px 0 #fff, 0 -1px #fff;
 }
 
-#sort,
+.btnPanel,
 #chartDiv,
 #checkboxes {
 	user-select: none;
@@ -113,11 +113,11 @@ html {
 	width:100%;
 }
 
-#sort {
+.btnPanel {
 	display: flex;
     flex-wrap: wrap;
     align-items: center;
 }
-#sort > * {
+.btnPanel * {
 	margin-right: 4px;
 }
