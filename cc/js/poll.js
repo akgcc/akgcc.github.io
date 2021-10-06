@@ -170,7 +170,10 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
             maintainAspectRatio: false,
             responsive: true,
             legend: {
-                display: true
+                display: true,
+				labels: {
+					fontColor: "#dddddd",
+				}
             },
             scales: {
                 yAxes: [{
