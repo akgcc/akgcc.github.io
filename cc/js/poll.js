@@ -1,19 +1,10 @@
 if (!window.location.hash) window.location.hash = '#1'
 window.onhashchange = () => window.location.reload()
 var charIdMap = {},
-    operatorData, useCount = {},
-    maxRisk = {},
-    useCountMap = {},
-    maxRiskMap = {},
-    divMap = {},
-	classMap = {},
-	classList = {},
-    PTAG,
-	sortMetrics = ['Power','Utility','Fun','Coom','Overall'];
-PTAG = window.location.hash.substr(1)
+    PTAG = window.location.hash.substr(1);
 fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')
 .then(res => res.json()).then(js => {
-    operatorData = js;
+    let operatorData = js;
     for (var key in operatorData) {
         if (!operatorData[key].displayNumber) delete operatorData[key]
     }
@@ -23,15 +14,16 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
     return fetch('./poll_results_' + PTAG + '.json')
 }).then(res => res.json()).then(js => {
 	let polldata = js
+	let sortMetrics = Object.keys(Object.values(polldata)[0])
 	let axesMetrics = sortMetrics.slice(0,2)
 	
-	btns = document.getElementById('sort')
+	let btns = document.getElementById('sort')
 	Array.from(['x-Axis:','y-Axis:']).forEach((axes,i) => {
-		label = document.createElement('label')
+		let label = document.createElement('label')
 		label.innerHTML = axes
 		btns.appendChild(label)
 		sortMetrics.forEach((n,j) => {
-			btn = document.createElement('div')
+			let btn = document.createElement('div')
 			btn.classList = 'sorter button'
 			if (i==j)
 				btn.classList.add('checked')
@@ -52,11 +44,11 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		})
 	})
 	
-	labels = Object.keys(polldata)
+	let labels = Object.keys(polldata)
 
 	let imgSize = window.innerWidth/30;
 	let scatterData = Object.values(polldata).map(d => {return {x: d[axesMetrics[0]], y: d[axesMetrics[1]]}})
-	let scatterImages = labels.map(x => {i = new Image(imgSize,imgSize); i.src='https://aceship.github.io/AN-EN-Tags/img/avatars/'+charIdMap[x]+'.png'; i.opname = x; return i})
+	let scatterImages = labels.map(x => {i = new Image(imgSize,imgSize); i.src='https://aceship.github.io/AN-EN-Tags/img/avatars/'+charIdMap[x]+'.png'; return i})
 
 	window.onresize = () => {
 		imgSize = window.innerWidth/30;
@@ -64,7 +56,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 		scatterPlot.update();
 	}
   
-	scatterPlot = new Chart(document.getElementById("scatterChart"), {
+	let scatterPlot = new Chart(document.getElementById("scatterChart"), {
 		type: 'bubble',
 		data: {
 			labels: labels,
