@@ -9,7 +9,7 @@ var charIdMap = {},
 	classMap = {},
 	classList = {},
     PTAG,
-	sortMetrics = ['Power','Utility','Fun','Coom'];
+	sortMetrics = ['Power','Utility','Fun','Coom','Overall'];
 PTAG = window.location.hash.substr(1)
 fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')
 .then(res => res.json()).then(js => {
