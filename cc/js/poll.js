@@ -14,13 +14,14 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
     return fetch('./poll_results_' + PTAG + '.json')
 }).then(res => res.json()).then(js => {
 	let scatter_data = js['scatter']['data']
-	console.log(js)
 	let bar_data = js['bar']['data']
 	let bar_total = js['bar']['total']
 	let barMetrics = Object.keys(Object.values(bar_data)[0])
+	barMetrics.push('E2% of Owners')
 	let barDefaultSort = 'Ownership'
 	Object.keys(bar_data).forEach(k => {
 		bar_data[k]['name'] = k
+		bar_data[k]['E2% of Owners'] = bar_data[k]['E2%']/bar_data[k]['Ownership']
 	})
 	let sortMetrics = Object.keys(Object.values(scatter_data)[0])
 	
@@ -134,6 +135,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 	document.getElementById('barChartContainer').style.height = labels.length*parseFloat(getComputedStyle(document.body).fontSize) * 4/5 * 2;
 	
 	let sorted_bar_data = Object.values(bar_data).sort((a,b) => b[barDefaultSort] - a[barDefaultSort])
+	// let sorted_bar_data = Object.values(bar_data).sort((a,b) => b['E2%']/b['Ownership'] - a['E2%']/a['Ownership'])
 	// let sorted_bar_data = Object.values(bar_data).sort((a,b) => parseInt(charIdMap[b.name].split('_')[1]) - parseInt(charIdMap[a.name].split('_')[1]))
 	
 	let barGraph = new Chart(document.getElementById("opChart"), {
