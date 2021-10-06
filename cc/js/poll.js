@@ -145,13 +145,13 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
             datasets: [{
                 label: barMetrics[0],
                 data: sorted_bar_data.map(x=> 100*x[barMetrics[0]]),
-                backgroundColor: "#855f93",
+                backgroundColor: "#845994",
                 yAxisID: 'y-axis-1',
                 xAxisID: 'x-axis-1'
             }, {
                 label: barMetrics[1],
                 data: sorted_bar_data.map(x=> 100*x[barMetrics[1]]),
-                backgroundColor: "#938e5f",
+                backgroundColor: "#948d52",
                 yAxisID: 'y-axis-2',
                 xAxisID: 'x-axis-2'
             }]
@@ -176,8 +176,8 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
                 yAxes: [{
                     id: 'y-axis-1',
                     type: 'category',
-                    categoryPercentage: 1,
-                    barPercentage: .8,
+                    categoryPercentage: .8,
+                    barPercentage: 1,
                     offset: true,
                     // stacked: true,
                     ticks: {
@@ -189,8 +189,8 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
                     type: 'category',
                     display: false,
                     // stacked: true,
-                    categoryPercentage: 1,
-                    barPercentage: .8,
+                    categoryPercentage: .8,
+                    barPercentage: 1,
                     offset: true,
                     gridLines: {
                         display: false,
