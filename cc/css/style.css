@@ -492,3 +492,7 @@ body.soul-mode #deco {
 #deco {
 	display:none;
 }
+
+#filters > div:first-child {
+	margin-left: 5px;
+}

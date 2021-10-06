@@ -112,3 +112,12 @@ html {
 .chartContainer {
 	width:100%;
 }
+
+#sort {
+	display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+#sort > * {
+	margin-right: 4px;
+}

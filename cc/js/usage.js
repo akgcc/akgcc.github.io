@@ -266,7 +266,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 					fontColor:"#dddddd"
 				},
 				ticks: {
-					min: 18,
+					// min: 18,
 					fontColor: "#dddddd",
 					padding:imgSize/2,
 				},
@@ -302,8 +302,8 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 		////// SCATTER PLOT ///////
 		scatterPlot.options.scales.yAxes[0].scaleLabel.labelString = sortName
 		// reset some axes options to defaults
-		scatterPlot.options.scales.yAxes[0].ticks.min = undefined
-		scatterPlot.options.scales.yAxes[0].type = 'linear'
+		// scatterPlot.options.scales.yAxes[0].ticks.min = undefined
+		// scatterPlot.options.scales.yAxes[0].type = 'linear'
 		scatterPlot.options.scales.yAxes[0].ticks.callback = (value, index, values) => value
 		switch(sortName) {
 			case 'Rarity':
@@ -318,12 +318,12 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 			case 'NOT!Uses':
 				scatterData = sortedData.map(d => {return {x: d[1], y: d[1]}})
 				scatterPlot.options.scales.yAxes[0].type = 'logarithmic'
-				scatterPlot.options.scales.yAxes[0].ticks.min = 1
+				// scatterPlot.options.scales.yAxes[0].ticks.min = 1
 				// scatterPlot.options.scales.yAxes[0].ticks.callback = (value, index, values) => Object.keys(classList)[value]
 			break
 			default:// == 'Highest Risk'
 				scatterData = sortedData.map(d => {return {x: d[1], y: d[2]}})
-				scatterPlot.options.scales.yAxes[0].ticks.min = 18
+				// scatterPlot.options.scales.yAxes[0].ticks.min = 18
 				scatterPlot.options.scales.yAxes[0].scaleLabel.labelString = 'Highest Risk'
 			break
 			
