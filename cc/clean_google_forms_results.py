@@ -36,7 +36,7 @@ for a in ANSWERS:
             print(_map)
             m = E2_ANSWER_MAP.setdefault(name, {})
             m['Ownership'] = _map['Yes'] + _map['Yes and E2']
-            m['E2%'] = _map['Yes and E2'] / total#m['Ownership']
+            m['E2'] = _map['Yes and E2'] / total#m['Ownership']
             m['Ownership'] /= total
             
             # for k,v in _map.items():

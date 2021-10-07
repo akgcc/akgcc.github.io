@@ -111,7 +111,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
             },
             tooltips: {
                 enabled: false,
-                position: 'nearest',
+                // position: 'nearest',
                 custom: thumbnail_tooltip(document.getElementById('opChart')),
                 // xAlign: 'left'
             },

@@ -17,11 +17,11 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 	let bar_data = js['bar']['data']
 	let bar_total = js['bar']['total']
 	let barMetrics = Object.keys(Object.values(bar_data)[0])
-	barMetrics.push('E2% of Owners')
+	barMetrics.push('E2 Among Owners')
 	let barDefaultSort = 'Ownership'
 	Object.keys(bar_data).forEach(k => {
 		bar_data[k]['name'] = k
-		bar_data[k]['E2% of Owners'] = bar_data[k]['E2%']/bar_data[k]['Ownership']
+		bar_data[k]['E2 Among Owners'] = bar_data[k]['E2']/bar_data[k]['Ownership']
 	})
 	let sortMetrics = Object.keys(Object.values(scatter_data)[0])
 	
@@ -227,8 +227,8 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			 callbacks: {
 				label: function(tooltipItem, data) {
 				   if (barMetrics[tooltipItem.datasetIndex].includes('E2'))
-						return barMetrics[tooltipItem.datasetIndex] + ' (' + tooltipItem.xLabel.toFixed(1) +  '%) [' + (tooltipItem.xLabel/data.datasets[tooltipItem.datasetIndex^1].data[tooltipItem.index]*100).toFixed(1) + '%]';
-				   return barMetrics[tooltipItem.datasetIndex] + ' (' + tooltipItem.xLabel.toFixed(1) +  '%)';
+						return barMetrics[tooltipItem.datasetIndex] + ': ' + tooltipItem.xLabel.toFixed(1) +  '% (' + (tooltipItem.xLabel/data.datasets[tooltipItem.datasetIndex^1].data[tooltipItem.index]*100).toFixed(1) + '%)';
+				   return barMetrics[tooltipItem.datasetIndex] + ': ' + tooltipItem.xLabel.toFixed(1) +  '%';
 				}
 			 },
 			    enabled: false,
