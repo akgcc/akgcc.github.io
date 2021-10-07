@@ -110,8 +110,9 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
                 intersect: false,
             },
             tooltips: {
+				xPadding: 6 + 50/2, // default is 6, add imgWidth/2 (25px)
                 enabled: false,
-                // position: 'nearest',
+                position: 'nearest',
                 custom: thumbnail_tooltip(document.getElementById('opChart')),
                 // xAlign: 'left'
             },
