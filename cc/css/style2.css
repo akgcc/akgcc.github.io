@@ -32,6 +32,7 @@
 html {
 	/* necessary to prevent flickering scroll bar issue on chart resize */
 	/* overflow-y: scroll; */
+	/* overflow-y: auto; */
 }
 
 #pageTitle {
@@ -81,14 +82,14 @@ html {
 	top: calc(50% - 5px);
 }
 #chartjs-tooltip {
-	display: flex;
+	display: inline-flex;
 	position: absolute;
 	background: rgba(0, 0, 0, .7);
 	color: white;
 	padding: 3px;
 	/* border-radius: 3px; */
 	border-radius: .5em;
-	width: fit-content;
+	/* width: fit-content; */
 }
 #chartjs-tooltip,
 #chartjs-tooltip::after {
@@ -96,7 +97,7 @@ html {
 	opacity: 1;
 	transition: opacity .25s ease, transform .25s ease;
 	top: 50%;
-	right: 50%;
+	left: 50%;
 }
 #chartjs-tooltip::after {
 	transition: opacity .25s ease;
