@@ -1,8 +1,10 @@
 function thumbnail_tooltip(chart_canvas) {
-	return function f(tooltip) {
+	// This function is not perfect, it will only work at this exact tooltip height due to the image adding width
+	// to compensate for this extra width, you must set xPadding in your chart's tooltip options to 6+h/2 where h is the computed height of the tooltip - 6. (6 is for the 3px padding defined in the css)
+	return function f(context) {
+		let tooltip = context.tooltip
 		var tooltipEl = document.getElementById('chartjs-tooltip')
-		
-		if (!tooltip.title) {
+		if (tooltip.opacity == 0) {
 			tooltipEl.classList.add('hidden')
 			return
 		}
@@ -21,10 +23,7 @@ function thumbnail_tooltip(chart_canvas) {
 		tooltipEl.style.left = chart_canvas.offsetLeft + tooltip.x + 'px'
 		tooltipEl.style.top = chart_canvas.offsetTop + tooltip.y + 'px'
 		tooltipEl.style.height = tooltip.height - 6 + 'px' // -3px padding
-		tooltipEl.style.fontFamily = tooltip._bodyFontFamily
-		tooltipEl.style.fontSize = tooltip.bodyFontSize
-		tooltipEl.style.fontStyle = tooltip._bodyFontStyle
-		
+		tooltipEl.style.font = Chart.helpers.toFont(tooltip.options.bodyFont).string;
 		
 		// animate movement with FLIP technique
 		let newRect = tooltipEl.getBoundingClientRect();

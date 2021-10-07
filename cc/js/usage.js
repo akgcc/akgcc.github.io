@@ -85,99 +85,117 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
     labels = sortedData.map(x => x[0].name)
     values = sortedData.map(x => x[1])
     values2 = sortedData.map(x => x[2])
-
+	
+	Chart.defaults.color = '#dddddd'
+	
     barGraph = new Chart(document.getElementById("opChart"), {
-        type: "horizontalBar",
+        type: "bar",
         data: {
             labels: labels,
             datasets: [{
                 label: 'Uses',
                 data: values,
                 backgroundColor: "#cccccc",
-                yAxisID: 'y-axis-1',
-                xAxisID: 'x-axis-1'
+				// categoryPercentage: .7,
+                // yAxisID: 'y-axis-1',
+                // xAxisID: 'x-axis-1'
+				// stack: 'one',
             }, {
                 label: 'Highest',
                 data: values2,
                 backgroundColor: "#454545",
-                yAxisID: 'y-axis-2',
-                xAxisID: 'x-axis-2'
+				// categoryPercentage: .9,
+                // yAxisID: 'y-axis-2',
+                xAxisID: 'x2'
+				// stack: 'one',
             }]
         },
         options: {
+			indexAxis: 'y',
             interaction: {
                 mode: 'index',
-                intersect: false,
-            },
-            tooltips: {
-				xPadding: 6 + 50/2, // default is 6, add imgWidth/2 (25px)
-                enabled: false,
-                position: 'nearest',
-                custom: thumbnail_tooltip(document.getElementById('opChart')),
-                // xAlign: 'left'
             },
             maintainAspectRatio: false,
             responsive: true,
-            legend: {
-                display: false
-            },
             scales: {
-                yAxes: [{
-                    id: 'y-axis-1',
-                    type: 'category',
-                    categoryPercentage: .7,
-                    barPercentage: 1,
-                    offset: true,
+                y: {
+                    // id: 'y-axis-1',
+                    // type: 'category',
+                    // categoryPercentage: .7,
+                    // barPercentage: 1,
+                    // offset: true,
                     stacked: true,
                     ticks: {
-                        fontColor: "#dddddd",
-                        beginAtZero: true
+                        // fontColor: "#dddddd",
+                        // beginAtZero: true,
+						autoSkip: false,
                     }
-                }, {
-                    id: 'y-axis-2',
-                    type: 'category',
+                },
+				// y2:	{
+                    // id: 'y-axis-2',
+                    // type: 'category',
+                    // display: false,
+                    // stacked: true,
+                    // categoryPercentage: .9,
+                    // barPercentage: 1,
+                    // offset: true,
+                    // gridLines: {
+                        // display: false,
+                        // offsetGridLines: true
+                    // },
+                    // ticks: {
+                        // beginAtZero: true
+                    // }
+                // },
+                x: {
+                    // id: 'x-axis-1',
+                    // type: 'linear',
+                    ticks: {
+                        // fontColor: "#dddddd",
+						autoSkip: false,
+                    }
+                }, 
+				x2: {
+					min: 17,
+                    // id: 'x-axis-2',
+                    // type: 'linear',
                     display: false,
-                    stacked: true,
-                    categoryPercentage: .9,
-                    barPercentage: 1,
-                    offset: true,
-                    gridLines: {
-                        display: false,
-                        offsetGridLines: true
-                    },
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }],
-                xAxes: [{
-                    id: 'x-axis-1',
-                    type: 'linear',
-                    ticks: {
-                        fontColor: "#dddddd",
-                    }
-                }, {
-                    id: 'x-axis-2',
-                    type: 'linear',
-                    display: false,
-                    gridLines: {
-                        display: false,
-                        offsetGridLines: true
-                    },
-                    ticks: {
-                        fontColor: "#dddddd",
-                        min: 17,
-                    },
-                }],
-            }
+                    // gridLines: {
+                        // display: false,
+                        // offsetGridLines: true
+                    // },
+                    // ticks: {
+                        // fontColor: "#dddddd",
+                        
+                    // },
+                },
+            },
+			plugins: {
+				tooltip: {
+					padding: {
+						x: 6 + (63.2-6)/2, // default is 6, add (tooltipHeight - 6)/2
+						y: 6,
+					},
+				 // callbacks: {
+					// label: function(context, data) {
+					   // if (context.dataset.label.includes('E2'))
+						   // return context.dataset.label + ': ' + context.raw.toFixed(1) + '% (' + (context.raw/context.chart.data.datasets[context.datasetIndex^1].data[context.dataIndex]*100).toFixed(1) + '%)';
+					   // return context.dataset.label + ': ' + context.raw.toFixed(1) + '%'
+					// }
+				 // },
+					enabled: false,
+					position: 'nearest',
+					external: thumbnail_tooltip(document.getElementById('opChart')),
+				},
+				legend: {
+				  display: false
+			  }
+			}
         }
     });
-		Chart.scaleService.updateScaleDefaults('logarithmic', {
-	  ticks: {
-		callback: function(tick, index, ticks) {
+	Chart.defaults.scales.logarithmic.ticks.callback = function(tick, index, ticks) {
 		  return tick.toLocaleString()
 		}
-	  }
-	});
 	let imgSize = window.innerWidth/30;
 	let scatterData = sortedData.map(d => {return {x: d[1], y: d[2]}})
 	let scatterImages = sortedData.map(x => {i = new Image(imgSize,imgSize); i.src='https://aceship.github.io/AN-EN-Tags/img/avatars/'+x[3]+'.png'; i.opname = x[0].name; return i})
@@ -194,16 +212,16 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 			labels: labels,
 			datasets: [{
 				  label: 'Data',
-				  radius: imgSize/2,
+				  hitRadius: imgSize/2,
 				  pointStyle: scatterImages,
 				data: scatterData
 			}]
 		},
 		options: {
-			onResize: (chrt) => {
-				chrt.options.layout.padding.top = imgSize/2
-				chrt.options.layout.padding.right = imgSize/2
-				chrt.chart.data.datasets.forEach(x => x.radius = imgSize/2)
+			onResize: (chart) => {
+				chart.options.layout.padding.top = imgSize/2
+				chart.options.layout.padding.right = imgSize/2
+				chart.data.datasets.forEach(x => x.hitRadius = imgSize/2)
 			},
 			maintainAspectRatio: true,
 			responsive: true,
@@ -214,54 +232,51 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
             }
         },
 		scales: {
-			xAxes: [{
+			x: {
 				type: "logarithmic",
 				afterFit: (scale) => {
-					
 					scale.options.ticks.minor.padding = imgSize/2;
 					scale.options.ticks.major.padding = imgSize/2;
 					scale.options.ticks.padding = imgSize/2;
 				},
-				scaleLabel: {
+				title: {
 					display: true,
-					labelString: "Uses",
-					fontColor:"#dddddd"
+					text: "Uses",
 				},
 				ticks: {
-					fontColor: "#dddddd",
 					padding:imgSize/2,
 					min:1,
 				}
-			}],
-			yAxes: [{
+			},
+			y: {
 				afterFit: (scale) => {
 					scale.options.ticks.minor.padding = imgSize/2;
 					scale.options.ticks.major.padding = imgSize/2;
 					scale.options.ticks.padding = imgSize/2;
 				},
-				scaleLabel: {
+				title: {
 					display: true,
-					labelString: "Highest Risk",
+					text: "Highest Risk",
 					fontColor:"#dddddd"
 				},
 				ticks: {
 					// min: 18,
-					fontColor: "#dddddd",
 					padding:imgSize/2,
 				},
-			}],
+			},
 		},
-		legend: {
-			display: false
-		},
-		  tooltips: {
+		plugins: {
+			  tooltip: {
 			  displayColors: false,
 			 callbacks: {
-				label: function(tooltipItem, data) {
-				   var label = data.labels[tooltipItem.index];
-				   return label + ' (' + tooltipItem.xLabel +  ')';
+				label: function(context, data) {
+					return context.chart.data.labels[context.dataIndex] + ' (' + context.raw.x + ')'
 				}
 			 }
+		  },
+			  legend: {
+				  display: false
+			  }
 		  }
 		}
 	});
@@ -278,31 +293,31 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 		
 		
 		////// SCATTER PLOT ///////
-		scatterPlot.options.scales.yAxes[0].scaleLabel.labelString = sortName
+		scatterPlot.options.scales.y.title.text = sortName
 		// reset some axes options to defaults
-		// scatterPlot.options.scales.yAxes[0].ticks.min = undefined
-		// scatterPlot.options.scales.yAxes[0].type = 'linear'
-		scatterPlot.options.scales.yAxes[0].ticks.callback = (value, index, values) => value
+		// scatterPlot.options.scales.y.ticks.min = undefined
+		// scatterPlot.options.scales.y.type = 'linear'
+		scatterPlot.options.scales.y.ticks.callback = (value, index, values) => value
 		switch(sortName) {
 			case 'Rarity':
 				scatterData = sortedData.map(d => {return {x: d[1], y: d[0].rarity}})
-				scatterPlot.options.scales.yAxes[0].ticks.stepSize = 1
-				scatterPlot.options.scales.yAxes[0].ticks.callback = (value, index, values) => '★'.repeat(value+1)
+				scatterPlot.options.scales.y.ticks.stepSize = 1
+				scatterPlot.options.scales.y.ticks.callback = (value, index, values) => '★'.repeat(value+1)
 			break
 			case 'Class':
 				scatterData = sortedData.map(d => {return {x: d[1], y: Object.keys(classList).indexOf(classMap[d[0].name])}})
-				scatterPlot.options.scales.yAxes[0].ticks.callback = (value, index, values) => Object.keys(classList)[value]
+				scatterPlot.options.scales.y.ticks.callback = (value, index, values) => Object.keys(classList)[value]
 			break
 			case 'NOT!Uses':
 				scatterData = sortedData.map(d => {return {x: d[1], y: d[1]}})
-				scatterPlot.options.scales.yAxes[0].type = 'logarithmic'
-				// scatterPlot.options.scales.yAxes[0].ticks.min = 1
-				// scatterPlot.options.scales.yAxes[0].ticks.callback = (value, index, values) => Object.keys(classList)[value]
+				scatterPlot.options.scales.y.type = 'logarithmic'
+				// scatterPlot.options.scales.y.ticks.min = 1
+				// scatterPlot.options.scales.y.ticks.callback = (value, index, values) => Object.keys(classList)[value]
 			break
 			default:// == 'Highest Risk'
 				scatterData = sortedData.map(d => {return {x: d[1], y: d[2]}})
-				// scatterPlot.options.scales.yAxes[0].ticks.min = 18
-				scatterPlot.options.scales.yAxes[0].scaleLabel.labelString = 'Highest Risk'
+				// scatterPlot.options.scales.y.ticks.min = 18
+				scatterPlot.options.scales.y.title.text = 'Highest Risk'
 			break
 			
 		}

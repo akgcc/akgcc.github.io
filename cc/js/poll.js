@@ -118,7 +118,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 	document.getElementById('barChartContainer').classList.toggle('hidden')
 	document.getElementById('barSort').classList.toggle('hidden')
 
-
+	Chart.defaults.color = '#dddddd'
 
 	let labels = Object.keys(scatter_data)
 
@@ -135,107 +135,51 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 	document.getElementById('barChartContainer').style.height = labels.length*parseFloat(getComputedStyle(document.body).fontSize) * 4/5 * 2;
 	
 	let sorted_bar_data = Object.values(bar_data).sort((a,b) => b[barDefaultSort] - a[barDefaultSort])
-	// let sorted_bar_data = Object.values(bar_data).sort((a,b) => b['E2%']/b['Ownership'] - a['E2%']/a['Ownership'])
-	// let sorted_bar_data = Object.values(bar_data).sort((a,b) => parseInt(charIdMap[b.name].split('_')[1]) - parseInt(charIdMap[a.name].split('_')[1]))
-
+	
 	let barGraph = new Chart(document.getElementById("opChart"), {
-        type: "horizontalBar",
+        type: "bar",
         data: {
             labels: sorted_bar_data.map(x => x.name),
             datasets: [{
                 label: barMetrics[0],
+				categoryPercentage: .8,
+                barPercentage: 1,
                 data: sorted_bar_data.map(x=> 100*x[barMetrics[0]]),
                 backgroundColor: "#845994",
-                yAxisID: 'y-axis-1',
-                xAxisID: 'x-axis-1'
             }, {
                 label: barMetrics[1],
+				categoryPercentage: .8,
+                barPercentage: 1,
                 data: sorted_bar_data.map(x=> 100*x[barMetrics[1]]),
                 backgroundColor: "#948d52",
-                yAxisID: 'y-axis-2',
-                xAxisID: 'x-axis-2'
             }]
         },
         options: {
+			indexAxis: 'y',
             interaction: {
                 mode: 'index',
-                intersect: false,
             },
             maintainAspectRatio: false,
             responsive: true,
-            legend: {
-                display: true,
-				labels: {
-					fontColor: "#dddddd",
+			plugins: {
+				tooltip: {
+					padding: {
+						x: 6 + (63.2-6)/2, // default is 6, add (tooltipHeight - 6)/2
+						y: 6,
+					},
+				 callbacks: {
+					label: function(context, data) {
+					   if (context.dataset.label.includes('E2'))
+						   return context.dataset.label + ': ' + context.raw.toFixed(1) + '% (' + (context.raw/context.chart.data.datasets[context.datasetIndex^1].data[context.dataIndex]*100).toFixed(1) + '%)';
+					   return context.dataset.label + ': ' + context.raw.toFixed(1) + '%'
+					}
+				 },
+					enabled: false,
+					// position: 'nearest',
+					external: thumbnail_tooltip(document.getElementById('opChart')),
+					// xAlign: 'left'
 				}
-            },
-            scales: {
-                yAxes: [{
-                    id: 'y-axis-1',
-                    type: 'category',
-                    categoryPercentage: .8,
-                    barPercentage: 1,
-                    offset: true,
-                    // stacked: true,
-                    ticks: {
-                        fontColor: "#dddddd",
-                        beginAtZero: true
-                    }
-                }, {
-                    id: 'y-axis-2',
-                    type: 'category',
-                    display: false,
-                    // stacked: true,
-                    categoryPercentage: .8,
-                    barPercentage: 1,
-                    offset: true,
-                    gridLines: {
-                        display: false,
-                        offsetGridLines: true
-                    },
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }],
-                xAxes: [{
-                    id: 'x-axis-1',
-                    type: 'linear',
-                    ticks: {
-                        fontColor: "#dddddd",
-						stepSize: 5,
-						beginAtZero: true,
-						max: 100,
-                    }
-                }, {
-                    id: 'x-axis-2',
-                    type: 'linear',
-                    display: false,
-                    gridLines: {
-                        display: false,
-                        offsetGridLines: true
-                    },
-                    ticks: {
-                        fontColor: "#dddddd",
-						stepSize: 5,
-						beginAtZero: true,
-						max: 100,
-                    },
-                }],
-            },
-			tooltips: {
-				xPadding: 6 + 50/2, // default is 6, add imgWidth/2 (25px)
-			 callbacks: {
-				label: function(tooltipItem, data) {
-				   if (barMetrics[tooltipItem.datasetIndex].includes('E2'))
-						return barMetrics[tooltipItem.datasetIndex] + ': ' + tooltipItem.xLabel.toFixed(1) +  '% (' + (tooltipItem.xLabel/data.datasets[tooltipItem.datasetIndex^1].data[tooltipItem.index]*100).toFixed(1) + '%)';
-				   return barMetrics[tooltipItem.datasetIndex] + ': ' + tooltipItem.xLabel.toFixed(1) +  '%';
-				}
-			 },
-			    enabled: false,
-                // position: 'nearest',
-                custom: thumbnail_tooltip(document.getElementById('opChart')),
-                // xAlign: 'left'
-		  }
+			}
         }
     });
 	let scatterPlot = new Chart(document.getElementById("scatterChart"), {
@@ -244,16 +188,16 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			labels: labels,
 			datasets: [{
 				  label: 'Data',
-				  radius: imgSize/2,
+				  hitRadius: imgSize/2,
 				  pointStyle: scatterImages,
 				data: scatterData
 			}]
 		},
 		options: {
-			onResize: (chrt) => {
-				chrt.options.layout.padding.top = imgSize/2
-				chrt.options.layout.padding.right = imgSize/2
-				chrt.chart.data.datasets.forEach(x => x.radius = imgSize/2)
+			onResize: (chart) => {
+				chart.options.layout.padding.top = imgSize/2
+				chart.options.layout.padding.right = imgSize/2
+				chart.data.datasets.forEach(x => x.hitRadius = imgSize/2)
 			},
 			maintainAspectRatio: true,
 			responsive: true,
@@ -264,59 +208,55 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
             }
         },
 		scales: {
-			xAxes: [{
+			x: {
 				afterFit: (scale) => {
 					scale.options.ticks.minor.padding = imgSize/2;
 					scale.options.ticks.major.padding = imgSize/2;
 					scale.options.ticks.padding = imgSize/2;
 				},
-				scaleLabel: {
+				title: {
 					display: true,
-					labelString: axesMetrics[0],
-					fontColor:"#dddddd"
+					text: axesMetrics[0],
 				},
 				ticks: {
-					fontColor: "#dddddd",
 					padding:imgSize/2,
-					// min:1,
 				}
-			}],
-			yAxes: [{
+			},
+			y: {
 				afterFit: (scale) => {
 					scale.options.ticks.minor.padding = imgSize/2;
 					scale.options.ticks.major.padding = imgSize/2;
 					scale.options.ticks.padding = imgSize/2;
 				},
-				scaleLabel: {
+				title: {
 					display: true,
-					labelString: axesMetrics[1],
-					fontColor:"#dddddd"
+					text: axesMetrics[1],
 				},
 				ticks: {
-					fontColor: "#dddddd",
 					padding:imgSize/2,
-					// min:1,
 				},
-			}],
+			},
 		},
-		legend: {
-			display: false
-		},
-		  tooltips: {
+		  
+		  plugins: {
+			  tooltip: {
 			  displayColors: false,
 			 callbacks: {
-				label: function(tooltipItem, data) {
-				   var label = data.labels[tooltipItem.index];
-				   return label + ' (' + tooltipItem.xLabel.toFixed(2) + ', ' + tooltipItem.yLabel.toFixed(2) + ')';
+				label: function(context, data) {
+					return context.chart.data.labels[context.dataIndex] + ' (' + context.raw.x.toFixed(2) + ', ' + context.raw.y.toFixed(2) + ')'
 				}
 			 }
+		  },
+			  legend: {
+				  display: false
+			  }
 		  }
 		}
 	});
 
     function redrawCharts() {
-		scatterPlot.options.scales.xAxes[0].scaleLabel.labelString = axesMetrics[0]
-		scatterPlot.options.scales.yAxes[0].scaleLabel.labelString = axesMetrics[1]
+		scatterPlot.options.scales.x.title.text = axesMetrics[0]
+		scatterPlot.options.scales.y.title.text = axesMetrics[1]
 		scatterData = Object.values(scatter_data).map(d => {return {x: d[axesMetrics[0]], y: d[axesMetrics[1]]}})
 		scatterPlot.data.datasets[0].data = scatterData
 		scatterPlot.update()
