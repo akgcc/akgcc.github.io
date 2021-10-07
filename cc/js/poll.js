@@ -137,7 +137,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 	let sorted_bar_data = Object.values(bar_data).sort((a,b) => b[barDefaultSort] - a[barDefaultSort])
 	// let sorted_bar_data = Object.values(bar_data).sort((a,b) => b['E2%']/b['Ownership'] - a['E2%']/a['Ownership'])
 	// let sorted_bar_data = Object.values(bar_data).sort((a,b) => parseInt(charIdMap[b.name].split('_')[1]) - parseInt(charIdMap[a.name].split('_')[1]))
-	
+
 	let barGraph = new Chart(document.getElementById("opChart"), {
         type: "horizontalBar",
         data: {
@@ -160,12 +160,6 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
             interaction: {
                 mode: 'index',
                 intersect: false,
-            },
-            tooltips: {
-                enabled: true,
-                position: 'nearest',
-                // custom: ttfunc,
-                xAlign: 'left'
             },
             maintainAspectRatio: false,
             responsive: true,
@@ -229,13 +223,18 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
                 }],
             },
 			tooltips: {
+				xPadding: 6 + 50/2, // default is 6, add imgWidth/2 (25px)
 			 callbacks: {
 				label: function(tooltipItem, data) {
 				   if (barMetrics[tooltipItem.datasetIndex].includes('E2'))
 						return barMetrics[tooltipItem.datasetIndex] + ' (' + tooltipItem.xLabel.toFixed(1) +  '%) [' + (tooltipItem.xLabel/data.datasets[tooltipItem.datasetIndex^1].data[tooltipItem.index]*100).toFixed(1) + '%]';
 				   return barMetrics[tooltipItem.datasetIndex] + ' (' + tooltipItem.xLabel.toFixed(1) +  '%)';
 				}
-			 }
+			 },
+			    enabled: false,
+                // position: 'nearest',
+                custom: thumbnail_tooltip(document.getElementById('opChart')),
+                // xAlign: 'left'
 		  }
         }
     });

@@ -86,30 +86,6 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
     values = sortedData.map(x => x[1])
     values2 = sortedData.map(x => x[2])
 
-    function ttfunc(tooltip) {
-        var tooltipEl = document.getElementById('chartjs-tooltip')
-        if (!tooltip.title) {
-            tooltipEl.classList.add('hidden')
-            return
-        }
-        tooltipEl.classList.remove('hidden')
-        tooltipEl.style.cssText = ''
-        var innerHtml = ''
-        let rpos = tooltip.width - (tooltip.caretX - tooltip.x) + 50 - 10 // image is 50px, caret is 10px
-        innerHtml = '<span class="caret x' + tooltip.xAlign + ' y' + tooltip.yAlign + '" style="right: ' + rpos + 'px; "></span><img src="https://aceship.github.io/AN-EN-Tags/img/avatars/' + charIdMap[tooltip.title[0]] + '.png"> <div> <span><b>' + tooltip.title[0] + '</b></span>';
-        for (const [i, b] of tooltip.body.entries()) {
-            innerHtml += '<span><i class="fas fa-square-full" style="color: ' + tooltip.labelColors[i].backgroundColor + '; font-size:' + (parseInt(tooltip.bodyFontSize) - 2) + '"></i>' + b.lines[0] + '</span>'
-        }
-        innerHtml += '</div>'
-        tooltipEl.innerHTML = innerHtml
-        tooltipEl.style.opacity = 1
-        tooltipEl.style.right = 'max( calc(100% - ' + (parseInt(document.getElementById('opChart').offsetLeft) + parseInt(tooltip.x) + parseInt(tooltip.width) + 50) + 'px), 8px)'
-        tooltipEl.style.top = document.getElementById('opChart').offsetTop + tooltip.y + 'px',
-            tooltipEl.style.fontFamily = tooltip._bodyFontFamily,
-            tooltipEl.style.fontSize = tooltip.bodyFontSize,
-            tooltipEl.style.fontStyle = tooltip._bodyFontStyle
-    }
-
     barGraph = new Chart(document.getElementById("opChart"), {
         type: "horizontalBar",
         data: {
@@ -136,8 +112,8 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
             tooltips: {
                 enabled: false,
                 position: 'nearest',
-                custom: ttfunc,
-                xAlign: 'left'
+                custom: thumbnail_tooltip(document.getElementById('opChart')),
+                // xAlign: 'left'
             },
             maintainAspectRatio: false,
             responsive: true,
@@ -210,7 +186,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 		scatterImages.forEach(i=> {i.width = imgSize;i.height=imgSize});
 		scatterPlot.update();
 	}
-  
+
 	scatterPlot = new Chart(document.getElementById("scatterChart"), {
 		type: 'bubble',
 		data: {
@@ -288,8 +264,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 		  }
 		}
 	});
-
-
+ 
     function redrawCharts(sortName) {
 		
 		labels = sortedData.map(x => x[0].name)
