@@ -38,3 +38,25 @@ function thumbnail_tooltip(chart_canvas) {
 	})
 	}
 }
+var percentColors; // define this according to your data.
+
+var getColorForPercentage = function(pct) {
+    for (var i = 1; i < percentColors.length - 1; i++) {
+        if (pct < percentColors[i].pct) {
+            break;
+        }
+    }
+    var lower = percentColors[i - 1];
+    var upper = percentColors[i];
+    var range = upper.pct - lower.pct;
+    var rangePct = (pct - lower.pct) / range;
+    var pctLower = 1 - rangePct;
+    var pctUpper = rangePct;
+    var color = {
+        r: Math.floor(lower.color.r * pctLower + upper.color.r * pctUpper),
+        g: Math.floor(lower.color.g * pctLower + upper.color.g * pctUpper),
+        b: Math.floor(lower.color.b * pctLower + upper.color.b * pctUpper),
+		a: (lower.color.a * pctLower + upper.color.a * pctUpper).toFixed(2)
+    };
+    return 'rgba(' + [color.r, color.g, color.b, color.a].join(',') + ')';
+};

@@ -183,7 +183,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
         }
     });
 	let scatterPlot = new Chart(document.getElementById("scatterChart"), {
-		type: 'bubble',
+		type: 'scatter',
 		data: {
 			labels: labels,
 			datasets: [{

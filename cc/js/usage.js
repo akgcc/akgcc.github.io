@@ -1,5 +1,5 @@
 const mean = (array) => array.reduce((a, b) => a + b) / array.length;
-var UPPER_BOUNDS = 50, LOWER_BOUNDS = 10;
+var UPPER_BOUNDS = 50, LOWER_BOUNDS = 10, MAX_VALUE = UPPER_BOUNDS;
 if (!window.location.hash) window.location.hash = '#4'
 document.getElementById('clearsLink').href = './cc.html' + window.location.hash
 window.onhashchange = () => window.location.reload()
@@ -63,11 +63,17 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 		classList[operatorData[x].profession] = null
         maxRiskMap[operatorData[x].name] = maxRisk[x] || 0
     })
-	// document.getElementById('barChartContainer').style.height = Object.keys(operatorData).length*parseFloat(getComputedStyle(document.body).fontSize) * 3/4;
 	document.getElementById('barChartContainer').style.height = Object.values(useCountMap).filter(x=>x>0).length*parseFloat(getComputedStyle(document.body).fontSize) * 4/5;
 	
 	LOWER_BOUNDS = mean(Object.values(useCountMap).filter(x=>x!=0))
 	UPPER_BOUNDS = LOWER_BOUNDS + getStandardDeviation(Object.values(useCountMap).filter(x=>x!=0))
+	MAX_VALUE = Math.max.apply(Math, Object.values(useCountMap))
+	percentColors = [
+	{ pct: 0.0, color: { r: 0x19, g: 0x19, b: 0x19, a: .6} },
+    { pct: 1/MAX_VALUE, color: { r: 0xed, g: 0xf8, b: 0xb1, a: .15} },
+    { pct: LOWER_BOUNDS/MAX_VALUE, color: { r: 0x7f, g: 0xcd, b: 0xbb, a: .6} },
+    { pct: UPPER_BOUNDS/MAX_VALUE, color: { r: 0x2c, g: 0x7f, b: 0xb8, a: .7} },
+	{ pct: 1, color: { r: 0x2c, g: 0x7f, b: 0xb8, a: .8} }	];
 	
     Object.keys(operatorData).forEach(x => {
         divMap[operatorData[x].name] = CreateOpCheckbox(operatorData[x]);
@@ -207,7 +213,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 	}
 
 	scatterPlot = new Chart(document.getElementById("scatterChart"), {
-		type: 'bubble',
+		type: 'scatter',
 		data: {
 			labels: labels,
 			datasets: [{
@@ -373,7 +379,8 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 	
 })
 
-	
+
+
 function getStandardDeviation (array) {
   const n = array.length
   const mean = array.reduce((a, b) => a + b) / n
@@ -395,9 +402,9 @@ function CreateOpCheckbox(operator) {
     riskDiv.classList.add('data2');
     riskDiv.innerHTML = maxRiskMap[operatorName] || 0
     checkboxDiv.appendChild(riskDiv);
-    if (count == 0 || count == '?') {} else if (count <= LOWER_BOUNDS) checkboxDiv.style.cssText = 'background: rgba(237,248,177,.3);'
-    else if (count <= UPPER_BOUNDS) checkboxDiv.style.cssText = 'background: rgba(127,205,187,.6);'
-    else checkboxDiv.style.cssText = 'background: rgba(44,127,184,.6);'
+
+	checkboxDiv.style.cssText = 'background: '+getColorForPercentage(count/MAX_VALUE) +';'
+	
     if (charIdMap[operatorName]) {
         let im = document.createElement('img');
         im.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + charIdMap[operatorName] + '.png';
