@@ -60,3 +60,49 @@ var getColorForPercentage = function(pct) {
     };
     return 'rgba(' + [color.r, color.g, color.b, color.a].join(',') + ')';
 };
+
+// Modify chartjs pointElement to draw a circular image instead.
+const drawPoint_round = (ctx, options, x, y) => {
+	let type, xOffset, yOffset, size, cornerRadius;
+	const style = options.pointStyle;
+	const rotation = options.rotation;
+	const radius = options.radius;
+	let rad = (rotation || 0) * Chart.helpers.RAD_PER_DEG;
+
+	if (style && typeof style === 'object') {
+		type = style.toString();
+		if (type === '[object HTMLImageElement]' || type === '[object HTMLCanvasElement]') {
+			ctx.save();
+			ctx.translate(x, y);
+			ctx.rotate(rad);
+			
+			// below block is modified code.
+			ctx.beginPath()
+			ctx.arc(0, 0, style.height/2, 0, 2*Math.PI, false);
+			ctx.strokeStyle = '#999'
+			ctx.stroke()
+			ctx.clip()
+			ctx.drawImage(style, -style.width / 2, -style.height / 2, style.width, style.height);
+			///////////////////////////////
+			
+			ctx.restore();
+			return;
+		}
+	}
+
+	return Chart.helpers.drawPoint(ctx, options, x, y)
+}
+const pe_draw_orig = Chart.PointElement.prototype.draw
+Chart.PointElement.prototype.draw = function(ctx, area) {
+	const options = this.options;
+
+    if (this.skip || options.radius < 0.1 || !Chart.helpers._isPointInArea(this, area, this.size(options) / 2)) {
+      return;
+    }
+
+    ctx.strokeStyle = options.borderColor;
+    ctx.lineWidth = options.borderWidth;
+    ctx.fillStyle = options.backgroundColor;
+	
+	drawPoint_round(ctx, options, this.x, this.y); // only this line was modified
+}
