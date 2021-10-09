@@ -213,7 +213,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 	}
 
 	scatterPlot = new Chart(document.getElementById("scatterChart"), {
-		type: 'scatter',
+		type: 'bubble',
 		data: {
 			labels: labels,
 			datasets: [{
