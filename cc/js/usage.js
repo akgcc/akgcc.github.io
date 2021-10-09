@@ -203,7 +203,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 		  return tick.toLocaleString()
 		}
 	let imgSize = window.innerWidth/30;
-	let scatterData = sortedData.map(d => {return {x: d[1], y: d[2]}})
+	let scatterData = sortedData.map(d => {return {x: d[1], y: d[2], r:imgSize/2}})
 	let scatterImages = sortedData.map(x => {i = new Image(imgSize,imgSize); i.src='https://aceship.github.io/AN-EN-Tags/img/avatars/'+x[3]+'.png'; i.opname = x[0].name; return i})
   
 	window.onresize = () => {
@@ -218,7 +218,6 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 			labels: labels,
 			datasets: [{
 				  label: 'Data',
-				  hitRadius: imgSize/2,
 				  pointStyle: scatterImages,
 				data: scatterData
 			}]
@@ -227,7 +226,8 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 			onResize: (chart) => {
 				chart.options.layout.padding.top = imgSize/2
 				chart.options.layout.padding.right = imgSize/2
-				chart.data.datasets.forEach(x => x.hitRadius = imgSize/2)
+				chart.data.datasets.forEach(d => d.data.forEach(x => x.r = imgSize/2))
+				
 			},
 			maintainAspectRatio: true,
 			responsive: true,
@@ -306,22 +306,22 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 		scatterPlot.options.scales.y.ticks.callback = (value, index, values) => value
 		switch(sortName) {
 			case 'Rarity':
-				scatterData = sortedData.map(d => {return {x: d[1], y: d[0].rarity}})
+				scatterData = sortedData.map(d => {return {x: d[1], y: d[0].rarity, r:imgSize/2}})
 				scatterPlot.options.scales.y.ticks.stepSize = 1
 				scatterPlot.options.scales.y.ticks.callback = (value, index, values) => '★'.repeat(value+1)
 			break
 			case 'Class':
-				scatterData = sortedData.map(d => {return {x: d[1], y: Object.keys(classList).indexOf(classMap[d[0].name])}})
+				scatterData = sortedData.map(d => {return {x: d[1], y: Object.keys(classList).indexOf(classMap[d[0].name]), r:imgSize/2}})
 				scatterPlot.options.scales.y.ticks.callback = (value, index, values) => Object.keys(classList)[value]
 			break
 			case 'NOT!Uses':
-				scatterData = sortedData.map(d => {return {x: d[1], y: d[1]}})
+				scatterData = sortedData.map(d => {return {x: d[1], y: d[1], r:imgSize/2}})
 				scatterPlot.options.scales.y.type = 'logarithmic'
 				// scatterPlot.options.scales.y.ticks.min = 1
 				// scatterPlot.options.scales.y.ticks.callback = (value, index, values) => Object.keys(classList)[value]
 			break
 			default:// == 'Highest Risk'
-				scatterData = sortedData.map(d => {return {x: d[1], y: d[2]}})
+				scatterData = sortedData.map(d => {return {x: d[1], y: d[2], r:imgSize/2}})
 				// scatterPlot.options.scales.y.ticks.min = 18
 				scatterPlot.options.scales.y.title.text = 'Highest Risk'
 			break

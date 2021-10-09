@@ -123,7 +123,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 	let labels = Object.keys(scatter_data)
 
 	let imgSize = window.innerWidth/30;
-	let scatterData = Object.values(scatter_data).map(d => {return {x: d[axesMetrics[0]], y: d[axesMetrics[1]]}})
+	let scatterData = Object.values(scatter_data).map(d => {return {x: d[axesMetrics[0]], y: d[axesMetrics[1]], r: imgSize/2}})
 	let scatterImages = labels.map(x => {i = new Image(imgSize,imgSize); i.src='https://aceship.github.io/AN-EN-Tags/img/avatars/'+charIdMap[x]+'.png'; return i})
 
 	window.onresize = () => {
@@ -188,7 +188,6 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			labels: labels,
 			datasets: [{
 				  label: 'Data',
-				  hitRadius: imgSize/2,
 				  pointStyle: scatterImages,
 				data: scatterData
 			}]
@@ -197,7 +196,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			onResize: (chart) => {
 				chart.options.layout.padding.top = imgSize/2
 				chart.options.layout.padding.right = imgSize/2
-				chart.data.datasets.forEach(x => x.hitRadius = imgSize/2)
+				chart.data.datasets.forEach(d => d.data.forEach(x => x.r = imgSize/2))
 			},
 			maintainAspectRatio: true,
 			responsive: true,
@@ -257,7 +256,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
     function redrawCharts() {
 		scatterPlot.options.scales.x.title.text = axesMetrics[0]
 		scatterPlot.options.scales.y.title.text = axesMetrics[1]
-		scatterData = Object.values(scatter_data).map(d => {return {x: d[axesMetrics[0]], y: d[axesMetrics[1]]}})
+		scatterData = Object.values(scatter_data).map(d => {return {x: d[axesMetrics[0]], y: d[axesMetrics[1]], r: imgSize/2}})
 		scatterPlot.data.datasets[0].data = scatterData
 		scatterPlot.update()
 		
