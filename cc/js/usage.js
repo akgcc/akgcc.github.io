@@ -26,6 +26,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
     }
     for (var key in operatorData) {
         charIdMap[operatorData[key].name] = key;
+		operatorData[key].charId = key;
     }
     return fetch('./data' + CCTAG + '.json')
 }).then(res => res.json()).then(js => {
@@ -76,7 +77,8 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 	{ pct: 1, color: { r: 0x2c, g: 0x7f, b: 0xb8, a: .8} }	];
 	
     Object.keys(operatorData).forEach(x => {
-        divMap[operatorData[x].name] = CreateOpCheckbox(operatorData[x]);
+        // divMap[operatorData[x].name] = CreateOpCheckbox(operatorData[x]);
+		divMap[operatorData[x].name] = CreateOpCheckbox(operatorData[x], useCountMap, maxRiskMap, MAX_VALUE)
     })
     var sortedData = []
 	function buildSortedData(opdata) {
@@ -386,34 +388,7 @@ function getStandardDeviation (array) {
   const mean = array.reduce((a, b) => a + b) / n
   return Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n)
 }
-function CreateOpCheckbox(operator) {
-    let operatorName = operator.name;
-    var checkboxDiv = document.createElement("div");
-    checkboxDiv.classList.add('operatorCheckbox');
-    checkboxDiv.setAttribute('data-class', operator.profession);
-    checkboxDiv.classList.add('show');
-    let count = useCountMap[operatorName] || 0;
-    checkboxDiv.setAttribute('data-skins', count);
-    let useDiv = document.createElement("div");
-    useDiv.classList.add('data1');
-    useDiv.innerHTML = count
-    checkboxDiv.appendChild(useDiv);
-    let riskDiv = document.createElement("div");
-    riskDiv.classList.add('data2');
-    riskDiv.innerHTML = maxRiskMap[operatorName] || 0
-    checkboxDiv.appendChild(riskDiv);
 
-	checkboxDiv.style.cssText = 'background: '+getColorForPercentage(count/MAX_VALUE) +';'
-	
-    if (charIdMap[operatorName]) {
-        let im = document.createElement('img');
-        im.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + charIdMap[operatorName] + '.png';
-        checkboxDiv.appendChild(im);
-    }
-    let name = document.createElement('div');
-    name.classList.add('name');
-    name.innerHTML = operatorName;
-    checkboxDiv.appendChild(name);
-    document.getElementById("checkboxes").appendChild(checkboxDiv);
-    return checkboxDiv;
-}
+
+
+

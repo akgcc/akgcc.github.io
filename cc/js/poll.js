@@ -10,6 +10,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
     }
     for (var key in operatorData) {
         charIdMap[operatorData[key].name] = key;
+		operatorData[key].charId = key;
     }
     return fetch('./poll_results_' + PTAG + '.json')
 }).then(res => res.json()).then(js => {

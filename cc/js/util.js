@@ -62,47 +62,127 @@ var getColorForPercentage = function(pct) {
 };
 
 // Modify chartjs pointElement to draw a circular image instead.
-const drawPoint_round = (ctx, options, x, y) => {
-	let type, xOffset, yOffset, size, cornerRadius;
-	const style = options.pointStyle;
-	const rotation = options.rotation;
-	const radius = options.radius;
-	let rad = (rotation || 0) * Chart.helpers.RAD_PER_DEG;
+if (typeof Chart !== 'undefined') {
+	const drawPoint_round = (ctx, options, x, y) => {
+		let type, xOffset, yOffset, size, cornerRadius;
+		const style = options.pointStyle;
+		const rotation = options.rotation;
+		const radius = options.radius;
+		let rad = (rotation || 0) * Chart.helpers.RAD_PER_DEG;
 
-	if (style && typeof style === 'object') {
-		type = style.toString();
-		if (type === '[object HTMLImageElement]' || type === '[object HTMLCanvasElement]') {
-			ctx.save();
-			ctx.translate(x, y);
-			ctx.rotate(rad);
-			
-			// below block is modified code.
-			ctx.beginPath()
-			ctx.arc(0, 0, style.height/2, 0, 2*Math.PI, false);
-			ctx.strokeStyle = '#999'
-			ctx.stroke()
-			ctx.clip()
-			ctx.drawImage(style, -style.width / 2, -style.height / 2, style.width, style.height);
-			///////////////////////////////
-			
-			ctx.restore();
-			return;
+		if (style && typeof style === 'object') {
+			type = style.toString();
+			if (type === '[object HTMLImageElement]' || type === '[object HTMLCanvasElement]') {
+				ctx.save();
+				ctx.translate(x, y);
+				ctx.rotate(rad);
+				
+				// below block is modified code.
+				ctx.beginPath()
+				ctx.arc(0, 0, Math.min(style.height/2, style.width/2), 0, 2*Math.PI, false);
+				ctx.strokeStyle = '#999'
+				ctx.stroke()
+				ctx.clip()
+				ctx.drawImage(style, -style.width / 2, -style.height / 2, style.width, style.height);
+				///////////////////////////////
+				
+				ctx.restore();
+				return;
+			}
+		}
+
+		return Chart.helpers.drawPoint(ctx, options, x, y)
+	}
+	const pe_draw_orig = Chart.PointElement.prototype.draw
+	Chart.PointElement.prototype.draw = function(ctx, area) {
+		const options = this.options;
+
+		if (this.skip || options.radius < 0.1 || !Chart.helpers._isPointInArea(this, area, this.size(options) / 2)) {
+		  return;
+		}
+
+		ctx.strokeStyle = options.borderColor;
+		ctx.lineWidth = options.borderWidth;
+		ctx.fillStyle = options.backgroundColor;
+		
+		drawPoint_round(ctx, options, this.x, this.y); // only this line was modified
+	}
+}
+
+
+// https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
+function getCssStyle(element, prop) {
+    return window.getComputedStyle(element, null).getPropertyValue(prop);
+}
+
+function getCanvasFontSize(el = document.body) {
+  const fontWeight = getCssStyle(el, 'font-weight') || 'normal';
+  const fontSize = getCssStyle(el, 'font-size') || '12px';
+  const fontFamily = getCssStyle(el, 'font-family') || 'Ariel';
+  
+  return fontWeight + ' ' + fontSize + ' ' + fontFamily;
+}
+
+function getTextWidth(text, font) {
+  // re-use canvas object for better performance
+  const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+  const context = canvas.getContext("2d");
+  context.font = font;
+  const metrics = context.measureText(text);
+  return metrics.width;
+}
+
+function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScaleMax = null, clickfunc = null) {
+    let operatorName = operator.name;
+    var checkboxDiv = document.createElement("div");
+    checkboxDiv.classList.add('operatorCheckbox');
+    checkboxDiv.setAttribute('data-class', operator.profession);
+    checkboxDiv.classList.add('show');
+    
+	if (data1map) {
+		let count = data1map[operatorName] || 0;
+		let useDiv = document.createElement("div");
+		useDiv.classList.add('data1');
+		useDiv.innerHTML = count
+		checkboxDiv.appendChild(useDiv);
+		checkboxDiv.style.cssText = 'background: '+getColorForPercentage(count/colorScaleMax) +';'
+	}
+	if (data2map) {
+		let riskDiv = document.createElement("div");
+		riskDiv.classList.add('data2');
+		riskDiv.innerHTML = data2map[operatorName] || 0
+		checkboxDiv.appendChild(riskDiv);
+	}
+	
+	let im = document.createElement('img');
+	im.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + operator.charId + '.png';
+	checkboxDiv.appendChild(im);
+
+    let name = document.createElement('div');
+    name.classList.add('name');
+	let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+	let txt = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+	txt.innerHTML = operatorName
+	txt.setAttribute('x','50%')
+	txt.setAttribute('y', '50%')
+	txt.setAttribute('dominant-baseline', 'central')
+	txt.setAttribute('text-anchor', 'middle')
+	txt.setAttribute('lengthAdjust','spacingAndGlyphs')
+	svg.appendChild(txt)
+	name.appendChild(svg)
+	
+    checkboxDiv.appendChild(name);
+    document.getElementById("checkboxes").appendChild(checkboxDiv);
+	
+	if (clickfunc) {
+		checkboxDiv.onclick = (e) => {
+			checkboxDiv.classList.toggle('_selected')
+			clickfunc(operator, e.currentTarget.classList.contains('_selected'))
 		}
 	}
-
-	return Chart.helpers.drawPoint(ctx, options, x, y)
-}
-const pe_draw_orig = Chart.PointElement.prototype.draw
-Chart.PointElement.prototype.draw = function(ctx, area) {
-	const options = this.options;
-
-    if (this.skip || options.radius < 0.1 || !Chart.helpers._isPointInArea(this, area, this.size(options) / 2)) {
-      return;
-    }
-
-    ctx.strokeStyle = options.borderColor;
-    ctx.lineWidth = options.borderWidth;
-    ctx.fillStyle = options.backgroundColor;
+	// must do this after appending to body as we need computed styles.
+	if (getTextWidth(operatorName, getCanvasFontSize(document.querySelector('.operatorCheckbox text'))) > parseInt(getComputedStyle(document.querySelector('.operatorCheckbox')).width))
+		txt.setAttribute('textLength','100%')
 	
-	drawPoint_round(ctx, options, this.x, this.y); // only this line was modified
+    return checkboxDiv;
 }

@@ -177,11 +177,12 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 		// }
 		for (var key in operatorData) {
 			charIdMap[operatorData[key].name] = key;
+			operatorData[key].charId = key;
 		}
 		var filtercontainer = document.getElementById('filters')
 		divMap = {}
 		Object.keys(operatorData).forEach(x => {
-			divMap[operatorData[x].name] = CreateOpCheckbox(x);
+			divMap[operatorData[x].name] = CreateOpCheckbox(operatorData[x], null, null,null, clickfunc = (op,state) => applyFilters(op, state));
 		})
 		Object.values(operatorData).sort((a, b) => a.name > b.name ? 1 : -1).forEach((x, i) => divMap[x.name].style.order = i);
 
@@ -420,14 +421,16 @@ function updateFilterStatus(key, delta) {
 	showCard(key, _filterShouldShow(key))
 }
 
-function applyFilters(opname, checked) {
+function applyFilters(operator, checked) {
+	let charid = operator.charId
+	console.log(operator)
 	let prev = totalChecked
 	totalChecked += checked ? 1 : -1
 	if (totalChecked == checked) //went from 0 to 1
 		applyAllFilters()
 
-	if (opname in cardOperatorMap) {
-		cardOperatorMap[opname].forEach(k => {
+	if (charid in cardOperatorMap) {
+		cardOperatorMap[charid].forEach(k => {
 			updateFilterStatus(k, checked ? 1 : -1)
 		})
 	}
@@ -437,28 +440,4 @@ function applyFilters(opname, checked) {
 	if (0 == totalChecked)
 		applyAllFilters()
 	updateLightbox()
-}
-
-function CreateOpCheckbox(operator) {
-	let operatorName = operatorData[operator].name;
-
-	var checkboxDiv = document.createElement("div");
-	checkboxDiv.classList.add('operatorCheckbox');
-	// checkboxDiv.setAttribute('data-class', operator.profession);
-	checkboxDiv.classList.add('show');
-	checkboxDiv.onclick = () => {
-		checkboxDiv.classList.toggle('_selected')
-		applyFilters(operator, checkboxDiv.classList.contains('_selected'))
-	}
-	if (charIdMap[operatorName]) {
-		let im = document.createElement('img');
-		im.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + charIdMap[operatorName] + '.png';
-		checkboxDiv.appendChild(im);
-	}
-	let name = document.createElement('div');
-	name.classList.add('name');
-	name.innerHTML = operatorName;
-	checkboxDiv.appendChild(name);
-	document.getElementById("checkboxes").appendChild(checkboxDiv);
-	return checkboxDiv;
 }

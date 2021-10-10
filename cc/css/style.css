@@ -210,11 +210,17 @@ html * {
   line-height: var(--nameplate-height);
   text-align: center;
   color: white;
+  fill:white; /* for text element */
   font-family: "Novecentosanswide Normal", Arial, sans-serif;
   background-color: rgba(255, 255, 255, 0.15);
   font-size: calc(0.6 * var(--nameplate-height));
   cursor: pointer;
   overflow: hidden;
+}
+
+.operatorCheckbox .name svg {
+	width: 100%;
+	height: 100%;
 }
 
 .operatorCheckbox > .data1,
