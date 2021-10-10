@@ -1,6 +1,13 @@
+//add tooltip element for use in below functions
+let tt = document.createElement('div')
+tt.id = 'chartjs-tooltip'
+tt.classList.add('hidden')
+document.addEventListener("DOMContentLoaded",() => document.body.appendChild(tt))
+
 function thumbnail_tooltip(chart_canvas) {
 	// This function is not perfect, it will only work at this exact tooltip height due to the image adding width
 	// to compensate for this extra width, you must set xPadding in your chart's tooltip options to 6+h/2 where h is the computed height of the tooltip - 6. (6 is for the 3px padding defined in the css)
+	// This is done automatically by adding the tt_size_plugin() callback (below) to tooltip.plugins.afterLabel
 	return function f(context) {
 		let tooltip = context.tooltip
 		var tooltipEl = document.getElementById('chartjs-tooltip')
@@ -38,6 +45,20 @@ function thumbnail_tooltip(chart_canvas) {
 	})
 	}
 }
+
+// Call this plugin in tooltip's afterLabel callback to set the size appropriately for use of thumbnail_tooltip()
+function tt_size_plugin(context) {
+	let default_x = context.chart.options.plugins.tooltip.x || Chart.defaults.plugins.tooltip.padding
+	let new_padding = default_x + (context.chart.tooltip.height - default_x)/2
+	if (new_padding && new_padding != context.chart.options.plugins.tooltip.padding.x) {
+		context.chart.options.plugins.tooltip.padding = {
+			x: new_padding,
+			y: context.chart.options.plugins.tooltip.y || Chart.defaults.plugins.tooltip.padding,
+		}
+		context.chart.update('none')
+	}
+}
+
 var percentColors; // define this according to your data.
 
 var getColorForPercentage = function(pct) {
@@ -107,6 +128,10 @@ if (typeof Chart !== 'undefined') {
 		
 		drawPoint_round(ctx, options, this.x, this.y); // only this line was modified
 	}
+	
+	Chart.defaults.scales.logarithmic.ticks.callback = function(tick, index, ticks) {
+		  return tick.toLocaleString()
+		}
 }
 
 

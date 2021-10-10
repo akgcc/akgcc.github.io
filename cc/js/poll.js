@@ -164,12 +164,9 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
             responsive: true,
 			plugins: {
 				tooltip: {
-					padding: {
-						x: 6 + (63.2-6)/2, // default is 6, add (tooltipHeight - 6)/2
-						y: 6,
-					},
 				 callbacks: {
-					label: function(context, data) {
+					afterLabel: tt_size_plugin,
+					label: function(context) {
 					   if (context.dataset.label.includes('E2'))
 						   return context.dataset.label + ': ' + context.raw.toFixed(1) + '% (' + (context.raw/context.chart.data.datasets[context.datasetIndex^1].data[context.dataIndex]*100).toFixed(1) + '%)';
 					   return context.dataset.label + ': ' + context.raw.toFixed(1) + '%'
@@ -242,7 +239,7 @@ fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_U
 			  tooltip: {
 			  displayColors: false,
 			 callbacks: {
-				label: function(context, data) {
+				label: function(context) {
 					return context.chart.data.labels[context.dataIndex] + ' (' + context.raw.x.toFixed(2) + ', ' + context.raw.y.toFixed(2) + ')'
 				}
 			 }

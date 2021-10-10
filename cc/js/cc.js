@@ -423,7 +423,6 @@ function updateFilterStatus(key, delta) {
 
 function applyFilters(operator, checked) {
 	let charid = operator.charId
-	console.log(operator)
 	let prev = totalChecked
 	totalChecked += checked ? 1 : -1
 	if (totalChecked == checked) //went from 0 to 1
