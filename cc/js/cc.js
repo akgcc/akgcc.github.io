@@ -94,7 +94,9 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 			div.setAttribute('data-soul', cardData[k].soul.toFixed(2))
 			a.classList.add('glightbox')
 			a.setAttribute('data-gallery', 'gallery1')
-			a.href = './cropped' + CCTAG + '/' + (is_dupe ? 'duplicates/' : '') + k
+			// a.href = './cropped' + CCTAG + '/' + (is_dupe ? 'duplicates/' : '') + k
+			// no longer use duplicates dir
+			a.href = './cropped' + CCTAG + '/' + k
 			let img = document.createElement('img')
 			img.src = './thumbs' + CCTAG + '/' + k
 			a.appendChild(img)
