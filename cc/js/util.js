@@ -157,6 +157,23 @@ function getTextWidth(text, font) {
   return metrics.width;
 }
 
+function divideString(text) {
+	let tokens = text.split(' ')
+	if (tokens.length<2)
+		return [text,'']
+	let diff = text.length
+	let i=1
+	for (; i<tokens.length; i++)
+	{
+		let newdiff = Math.abs(tokens.slice(0,i).join(' ').length-tokens.slice(i).join(' ').length)
+		if (newdiff>diff)
+			break;
+		diff = newdiff
+	}
+	return [tokens.slice(0,i-1).join(' '),tokens.slice(i-1).join(' ')]
+	
+}
+
 function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScaleMax = null, clickfunc = null) {
     let operatorName = operator.name;
     var checkboxDiv = document.createElement("div");
@@ -205,8 +222,34 @@ function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScale
 			clickfunc(operator, e.currentTarget.classList.contains('_selected'))
 		}
 	}
+
 	// must do this after appending to body as we need computed styles.
-	if (getTextWidth(operatorName, getCanvasFontSize(document.querySelector('.operatorCheckbox text'))) > parseInt(getComputedStyle(document.querySelector('.operatorCheckbox')).width))
+	let nameWidth = getTextWidth(operatorName, getCanvasFontSize(document.querySelector('.operatorCheckbox text')))
+	let plateWidth = parseInt(getComputedStyle(document.querySelector('.operatorCheckbox')).width)
+	if (nameWidth > plateWidth * 1.2 && operatorName.split(' ').length > 1) {
+		// multiple words, split onto multiple lines.
+		let [first,second] = divideString(operatorName)
+		txt.setAttribute('y','35%')
+		txt.setAttribute('x','0')
+		txt.setAttribute('transform','scale(1,.75)')
+		txt.innerHTML = ''
+		// need to check width of each line and set textLength
+		let firstLine = document.createElementNS('http://www.w3.org/2000/svg', 'tspan')
+		firstLine.setAttribute('dy','0')
+		firstLine.setAttribute('x','50%')
+		if (getTextWidth(first, getCanvasFontSize(document.querySelector('.operatorCheckbox text'))) > plateWidth)
+			firstLine.setAttribute('textLength','100%')
+		firstLine.innerHTML = first
+		let secondLine = document.createElementNS('http://www.w3.org/2000/svg', 'tspan')
+		secondLine.setAttribute('dy','1em')
+		secondLine.setAttribute('x','50%')
+		if (getTextWidth(second, getCanvasFontSize(document.querySelector('.operatorCheckbox text'))) > plateWidth)
+			secondLine.setAttribute('textLength','100%')
+		secondLine.innerHTML = second
+		txt.appendChild(firstLine)
+		txt.appendChild(secondLine)
+	}
+	else if (nameWidth > plateWidth)
 		txt.setAttribute('textLength','100%')
 	
     return checkboxDiv;
