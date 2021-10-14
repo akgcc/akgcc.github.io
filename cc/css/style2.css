@@ -161,3 +161,9 @@ html {
 html {
 	overflow-x: hidden;
 }
+
+/* #pieChart, */
+#pieChartContainer {
+	height: 90%;
+	padding-top: 2%;
+}

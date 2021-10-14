@@ -105,15 +105,11 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
                 data: values,
                 backgroundColor: "#cccccc",
 				// categoryPercentage: .7,
-                // yAxisID: 'y-axis-1',
-                // xAxisID: 'x-axis-1'
-				// stack: 'one',
             }, {
                 label: 'Highest',
                 data: values2,
                 backgroundColor: "#454545",
 				// categoryPercentage: .9,
-                // yAxisID: 'y-axis-2',
                 xAxisID: 'x2'
 				// stack: 'one',
             }]
@@ -127,55 +123,19 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
             responsive: true,
             scales: {
                 y: {
-                    // id: 'y-axis-1',
-                    // type: 'category',
-                    // categoryPercentage: .7,
-                    // barPercentage: 1,
-                    // offset: true,
                     stacked: true,
                     ticks: {
-                        // fontColor: "#dddddd",
-                        // beginAtZero: true,
 						autoSkip: false,
                     }
                 },
-				// y2:	{
-                    // id: 'y-axis-2',
-                    // type: 'category',
-                    // display: false,
-                    // stacked: true,
-                    // categoryPercentage: .9,
-                    // barPercentage: 1,
-                    // offset: true,
-                    // gridLines: {
-                        // display: false,
-                        // offsetGridLines: true
-                    // },
-                    // ticks: {
-                        // beginAtZero: true
-                    // }
-                // },
                 x: {
-                    // id: 'x-axis-1',
-                    // type: 'linear',
                     ticks: {
-                        // fontColor: "#dddddd",
 						autoSkip: false,
                     }
                 }, 
 				x2: {
 					min: 17,
-                    // id: 'x-axis-2',
-                    // type: 'linear',
                     display: false,
-                    // gridLines: {
-                        // display: false,
-                        // offsetGridLines: true
-                    // },
-                    // ticks: {
-                        // fontColor: "#dddddd",
-                        
-                    // },
                 },
             },
 			plugins: {
@@ -193,6 +153,28 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 			}
         }
     });
+	
+	// pieChart = new Chart(document.getElementById("pieChart"), {
+        // type: "pie",
+        // data: {
+            // labels: labels,
+            // datasets: [{
+                // label: 'Uses',
+                // data: values,
+				// backgroundColor: ["#0074D9", "#FF4136", "#2ECC40", "#FF851B", "#7FDBFF", "#B10DC9", "#FFDC00", "#001f3f", "#39CCCC", "#01FF70", "#85144b", "#F012BE", "#3D9970", "#111111", "#AAAAAA"],
+            // }]
+        // },
+        // options: {
+            // maintainAspectRatio: false,
+            // responsive: true,
+			// plugins: {
+				// legend: {
+				  // display: false
+			  // }
+			// }
+        // },
+		
+    // });
 	Chart.defaults.scales.logarithmic.ticks.callback = function(tick, index, ticks) {
 		  return tick.toLocaleString()
 		}
@@ -332,6 +314,43 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 		scatterPlot.data.datasets[0].pointStyle = scatterImages
 		
 		scatterPlot.update()
+		
+		
+		
+		///// PIE CHART /////
+		// const counts = {};
+		// switch(sortName) {
+			// case 'Rarity':
+				// for (const d of sortedData) {
+					// let idx = d[0].rarity
+				  // counts[idx] = counts[idx] ? counts[idx] + 1 : 1;
+				// }
+				// pieChart.data.labels = Object.keys(counts).map(value => '★'.repeat(parseInt(value)+1))
+				// pieChart.data.datasets[0].data = Object.values(counts)
+			// break
+			// case 'Class':
+				// for (const d of sortedData) {
+					// let idx = d[0].profession
+				  // counts[idx] = counts[idx] ? counts[idx] + 1 : 1;
+				// }
+				// pieChart.data.labels = Object.keys(counts)
+				// pieChart.data.datasets[0].data = Object.values(counts)
+			// break
+			// case 'Highest Risk':
+				// for (const d of sortedData) {
+					// let idx = d[2]
+				  // counts[idx] = counts[idx] ? counts[idx] + 1 : 1;
+				// }
+				// pieChart.data.labels = Object.keys(counts)
+				// pieChart.data.datasets[0].data = Object.values(counts)
+			// break
+			// default:
+				// pieChart.data.labels = labels
+				// pieChart.data.datasets[0].data = sortedData.map(x => x[1])
+			// break
+			
+		// }
+        // pieChart.update();
     }
 
     function clickFunc(e, sorter) {
@@ -363,6 +382,10 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 			case 2: // grid
 				document.getElementById('checkboxes').classList.remove('hidden')
 				document.getElementById('viewType').innerHTML = 'View: Grid'
+			break;
+			case 3: // pie
+				document.getElementById('pieChartContainer').classList.remove('hidden')
+				document.getElementById('viewType').innerHTML = 'View: Pie'
 			break;
 		}
     }

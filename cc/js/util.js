@@ -37,7 +37,8 @@ function thumbnail_tooltip(chart_canvas) {
 		tooltipEl.classList.add('x' + tooltip.xAlign)
 		tooltipEl.classList.add('y' + tooltip.yAlign)
 		var innerHtml = ''
-		innerHtml = '<img src="https://aceship.github.io/AN-EN-Tags/img/avatars/' + charIdMap[tooltip.title[0]] + '.png"> <div> <span><b>' + tooltip.title[0] + '</b></span>';
+		let title = tooltip.title[0] || tooltip.body[0].lines[0].split(':')[0] // for pie chart legend
+		innerHtml = '<img src="https://aceship.github.io/AN-EN-Tags/img/avatars/' + charIdMap[title] + '.png"> <div> <span><b>' + title + '</b></span>';
 		for (const [i, b] of tooltip.body.entries()) {
 			innerHtml += '<span><i class="fas fa-square-full" style="color: ' + tooltip.labelColors[i].backgroundColor + '; font-size:' + (parseInt(tooltip.bodyFontSize) - 2) + '"></i>' + b.lines[0] + '</span>'
 		}
