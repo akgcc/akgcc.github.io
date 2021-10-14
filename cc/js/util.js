@@ -1,3 +1,5 @@
+const CLASS_MAPPING = {WARRIOR: 'Guard', SUPPORT: 'Supporter', CASTER: 'Caster', SNIPER: 'Sniper', TANK: 'Defender', PIONEER: 'Vanguard', SPECIAL: 'Specialist', MEDIC: 'Medic'}
+
 //add tooltip element for use in below functions
 let tt = document.createElement('div')
 tt.id = 'chartjs-tooltip'
@@ -11,6 +13,10 @@ async function get_char_table() {
 	json['char_1001_amiya2'] = JSON.parse(JSON.stringify(json['char_002_amiya']))
 	json['char_1001_amiya2'].name = 'Guardmiya'
 	json['char_1001_amiya2'].profession = json['char_350_surtr'].profession
+	
+	Object.keys(json).forEach(op => {
+		json[op].profession = CLASS_MAPPING[json[op].profession] || json[op].profession
+	})
 	return json
 }
 
