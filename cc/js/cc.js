@@ -34,8 +34,7 @@ fetch('./cctitles.json')
 CCMAP = json; 
 CCTAG = CCMAP[window.location.hash].tag
 document.getElementById('pageTitle').innerHTML = CCMAP[window.location.hash].title
-return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')})
-	.then(res => res.json())
+return get_char_table()})
 	.then(js => {
 		operatorData = js;
 		return fetch('./data' + CCTAG + '.json')

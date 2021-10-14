@@ -4,6 +4,16 @@ tt.id = 'chartjs-tooltip'
 tt.classList.add('hidden')
 document.addEventListener("DOMContentLoaded",() => document.body.appendChild(tt))
 
+async function get_char_table() {
+	let raw = await fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')
+	let json = await raw.json()
+	// add amiya alts
+	json['char_1001_amiya2'] = JSON.parse(JSON.stringify(json['char_002_amiya']))
+	json['char_1001_amiya2'].name = 'Guardmiya'
+	json['char_1001_amiya2'].profession = json['char_350_surtr'].profession
+	return json
+}
+
 function thumbnail_tooltip(chart_canvas) {
 	// This function is not perfect, it will only work at this exact tooltip height due to the image adding width
 	// to compensate for this extra width, you must set xPadding in your chart's tooltip options to 6+h/2 where h is the computed height of the tooltip - 6. (6 is for the 3px padding defined in the css)

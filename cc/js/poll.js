@@ -2,8 +2,7 @@ if (!window.location.hash) window.location.hash = '#1'
 window.onhashchange = () => window.location.reload()
 var charIdMap = {},
     PTAG = window.location.hash.substr(1);
-fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')
-.then(res => res.json()).then(js => {
+get_char_table().then(js => {
     let operatorData = js;
     for (var key in operatorData) {
         if (!operatorData[key].displayNumber) delete operatorData[key]
