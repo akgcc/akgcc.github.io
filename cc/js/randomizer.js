@@ -191,68 +191,94 @@ function Randomize() {
 	let outputDiv = document.getElementById('results')
 	outputDiv.innerHTML = ''
 	
-	// pick a stage: (depends on stages_re)
-	// get non-filtered episodes only:
-	let localEpisodeList = JSON.parse(JSON.stringify(episode_list))
-	for (var key in localEpisodeList) {
-		if (!filters.Stage[key].enabled)
-			delete localEpisodeList[key]
+	function rerollStage(){
+		// pick a stage: (depends on stages_re)
+		// get non-filtered episodes only:
+		let localEpisodeList = JSON.parse(JSON.stringify(episode_list))
+		for (var key in localEpisodeList) {
+			if (!filters.Stage[key].enabled)
+				delete localEpisodeList[key]
+		}
+		let stages_re = new RegExp('^('+Object.values(localEpisodeList).join("|")+')', 'gi');
+		let availableStages = Object.values(stageData.stages).filter(x=> x.stageId.match(stages_re) && ['MAIN','SUB','ACTIVITY'].includes(x.stageType) && x.apCost && x.difficulty == 'NORMAL' && x.levelId);
+		return (shuffleArray(availableStages)[0] || {code: '???'}).code
 	}
-	let stages_re = new RegExp('^('+Object.values(localEpisodeList).join("|")+')', 'gi');
-	let availableStages = Object.values(stageData.stages).filter(x=> x.stageId.match(stages_re) && ['MAIN','SUB','ACTIVITY'].includes(x.stageType) && x.apCost && x.difficulty == 'NORMAL' && x.levelId);
+	
+	function createHeader(titleName, cb = null) {
+		let title = document.createElement('div')
+		title.classList.add('title')
+		title.innerHTML = titleName
+		outputDiv.appendChild(title)
+		let reroll = document.createElement('div')
+		reroll.classList.add('button','iconButton')
+		let i = document.createElement('i')
+		i.classList.add('fas','fa-redo')
+		reroll.appendChild(i)
+		title.appendChild(reroll)
+		reroll.onclick = cb
+		return title
+	}
 	
 	
-	let stageTitle = document.createElement('span')
-	stageTitle.innerHTML = 'Your Stage'
+	let stageTitle = createHeader('Your Stage', () => {
+		document.getElementById('stageRoll').innerHTML = rerollStage()
+	})
 	outputDiv.appendChild(stageTitle)
 	let stageDiv = document.createElement('div')
+	stageDiv.id = 'stageRoll'
 	stageDiv.classList.add('bigText')
-	stageDiv.innerHTML = (shuffleArray(availableStages)[0] || {code: '???'}).code
+	stageDiv.innerHTML = rerollStage()
 	outputDiv.appendChild(stageDiv)
 	
 	
 	// squad setup
-	let title = document.createElement('span')
-	title.innerHTML = 'Your Squad'
+	let title = createHeader('Your Squad', () => {
+		rerollSquad(document.getElementById('output'))
+	})
 	outputDiv.appendChild(title)
 	let teamDiv = document.createElement('div')
 	teamDiv.id='output'
-	
-	
-	// pick a squad
-	let availableOperators = Object.values(operatorData).filter(x=> x.selected)
-	let localFilters = JSON.parse(JSON.stringify(filters))
-	
-	for (let i = 0; i<filters.Squad.Size.max; i++) {
-	// filter by rarity:
-	availableOperators = availableOperators.filter( x => localFilters.Rarity[parseInt(x.rarity)].enabled && localFilters.Rarity[parseInt(x.rarity)].max > 0)
-	// filter by class:
-	availableOperators = availableOperators.filter( x => localFilters.Class[x.profession].enabled && localFilters.Class[x.profession].max > 0)
-	
-	let randomOne = shuffleArray(availableOperators).sort((a,b) => {
-		if(localFilters.Rarity[parseInt(a.rarity)].min > 0) return 1;
-		if(localFilters.Class[a.profession].min > 0) return 1;
-		if(localFilters.Rarity[parseInt(b.rarity)].min > 0) return -1;
-		if(localFilters.Class[b.profession].min > 0) return -1;
-		return 0;
-	}).pop()
-	if (!randomOne)
-		break
-	CreateOpCheckbox(randomOne, null, null, null, null, teamDiv).style.order = -randomOne.rarity
-	// reduce min and max
-	localFilters.Rarity[parseInt(randomOne.rarity)].min -= 1
-	localFilters.Rarity[parseInt(randomOne.rarity)].max -= 1
-	localFilters.Class[randomOne.profession].max -= 1
-	localFilters.Class[randomOne.profession].min -= 1
+
+	function rerollSquad(destDiv) {
+		destDiv.innerHTML = ''
+		// pick a squad
+		let availableOperators = Object.values(operatorData).filter(x=> x.selected)
+		let localFilters = JSON.parse(JSON.stringify(filters))
+		
+		for (let i = 0; i<filters.Squad.Size.max; i++) {
+		// filter by rarity:
+		availableOperators = availableOperators.filter( x => localFilters.Rarity[parseInt(x.rarity)].enabled && localFilters.Rarity[parseInt(x.rarity)].max > 0)
+		// filter by class:
+		availableOperators = availableOperators.filter( x => localFilters.Class[x.profession].enabled && localFilters.Class[x.profession].max > 0)
+		
+		let randomOne = shuffleArray(availableOperators).sort((a,b) => {
+			if(localFilters.Rarity[parseInt(a.rarity)].min > 0) return 1;
+			if(localFilters.Class[a.profession].min > 0) return 1;
+			if(localFilters.Rarity[parseInt(b.rarity)].min > 0) return -1;
+			if(localFilters.Class[b.profession].min > 0) return -1;
+			return 0;
+		}).pop()
+		if (!randomOne)
+			break
+		CreateOpCheckbox(randomOne, null, null, null, null, destDiv).style.order = -randomOne.rarity
+		// reduce min and max
+		localFilters.Rarity[parseInt(randomOne.rarity)].min -= 1
+		localFilters.Rarity[parseInt(randomOne.rarity)].max -= 1
+		localFilters.Class[randomOne.profession].max -= 1
+		localFilters.Class[randomOne.profession].min -= 1
+		}
 	}
+	rerollSquad(teamDiv)
 	
 	outputDiv.appendChild(teamDiv)
 	
 	// pick a challenge(s)
-	let challengeTitle = document.createElement('span')
-	challengeTitle.innerHTML = 'Your Challenge'
+	let challengeTitle = createHeader('Your Challenge', () => {
+		document.getElementById('challengeRoll').innerHTML = shuffleArray(challengeList)[0] || 'Challenge List Missing.'
+	})
 	outputDiv.appendChild(challengeTitle)
 	let challengeDiv = document.createElement('div')
+	challengeDiv.id = 'challengeRoll'
 	challengeDiv.classList.add('smallText')
 	challengeDiv.innerHTML = shuffleArray(challengeList)[0] || 'Challenge List Missing.'
 	outputDiv.appendChild(challengeDiv)
