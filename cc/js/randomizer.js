@@ -381,7 +381,7 @@ document.getElementById('filterBtn').onclick = () => {
 	localStorage.setItem('randomizerToggles', JSON.stringify(randomizerToggles))
 }
 for (var key in randomizerToggles) {
-	if (!randomizerToggles[key])
+	if (randomizerToggles[key])
 		document.getElementById(key).click()
 }
 
