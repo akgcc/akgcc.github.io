@@ -4,9 +4,12 @@ var filters = {
 	Squad: {
 		Size: {
 			disp: 'Max Size',
-			min: 1,
 			max: maxTeamSize,
 		},
+		Challenges: {
+			disp: 'Challenges',
+			max: 1,
+		}
 	},
 	Rarity: {
 		0: {
@@ -97,6 +100,13 @@ var filters = {
 		},
 	}
 }
+function updateJSON(dest, src) {
+	for (let key in dest) {
+	  if(src.hasOwnProperty(key)){
+		dest[key] = src[key];
+	  }
+	}
+}
 // fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/zone_table.json')
 fetch('./json/challenges.json')
 .then(res => res.json())
@@ -120,7 +130,7 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 	// load local filter data.
 	let f = localStorage.getItem('randomizerFilters')
 	if (f)
-		filters = JSON.parse(f)
+		updateJSON(filters, JSON.parse(f))
 
 
 // create list of available stages (episode_list)
@@ -274,13 +284,13 @@ function Randomize() {
 	
 	// pick a challenge(s)
 	let challengeTitle = createHeader('Your Challenge', () => {
-		document.getElementById('challengeRoll').innerHTML = shuffleArray(challengeList)[0] || 'Challenge List Missing.'
+		document.getElementById('challengeRoll').innerHTML = shuffleArray(challengeList).slice(0,filters.Squad.Challenges.max).join('<br/>') || 'None'
 	})
 	outputDiv.appendChild(challengeTitle)
 	let challengeDiv = document.createElement('div')
 	challengeDiv.id = 'challengeRoll'
 	challengeDiv.classList.add('smallText')
-	challengeDiv.innerHTML = shuffleArray(challengeList)[0] || 'Challenge List Missing.'
+	challengeDiv.innerHTML = shuffleArray(challengeList).slice(0,filters.Squad.Challenges.max).join('<br/>') || 'None'
 	outputDiv.appendChild(challengeDiv)
 }
 
@@ -309,7 +319,7 @@ for (const [key, value] of Object.entries(filters)) {
 		checkbox.checked = subvalue.enabled
 		checkbox.onchange = () => {subvalue.enabled = checkbox.checked; updateLocalFilters()}
 		label.innerHTML = subvalue.disp
-		if (key != 'Squad')
+		if (subvalue.enabled !== undefined)
 		left.appendChild(checkbox)
 		left.appendChild(label)
 		row.appendChild(left)
@@ -326,11 +336,11 @@ for (const [key, value] of Object.entries(filters)) {
 		min.min = 0
 		min.max = maxTeamSize
 		min.value = subvalue.min
-		if (key != 'Squad')
+		if (subvalue.min !== undefined)
 		right.appendChild(min)
 		let dash = document.createElement('span')
 		dash.innerHTML = '-'
-		if (key != 'Squad')
+		if (subvalue.min !== undefined)
 		right.appendChild(dash)
 		let max = document.createElement('input')
 		max.onchange = () => {subvalue.max = max.value; updateLocalFilters()}
@@ -389,7 +399,7 @@ x.onclick = () => {x.classList.toggle('_selected'); filterByClass()}
 var randomizerToggles = {filterBtn:true, rosterBtn:true}
 let f = localStorage.getItem('randomizerToggles')
 if (f) 
-	randomizerToggles = JSON.parse(f)
+	updateJSON(randomizerToggles, JSON.parse(f))
 
 document.getElementById('rosterBtn').onclick = () => {
 	document.getElementById('rosterBtn').classList.toggle('checked')
