@@ -135,7 +135,12 @@ get_char_table().then(js => {
 	document.getElementById('barChartContainer').style.height = labels.length*parseFloat(getComputedStyle(document.body).fontSize) * 4/5 * 2;
 	
 	let sorted_bar_data = Object.values(bar_data).sort((a,b) => b[barDefaultSort] - a[barDefaultSort])
-	
+
+	function outsideBar(context) {
+		console.log(context.dataset.data[context.dataIndex] * context.chart.canvas.width)
+		return context.dataset.data[context.dataIndex] * context.chart.canvas.width < 123000 * .17
+		return context.dataset.data[context.dataIndex] < 30
+	}
 	let barGraph = new Chart(document.getElementById("opChart"), {
         type: "bar",
         data: {
@@ -145,41 +150,112 @@ get_char_table().then(js => {
 				categoryPercentage: .8,
                 barPercentage: 1,
                 data: sorted_bar_data.map(x=> 100*x[barMetrics[0]]),
-                backgroundColor: "#845994",
+                backgroundColor: "#ffb629",
+				stack:'1'
+            }, {
+                label: 'filler',
+				categoryPercentage: .8,
+                barPercentage: 1,
+                data: sorted_bar_data.map(x=> (100-100*x[barMetrics[0]])),
+                backgroundColor: "#0000",
+				stack:'1'
             }, {
                 label: barMetrics[1],
 				categoryPercentage: .8,
                 barPercentage: 1,
                 data: sorted_bar_data.map(x=> 100*x[barMetrics[1]]),
-                backgroundColor: "#948d52",
+                backgroundColor: "#63c384",
+				stack:'1'
+            }, {
+                label: 'filler',
+				categoryPercentage: .8,
+                barPercentage: 1,
+                data: sorted_bar_data.map(x=> (100-100*x[barMetrics[1]])),
+                backgroundColor: "#0000",
+				stack:'1'
+            },{
+                label: barMetrics[2],
+				categoryPercentage: .8,
+                barPercentage: 1,
+                data: sorted_bar_data.map(x=> 100*x[barMetrics[2]]),
+                backgroundColor: "#ff545a",
+				stack:'1'
+            }, {
+                label: 'filler',
+				categoryPercentage: .8,
+                barPercentage: 1,
+                data: sorted_bar_data.map(x=> (100-100*x[barMetrics[2]])),
+                backgroundColor: "#0000",
+				stack:'1'
+            },{
+                label: barMetrics[3],
+				categoryPercentage: .8,
+                barPercentage: 1,
+                data: sorted_bar_data.map(x=> 100*x[barMetrics[3]]),
+                backgroundColor: "#ff545a",
+				stack:'1'
+            }, {
+                label: 'filler',
+				categoryPercentage: .8,
+                barPercentage: 1,
+                data: sorted_bar_data.map(x=> (100-100*x[barMetrics[3]])),
+                backgroundColor: "#0000",
+				stack:'1'
+            },{
+                label: barMetrics[4],
+				categoryPercentage: .8,
+                barPercentage: 1,
+                data: sorted_bar_data.map(x=> 100*x[barMetrics[4]]),
+                backgroundColor: "#ff545a",
+				stack:'1'
             }]
         },
-		// plugins: [ChartDataLabels],
+		plugins: [ChartDataLabels],
         options: {
 			indexAxis: 'y',
             interaction: {
                 mode: 'index',
             },
+			scales: {
+				'x': {
+					display:false,
+				}
+			},
             maintainAspectRatio: false,
             responsive: true,
 			plugins: {
 				datalabels: {
-					color: '#000',
-					formatter: (v, ctx) => v.toFixed(2) + '%',
+					
+					formatter: function(value, context) {
+					  return value.toFixed(2) + '%';
+					},
+					display: function(context) {
+						// console.log(context.chart)
+					  return !(context.datasetIndex % 2); // display labels with an even index
+					},
+					
+					color: (ctx) => outsideBar(ctx) ? '#dddddd':'#000',
+					anchor: (ctx) => outsideBar(ctx) ? 'end':'center',
+					// clamp: true,
+					align: (ctx) => outsideBar(ctx) ? 'right':'center',
 				},
 				tooltip: {
-				 callbacks: {
-					afterLabel: tt_size_plugin,
-					label: function(context) {
-					   if (context.dataset.label.includes('E2'))
-						   return context.dataset.label + ': ' + context.raw.toFixed(1) + '% (' + (context.raw/context.chart.data.datasets[context.datasetIndex^1].data[context.dataIndex]*100).toFixed(1) + '%)';
-					   return context.dataset.label + ': ' + context.raw.toFixed(1) + '%'
-					}
-				 },
+					mode: 'nearest',
+				 // callbacks: {
+					// afterLabel: tt_size_plugin,
+					// label: function(context) {
+					   // if (context.dataset.label.includes('E2'))
+						   // return context.dataset.label + ': ' + context.raw.toFixed(1) + '% (' + (context.raw/context.chart.data.datasets[context.datasetIndex^1].data[context.dataIndex]*100).toFixed(1) + '%)';
+					   // return context.dataset.label + ': ' + context.raw.toFixed(1) + '%'
+					// }
+				 // },
 					enabled: false,
 					// position: 'nearest',
-					external: thumbnail_tooltip(document.getElementById('opChart')),
+					// external: thumbnail_tooltip(document.getElementById('opChart')),
 					// xAlign: 'left'
+				},
+				legend: {
+					display: false,
 				}
 			}
         }
@@ -263,8 +339,12 @@ get_char_table().then(js => {
 		scatterPlot.update()
 		
 		barGraph.data.labels = sorted_bar_data.map(x => x.name)
-		for (i=0; i< barGraph.data.datasets.length; i++)
-			barGraph.data.datasets[i].data = sorted_bar_data.map(x=> 100*x[barMetrics[i]])
+		for (i=0; i< barGraph.data.datasets.length; i++) {
+			if (i%2)
+				barGraph.data.datasets[i].data = sorted_bar_data.map(x=> 100-100*x[barMetrics[Math.floor(i/2)]])
+			else
+				barGraph.data.datasets[i].data = sorted_bar_data.map(x=> 100*x[barMetrics[Math.floor(i/2)]])
+		}
         barGraph.update();
     }
 

@@ -2,7 +2,7 @@ import json
 from pprint import pprint
 with open('poll_results_raw.json','r') as f:
     res = json.load(f)
-QUESTIONS = res[0][1][1]
+QUESTIONS = res[0][1][1] # skipped 1 question as it was unrelated (info)
 ANSWERS = res[3]
 QUESTION_MAP = {}
 for q in QUESTIONS:
