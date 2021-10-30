@@ -1,0 +1,186 @@
+:root {
+	--nameplate-height: 16px;
+	--operator-image-size: 60px;
+}
+#buttons {
+	align-content: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+	flex: 1;
+}
+#goBtn {
+	margin: 8px;
+	font-size: 2em;
+	padding:.5em;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100% - 10px - var(--topNav-height));
+    align-content: center;
+}
+#filterWrapper input[type='number'] {
+	width: 3.2em;
+}
+#output {
+	display: flex;
+	--nameplate-height: 20px;
+	--operator-image-size: 75px;
+	/* align-items: center; */
+	flex: 1;
+	flex-direction: row;
+	justify-content: center;
+}
+#output img {
+	opacity: 1;
+}
+#output .operatorCheckbox,
+#output .operatorCheckbox .name {
+	transform: none;
+	cursor: initial;
+}
+#results {
+	margin-top: 8px;
+	display: flex;
+	flex-direction: column;
+}
+#results > span {
+	text-align: center;
+	font-size: 2em;
+	background: #fff1;
+}
+#results .bigText {
+	text-align: center;
+	font-size: 2.5em;
+}
+#results .smallText {
+	text-align: center;
+	margin-top: .5em;
+	/* font-size: 2.5em; */
+}
+#filterWrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 8px;
+}
+#rosterFilter {
+	margin-top: 8px;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+#rosterFilter > div {
+	margin: 2px;
+}
+
+#options {
+	margin: 8px;
+	display: flex;
+}
+
+.filterSection {
+	/* display: flex; */
+	/* flex-direction: column; */
+	border: 1px solid var(--main-text-color);
+	border-radius: .25em;
+	margin: .5em;
+}
+#filterWrapper.hidden,
+#options.hidden {
+	display: none;
+}
+table {
+	display: table;
+	table-layout: fixed;
+}
+.operatorCheckbox[data-rarity='5'] .name {
+	background-color: rgba(255, 102, 0, .1);
+}
+.operatorCheckbox[data-rarity='4'] .name {
+	background-color: rgba(255, 174, 0, .1);
+}
+.operatorCheckbox[data-rarity='3'] .name {
+	background-color: rgba(219, 177, 219, .1);
+}
+.operatorCheckbox[data-rarity='2'] .name {
+	background-color: rgba(0, 178, 246, .1);
+}
+.operatorCheckbox[data-rarity='1'] .name {
+	background-color: rgba(220, 229, 55, .1);
+}
+.operatorCheckbox[data-rarity='0'] .name {
+	background-color: rgba(159, 159, 159, .1);
+}
+
+#output .operatorCheckbox[data-rarity='5'] .name,
+.operatorCheckbox[data-rarity='5']._selected .name {
+	background-color: rgba(255, 102, 0, .4);
+}
+#output .operatorCheckbox[data-rarity='4'] .name,
+.operatorCheckbox[data-rarity='4']._selected .name {
+	background-color: rgba(255, 174, 0, .4);
+}
+#output .operatorCheckbox[data-rarity='3'] .name,
+.operatorCheckbox[data-rarity='3']._selected .name {
+	background-color: rgba(219, 177, 219, .4);
+}
+#output .operatorCheckbox[data-rarity='2'] .name,
+.operatorCheckbox[data-rarity='2']._selected .name {
+	background-color: rgba(0, 178, 246, .4);
+}
+#output .operatorCheckbox[data-rarity='1'] .name,
+.operatorCheckbox[data-rarity='1']._selected .name {
+	background-color: rgba(220, 229, 55, .4);
+}
+#output .operatorCheckbox[data-rarity='0'] .name,
+.operatorCheckbox[data-rarity='0']._selected .name {
+	background-color: rgba(159, 159, 159, .4);
+}
+
+
+.operatorCheckbox[data-rarity='5'] {
+	background-color: rgba(255, 102, 0, .05);
+}
+.operatorCheckbox[data-rarity='4'] {
+	background-color: rgba(255, 174, 0, .05);
+}
+.operatorCheckbox[data-rarity='3'] {
+	background-color: rgba(219, 177, 219, .05);
+}
+.operatorCheckbox[data-rarity='2'] {
+	background-color: rgba(0, 178, 246, .05);
+}
+.operatorCheckbox[data-rarity='1'] {
+	background-color: rgba(220, 229, 55, .05);
+}
+.operatorCheckbox[data-rarity='0'] {
+	background-color: rgba(159, 159, 159, .05);
+}
+
+#classFilter {
+	display:flex;
+	/* flex-basis: 100%; */
+	justify-content: center;
+	border: 1px solid var(--main-text-color);
+	border-radius: .5em;
+	overflow:hidden;
+}
+#classFilter img {
+	width: 60px;
+	height: 60px;
+}
+.flex-br {
+	flex-basis:100%;
+}
+.class-selector {
+	cursor: pointer;
+}
+.class-selector._selected {
+	background: #44c8;
+}

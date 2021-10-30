@@ -1,5 +1,13 @@
 const CLASS_MAPPING = {WARRIOR: 'Guard', SUPPORT: 'Supporter', CASTER: 'Caster', SNIPER: 'Sniper', TANK: 'Defender', PIONEER: 'Vanguard', SPECIAL: 'Specialist', MEDIC: 'Medic'}
 
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+	return array;
+}
+
 //add tooltip element for use in below functions
 let tt = document.createElement('div')
 tt.id = 'chartjs-tooltip'
@@ -191,11 +199,12 @@ function divideString(text) {
 	
 }
 
-function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScaleMax = null, clickfunc = null) {
+function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScaleMax = null, clickfunc = null, destDiv = document.getElementById("checkboxes")) {
     let operatorName = operator.name;
     var checkboxDiv = document.createElement("div");
     checkboxDiv.classList.add('operatorCheckbox');
     checkboxDiv.setAttribute('data-class', operator.profession);
+	checkboxDiv.setAttribute('data-rarity', operator.rarity);
     checkboxDiv.classList.add('show');
     
 	if (data1map) {
@@ -231,7 +240,7 @@ function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScale
 	name.appendChild(svg)
 	
     checkboxDiv.appendChild(name);
-    document.getElementById("checkboxes").appendChild(checkboxDiv);
+    destDiv.appendChild(checkboxDiv);
 	
 	if (clickfunc) {
 		checkboxDiv.onclick = (e) => {
