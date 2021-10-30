@@ -97,7 +97,6 @@ var filters = {
 		},
 	}
 }
-challengeList
 // fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/zone_table.json')
 fetch('./json/challenges.json')
 .then(res => res.json())
@@ -362,11 +361,27 @@ x.onclick = () => {x.classList.toggle('_selected'); filterByClass()}
 
 })
 
+var randomizerToggles = {filterBtn:true, rosterBtn:true}
+let f = localStorage.getItem('randomizerToggles')
+if (f) 
+	randomizerToggles = JSON.parse(f)
+
 document.getElementById('rosterBtn').onclick = () => {
 	document.getElementById('rosterBtn').classList.toggle('checked')
-	document.getElementById('roster').classList.toggle('hidden')
+	let roster = document.getElementById('roster')
+	roster.classList.toggle('hidden')
+	randomizerToggles.rosterBtn = !roster.classList.contains('hidden')
+	localStorage.setItem('randomizerToggles', JSON.stringify(randomizerToggles))
 }
 document.getElementById('filterBtn').onclick = () => {
 	document.getElementById('filterBtn').classList.toggle('checked')
-	document.getElementById('filterWrapper').classList.toggle('hidden')
+	let filter = document.getElementById('filterWrapper')
+	filter.classList.toggle('hidden')
+	randomizerToggles.filterBtn = !filter.classList.contains('hidden')
+	localStorage.setItem('randomizerToggles', JSON.stringify(randomizerToggles))
 }
+for (var key in randomizerToggles) {
+	if (!randomizerToggles[key])
+		document.getElementById(key).click()
+}
+
