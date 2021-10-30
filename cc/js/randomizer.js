@@ -47,49 +47,49 @@ var filters = {
 		},
 	},
 	Class: {
-		SUPPORT: {
+		Supporter: {
 			disp: 'Supporter',
 			enabled: true,
 			min: 0,
 			max: maxTeamSize,
 		},
-		CASTER: {
+		Caster: {
 			disp: 'Caster',
 			enabled: true,
 			min: 0,
 			max: maxTeamSize,
 		},
-		SNIPER: {
+		Sniper: {
 			disp: 'Sniper',
 			enabled: true,
 			min: 0,
 			max: maxTeamSize,
 		},
-		TANK: {
+		Defender: {
 			disp: 'Defender',
 			enabled: true,
 			min: 0,
 			max: maxTeamSize,
 		},
-		PIONEER: {
+		Vanguard: {
 			disp: 'Vanguard',
 			enabled: true,
 			min: 0,
 			max: maxTeamSize,
 		},
-		SPECIAL: {
+		Specialist: {
 			disp: 'Specialist',
 			enabled: true,
 			min: 0,
 			max: maxTeamSize,
 		},
-		WARRIOR: {
+		Guard: {
 			disp: 'Guard',
 			enabled: true,
 			min: 0,
 			max: maxTeamSize,
 		},
-		MEDIC: {
+		Medic: {
 			disp: 'Medic',
 			enabled: true,
 			min: 0,
@@ -102,9 +102,8 @@ fetch('./json/challenges.json')
 .then(res => res.json())
 .then(js => {
 	challengeList = js
-return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')
+return get_char_table()
 })
-.then(res => res.json())
 .then(js => {
 	operatorData = js
 return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/story_review_table.json')
@@ -174,7 +173,7 @@ Object.keys(operatorData).forEach(x => {
 		})
 
 let exclusions = localStorage.getItem('excludedOps')
-console.log(exclusions)
+
 if (exclusions)
 	Array.from(JSON.parse(exclusions)).forEach(x => {
 		divMap[x].classList.toggle('_selected')
