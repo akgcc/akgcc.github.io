@@ -12,7 +12,7 @@
 	"You may not equip any auto skills.",
 	"You may not use any high-ground tiles.",
 	"You may not use any ground tiles.",
-	"All operators must be deployed facing the same direction (Up, Down, Left, or Right).",
+	"All operators must be deployed facing the same direction (Up/Down/Left/Right).",
 	"Your operators cannot be retreated for any reason (includes dying or Surtr/Amiya).",
 	"You may not deploy any ground operators after placing your first high-ground operator.",
 	"You may not deploy any high-ground operators after placing your first ground operator.",
@@ -26,5 +26,18 @@
 	"You must allow at least 3 operators to die during the stage.",
 	"You may only ever have an odd number of operators deployed (must deploy in pairs).",
 	"You may only ever have an even number of operators deployed (must deploy in pairs).",
-	"You may only deploy a high-ground operator after deploying a ground operator, and vice-versa."
+	"You may only deploy a high-ground operator after deploying a ground operator, and vice-versa.",
+	"You must activate all skills as soon as they are charged.",
+	"You may not deploy an operator facing the same direction (Up/Down/Left/Right) as the last operator you deployed.",
+	"Ground operators must have their back against a wall (or high-ground) tile.",
+	"You may not deploy an operator in any of the surrounding 8 tiles of another operator.",
+	"You must deploy each operator next to (4 adjacent tiles) an already deployed operator.",
+	"You have 3 deployment slots.",
+	"You must wait at least 10 seconds between operator deployments.",
+	"You may only deploy operators if the first digit of your DP amount is odd.",
+	"You may deploy a maximum of 1 6* operator at a time.",
+	"You may deploy a maximum of 1 5* operator at a time.",
+	"You may deploy a maximum of 1 4* operator at a time.",
+	"When an operator retreats for any reason, you must also retreat another operator."
+	
 ]
