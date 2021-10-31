@@ -54,6 +54,7 @@ body {
 #results > .title {
 	text-align: center;
 	font-size: 2em;
+	padding: .1em 0;
 	background: #fff1;
 	display: flex;
 	justify-content: center;
@@ -98,6 +99,8 @@ body {
 	border: 1px solid var(--main-text-color);
 	border-radius: .25em;
 	margin: .5em;
+	border-collapse: separate;
+	padding: .3em;
 }
 #filterWrapper.hidden,
 #options.hidden {
@@ -194,8 +197,23 @@ table {
 }
 
 #stageRoll > div {
+	padding: .1em 0;
 	display: flex;
 	justify-content: center;
 	flex-direction: column;
 	align-items: center;
+}
+
+.hr-row {
+	font-weight: 600;
+	border-bottom: 1px solid var(--main-text-color);
+	height: 1em;
+	margin-bottom: .1em;
+}
+.hr-row th {
+	padding: .25em 0;
+}
+.filterSection td {
+	vertical-align: middle;
+	/* padding: .25em; */
 }

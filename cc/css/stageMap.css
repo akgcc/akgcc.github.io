@@ -1,6 +1,9 @@
 .stageMap {
 	--color_floor: dimgrey;
 	--color_forbidden: #222;
+	border-spacing: 2px;
+	border-collapse: separate;
+	font-size: .5em;
 }
 .stageMap td {
 	width: 2em;

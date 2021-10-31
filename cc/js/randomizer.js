@@ -325,10 +325,13 @@ function updateLocalFilters() {
 for (const [key, value] of Object.entries(filters)) {
 	let section = document.createElement('table')
 	section.classList.add('filterSection')
-	let title = document.createElement('span')
-	title.innerHTML = key
+	let title = document.createElement('tr')
+	title.classList.add('hr-row')
+	let th = document.createElement('th')
+	th.innerHTML = key
+	th.setAttribute('colspan',2)
+	title.appendChild(th)
 	section.appendChild(title)
-	section.appendChild(document.createElement('hr'))
 	for (const [subkey, subvalue] of Object.entries(value)) {
 		let row = document.createElement('tr')
 		let left = document.createElement('td')
