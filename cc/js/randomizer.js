@@ -204,6 +204,9 @@ function Randomize() {
 	function rerollStage(){
 		// pick a stage: (depends on stages_re)
 		// get non-filtered episodes only:
+		let div = document.createElement('div')
+		let span = document.createElement('span')
+		
 		let localEpisodeList = JSON.parse(JSON.stringify(episode_list))
 		for (var key in localEpisodeList) {
 			if (!filters.Stage[key].enabled)
@@ -211,7 +214,22 @@ function Randomize() {
 		}
 		let stages_re = new RegExp('^('+Object.values(localEpisodeList).join("|")+')', 'gi');
 		let availableStages = Object.values(stageData.stages).filter(x=> x.stageId.match(stages_re) && ['MAIN','SUB','ACTIVITY'].includes(x.stageType) && x.apCost && x.difficulty == 'NORMAL' && x.levelId);
-		return (shuffleArray(availableStages)[0] || {code: '???'}).code
+		let chosen_stage = shuffleArray(availableStages)[0]
+		// chosen_stage= availableStages.filter(x=> x.code == "SV-EX-5")[0]
+		if (chosen_stage) {
+			let stageurl =  'https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/levels/'+chosen_stage.levelId.toLowerCase()+'.json'
+			fetch(stageurl)
+			.then(res => res.json())
+			.then(js => {
+				div.prepend(tableFromStageData(js))
+				
+			})
+			
+		}
+		span.innerHTML = (chosen_stage || {code: '???'}).code
+		div.appendChild(span)
+		
+		return div
 	}
 	
 	function createHeader(titleName, cb = null) {
@@ -231,13 +249,15 @@ function Randomize() {
 	
 	
 	let stageTitle = createHeader('Your Stage', () => {
-		document.getElementById('stageRoll').innerHTML = rerollStage()
+		document.getElementById('stageRoll').innerHTML = ''
+		document.getElementById('stageRoll').appendChild(rerollStage())
 	})
 	outputDiv.appendChild(stageTitle)
 	let stageDiv = document.createElement('div')
 	stageDiv.id = 'stageRoll'
 	stageDiv.classList.add('bigText')
-	stageDiv.innerHTML = rerollStage()
+	stageDiv.innerHTML = ''
+	stageDiv.appendChild(rerollStage())
 	outputDiv.appendChild(stageDiv)
 	
 	
@@ -419,4 +439,3 @@ for (var key in randomizerToggles) {
 	if (randomizerToggles[key])
 		document.getElementById(key).click()
 }
-

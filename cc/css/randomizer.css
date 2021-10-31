@@ -192,3 +192,10 @@ table {
 .class-selector._selected {
 	background: #44c8;
 }
+
+#stageRoll > div {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+}
