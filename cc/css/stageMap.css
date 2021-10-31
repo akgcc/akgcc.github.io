@@ -41,7 +41,7 @@
 	background: var(--color_forbidden);
 }
 .stageMap td[data-tile=tile_empty] {
-	background: black;
+	background: #0002;
 }
 .stageMap td[data-tile=tile_floor] {
 	/* box-shadow: inset 0 0 0 3px orange; */
@@ -70,6 +70,7 @@
 }
 
 /* tile icons */
+.stageMap td[data-tile=tile_start], 
 .stageMap td[data-tile=tile_end] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/base.png");
 	background-size: cover;
