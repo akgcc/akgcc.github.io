@@ -1,18 +1,19 @@
 .stageMap {
-	/* background: var(--main-background-color); */
 	--color_floor: dimgrey;
 	--color_forbidden: #222;
 }
 .stageMap td {
 	width: 2em;
 	height: 2em;
-	background: lime;
+	background-color: lime;
+	background-size: cover;
+	background-position: center;
 }
 .stageMap td[data-height="0"] {
-	background: var(--color_floor);
+	background-color: var(--color_floor);
 }
 .stageMap td[data-height="1"] {
-	background: darkgrey;
+	background-color: darkgrey;
 }
 
 
@@ -34,85 +35,77 @@
 	/* background: var(--color_floor); */
 /* } */
 .stageMap td[data-tile=tile_fence] {
-	box-shadow: inset 0 0 0 3px #999;
+	box-shadow: inset 0 0 0 .1875em #999;
 }
 /* undeployable */
 .stageMap td[data-tile=tile_forbidden] {
-	background: var(--color_forbidden);
+	background-color: var(--color_forbidden);
 }
 .stageMap td[data-tile=tile_empty] {
-	background: #0002;
-}
-.stageMap td[data-tile=tile_floor] {
-	/* box-shadow: inset 0 0 0 3px orange; */
-		background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/forb.png");
-	background-size: cover;
+	background-color: #0002;
 }
 .stageMap td[data-tile=tile_hole] {
     background: radial-gradient(var(--color_forbidden) 70%, var(--color_floor) 75%);
-    box-shadow: inset 0 0 0 2px var(--color_floor);
+    box-shadow: inset 0 0 0 .125em var(--color_floor);
 }
 /* spawn/base */
 .stageMap td[data-tile=tile_start] {
-	background:#ff3c3c;
+	box-shadow: inset 0 0 0 .1875em #ff3c3c;
+	/* background-color: #ff3c3c; */
 }
 .stageMap td[data-tile=tile_flystart] {
-	background:darkred;
+	box-shadow: inset 0 0 0 .1875em #ff3c3c;
+	/* background-color: darkred; */
 }
 .stageMap td[data-tile=tile_end] {
-	background:#409eff;
-}
-/* teleporter/stairwell */
-.stageMap td[data-tile=tile_telout],
-.stageMap td[data-tile=tile_telin] {
-	background: var(--color_floor);
-	/* background: darkorange; */
+	box-shadow: inset 0 0 0 .1875em #409eff;
+	/* background-color: #409eff; */
 }
 
+    /* filter: brightness(0.5) sepia(1) saturate(10000%) hue-rotate(328deg); */
+
+/* teleporter/stairwell */
+/* .stageMap td[data-tile=tile_telout], */
+/* .stageMap td[data-tile=tile_telin] { */
+	/* background-color:  var(--color_floor); */
+/* } */
+
 /* tile icons */
+.stageMap td[data-tile=tile_floor] {
+	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/forb.png");
+}
 .stageMap td[data-tile=tile_start], 
 .stageMap td[data-tile=tile_end] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/base.png");
-	background-size: cover;
 }
 .stageMap td[data-tile=tile_gazebo] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/air.png");
-	background-size: cover;
 }
 .stageMap td[data-tile=tile_grass] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/grass2.png");
-	background-size: cover;
 }
 .stageMap td[data-tile=tile_flystart] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/drone.png");
-	background-size: cover;
 }
 
 .stageMap td[data-tile=tile_infection] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/infection.png");
-	background-size: cover;
 }
 .stageMap td[data-tile=tile_volcano] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/volcano3.png");
-	background-size: cover;
 }
 .stageMap td[data-tile=tile_bigforce] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/force2.png");
-	background-size: cover;
 }
 .stageMap td[data-tile=tile_telin] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/telin.png");
-	background-size: cover;
 }
 .stageMap td[data-tile=tile_telout] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/telout.png");
-	background-size: cover;
 }
 .stageMap td[data-tile=tile_defup] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/def.png");
-	background-size: cover;
 }
 .stageMap td[data-tile=tile_healing] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/healing.png");
-	background-size: cover;
 }
