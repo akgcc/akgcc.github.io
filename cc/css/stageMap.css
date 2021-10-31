@@ -1,6 +1,7 @@
 .stageMap {
 	/* background: var(--main-background-color); */
-	--color_floor: dimgrey
+	--color_floor: dimgrey;
+	--color_forbidden: #222;
 }
 .stageMap td {
 	width: 2em;
@@ -37,7 +38,7 @@
 }
 /* undeployable */
 .stageMap td[data-tile=tile_forbidden] {
-	background:#222;
+	background: var(--color_forbidden);
 }
 .stageMap td[data-tile=tile_empty] {
 	background: black;
@@ -48,7 +49,7 @@
 	background-size: cover;
 }
 .stageMap td[data-tile=tile_hole] {
-    background: radial-gradient(black 70%, var(--color_floor) 75%);
+    background: radial-gradient(var(--color_forbidden) 70%, var(--color_floor) 75%);
     box-shadow: inset 0 0 0 2px var(--color_floor);
 }
 /* spawn/base */
