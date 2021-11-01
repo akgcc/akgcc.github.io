@@ -38,6 +38,6 @@
 	"You may deploy a maximum of 1 6* operator at a time.",
 	"You may deploy a maximum of 1 5* operator at a time.",
 	"You may deploy a maximum of 1 4* operator at a time.",
-	"When an operator retreats for any reason, you must also retreat another operator."
-	
+	"When an operator retreats for any reason, you must also retreat another operator.",
+	"You may only deploy operators within the attack range of an already deployed operator."	
 ]
