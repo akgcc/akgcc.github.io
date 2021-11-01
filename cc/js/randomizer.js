@@ -203,9 +203,10 @@ Object.values(operatorData).sort((a, b) => {
 
 function Randomize() {
 	let outputDiv = document.getElementById('results')
-	outputDiv.innerHTML = ''
+	outputDiv.classList.remove('hidden')
 	
 	function rerollStage(){
+		let parentDiv = document.getElementById('stageRoll')
 		// pick a stage: (depends on stages_re)
 		// get non-filtered episodes only:
 		let div = document.createElement('div')
@@ -226,54 +227,18 @@ function Randomize() {
 			.then(res => res.json())
 			.then(js => {
 				div.prepend(tableFromStageData(js))
-				
+				if (parentDiv.firstChild)
+					parentDiv.replaceChild(div, parentDiv.firstChild)
+				else
+					parentDiv.appendChild(div)
 			})
 			
 		}
 		span.innerHTML = (chosen_stage || {code: '???'}).code
 		div.appendChild(span)
-		
-		return div
 	}
-	
-	function createHeader(titleName, cb = null) {
-		let title = document.createElement('div')
-		title.classList.add('title')
-		title.innerHTML = titleName
-		outputDiv.appendChild(title)
-		let reroll = document.createElement('div')
-		reroll.classList.add('button','iconButton')
-		let i = document.createElement('i')
-		i.classList.add('fas','fa-redo')
-		reroll.appendChild(i)
-		title.appendChild(reroll)
-		reroll.onclick = cb
-		return title
-	}
-	
-	
-	let stageTitle = createHeader('Your Stage', () => {
-		document.getElementById('stageRoll').innerHTML = ''
-		document.getElementById('stageRoll').appendChild(rerollStage())
-	})
-	outputDiv.appendChild(stageTitle)
-	let stageDiv = document.createElement('div')
-	stageDiv.id = 'stageRoll'
-	stageDiv.classList.add('bigText')
-	stageDiv.innerHTML = ''
-	stageDiv.appendChild(rerollStage())
-	outputDiv.appendChild(stageDiv)
-	
-	
-	// squad setup
-	let title = createHeader('Your Squad', () => {
-		rerollSquad(document.getElementById('output'))
-	})
-	outputDiv.appendChild(title)
-	let teamDiv = document.createElement('div')
-	teamDiv.id='output'
-
-	function rerollSquad(destDiv) {
+	function rerollSquad() {
+		destDiv = document.getElementById('output')
 		destDiv.innerHTML = ''
 		// pick a squad
 		let availableOperators = Object.values(operatorData).filter(x=> x.selected)
@@ -302,20 +267,15 @@ function Randomize() {
 		localFilters.Class[randomOne.profession].min -= 1
 		}
 	}
-	rerollSquad(teamDiv)
-	
-	outputDiv.appendChild(teamDiv)
-	
-	// pick a challenge(s)
-	let challengeTitle = createHeader('Your Challenge', () => {
+	function rerollChallenge() {
 		document.getElementById('challengeRoll').innerHTML = shuffleArray(challengeList).slice(0,filters.Squad.Challenges.max).join('<br/>') || 'None'
-	})
-	outputDiv.appendChild(challengeTitle)
-	let challengeDiv = document.createElement('div')
-	challengeDiv.id = 'challengeRoll'
-	challengeDiv.classList.add('smallText')
-	challengeDiv.innerHTML = shuffleArray(challengeList).slice(0,filters.Squad.Challenges.max).join('<br/>') || 'None'
-	outputDiv.appendChild(challengeDiv)
+	}
+	document.getElementById('rerollStageBtn').onclick = rerollStage
+	rerollStage()
+	document.getElementById('rerollSquadBtn').onclick = rerollSquad
+	rerollSquad()
+	document.getElementById('rerollChallengeBtn').onclick = rerollChallenge
+	rerollChallenge()
 }
 
 document.getElementById('goBtn').onclick = Randomize

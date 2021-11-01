@@ -102,6 +102,7 @@ body {
 	border-collapse: separate;
 	padding: .3em;
 }
+#results.hidden,
 #filterWrapper.hidden,
 #options.hidden {
 	display: none;
