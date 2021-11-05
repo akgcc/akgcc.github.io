@@ -102,6 +102,8 @@ body {
 	border-collapse: separate;
 	padding: .3em;
 }
+#challengeRoll.hidden,
+#challengeTitle.hidden,
 #results.hidden,
 #filterWrapper.hidden,
 #options.hidden {

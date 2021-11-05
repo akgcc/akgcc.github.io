@@ -268,7 +268,15 @@ function Randomize() {
 		}
 	}
 	function rerollChallenge() {
-		document.getElementById('challengeRoll').innerHTML = shuffleArray(challengeList).slice(0,filters.Squad.Challenges.max).join('<br/>') || 'None'
+		let res = document.getElementById('challengeRoll')
+		res.innerHTML = shuffleArray(challengeList).slice(0,filters.Squad.Challenges.max).join('<br/>') || 'None'
+		if (res.innerHTML == 'None') {
+			res.classList.add('hidden')
+			document.getElementById('challengeTitle').classList.add('hidden')
+		} else {
+			res.classList.remove('hidden')
+			document.getElementById('challengeTitle').classList.remove('hidden')
+		}
 	}
 	document.getElementById('rerollStageBtn').onclick = rerollStage
 	rerollStage()
