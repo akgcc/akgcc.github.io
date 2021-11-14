@@ -231,7 +231,7 @@ return get_char_table()})
 
 		let rarityDisp = document.getElementById('rarityDisp')
 		document.getElementById('raritySlider').oninput = function() {
-			rarityDisp.innerHTML = this.value;
+			rarityDisp.innerHTML = parseFloat(this.value).toFixed(1);
 			maxAvgRarity = this.value;
 			applyAllFilters()
 			updateLightbox()
