@@ -368,7 +368,7 @@ function resetFilters() {
 	document.getElementById('opcountDisp').innerHTML = 13
 	maxOpCount = 13;
 	document.getElementById('raritySlider').value = 6
-	document.getElementById('rarityDisp').innerHTML = 6
+	document.getElementById('rarityDisp').innerHTML = "6.0"
 	maxAvgRarity = 6
 	updateLightbox()
 }
