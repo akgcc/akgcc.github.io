@@ -90,6 +90,8 @@ return get_char_table()})
 			let is_dupe = cardData[k].duplicate_of !== undefined
 			if (is_dupe)
 				div.setAttribute('data-dupe', cardData[k].duplicate_of)
+			if (k in dupe_groups && Object.keys(dupe_groups[k]).length > 1)
+				div.setAttribute('data-dupe', '')
 			div.setAttribute('data-soul', cardData[k].soul.toFixed(2))
 			a.classList.add('glightbox')
 			a.setAttribute('data-gallery', 'gallery1')

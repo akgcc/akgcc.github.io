@@ -116,7 +116,7 @@ hr {
 }
 @media (hover: hover) {
   .cardContainer:hover {
-    transform: scale(1.15);
+    transform: scale(1.1);
     /* z-index: 3; */
   }
 }
