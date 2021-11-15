@@ -64,20 +64,21 @@ hr {
 }
 /* .gslide-media:before, */
 .cardContainer[data-dupe]:before {
-  /* display: block; */
   position: absolute;
-  /* height: 16px; */
-  /* width: 18px; */
   content: "\f2f1";
   font-family: 'Font Awesome 5 Free';
   font-weight: 900;
   opacity: 0.8;
   color: green;
   pointer-events: none;
-  padding: .2em;
   font-size: .8em;
   top: 0;
   left: 0;
+  text-align: center;
+  vertical-align: middle;
+  height: 1.4em;
+  line-height: 1.4em;
+  width: 1.4em;
 }
 .gslide-media:before {
 	z-index: 1;
