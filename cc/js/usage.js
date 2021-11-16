@@ -35,9 +35,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 	
     Object.values(usedata).forEach(x => {
         x['squad'].forEach(y => {
-            if (x.risk >= 18) {
-				maxRisk[y] = Math.max(maxRisk[y] || 0, x.risk)
-            }
+			maxRisk[y] = Math.max(maxRisk[y] || 0, x.risk)
         })
     })
 	// union all clears from the same doctor, so their ops are only counted once towards use count.
