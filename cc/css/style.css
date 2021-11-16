@@ -43,11 +43,15 @@ hr {
   flex-direction: column;
   margin: 0.5em;
   position: relative;
+  z-index: 1;
 }
 .cardContainer,
 .cardContainer img,
 .cardContainer:after {
-	transition: all 0.1s ease-in-out;
+	transition: transform 0.1s ease-in-out, z-index 0.1s cubic-bezier(0,1,1,0);
+}
+.cardContainer:hover {
+	transition: transform 0.1s ease-in-out, z-index 0s;
 }
 
 .cardContainer[data-group="2"]:before,
@@ -130,12 +134,12 @@ hr {
   color: var(--week2-color);
 }
 @media (hover: hover) {
-  .cardContainer:hover img {
-    transform: scale(1.1);
-    /* z-index: 3; */
+  .cardContainer:hover  {
+    transform: scale(1.12);
+    z-index: 2;
   }
   body.soul-mode .cardContainer:hover:after {
-    transform: translate(calc(-256px * 1.05 + 6px * 1.05),calc(144px * 1.05 - 100% - 6px * 1.05)) scale(1.1);
+    /* transform: translate(calc(-256px * 1.05 + 6px * 1.05),calc(144px * 1.05 - 100% - 6px * 1.05)) scale(1.1); */
   }
 }
 
