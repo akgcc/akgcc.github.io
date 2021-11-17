@@ -575,6 +575,7 @@ body.soul-mode #deco {
 	width: var(--large-operator-image-size);
 	margin-right: .5em;
 	background: #0004;
+	border-radius: .2em;
 }
 .clearView .opImg.supportOp {
 	background: #c27f0baa;
