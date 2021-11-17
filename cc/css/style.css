@@ -582,7 +582,9 @@ body.soul-mode #deco {
 .clearView .cardContainer img{
 	height: var(--large-operator-image-size);
 	width: calc(16 / 9 * var(--large-operator-image-size));
-	/* width: calc(var(--large-operator-image-size) * 15); */
+}
+.clearView .cardContainer {
+	margin-right: .75em;
 }
 
 body.icon-mode .riskContainer {
