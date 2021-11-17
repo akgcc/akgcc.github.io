@@ -507,7 +507,7 @@ body {
   /* margin-top: 4rem; */
 }
 
-body.soul-mode .glightbox-container .gslide.current .gslide-description::after {
+body.soul-mode .glightbox-container .gslide.current .gslide-media::after {
     font-size: 1.5em;
     content: "SOVL: " attr(data-soul);
     position: absolute;
@@ -515,9 +515,12 @@ body.soul-mode .glightbox-container .gslide.current .gslide-description::after {
 	text-align: center;
 	margin: auto;
 	color: #0ff;
-	top: -1.5em;
 	width: 100%;
 	pointer-events: none;
+	white-space: nowrap;
+	left: 50%;
+	transform: translateX(-50%);
+	bottom: 0;
 }
 body.soul-mode .cardContainer::after {
     content: attr(data-soul);

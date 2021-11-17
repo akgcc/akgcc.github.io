@@ -295,8 +295,7 @@ return get_char_table()})
 			const { slideIndex, slideNode, slideConfig, player, trigger } = data;
 			let [soul, group, dupe] = slideConfig.content.split(',')
 			slideNode.setAttribute('data-group', group);
-			slideConfig.description = '&nbsp'
-			slideNode.querySelector('.gslide-description').setAttribute('data-soul', soul);
+			slideNode.querySelector('.gslide-media').setAttribute('data-soul', soul);
 			if (dupe) {
 				slideNode.setAttribute('data-dupe', dupe)
 				slideConfig.description='More from this doctor:'
