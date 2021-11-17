@@ -144,7 +144,10 @@ return get_char_table()})
 					Object.keys(riskMap).forEach(k => {
 						Array.from(riskMap[k].querySelectorAll('.cardContainer')).sort((a, b) => b.dataset.soul - a.dataset.soul).forEach((clear, i) => {
 							// clear.style.order = i
-							clear.parentElement.append(clear)
+							if (clear.parentElement.classList.contains('clearView'))
+								clear.parentElement.parentElement.append(clear.parentElement)
+							else
+								clear.parentElement.append(clear)
 						})
 					})
 					orderBtn.innerHTML = 'Order by: Soul'
@@ -156,7 +159,10 @@ return get_char_table()})
 					Object.keys(riskMap).forEach(k => {
 						Array.from(riskMap[k].querySelectorAll('.cardContainer')).sort((a, b) => a.dataset.dateorder - b.dataset.dateorder).forEach((clear, i) => {
 							// clear.style.order = i
-							clear.parentElement.append(clear)
+							if (clear.parentElement.classList.contains('clearView'))
+								clear.parentElement.parentElement.append(clear.parentElement)
+							else
+								clear.parentElement.append(clear)
 						})
 					})
 					orderBtn.innerHTML = 'Order by: Date'
@@ -168,7 +174,60 @@ return get_char_table()})
 			reloadLightbox()
 			updateLightbox()
 		}
-		
+		const viewBtn = document.getElementById('viewType')
+		viewBtn.onclick = (e) => {
+			switch (viewBtn.innerHTML) {
+				case 'View: Thumbs':
+					viewBtn.innerHTML = 'View: Icons'
+					document.body.classList.add('icon-mode')
+					convertToIcons()
+					break;
+				case 'View: Icons':
+					viewBtn.innerHTML = 'View: Thumbs'
+					document.body.classList.remove('icon-mode')
+					revertToThumbs()
+					break;
+			}
+		}
+		function convertToIcons() {
+			Array.from(document.querySelectorAll('.cardContainer')).forEach(c => {
+				let line = c.querySelector('.clearView')
+				if (!line) {
+					line = document.createElement('div')
+					line.classList.add('clearView')
+					cardData[c.id].squad.sort((a,b) => {
+						if (a == cardData[c.id].support)
+							return -1
+						if (b == cardData[c.id].support)
+							return 1
+						if (operatorData[a].name > operatorData[b].name)
+							return 1
+						return -1
+					}).forEach(op => {
+						let img = document.createElement('img')
+						img.classList.add('opImg')
+						if (op==cardData[c.id].support)
+							img.classList.add('supportOp')
+						img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + op + '.png';
+						img.setAttribute('title', operatorData[op].name)
+						line.appendChild(img)
+					})
+				}
+				if (c.classList.contains('hidden'))
+					line.classList.add('hidden')
+				else
+					line.classList.remove('hidden')
+				c.parentElement.replaceChild(line,c)
+				line.prepend(c)
+			})
+		}
+		function revertToThumbs() {
+			Array.from(document.querySelectorAll('.clearView')).forEach(c => {
+				let container = c.firstChild
+				c.parentElement.replaceChild(container, c)
+				container.appendChild(c)
+			})
+		}
 
 		// create filter
 		for (var key in operatorData) {
@@ -368,7 +427,10 @@ function resetFilters() {
 	})
 	Object.keys(filterStatus).forEach(k => filterStatus[k] = 0)
 	Object.keys(cardData).forEach(k => {
-		document.getElementById(k).classList.remove('hidden')
+		let e = document.getElementById(k)
+		e.classList.remove('hidden')
+		if (e.parentElement.classList.contains('clearView'))
+			e.parentElement.classList.remove('hidden')
 	})
 	Array.from(document.getElementsByClassName('operatorCheckbox')).forEach(x => x.classList.remove('_selected'))
 	Array.from(document.getElementsByClassName('riskContainer')).forEach(x => x.classList.remove('hidden'))
@@ -401,15 +463,20 @@ function _filterShouldShow(key) {
 }
 
 function showCard(key, show = true) {
-	let prev = document.getElementById(key).classList.contains('hidden')
+	let node = document.getElementById(key)
+	let prev = node.classList.contains('hidden')
 	if (show) {
-		document.getElementById(key).classList.remove('hidden')
-		document.getElementById(key).children[0].classList.add('glightbox')
+		if (node.parentElement.classList.contains('clearView'))
+			node.parentElement.classList.remove('hidden')
+		node.classList.remove('hidden')
+		node.children[0].classList.add('glightbox')
 		if (prev)
 			headerCount[cardData[key].risk] += 1
 	} else {
-		document.getElementById(key).classList.add('hidden')
-		document.getElementById(key).children[0].classList.remove('glightbox')
+		if (node.parentElement.classList.contains('clearView'))
+			node.parentElement.classList.add('hidden')
+		node.classList.add('hidden')
+		node.children[0].classList.remove('glightbox')
 		if (!prev)
 			headerCount[cardData[key].risk] -= 1
 	}

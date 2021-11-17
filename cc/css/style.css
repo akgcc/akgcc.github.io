@@ -24,6 +24,7 @@ hr {
 .riskContainer {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   padding: 0 16px;
   margin-bottom: 8px;
 }
@@ -182,6 +183,7 @@ html * {
   --nameplate-height: 16px;
   --main-background-color: #222222;
   --operator-image-size: 45px;
+  --large-operator-image-size: min(5.6vw, 83px);
   --day1-color: #c69a24;
   --week2-color: #d63e3e;
   --week1-color: #d6d6d6;
@@ -552,4 +554,43 @@ body.soul-mode #deco {
 
 #filters > div:first-child {
 	margin-left: 5px;
+}
+
+.clearView.hidden {
+	display:none;
+}
+.clearView {
+	display: flex;
+	flex-wrap: wrap;
+	background: #666;
+	margin: .15em 0;
+	align-items: center;
+	border-radius: .2em;
+}
+.cardContainer .clearView {
+	display: none;
+}
+.clearView .opImg {
+	height: var(--large-operator-image-size);
+	width: var(--large-operator-image-size);
+	margin-right: .5em;
+	background: #0004;
+}
+.clearView .opImg.supportOp {
+	background: #c27f0baa;
+}
+.clearView .cardContainer img{
+	height: var(--large-operator-image-size);
+	width: calc(16 / 9 * var(--large-operator-image-size));
+	/* width: calc(var(--large-operator-image-size) * 15); */
+}
+
+body.icon-mode .riskContainer {
+	flex-direction: column;
+}
+
+body.icon-mode .cardContainer::after {
+    transform: none;
+	left: .2em;
+	bottom: .1em;
 }
