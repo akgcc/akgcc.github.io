@@ -2,7 +2,8 @@ const lightbox = GLightbox({
 	selector: '.glightbox',
 	touchNavigation: true,
 	loop: true,
-	closeOnOutsideClick: true
+	closeOnOutsideClick: true,
+	moreLength: 0
 });
 if (!window.location.hash)
 	window.location.hash = '#4'
@@ -27,6 +28,7 @@ var lightboxElementsOriginal
 var lightboxDateOrder = {}
 var lightboxOriginalIndexMapping
 var lightboxSoulOrder = {}
+var dupeChain = {}
 var CCTAG
 fetch('./cctitles.json')
 .then(res => res.json())
@@ -295,23 +297,27 @@ return get_char_table()})
 			slideNode.setAttribute('data-group', group);
 			slideConfig.description = '&nbsp'
 			slideNode.querySelector('.gslide-description').setAttribute('data-soul', soul);
-			slideNode.querySelector('.gslide-description').classList.add('button')
 			if (dupe) {
 				slideNode.setAttribute('data-dupe', dupe)
-				slideConfig.description+='More from this doctor <i class="fas fa-arrow-alt-circle-right"></i>'
+				slideConfig.description='More from this doctor:'
+				slideConfig.description+='<div class="dupe-thumbs">'
+				while (dupe && dupe != slideConfig.filename) {
+					slideConfig.description+='<img src="./thumbs'+CCTAG+'/'+dupe+'" data-group="'+cardData[dupe].group+'" data-dupe="'+dupe+'"/>'
+					dupe = dupeChain[dupe]
+				}
+				slideConfig.description+='</div>'
 			}
 		});
 
 		lightbox.on('slide_after_load', (data) => {
 			const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-			let [soul, group, dupe] = slideConfig.content.split(',')
 			let dupeDiv = slideNode.querySelector('.gdesc-inner')
-			if (dupeDiv)
+			slideNode.querySelectorAll('.dupe-thumbs > img').forEach( dupeDiv => {
+				let dupe = dupeDiv.getAttribute('data-dupe')
 				dupeDiv.onclick = () => {
 					// check slide at expected index, if its a match just scroll to it.
 					// if not a match you need to traverse backwards until you find either the slide or an earlier slide.
 					// if you found an earlier slide, insert the slide right after it.
-					
 					// this is the original index of the slide, before any filters are applied.
 					let max_idx = parseInt(lightboxOriginalIndexMapping[dupe]) 
 					for (let i = Math.min(max_idx, lightbox.elements.length-1); i >= 0; i--) {
@@ -329,6 +335,7 @@ return get_char_table()})
 					lightbox.goToSlide(0)
 					return
 				}
+			})
 
 		});
 		updateLightbox()
@@ -348,6 +355,7 @@ function reloadLightbox() {
 			if (next_dupe != k) {
 				// don't set next dupe to self.
 				lightboxElementsOriginal[v].content += ','+next_dupe
+				dupeChain[k] = next_dupe
 			}
 		}
 	})

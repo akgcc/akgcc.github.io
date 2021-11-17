@@ -45,32 +45,35 @@ hr {
   position: relative;
   z-index: 1;
 }
+.gslide .gslide-inner-content .dupe-thumbs > img,
 .cardContainer,
 .cardContainer img,
 .cardContainer:after {
-	transition: transform 0.1s ease-in-out, z-index 0.1s cubic-bezier(0,1,1,0);
+	transition: transform 0.1s ease-in-out, filter 0.1s, z-index 0.1s cubic-bezier(0,1,1,0);
 }
 .cardContainer:hover {
-	transition: transform 0.1s ease-in-out, z-index 0s;
+	transition: transform 0.1s ease-in-out, filter 0.1s, z-index 0s;
 }
-
+.dupe-thumbs > img[data-group="2"],
 .cardContainer[data-group="2"]:before,
 .cardContainer[data-group="2"] img,
 .gslide[data-group="2"] .gslide-media {
   --shadow-color: var(--week2-color); 
 }
+.dupe-thumbs > img[data-group="1"],
 .cardContainer[data-group="1"]:before,
 .cardContainer[data-group="1"] img,
 .gslide[data-group="1"] .gslide-media {
   --shadow-color: var(--week1-color); 
 }
+.dupe-thumbs > img[data-group="0"],
 .cardContainer[data-group="0"]:before,
 .cardContainer[data-group="0"] img,
 .gslide[data-group="0"] .gslide-media {
   --shadow-color: var(--day1-color);
   
 }
-
+.dupe-thumbs > img[data-group],
 .cardContainer[data-group] img,
 .gslide[data-group] .gslide-media {
   box-shadow: 0 0 2pt 1pt var(--shadow-color);
@@ -103,11 +106,32 @@ hr {
 	top: 100%;
 	left: 50%;
 	transform: translateX(-50%);
-	width: 12em;
+	/* width: 12em; */
 	margin-top: 1em;
 	background: 0;
+	width: auto;
+	
+	/* add styling from when it was a button */
+	border: 1px solid white;
+	padding: 0.2em 0.3em;
+	border-radius: 0.2em;
+	color: var(--main-text-color);
+	font-size: 1.2rem;
+	line-height: 1.2rem;
 }
 
+.gslide .gslide-inner-content .dupe-thumbs {
+	display: flex;
+}
+.gslide .gslide-inner-content .dupe-thumbs > img {
+	margin: 0.3em;
+}
+@media (hover: hover) {
+	.gslide .gslide-inner-content .dupe-thumbs > img:hover {
+		transform: scale(1.05);
+		cursor: pointer;
+	}
+}
 .gslide .gslide-inner-content .gslide-description .gdesc-inner {
 	padding: 0;
 	font-size: 1.2em;
@@ -319,15 +343,16 @@ body {
 }
 
 @media (hover: hover) {
-  div.button:not(.disabled):hover,
-.gslide[data-dupe] .gslide-description:hover  {
+  /* .gslide[data-dupe] .gslide-description:hover, */
+  div.button:not(.disabled):hover
+  {
     color: black;
     background-color: white;
     text-shadow: none;
   }
 }
 
-.gslide[data-dupe] .gslide-description:active,
+/* .gslide[data-dupe] .gslide-description:active, */
 div.button:not(.disabled):active,
 div.button.checked {
   color: black;
