@@ -183,7 +183,7 @@ html * {
   --nameplate-height: 16px;
   --main-background-color: #222222;
   --operator-image-size: 45px;
-  --large-operator-image-size: min(5.6vw, 83px);
+  --large-operator-image-size: min(5.4vw, 83px);
   --day1-color: #c69a24;
   --week2-color: #d63e3e;
   --week1-color: #d6d6d6;

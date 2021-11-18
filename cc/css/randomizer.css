@@ -29,8 +29,8 @@ body {
 }
 #output {
 	display: flex;
-	--nameplate-height: min(1.8667vw, 20px);
-	--operator-image-size: min(7vw, 75px);
+	--nameplate-height: min(1.7334vw, 20px);
+	--operator-image-size: min(6.5vw, 75px);
 	/* align-items: center; */
 	flex: 1;
 	flex-direction: row;
