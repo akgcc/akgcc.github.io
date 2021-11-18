@@ -250,8 +250,8 @@ function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScale
 	}
 
 	// must do this after appending to body as we need computed styles.
-	let nameWidth = getTextWidth(operatorName, getCanvasFontSize(document.querySelector('.operatorCheckbox text')))
-	let plateWidth = parseInt(getComputedStyle(document.querySelector('.operatorCheckbox')).width)
+	let nameWidth = getTextWidth(operatorName, getCanvasFontSize(name))
+	let plateWidth = parseInt(getComputedStyle(checkboxDiv).width)
 	if (nameWidth > plateWidth * 1.2 && operatorName.split(' ').length > 1) {
 		// multiple words, split onto multiple lines.
 		let [first,second] = divideString(operatorName)
@@ -263,13 +263,13 @@ function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScale
 		let firstLine = document.createElementNS('http://www.w3.org/2000/svg', 'tspan')
 		firstLine.setAttribute('dy','0')
 		firstLine.setAttribute('x','50%')
-		if (getTextWidth(first, getCanvasFontSize(document.querySelector('.operatorCheckbox text'))) > plateWidth)
+		if (getTextWidth(first, getCanvasFontSize(name)) > plateWidth)
 			firstLine.setAttribute('textLength','100%')
 		firstLine.innerHTML = first
 		let secondLine = document.createElementNS('http://www.w3.org/2000/svg', 'tspan')
 		secondLine.setAttribute('dy','1em')
 		secondLine.setAttribute('x','50%')
-		if (getTextWidth(second, getCanvasFontSize(document.querySelector('.operatorCheckbox text'))) > plateWidth)
+		if (getTextWidth(second, getCanvasFontSize(name)) > plateWidth)
 			secondLine.setAttribute('textLength','100%')
 		secondLine.innerHTML = second
 		txt.appendChild(firstLine)

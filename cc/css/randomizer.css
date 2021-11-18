@@ -29,8 +29,8 @@ body {
 }
 #output {
 	display: flex;
-	--nameplate-height: 20px;
-	--operator-image-size: 75px;
+	--nameplate-height: min(1.8667vw, 20px);
+	--operator-image-size: min(7vw, 75px);
 	/* align-items: center; */
 	flex: 1;
 	flex-direction: row;
@@ -40,8 +40,10 @@ body {
 #output img {
 	opacity: 1;
 }
-#output .operatorCheckbox,
-#output .operatorCheckbox .name {
+#draftedOps .operatorCheckbox,
+#draftedOps .operatorCheckbox .name,
+#output > .operatorCheckbox,
+#output > .operatorCheckbox .name {
 	transform: none;
 	cursor: initial;
 }
@@ -219,4 +221,20 @@ table {
 .filterSection td {
 	vertical-align: middle;
 	/* padding: .25em; */
+}
+
+.opDraft {
+	display: flex;
+	flex-wrap: wrap;
+}
+#output span {
+	flex-basis: 100%;
+	text-align:center;
+	font-size: 1.5em;
+}
+#output span.hidden {
+	display:none;
+}
+#draftBtn {
+	margin-left: .5em;
 }

@@ -203,6 +203,7 @@ html * {
   transition: all 0.1s ease-in-out;
   cursor: pointer;
   position: relative;
+  image-rendering: -webkit-optimize-contrast;
 }
 
 .operatorCheckbox.show {
@@ -247,7 +248,7 @@ html * {
     transform: scale(1.1);
     /* image-rendering: -moz-crisp-edges; */
     /* image-rendering: -o-crisp-edges; */
-    image-rendering: -webkit-optimize-contrast;
+    /* image-rendering: -webkit-optimize-contrast; */
     /* image-rendering: crisp-edges; */
     /* -ms-interpolation-mode: nearest-neighbor; */
   }

@@ -9,6 +9,12 @@ var filters = {
 		Challenges: {
 			disp: 'Challenges',
 			max: 1,
+		},
+		draftSize:{
+			disp: "Pack Size (Draft)",
+			max: 3,
+			maxvalmin: 1,
+			maxvalmax: 10,
 		}
 	},
 	Rarity: {
@@ -237,8 +243,100 @@ function Randomize() {
 		span.innerHTML = (chosen_stage || {code: '???'}).code
 		div.appendChild(span)
 	}
+	function draftSquad() {
+		// local vars for this draft
+		let draftedOps = []
+		let availableOperators = Object.values(operatorData).filter(x=> x.selected && !draftedOps.includes(x.charId))
+		let localFilters = JSON.parse(JSON.stringify(filters))
+		
+		destDiv = document.getElementById('output')
+		destDiv.classList.add('draft')
+		destDiv.innerHTML = ''
+		let header = document.createElement('span')
+		header.innerHTML = 'Choose one ('+(localFilters.Squad.Size.max - draftedOps.length)+' remaining):'
+		header.style.order = -999
+		let selection = document.createElement('div')
+		selection.classList.add('opDraft')
+		selection.style.order = -998
+		let teamheader = document.createElement('span')
+		teamheader.innerHTML = 'Your draft:'
+		teamheader.style.order = 0
+		teamheader.classList.add('hidden')
+		let team = document.createElement('div')
+		team.classList.add('opDraft')
+		team.id = 'draftedOps'
+		team.style.order = 1
+		
+		destDiv.prepend(selection)
+		destDiv.prepend(header)
+		destDiv.append(teamheader)
+		destDiv.append(team)
+		
+		
+		function chooseOp(op, _) {
+			teamheader.classList.remove('hidden')
+			CreateOpCheckbox(op, null, null, null, null, team).style.order = -op.rarity
+			draftedOps.push(op.charId)
+			
+			localFilters.Rarity[parseInt(op.rarity)].min -= 1
+			localFilters.Rarity[parseInt(op.rarity)].max -= 1
+			localFilters.Class[op.profession].max -= 1
+			localFilters.Class[op.profession].min -= 1
+		
+			if (draftedOps.length >= localFilters.Squad.Size.max)
+				return finalizeDraft()
+			selection.innerHTML = ''
+			draftRound()
+		}
+		
+		function finalizeDraft() {
+			// replace with team.
+			destDiv.innerHTML = team.innerHTML
+			destDiv.classList.remove('draft')
+		}
+		function draftRound() {
+			function getOpList(){
+				// filter by rarity:
+				let thisDraft = availableOperators.filter( x => localFilters.Rarity[parseInt(x.rarity)].enabled && localFilters.Rarity[parseInt(x.rarity)].max > 0)
+				// filter by class:
+				thisDraft = thisDraft.filter( x => localFilters.Class[x.profession].enabled && localFilters.Class[x.profession].max > 0)
+				
+				let oplist = shuffleArray(thisDraft).sort((a,b) => {
+					if(localFilters.Rarity[parseInt(a.rarity)].min > 0) return 1;
+					if(localFilters.Class[a.profession].min > 0) return 1;
+					if(localFilters.Rarity[parseInt(b.rarity)].min > 0) return -1;
+					if(localFilters.Class[b.profession].min > 0) return -1;
+					return 0;
+				})
+				return oplist
+			}
+			let oplist = getOpList()
+			let currentSelection = []
+			let remaining = localFilters.Squad.draftSize.max
+			while (remaining) {
+				if (!oplist.length) {
+					// set available then rebuild oplist
+					availableOperators = Object.values(operatorData).filter(x=> x.selected && !draftedOps.includes(x.charId) && !currentSelection.includes(x.charId))
+					oplist = getOpList()
+					if (!oplist.length)
+						break
+				}
+				let op = oplist.pop()
+				currentSelection.push(op.charId)
+				availableOperators = availableOperators.filter(x => x!=op)
+				CreateOpCheckbox(op, null, null, null, chooseOp, selection).style.order = -op.rarity
+				remaining--
+			}
+			header.innerHTML = 'Choose one ('+(localFilters.Squad.Size.max - draftedOps.length)+' remaining):'
+			if (!availableOperators.length && !currentSelection.length)
+				// no ops left for further drafts, so finalize.
+				finalizeDraft()
+		}
+		draftRound()		
+	}
 	function rerollSquad() {
 		destDiv = document.getElementById('output')
+		destDiv.classList.remove('draft')
 		destDiv.innerHTML = ''
 		// pick a squad
 		let availableOperators = Object.values(operatorData).filter(x=> x.selected)
@@ -284,6 +382,8 @@ function Randomize() {
 	rerollSquad()
 	document.getElementById('rerollChallengeBtn').onclick = rerollChallenge
 	rerollChallenge()
+	
+	document.getElementById('draftBtn').onclick = draftSquad
 }
 
 document.getElementById('goBtn').onclick = Randomize
@@ -328,9 +428,9 @@ for (const [key, value] of Object.entries(filters)) {
 		let min = document.createElement('input')
 		min.onchange = () => {subvalue.min = min.value; updateLocalFilters()}
 		min.type = 'number'
-		min.min = 0
-		min.max = maxTeamSize
-		min.value = subvalue.min
+		min.min = subvalue.minvalmin || 0
+		min.max = subvalue.minvalmax || maxTeamSize
+		min.value = subvalue.minvaldefault || subvalue.min
 		if (subvalue.min !== undefined)
 		right.appendChild(min)
 		let dash = document.createElement('span')
@@ -340,9 +440,9 @@ for (const [key, value] of Object.entries(filters)) {
 		let max = document.createElement('input')
 		max.onchange = () => {subvalue.max = max.value; updateLocalFilters()}
 		max.type = 'number'
-		max.min = 0
-		max.max = maxTeamSize
-		max.value = subvalue.max
+		max.min = subvalue.maxvalmin || 0
+		max.max = subvalue.maxvalmax || maxTeamSize
+		max.value = subvalue.maxvaldefault || subvalue.max
 		
 		right.appendChild(max)
 		row.appendChild(right)
