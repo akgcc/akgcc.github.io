@@ -97,11 +97,11 @@ return get_char_table()})
 			div.setAttribute('data-soul', cardData[k].soul.toFixed(2))
 			a.classList.add('glightbox')
 			a.setAttribute('data-gallery', 'gallery1')
-			// a.href = './cropped' + CCTAG + '/' + (is_dupe ? 'duplicates/' : '') + k
+			// a.href = './cropped' + (cardData[k].tag || CCTAG) + '/' + (is_dupe ? 'duplicates/' : '') + k
 			// no longer use duplicates dir
-			a.href = './cropped' + CCTAG + '/' + k
+			a.href = './cropped' + (cardData[k].tag || CCTAG) + '/' + k
 			let img = document.createElement('img')
-			img.src = './thumbs' + CCTAG + '/' + k
+			img.src = './thumbs' + (cardData[k].tag || CCTAG) + '/' + k
 			a.appendChild(img)
 			div.appendChild(a)
 			div.id = k
@@ -360,7 +360,7 @@ return get_char_table()})
 				slideConfig.description='More from this doctor:'
 				slideConfig.description+='<div class="dupe-thumbs">'
 				while (dupe && dupe != slideConfig.filename) {
-					slideConfig.description+='<img src="./thumbs'+CCTAG+'/'+dupe+'" data-group="'+cardData[dupe].group+'" data-dupe="'+dupe+'"/>'
+					slideConfig.description+='<img src="./thumbs'+(cardData[dupe].tag || CCTAG)+'/'+dupe+'" data-group="'+cardData[dupe].group+'" data-dupe="'+dupe+'"/>'
 					dupe = dupeChain[dupe]
 				}
 				slideConfig.description+='</div>'
