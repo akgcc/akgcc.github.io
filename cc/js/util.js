@@ -199,14 +199,15 @@ function divideString(text) {
 	
 }
 
-function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScaleMax = null, clickfunc = null, destDiv = document.getElementById("checkboxes")) {
+function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScaleMax = null, clickfunc = null, destDiv = document.getElementById("checkboxes"), order = null) {
     let operatorName = operator.name;
     var checkboxDiv = document.createElement("div");
     checkboxDiv.classList.add('operatorCheckbox');
     checkboxDiv.setAttribute('data-class', operator.profession);
 	checkboxDiv.setAttribute('data-rarity', operator.rarity);
     checkboxDiv.classList.add('show');
-    
+    if (order)
+		checkboxDiv.style.order = order
 	if (data1map) {
 		let count = data1map[operatorName] || 0;
 		let useDiv = document.createElement("div");

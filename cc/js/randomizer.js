@@ -275,7 +275,7 @@ function Randomize() {
 		
 		function chooseOp(op, _) {
 			teamheader.classList.remove('hidden')
-			CreateOpCheckbox(op, null, null, null, null, team).style.order = -op.rarity
+			CreateOpCheckbox(op, null, null, null, null, team, -op.rarity)
 			draftedOps.push(op.charId)
 			
 			localFilters.Rarity[parseInt(op.rarity)].min -= 1
@@ -324,7 +324,7 @@ function Randomize() {
 				let op = oplist.pop()
 				currentSelection.push(op.charId)
 				availableOperators = availableOperators.filter(x => x!=op)
-				CreateOpCheckbox(op, null, null, null, chooseOp, selection).style.order = -op.rarity
+				CreateOpCheckbox(op, null, null, null, chooseOp, selection, -op.rarity)
 				remaining--
 			}
 			header.innerHTML = 'Choose one ('+(localFilters.Squad.Size.max - draftedOps.length)+' remaining):'
@@ -357,7 +357,7 @@ function Randomize() {
 		}).pop()
 		if (!randomOne)
 			break
-		CreateOpCheckbox(randomOne, null, null, null, null, destDiv).style.order = -randomOne.rarity
+		CreateOpCheckbox(randomOne, null, null, null, null, destDiv, -randomOne.rarity)
 		// reduce min and max
 		localFilters.Rarity[parseInt(randomOne.rarity)].min -= 1
 		localFilters.Rarity[parseInt(randomOne.rarity)].max -= 1
