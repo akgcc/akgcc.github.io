@@ -118,7 +118,7 @@ return get_char_table()})
 		})
 		Object.keys(riskMap).forEach(k => {
 			riskMap[k].setAttribute('cardCount', headerCount[k])
-			riskMap[k].setAttribute('title', headerCount[k] + (headerCount[k]==1 ? " clear" : " clears"))
+			riskMap[k].firstChild.setAttribute('title', headerCount[k] + (headerCount[k]==1 ? " clear" : " clears"))
 			riskMap[k].firstChild.setAttribute('data-count', headerCount[k])
 			riskMap[k].firstChild.setAttribute('data-risk', k)
 			
