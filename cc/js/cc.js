@@ -71,10 +71,7 @@ return get_char_table()})
 			div.classList.add('riskContainer')
 			let div2 = document.createElement('div')
 			div2.classList.add('riskHeader')
-			let span = document.createElement('span')
-			span.innerHTML = 'RISK ' + risk
 			let hl = document.createElement('hr')
-			div2.appendChild(span)
 			div2.appendChild(hl)
 			wrap.appendChild(div2)
 			wrap.appendChild(div)
@@ -121,8 +118,12 @@ return get_char_table()})
 		})
 		Object.keys(riskMap).forEach(k => {
 			riskMap[k].setAttribute('cardCount', headerCount[k])
+			riskMap[k].setAttribute('title', headerCount[k] + (headerCount[k]==1 ? " clear" : " clears"))
+			riskMap[k].firstChild.setAttribute('data-count', headerCount[k])
+			riskMap[k].firstChild.setAttribute('data-risk', k)
+			
 		})
-		
+		document.getElementById('clearCount').innerHTML = "Clears: " + Object.values(headerCount).reduce((a,b) => a+b, 0)
 		//create initial soul order:
 		let soul_index = 0;
 		Object.keys(riskMap).slice().reverse().forEach(k => {
@@ -346,6 +347,11 @@ return get_char_table()})
 
 		document.getElementById('filterReset').onclick = resetFilters
 		
+		document.getElementById('clearCount').onclick = ()=> {
+			document.body.classList.toggle('clear-mode');
+			document.getElementById('clearCount').classList.toggle('checked');
+			}
+		
 		lightbox.reload()
 		lightboxElementsOriginal = lightbox.elements
 		reloadLightbox()
@@ -441,6 +447,7 @@ function resetFilters() {
 	document.getElementById('raritySlider').value = 6
 	document.getElementById('rarityDisp').innerHTML = "6.0"
 	maxAvgRarity = 6
+	document.getElementById('clearCount').innerHTML = "Clears: " + Object.values(headerCount).reduce((a,b) => a+b, 0)
 	updateLightbox()
 }
 
@@ -484,12 +491,14 @@ function showCard(key, show = true) {
 		riskMap[cardData[key].risk].classList.add('hidden')
 	else
 		riskMap[cardData[key].risk].classList.remove('hidden')
+	riskMap[cardData[key].risk].firstChild.setAttribute('data-count',headerCount[cardData[key].risk])
 }
 
 function applyAllFilters() {
 	Object.keys(filterStatus).forEach(key => {
 		showCard(key, _filterShouldShow(key))
 	})
+	document.getElementById('clearCount').innerHTML = "Clears: " + Object.values(headerCount).reduce((a,b) => a+b, 0)
 }
 
 function updateFilterStatus(key, delta) {

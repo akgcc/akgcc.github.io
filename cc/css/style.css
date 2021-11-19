@@ -39,6 +39,22 @@ hr {
   width: 100%;
   /* text-shadow: 0 0 6px var(--main-background-color); */
 }
+.riskHeader::before {
+	content: "RISK " attr(data-risk);
+	padding: 0 8px;
+}
+body.clear-mode .riskHeader::after {
+	content: attr(data-count) " clears";
+	position: absolute;
+	right: 0;
+	top:0;
+	font-size: .5em;
+	transform: translateY(75%);
+	/* padding: 0 8px; */
+}
+body.clear-mode .riskHeader[data-count="1"]::after {
+	content: attr(data-count) " clear";
+}
 
 .cardContainer {
   flex-direction: column;
@@ -325,6 +341,7 @@ body {
   font-size: 1.2rem;
   line-height: 1.2rem;
 }
+
 .button {
   cursor: pointer;
 }
@@ -378,7 +395,7 @@ div.button.toggled.legend {
 
 .rightButton {
   align-self: center;
-  margin-right: 5px;
+  margin-right: .25em;
 }
 
 .fa-home {
@@ -411,7 +428,7 @@ user-select: none;
   width:100%;
   position: -webkit-sticky;
   position: sticky;
-  padding-top: 5px;
+  padding-top: .25em;
   top: calc(10px + var(--topNav-height));
   transition: top 0.1s ease-in-out;
   -o-transition: top 0.1s ease-in-out;
@@ -497,6 +514,11 @@ div:not(.chartjs-size-monitor).hidden:not(.forceShow) {
   margin-left: 2rem;
   flex-grow: 1;
   align-self: center;
+  display: flex;
+}
+
+#legend > * {
+	margin: 0 .125em;
 }
 
 #pageTitle {
@@ -554,7 +576,7 @@ body.soul-mode #deco {
 }
 
 #filters > div:first-child {
-	margin-left: 5px;
+	margin-left: .25em;
 }
 
 .clearView.hidden {
@@ -597,4 +619,12 @@ body.icon-mode .cardContainer::after {
     transform: none;
 	left: .2em;
 	bottom: .1em;
+}
+
+#filterButtons {
+	display: flex;
+	flex-wrap: wrap;
+}
+#filterButtons > *{
+	margin: .125em;
 }
