@@ -179,6 +179,9 @@ body.clear-mode .riskHeader[data-count="1"]::after {
     transform: scale(1.12);
     z-index: 2;
   }
+  body.icon-mode .cardContainer:hover  {
+    transform: scale(1.08);
+  }
   body.soul-mode .cardContainer:hover:after {
     /* transform: translate(calc(-256px * 1.05 + 6px * 1.05),calc(144px * 1.05 - 100% - 6px * 1.05)) scale(1.1); */
   }
@@ -615,12 +618,6 @@ body.soul-mode #deco {
 
 body.icon-mode .riskContainer {
 	flex-direction: column;
-}
-
-body.icon-mode .cardContainer::after {
-    transform: none;
-	left: .2em;
-	bottom: .1em;
 }
 
 #filterButtons {
