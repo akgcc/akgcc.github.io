@@ -407,7 +407,7 @@ return get_char_table()})
 function reloadLightbox() {
 	lightboxOriginalIndexMapping = {}
 	for (let e in Object.keys(lightboxElementsOriginal))
-		lightboxOriginalIndexMapping[lightboxElementsOriginal[e].href.split('/').slice(-1)[0]] = e
+		lightboxOriginalIndexMapping[decodeURI(lightboxElementsOriginal[e].href.split('/').slice(-1)[0])] = e
 	Object.entries(lightboxOriginalIndexMapping).forEach(([k,v]) => {
 		lightboxElementsOriginal[v].filename = k
 		lightboxElementsOriginal[v].original_idx = v
@@ -453,7 +453,7 @@ function resetFilters() {
 
 function updateLightbox() {
 	// you can directly assign to lightbox.elements and its a bit quicker, we avoid it as it might break something unknown (for one thing, the .index property won't be correct ** actually .index is never correct after resorting, so don't rely on it.)
-	lightbox.setElements(lightboxElementsOriginal.filter(x => _filterShouldShow(x.href.split('/').slice(-1)[0])))
+	lightbox.setElements(lightboxElementsOriginal.filter(x => _filterShouldShow(decodeURI(x.href.split('/').slice(-1)[0]))))
 }
 
 function _filterShouldShow(key) {
