@@ -550,8 +550,10 @@ body.soul-mode .glightbox-container .gslide.current .gslide-media::after {
 body.soul-mode .cardContainer::after {
     content: attr(data-soul);
     position: absolute;
-    transform: translate(calc(-256px + 6px),calc(144px - 100% - 6px));
-	margin: auto;
+    /* transform: translate(calc(-256px + 6px),calc(144px - 100% - 6px)); */
+	left: 0;
+	bottom: 0;
+	padding: .25em;
 	pointer-events: none;
 	font-weight: 700;
 	color: #0ff;
