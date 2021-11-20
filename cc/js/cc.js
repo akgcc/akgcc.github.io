@@ -1,10 +1,25 @@
+let customSlideHTML = `<div class="gslide">
+    <div class="gslide-inner-content">
+        <div class="ginner-container">
+            <div class="gslide-media">
+            </div>
+            <div class="gslide-description">
+                <div class="gdesc-inner">
+                    <h4 class="gslide-title"></h4>
+                    <div class="gslide-desc"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`;
 const lightbox = GLightbox({
 	selector: '.glightbox',
 	touchNavigation: true,
 	loop: true,
 	closeOnOutsideClick: true,
 	moreLength: 0,
-	zoomable: false
+	zoomable: false,
+	slideHTML: customSlideHTML
 });
 if (!window.location.hash)
 	window.location.hash = '#4'
@@ -384,7 +399,7 @@ return get_char_table()})
 					// if not a match you need to traverse backwards until you find either the slide or an earlier slide.
 					// if you found an earlier slide, insert the slide right after it.
 					// this is the original index of the slide, before any filters are applied.
-					let max_idx = parseInt(lightboxOriginalIndexMapping[dupe]) 
+					let max_idx = parseInt(lightboxOriginalIndexMapping[dupe])
 					for (let i = Math.min(max_idx, lightbox.elements.length-1); i >= 0; i--) {
 						if (lightbox.elements[i].filename == dupe) {
 							lightbox.goToSlide(i)
