@@ -217,6 +217,10 @@ return get_char_table()})
 							return -1
 						if (b == cardData[c.id].support)
 							return 1
+						if (operatorData[a].rarity > operatorData[b].rarity)
+							return -1
+						if (operatorData[a].rarity < operatorData[b].rarity)
+							return 1
 						if (operatorData[a].name > operatorData[b].name)
 							return 1
 						return -1
