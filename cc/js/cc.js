@@ -225,13 +225,17 @@ return get_char_table()})
 							return 1
 						return -1
 					}).forEach(op => {
+						let wrap = document.createElement('div')
+						wrap.classList.add('opImgWrapper')
 						let img = document.createElement('img')
 						img.classList.add('opImg')
 						if (op==cardData[c.id].support)
 							img.classList.add('supportOp')
 						img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + op + '.png';
 						img.setAttribute('title', operatorData[op].name)
-						line.appendChild(img)
+						wrap.setAttribute('data-rarity', operatorData[op].rarity)
+						wrap.appendChild(img)
+						line.appendChild(wrap)
 					})
 				}
 				if (c.classList.contains('hidden'))
