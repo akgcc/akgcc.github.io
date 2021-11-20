@@ -3,7 +3,8 @@ const lightbox = GLightbox({
 	touchNavigation: true,
 	loop: true,
 	closeOnOutsideClick: true,
-	moreLength: 0
+	moreLength: 0,
+	zoomable: false
 });
 if (!window.location.hash)
 	window.location.hash = '#4'
