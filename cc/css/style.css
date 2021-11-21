@@ -216,7 +216,7 @@ html * {
   width: var(--operator-image-size);
   height: calc(var(--operator-image-size) + var(--nameplate-height));
   padding-bottom: 0px;
-  margin: 5px;
+  margin: .3em;
   background-color: rgb(45, 45, 45);
   color: black;
   transition: all 0.1s ease-in-out;

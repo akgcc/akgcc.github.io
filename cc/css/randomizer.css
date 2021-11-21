@@ -32,7 +32,7 @@ body {
 	--nameplate-height: min(1.7334vw, 20px);
 	--operator-image-size: min(6.5vw, 75px);
 	/* align-items: center; */
-	flex: 1;
+	flex: 0 1 auto;
 	flex-direction: row;
 	flex-wrap: wrap;
 	justify-content: center;
