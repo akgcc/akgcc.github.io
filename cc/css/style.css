@@ -514,12 +514,14 @@ div:not(.chartjs-size-monitor).hidden:not(.forceShow) {
   display: none;
 }
 #legend {
-  /* margin: 8px 0 0 8px; */
-  margin-left: 1.5rem;
-  margin-right: .25rem;
+  margin: 0 .25rem;
   flex-grow: 1;
   align-self: center;
   display: flex;
+}
+.nav-spacer {
+	max-width: 1.25rem;
+	flex: 1 1;
 }
 
 #legend > * {
@@ -528,17 +530,14 @@ div:not(.chartjs-size-monitor).hidden:not(.forceShow) {
 }
 
 #pageTitle {
-  font-size: 2.3em;
+  font-size: min(2.3em, 3.2vw);
   line-height: var(--topNav-height);
-  /* margin: 0 0 .5em 0; */
-  /* flex-basis: 40vw; */
   overflow: hidden;
   flex-shrink: 999;
 }
 
 body {
   margin-top: calc(10px + var(--topNav-height));
-  /* margin-top: 4rem; */
 }
 
 body.soul-mode .glightbox-container .gslide.current .gslide-media::after {
