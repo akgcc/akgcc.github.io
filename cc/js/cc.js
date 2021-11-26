@@ -107,7 +107,11 @@ return get_char_table()})
 		})
 		let all_ops = new Set()
 		// let date_index = 0;
-		Object.keys(cardData).sort().forEach(k => {
+		Object.keys(cardData).sort((a,b) => {
+			if (cardData[b].group == cardData[a].group)
+				return b - a
+			return cardData[a].group - cardData[b].group
+		}).forEach(k => {
 			filterStatus[k] = 0
 			let div = document.createElement('div')
 			let a = document.createElement('a')
@@ -132,6 +136,11 @@ return get_char_table()})
 			div.setAttribute('data-dateorder', headersMap[cardData[k].risk].childElementCount)
 			// lightboxDateOrder[a.href] = date_index++
 			// div.style.order = headersMap[cardData[k].risk].childElementCount
+			
+			// create icons view only if default
+			if (ccSettings.view == 'icons')
+				div.appendChild(getIconView(k))
+			
 			headersMap[cardData[k].risk].appendChild(div)
 			headerCount[cardData[k].risk] += 1
 			cardData[k]['squad'].forEach(op => {
@@ -220,39 +229,39 @@ return get_char_table()})
 					break;
 			}
 		}
-		
+		function getIconView(clearId) {
+			line = document.createElement('div')
+			line.classList.add('clearView')
+			cardData[clearId].squad.sort((a,b) => {
+				if (a == cardData[clearId].support)
+					return -1
+				if (b == cardData[clearId].support)
+					return 1
+				if (operatorData[a].rarity > operatorData[b].rarity)
+					return -1
+				if (operatorData[a].rarity < operatorData[b].rarity)
+					return 1
+				if (operatorData[a].name > operatorData[b].name)
+					return 1
+				return -1
+			}).forEach(op => {
+				let wrap = document.createElement('div')
+				wrap.classList.add('opImgWrapper')
+				let img = document.createElement('img')
+				img.classList.add('opImg')
+				if (op==cardData[clearId].support)
+					img.classList.add('supportOp')
+				img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + op + '.png';
+				img.setAttribute('title', operatorData[op].name)
+				wrap.setAttribute('data-rarity', operatorData[op].rarity)
+				wrap.appendChild(img)
+				line.appendChild(wrap)
+			})
+			return line
+		}
 		function convertToIcons() {
 			Array.from(document.querySelectorAll('.cardContainer')).forEach(c => {
-				let line = c.querySelector('.clearView')
-				if (!line) {
-					line = document.createElement('div')
-					line.classList.add('clearView')
-					cardData[c.id].squad.sort((a,b) => {
-						if (a == cardData[c.id].support)
-							return -1
-						if (b == cardData[c.id].support)
-							return 1
-						if (operatorData[a].rarity > operatorData[b].rarity)
-							return -1
-						if (operatorData[a].rarity < operatorData[b].rarity)
-							return 1
-						if (operatorData[a].name > operatorData[b].name)
-							return 1
-						return -1
-					}).forEach(op => {
-						let wrap = document.createElement('div')
-						wrap.classList.add('opImgWrapper')
-						let img = document.createElement('img')
-						img.classList.add('opImg')
-						if (op==cardData[c.id].support)
-							img.classList.add('supportOp')
-						img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + op + '.png';
-						img.setAttribute('title', operatorData[op].name)
-						wrap.setAttribute('data-rarity', operatorData[op].rarity)
-						wrap.appendChild(img)
-						line.appendChild(wrap)
-					})
-				}
+				let line = c.querySelector('.clearView') || getIconView(c.id)
 				if (c.classList.contains('hidden'))
 					line.classList.add('hidden')
 				else
