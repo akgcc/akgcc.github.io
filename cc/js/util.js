@@ -8,6 +8,18 @@ function shuffleArray(array) {
 	return array;
 }
 
+function updateJSON(dest, src) {
+	for (let key in dest) {
+	  if(src.hasOwnProperty(key)){
+		if (typeof dest[key] == 'object')
+			dest[key] = updateJSON(dest[key], src[key])
+		else
+			dest[key] = src[key];
+	  }
+	}
+	return dest
+}
+
 //add tooltip element for use in below functions
 let tt = document.createElement('div')
 tt.id = 'chartjs-tooltip'

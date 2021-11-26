@@ -106,17 +106,7 @@ var filters = {
 		},
 	}
 }
-function updateJSON(dest, src) {
-	for (let key in dest) {
-	  if(src.hasOwnProperty(key)){
-		if (typeof dest[key] == 'object')
-			dest[key] = updateJSON(dest[key], src[key])
-		else
-			dest[key] = src[key];
-	  }
-	}
-	return dest
-}
+
 // fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/zone_table.json')
 fetch('./json/challenges.json')
 .then(res => res.json())

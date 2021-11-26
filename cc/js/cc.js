@@ -26,6 +26,15 @@ if (!window.location.hash)
 document.getElementById('usageLink').href = './cc-usage.html' + window.location.hash
 window.onhashchange = () => window.location.reload()
 
+const ccSettings = {sortBy:'date', view:'thumbs', opSort:'name'}
+let f = localStorage.getItem('ccSettings')
+if (f) 
+	updateJSON(ccSettings, JSON.parse(f))
+function changeSetting(key, value) {
+	ccSettings[key] = value
+	localStorage.setItem('ccSettings', JSON.stringify(ccSettings))
+}
+
 var charIdMap = {}
 var cardOperatorMap = {}
 var filterStatus = {}
@@ -168,6 +177,7 @@ return get_char_table()})
 						})
 					})
 					orderBtn.innerHTML = 'Order by: Soul'
+					changeSetting('sortBy','soul')
 					document.body.classList.toggle('soul-mode')
 					lightboxElementsOriginal.sort((a,b) => lightboxSoulOrder[a.href] - lightboxSoulOrder[b.href])
 
@@ -183,6 +193,7 @@ return get_char_table()})
 						})
 					})
 					orderBtn.innerHTML = 'Order by: Date'
+					changeSetting('sortBy','date')
 					document.body.classList.toggle('soul-mode')
 					lightboxElementsOriginal.sort((a,b) => lightboxDateOrder[a.href] - lightboxDateOrder[b.href])
 				break;
@@ -191,21 +202,25 @@ return get_char_table()})
 			reloadLightbox()
 			updateLightbox()
 		}
+		
 		const viewBtn = document.getElementById('viewType')
 		viewBtn.onclick = (e) => {
 			switch (viewBtn.innerHTML) {
 				case 'View: Thumbs':
 					viewBtn.innerHTML = 'View: Icons'
+					changeSetting('view','icons')
 					document.body.classList.add('icon-mode')
 					convertToIcons()
 					break;
 				case 'View: Icons':
 					viewBtn.innerHTML = 'View: Thumbs'
+					changeSetting('view','thumbs')
 					document.body.classList.remove('icon-mode')
 					revertToThumbs()
 					break;
 			}
 		}
+		
 		function convertToIcons() {
 			Array.from(document.querySelectorAll('.cardContainer')).forEach(c => {
 				let line = c.querySelector('.clearView')
@@ -348,6 +363,7 @@ return get_char_table()})
 		}
 		document.getElementById('filterSort').onclick = () => {
 			filterSortType = !filterSortType
+			changeSetting('opSort',filterSortType ? 'name':'rarity')
 			if (filterSortType)
 				Object.values(operatorData).sort((a, b) => a.name > b.name ? 1 : -1).forEach((x, i) => divMap[x.name].style.order = i);
 			else
@@ -427,6 +443,13 @@ return get_char_table()})
 
 		});
 		updateLightbox()
+		
+		if (ccSettings.sortBy == 'soul')
+			orderBtn.click()
+		if (ccSettings.view == 'icons')
+			viewBtn.click()
+		if (ccSettings.opSort == 'rarity')
+			document.getElementById('filterSort').click()
 	})
 function reloadLightbox() {
 	lightboxOriginalIndexMapping = {}

@@ -12,6 +12,14 @@ var charIdMap = {},
 	classMap = {},
 	classList = {},
     CCTAG;
+const usageSettings = {view:1}
+let f = localStorage.getItem('usageSettings')
+if (f) 
+	updateJSON(usageSettings, JSON.parse(f))
+function changeSetting(key, value) {
+	usageSettings[key] = value
+	localStorage.setItem('usageSettings', JSON.stringify(usageSettings))
+}
 fetch('./cctitles.json').then(res => res.json()).then(json => {
     CCMAP = json;
     CCTAG = CCMAP[window.location.hash].tag
@@ -362,11 +370,12 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
     document.getElementById('s_uses').onclick = (e) => clickFunc(e, (a, b) => useCountMap[a.name] == useCountMap[b.name] ? (a.name > b.name ? 1 : -1) : (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1))
     document.getElementById('s_maxrisk').onclick = (e) => clickFunc(e, (a, b) => maxRiskMap[a.name] == maxRiskMap[b.name] ? (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1) : (maxRiskMap[a.name] < maxRiskMap[b.name] ? 1 : -1))
 	document.getElementById('s_class').onclick = (e) => clickFunc(e, (a, b) => classMap[a.name] == classMap[b.name] ? (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1) : (classMap[a.name] < classMap[b.name] ? 1 : -1))
-	var viewType = 1;
+	var viewType = (usageSettings.view+2)%3
     document.getElementById('viewType').onclick = () => {
 		viewType = (viewType+1)%3
 		Array.from(document.getElementById('chartDiv').querySelectorAll('.chartOption')).forEach(n=>n.classList.add('hidden'))
 			Array.from(document.getElementById('sort').querySelectorAll('.button')).forEach(e=>e.classList.remove('disabled'))
+		changeSetting('view',viewType)
 		switch (viewType) {
 			case 0: // scatter
 				document.getElementById('scatterChart').classList.remove('hidden')
@@ -387,6 +396,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
 			break;
 		}
     }
+	document.getElementById('viewType').click()
 	
 	document.getElementById('infoButton').onclick = () => {
 		document.getElementById('info').classList.toggle('hidden')
