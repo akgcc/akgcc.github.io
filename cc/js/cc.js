@@ -26,7 +26,7 @@ if (!window.location.hash)
 document.getElementById('usageLink').href = './cc-usage.html' + window.location.hash
 window.onhashchange = () => window.location.reload()
 
-const ccSettings = {sortBy:'date', view:'thumbs', opSort:'name'}
+const ccSettings = {sortBy:'date', view:'thumbs', opSort:'name', clearCount:false}
 let f = localStorage.getItem('ccSettings')
 if (f) 
 	updateJSON(ccSettings, JSON.parse(f))
@@ -390,6 +390,7 @@ return get_char_table()})
 		document.getElementById('clearCount').onclick = ()=> {
 			document.body.classList.toggle('clear-mode');
 			document.getElementById('clearCount').classList.toggle('checked');
+			changeSetting('clearCount',document.body.classList.contains('clear-mode'))
 			}
 		
 		lightbox.reload()
@@ -450,6 +451,8 @@ return get_char_table()})
 			viewBtn.click()
 		if (ccSettings.opSort == 'rarity')
 			document.getElementById('filterSort').click()
+		if (ccSettings.clearCount)
+			document.getElementById('clearCount').click()
 	})
 function reloadLightbox() {
 	lightboxOriginalIndexMapping = {}
