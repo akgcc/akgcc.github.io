@@ -337,7 +337,6 @@ return get_char_table()})
 				filtercontainer.classList.remove('canSlide')
 				filtertoggle.classList.add('hidden')
 			}
-			
 		}
 		window.onscroll = adjustBasedOnScroll
 
