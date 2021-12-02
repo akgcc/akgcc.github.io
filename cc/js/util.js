@@ -33,6 +33,9 @@ async function get_char_table() {
 	json['char_1001_amiya2'] = JSON.parse(JSON.stringify(json['char_002_amiya']))
 	json['char_1001_amiya2'].name = 'Guardmiya'
 	json['char_1001_amiya2'].profession = json['char_350_surtr'].profession
+	// json['char_1001_amiya2'].skills = json['char_1001_amiya2'].skills.slice(0,2) not needed here.
+	json['char_1001_amiya2'].skills[0].skillId = 'skchr_amiya2_1'
+    json['char_1001_amiya2'].skills[1].skillId = 'skchr_amiya2_2'
 	
 	Object.keys(json).forEach(op => {
 		json[op].profession = CLASS_MAPPING[json[op].profession] || json[op].profession

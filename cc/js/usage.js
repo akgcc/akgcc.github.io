@@ -42,6 +42,7 @@ fetch('./json/cctitles.json').then(res => res.json()).then(json => {
 	
 	
     Object.values(usedata).forEach(x => {
+		x['squad'] = x['squad'].map(x => x.name)
         x['squad'].forEach(y => {
 			maxRisk[y] = Math.max(maxRisk[y] || 0, x.risk)
         })

@@ -664,3 +664,16 @@ body.icon-mode .riskContainer {
 .opImgWrapper[data-rarity='0']:after {
 	border-bottom: .2em solid rgba(159, 159, 159, 1);
 }
+
+.skimg {
+	height: calc(var(--large-operator-image-size) / 3);
+	width: calc(var(--large-operator-image-size) / 3);
+	position: absolute;
+	top: 0;
+	left: 0;
+	/* border-radius: .2em 0 0 0; */
+	/* box-shadow: 1px 1px 1px #666666; */
+	transform: translate(-15%,-15%);
+	box-shadow: 0 0 0.1em 0.1em #0006;
+	border-radius: .2em;
+}

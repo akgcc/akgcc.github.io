@@ -55,7 +55,11 @@ var lightboxOriginalIndexMapping
 var lightboxSoulOrder = {}
 var dupeChain = {}
 var CCTAG
-fetch('./json/cctitles.json')
+fetch('./json/skill_icon_map.json')
+.then(res => res.json())
+.then(json => {
+skillIconMap = json;
+return fetch('./json/cctitles.json')})
 .then(res => res.json())
 .then(json => {
 CCMAP = json; 
@@ -143,11 +147,11 @@ return get_char_table()})
 			
 			headersMap[cardData[k].risk].appendChild(div)
 			headerCount[cardData[k].risk] += 1
-			cardData[k]['squad'].forEach(op => {
-				all_ops.add(op)
-				if (!(op in cardOperatorMap))
-					cardOperatorMap[op] = []
-				cardOperatorMap[op].push(k)
+			cardData[k].squad.forEach(op => {
+				all_ops.add(op.name)
+				if (!(op.name in cardOperatorMap))
+					cardOperatorMap[op.name] = []
+				cardOperatorMap[op.name].push(k)
 			})
 		})
 		Object.keys(riskMap).forEach(k => {
@@ -233,15 +237,15 @@ return get_char_table()})
 			line = document.createElement('div')
 			line.classList.add('clearView')
 			cardData[clearId].squad.sort((a,b) => {
-				if (a == cardData[clearId].support)
+				if (a.name == cardData[clearId].support.name)
 					return -1
-				if (b == cardData[clearId].support)
+				if (b.name == cardData[clearId].support.name)
 					return 1
-				if (operatorData[a].rarity > operatorData[b].rarity)
+				if (operatorData[a.name].rarity > operatorData[b.name].rarity)
 					return -1
-				if (operatorData[a].rarity < operatorData[b].rarity)
+				if (operatorData[a.name].rarity < operatorData[b.name].rarity)
 					return 1
-				if (operatorData[a].name > operatorData[b].name)
+				if (operatorData[a.name].name > operatorData[b.name].name)
 					return 1
 				return -1
 			}).forEach(op => {
@@ -249,11 +253,18 @@ return get_char_table()})
 				wrap.classList.add('opImgWrapper')
 				let img = document.createElement('img')
 				img.classList.add('opImg')
-				if (op==cardData[clearId].support)
+				if (op.name==cardData[clearId].support.name)
 					img.classList.add('supportOp')
-				img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + op + '.png';
-				img.setAttribute('title', operatorData[op].name)
-				wrap.setAttribute('data-rarity', operatorData[op].rarity)
+				img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + op.name + '.png';
+				img.setAttribute('title', operatorData[op.name].name)
+				if (op.skill > 0) {//1&2* have no skills
+					skid = operatorData[op.name].skills[op.skill-1].skillId
+					let skimg = document.createElement('img')
+					skimg.classList.add('skimg')
+					skimg.src = 'https://aceship.github.io/AN-EN-Tags/img/skills/skill_icon_' + skid + '.png'
+					wrap.appendChild(skimg)
+				}
+				wrap.setAttribute('data-rarity', operatorData[op.name].rarity)
 				wrap.appendChild(img)
 				line.appendChild(wrap)
 			})
