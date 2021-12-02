@@ -55,7 +55,7 @@ var lightboxOriginalIndexMapping
 var lightboxSoulOrder = {}
 var dupeChain = {}
 var CCTAG
-fetch('./cctitles.json')
+fetch('./json/cctitles.json')
 .then(res => res.json())
 .then(json => {
 CCMAP = json; 
@@ -64,7 +64,7 @@ document.getElementById('pageTitle').innerHTML = CCMAP[window.location.hash].tit
 return get_char_table()})
 	.then(js => {
 		operatorData = js;
-		return fetch('./data' + CCTAG + '.json')
+		return fetch('./json/data' + CCTAG + '.json')
 	})
 	.then(res => res.json())
 	.then(js => {

@@ -11,7 +11,7 @@ get_char_table().then(js => {
         charIdMap[operatorData[key].name] = key;
 		operatorData[key].charId = key;
     }
-    return fetch('./poll_results_' + PTAG + '.json')
+    return fetch('./json/poll_results_' + PTAG + '.json')
 }).then(res => res.json()).then(js => {
 	let scatter_data = js['scatter']['data']
 	let bar_data = js['bar']['data']

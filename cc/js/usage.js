@@ -20,7 +20,7 @@ function changeSetting(key, value) {
 	usageSettings[key] = value
 	localStorage.setItem('usageSettings', JSON.stringify(usageSettings))
 }
-fetch('./cctitles.json').then(res => res.json()).then(json => {
+fetch('./json/cctitles.json').then(res => res.json()).then(json => {
     CCMAP = json;
     CCTAG = CCMAP[window.location.hash].tag
     document.getElementById('pageTitle').innerHTML = CCMAP[window.location.hash].title
@@ -36,7 +36,7 @@ fetch('./cctitles.json').then(res => res.json()).then(json => {
         charIdMap[operatorData[key].name] = key;
 		operatorData[key].charId = key;
     }
-    return fetch('./data' + CCTAG + '.json')
+    return fetch('./json/data' + CCTAG + '.json')
 }).then(res => res.json()).then(js => {
     usedata = js;
 	
