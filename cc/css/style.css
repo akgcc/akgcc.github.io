@@ -688,7 +688,7 @@ body.icon-mode .riskContainer {
 	transform: translate(-50%, 100%);
 	border-radius: .3em;
 	border: 1px solid #aaa;
-	background: #0006;
+	background: var(--main-background-color);
 	padding: .2em;
 }
 .operatorCheckbox .opskills > img {
@@ -704,8 +704,9 @@ body.icon-mode .riskContainer {
 	color: red;
 	padding-left: .15em;
 }
-@media (hover: hover) {
+/* @media (hover: hover) { */
   .operatorCheckbox._selected:hover .opskills {
 	display: flex;
+	z-index: 1;
   }
-}
+/* } */
