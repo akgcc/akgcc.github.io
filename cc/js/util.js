@@ -33,7 +33,7 @@ async function get_char_table() {
 	json['char_1001_amiya2'] = JSON.parse(JSON.stringify(json['char_002_amiya']))
 	json['char_1001_amiya2'].name = 'Guardmiya'
 	json['char_1001_amiya2'].profession = json['char_350_surtr'].profession
-	// json['char_1001_amiya2'].skills = json['char_1001_amiya2'].skills.slice(0,2) not needed here.
+	json['char_1001_amiya2'].skills = json['char_1001_amiya2'].skills.slice(0,2)
 	json['char_1001_amiya2'].skills[0].skillId = 'skchr_amiya2_1'
     json['char_1001_amiya2'].skills[1].skillId = 'skchr_amiya2_2'
 	
@@ -214,7 +214,7 @@ function divideString(text) {
 	
 }
 
-function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScaleMax = null, clickfunc = null, destDiv = document.getElementById("checkboxes"), order = null) {
+function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScaleMax = null, clickfunc = null, destDiv = document.getElementById("checkboxes"), order = null, skills = []) {
     let operatorName = operator.name;
     var checkboxDiv = document.createElement("div");
     checkboxDiv.classList.add('operatorCheckbox');
@@ -239,6 +239,7 @@ function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScale
 	}
 	
 	let im = document.createElement('img');
+	im.setAttribute('loading','lazy')
 	im.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + operator.charId + '.png';
 	checkboxDiv.appendChild(im);
 
@@ -256,12 +257,38 @@ function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScale
 	name.appendChild(svg)
 	
     checkboxDiv.appendChild(name);
+	
+	
+	let skilldiv = document.createElement('div')
+	skilldiv.classList.add('opskills')
+	skills.forEach((sid,idx) => {
+		let i = document.createElement('img')
+		i.src = 'https://aceship.github.io/AN-EN-Tags/img/skills/skill_icon_' + sid + '.png'
+		i.setAttribute('loading','lazy')
+		i.classList.add('opskillCheckbox')
+		skilldiv.appendChild(i)
+		// if also clickfunc, need to call it while passing skill LIST.
+		i.onclick = (e) => {
+			e.stopPropagation()
+			i.classList.toggle('_selected')
+			if (i.classList.contains('_selected'))
+				checkboxDiv.setAttribute('data-selsk',parseInt(checkboxDiv.getAttribute('data-selsk') || 0) | 1 << idx)
+			else
+				checkboxDiv.setAttribute('data-selsk',parseInt(checkboxDiv.getAttribute('data-selsk')) ^ 1 << idx)
+			if (clickfunc) {
+				clickfunc(operator, checkboxDiv.classList.contains('_selected'), parseInt(checkboxDiv.getAttribute('data-selsk')))
+			}
+		}
+	})
+	if (skills.length)
+		checkboxDiv.appendChild(skilldiv)
+	
     destDiv.appendChild(checkboxDiv);
 	
 	if (clickfunc) {
 		checkboxDiv.onclick = (e) => {
 			checkboxDiv.classList.toggle('_selected')
-			clickfunc(operator, e.currentTarget.classList.contains('_selected'))
+			clickfunc(operator, checkboxDiv.classList.contains('_selected'))
 		}
 	}
 

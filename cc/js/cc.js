@@ -38,7 +38,7 @@ function changeSetting(key, value) {
 var charIdMap = {}
 var cardOperatorMap = {}
 var filterStatus = {}
-var totalChecked = 0
+var totalChecked = new Set()
 var cardData
 var headersMap = {}
 var headerCount = {}
@@ -132,6 +132,7 @@ return get_char_table()})
 			a.href = './cropped' + (cardData[k].tag || CCTAG) + '/' + k
 			let img = document.createElement('img')
 			img.src = './thumbs' + (cardData[k].tag || CCTAG) + '/' + k
+			img.setAttribute('loading','lazy')
 			a.appendChild(img)
 			div.appendChild(a)
 			div.id = k
@@ -253,14 +254,17 @@ return get_char_table()})
 				wrap.classList.add('opImgWrapper')
 				let img = document.createElement('img')
 				img.classList.add('opImg')
+				img.setAttribute('loading','lazy')
 				if (op.name==cardData[clearId].support.name)
 					img.classList.add('supportOp')
 				img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + op.name + '.png';
 				img.setAttribute('title', operatorData[op.name].name)
 				if (op.skill > 0) {//1&2* have no skills
-					skid = operatorData[op.name].skills[op.skill-1].skillId
+					let skid = operatorData[op.name].skills[op.skill-1].skillId
+					skid = skillIconMap[skid] || skid
 					let skimg = document.createElement('img')
 					skimg.classList.add('skimg')
+					skimg.setAttribute('loading','lazy')
 					skimg.src = 'https://aceship.github.io/AN-EN-Tags/img/skills/skill_icon_' + skid + '.png'
 					wrap.appendChild(skimg)
 				}
@@ -305,8 +309,9 @@ return get_char_table()})
 		}
 		var filtercontainer = document.getElementById('filters')
 		divMap = {}
+		let checkboxes = document.getElementById("checkboxes")
 		Object.keys(operatorData).forEach(x => {
-			divMap[operatorData[x].name] = CreateOpCheckbox(operatorData[x], null, null,null, clickfunc = (op,state) => applyFilters(op, state));
+			divMap[operatorData[x].name] = CreateOpCheckbox(operatorData[x], null, null,null, (op,state,skills) => applyFilters(op, state, skills),checkboxes,null,operatorData[x].skills.map(x=> skillIconMap[x.skillId] || x.skillId));
 		})
 		Object.values(operatorData).sort((a, b) => a.name > b.name ? 1 : -1).forEach((x, i) => divMap[x.name].style.order = i);
 
@@ -494,7 +499,7 @@ function reloadLightbox() {
 	})
 }
 function resetFilters() {
-	totalChecked = 0
+	totalChecked.clear()
 	weekFilter = 7
 	Object.keys(riskMap).forEach(k => {
 		headerCount[k] = parseInt(riskMap[k].getAttribute('cardCount'))
@@ -529,12 +534,12 @@ function _filterShouldShow(key) {
 	let shouldShow = 2 ** document.getElementById(key).getAttribute('data-group') & weekFilter
 	shouldShow = shouldShow && (cardData[key].opcount <= maxOpCount)
 	shouldShow = shouldShow && (cardData[key].avgRarity <= maxAvgRarity)
-	if (totalChecked == 0)
+	if (totalChecked.size == 0)
 		return shouldShow && true
 	if (filterStatus[key] == 0)
 		return shouldShow && (false ^ invertFilter)
 	if (!invertFilter && includesAll)
-		return shouldShow && (filterStatus[key] == totalChecked)
+		return shouldShow && (filterStatus[key] == totalChecked.size)
 	return shouldShow && (true ^ invertFilter)
 }
 
@@ -576,11 +581,13 @@ function updateFilterStatus(key, delta) {
 	showCard(key, _filterShouldShow(key))
 }
 
-function applyFilters(operator, checked) {
+function applyFilters(operator, checked, skills = 0) {
 	let charid = operator.charId
-	let prev = totalChecked
-	totalChecked += checked ? 1 : -1
-	if (totalChecked == checked) //went from 0 to 1
+	if (checked)
+		totalChecked.add(charid)
+	else
+		totalChecked.delete(charid)
+	if (totalChecked.size == checked) //went from 0 to 1
 		applyAllFilters()
 
 	if (charid in cardOperatorMap) {
@@ -588,10 +595,10 @@ function applyFilters(operator, checked) {
 			updateFilterStatus(k, checked ? 1 : -1)
 		})
 	}
-	if (!invertFilter && totalChecked)
+	if (!invertFilter && totalChecked.size)
 		applyAllFilters()
 
-	if (0 == totalChecked)
+	if (0 == totalChecked.size)
 		applyAllFilters()
 	updateLightbox()
 }
