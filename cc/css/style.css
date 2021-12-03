@@ -690,11 +690,13 @@ body.icon-mode .riskContainer {
 	border: 1px solid #aaa;
 	background: var(--main-background-color);
 	padding: .2em;
+	cursor: initial;
 }
 .operatorCheckbox .opskills > img {
 	height: calc(var(--operator-image-size) / 1.5);
 	width: calc(var(--operator-image-size) / 1.5);
 	margin: .15em;
+	cursor: pointer;
 }
 .operatorCheckbox._selected[data-selsk]:not([data-selsk="0"]):after {
 	content: "s";

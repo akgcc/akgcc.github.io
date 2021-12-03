@@ -264,6 +264,7 @@ function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScale
 	
 	let skilldiv = document.createElement('div')
 	skilldiv.classList.add('opskills')
+	skilldiv.onclick = e => e.stopPropagation()
 	skills.forEach((sid,idx) => {
 		let i = document.createElement('img')
 		i.src = 'https://aceship.github.io/AN-EN-Tags/img/skills/skill_icon_' + sid + '.png'
