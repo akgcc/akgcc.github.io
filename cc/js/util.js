@@ -1,5 +1,8 @@
 const CLASS_MAPPING = {WARRIOR: 'Guard', SUPPORT: 'Supporter', CASTER: 'Caster', SNIPER: 'Sniper', TANK: 'Defender', PIONEER: 'Vanguard', SPECIAL: 'Specialist', MEDIC: 'Medic'}
 
+function intersection(a,b) {
+	return new Set([...a].filter(x => b.has(x)))
+}
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));

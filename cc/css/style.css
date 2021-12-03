@@ -686,6 +686,10 @@ body.icon-mode .riskContainer {
 	left: 50%;
 	/* z-index: 1; */
 	transform: translate(-50%, 100%);
+	border-radius: .3em;
+	border: 1px solid #aaa;
+	background: #0006;
+	padding: .2em;
 }
 .operatorCheckbox .opskills > img {
 	height: calc(var(--operator-image-size) / 1.5);
@@ -698,7 +702,7 @@ body.icon-mode .riskContainer {
 	top: 0;
 	left: 0;
 	color: red;
-	padding-left: .1em;
+	padding-left: .15em;
 }
 @media (hover: hover) {
   .operatorCheckbox._selected:hover .opskills {

@@ -36,9 +36,8 @@ function changeSetting(key, value) {
 }
 
 var charIdMap = {}
-var cardOperatorMap = {}
-var filterStatus = {}
 var totalChecked = new Set()
+var filterSet = new Set()
 var cardData
 var headersMap = {}
 var headerCount = {}
@@ -91,6 +90,10 @@ return get_char_table()})
 				})
 			})
 		})
+		// create op sets for filtering:
+		Object.keys(cardData).forEach(k => {
+			cardData[k].filterSquad = new Set(cardData[k].squad.map(x => x.name+'$'+x.skill))
+		})
 		s = Array.from(new Set(Object.values(cardData).map(x => x.risk))).sort((a, b) => (b - a))
 		let container = document.getElementById('cards')
 		s.forEach(risk => {
@@ -116,7 +119,6 @@ return get_char_table()})
 				return b - a
 			return cardData[a].group - cardData[b].group
 		}).forEach(k => {
-			filterStatus[k] = 0
 			let div = document.createElement('div')
 			let a = document.createElement('a')
 			let is_dupe = cardData[k].duplicate_of !== undefined
@@ -150,9 +152,6 @@ return get_char_table()})
 			headerCount[cardData[k].risk] += 1
 			cardData[k].squad.forEach(op => {
 				all_ops.add(op.name)
-				if (!(op.name in cardOperatorMap))
-					cardOperatorMap[op.name] = []
-				cardOperatorMap[op.name].push(k)
 			})
 		})
 		Object.keys(riskMap).forEach(k => {
@@ -500,19 +499,23 @@ function reloadLightbox() {
 }
 function resetFilters() {
 	totalChecked.clear()
+	filterSet.clear()
 	weekFilter = 7
 	Object.keys(riskMap).forEach(k => {
 		headerCount[k] = parseInt(riskMap[k].getAttribute('cardCount'))
 		riskMap[k].classList.remove('hidden')
 	})
-	Object.keys(filterStatus).forEach(k => filterStatus[k] = 0)
 	Object.keys(cardData).forEach(k => {
 		let e = document.getElementById(k)
 		e.classList.remove('hidden')
 		if (e.parentElement.classList.contains('clearView'))
 			e.parentElement.classList.remove('hidden')
 	})
-	Array.from(document.getElementsByClassName('operatorCheckbox')).forEach(x => x.classList.remove('_selected'))
+	Array.from(document.getElementsByClassName('operatorCheckbox')).forEach(x => {
+		x.classList.remove('_selected')
+		x.removeAttribute('data-selsk')
+	})
+	Array.from(document.getElementsByClassName('opskillCheckbox')).forEach(x => x.classList.remove('_selected'))
 	Array.from(document.getElementsByClassName('riskContainer')).forEach(x => x.classList.remove('hidden'))
 	Array.from(document.getElementsByClassName('weekFilter')).forEach(x => x.classList.remove('toggled'))
 	document.getElementById('opcountSlider').value = 13
@@ -534,18 +537,21 @@ function _filterShouldShow(key) {
 	let shouldShow = 2 ** document.getElementById(key).getAttribute('data-group') & weekFilter
 	shouldShow = shouldShow && (cardData[key].opcount <= maxOpCount)
 	shouldShow = shouldShow && (cardData[key].avgRarity <= maxAvgRarity)
-	if (totalChecked.size == 0)
-		return shouldShow && true
-	if (filterStatus[key] == 0)
-		return shouldShow && (false ^ invertFilter)
-	if (!invertFilter && includesAll)
-		return shouldShow && (filterStatus[key] == totalChecked.size)
-	return shouldShow && (true ^ invertFilter)
+	if (totalChecked.size == 0) // no op filters selected, show all
+		return shouldShow
+	let intersect = intersection(cardData[key].filterSquad, filterSet)
+	if (invertFilter)
+		return shouldShow && (intersect.size == 0)
+	if (includesAll)
+		return shouldShow && (intersect.size == totalChecked.size)
+	return shouldShow && (intersect.size > 0)
 }
 
 function showCard(key, show = true) {
 	let node = document.getElementById(key)
 	let prev = node.classList.contains('hidden')
+	if (show == !prev)
+		return // already correct state.
 	if (show) {
 		if (node.parentElement.classList.contains('clearView'))
 			node.parentElement.classList.remove('hidden')
@@ -569,36 +575,33 @@ function showCard(key, show = true) {
 }
 
 function applyAllFilters() {
-	Object.keys(filterStatus).forEach(key => {
+	Object.keys(cardData).forEach(key => {
 		showCard(key, _filterShouldShow(key))
 	})
 	document.getElementById('clearCount').innerHTML = "Clears: " + Object.values(headerCount).reduce((a,b) => a+b, 0)
 }
 
-function updateFilterStatus(key, delta) {
-	// update filtering count for a card, then show/hide as necessary
-	filterStatus[key] += delta
-	showCard(key, _filterShouldShow(key))
-}
-
 function applyFilters(operator, checked, skills = 0) {
 	let charid = operator.charId
-	if (checked)
+	if (checked) {
 		totalChecked.add(charid)
-	else
-		totalChecked.delete(charid)
-	if (totalChecked.size == checked) //went from 0 to 1
-		applyAllFilters()
-
-	if (charid in cardOperatorMap) {
-		cardOperatorMap[charid].forEach(k => {
-			updateFilterStatus(k, checked ? 1 : -1)
-		})
 	}
-	if (!invertFilter && totalChecked.size)
-		applyAllFilters()
-
-	if (0 == totalChecked.size)
-		applyAllFilters()
+	else {
+		totalChecked.delete(charid)
+	}
+	// iterate over bits:
+	filterSet.delete(charid + '$0')
+	if (skills == 0) {
+		skills = 7
+		if (checked)
+			filterSet.add(charid + '$0')
+	}
+	for (let b=0; b<3; b++) {
+		if (checked && (skills >> b & 1))
+			filterSet.add(charid + '$' + (1+b))
+		else
+			filterSet.delete(charid + '$' + (1+b))
+	}
+	applyAllFilters()
 	updateLightbox()
 }
