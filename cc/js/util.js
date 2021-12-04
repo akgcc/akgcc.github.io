@@ -49,7 +49,7 @@ async function get_char_table() {
 function thumbnail_tooltip(chart_canvas) {
 	// This function is not perfect, it will only work at this exact tooltip height due to the image adding width
 	// to compensate for this extra width, you must set xPadding in your chart's tooltip options to 6+h/2 where h is the computed height of the tooltip - 6. (6 is for the 3px padding defined in the css)
-	// This is done automatically by adding the tt_size_plugin() callback (below) to tooltip.plugins.afterLabel
+	// This is done automatically by adding the tt_size_plugin() callback (below) to tooltip.plugins.afterLabel (options:plugins:tooltip:callbacks:afterLabel:)
 	return function f(context) {
 		let tooltip = context.tooltip
 		var tooltipEl = document.getElementById('chartjs-tooltip')
@@ -284,7 +284,7 @@ function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScale
 			}
 		}
 	})
-	if (skills.length)
+	if (skills.length > 1)
 		checkboxDiv.appendChild(skilldiv)
 	
     destDiv.appendChild(checkboxDiv);

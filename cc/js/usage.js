@@ -36,6 +36,7 @@ fetch('./json/cctitles.json').then(res => res.json()).then(json => {
         charIdMap[operatorData[key].name] = key;
 		operatorData[key].charId = key;
     }
+	charIdMap['Skadiva'] = 'char_1012_skadi2'
     return fetch('./json/data' + CCTAG + '.json')
 }).then(res => res.json()).then(js => {
     usedata = js;
@@ -97,7 +98,11 @@ fetch('./json/cctitles.json').then(res => res.json()).then(json => {
 		})
 	}
     buildSortedData(Object.values(operatorData).sort((a, b) => useCountMap[a.name] == useCountMap[b.name] ? (a.name > b.name ? 1 : -1) : (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1)))
-    labels = sortedData.map(x => x[0].name)
+	function getLabels(data) {
+		// remember to add any exceptions to charIdMap as well, or else thumbnails will be missing.
+		return data.map(x => x[0].name == 'Skadi the Corrupting Heart' ? 'Skadiva' : x[0].name)
+	}
+    labels = getLabels(sortedData)
     values = sortedData.map(x => x[1])
     values2 = sortedData.map(x => x[2])
 	
@@ -272,7 +277,7 @@ fetch('./json/cctitles.json').then(res => res.json()).then(json => {
  
     function redrawCharts(sortName) {
 		
-		labels = sortedData.map(x => x[0].name)
+		labels = getLabels(sortedData)
 		
 		////// BAR GRAPH ///////
         barGraph.data.labels = labels
