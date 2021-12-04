@@ -98,11 +98,11 @@ fetch('./json/cctitles.json').then(res => res.json()).then(json => {
 		})
 	}
     buildSortedData(Object.values(operatorData).sort((a, b) => useCountMap[a.name] == useCountMap[b.name] ? (a.name > b.name ? 1 : -1) : (useCountMap[a.name] < useCountMap[b.name] ? 1 : -1)))
-	function getLabels(data) {
+	function getBarLabels(data) {
 		// remember to add any exceptions to charIdMap as well, or else thumbnails will be missing.
 		return data.map(x => x[0].name == 'Skadi the Corrupting Heart' ? 'Skadiva' : x[0].name)
 	}
-    labels = getLabels(sortedData)
+    labels = sortedData.map(x => x[0].name)
     values = sortedData.map(x => x[1])
     values2 = sortedData.map(x => x[2])
 	
@@ -111,7 +111,7 @@ fetch('./json/cctitles.json').then(res => res.json()).then(json => {
     barGraph = new Chart(document.getElementById("opChart"), {
         type: "bar",
         data: {
-            labels: labels,
+            labels: getBarLabels(sortedData),
             datasets: [{
                 label: 'Uses',
                 data: values,
@@ -277,10 +277,10 @@ fetch('./json/cctitles.json').then(res => res.json()).then(json => {
  
     function redrawCharts(sortName) {
 		
-		labels = getLabels(sortedData)
+		labels = sortedData.map(x => x[0].name)
 		
 		////// BAR GRAPH ///////
-        barGraph.data.labels = labels
+        barGraph.data.labels = getBarLabels(sortedData)
         barGraph.data.datasets[0].data = sortedData.map(x => x[1])
         barGraph.data.datasets[1].data = sortedData.map(x => x[2])
         barGraph.update();
