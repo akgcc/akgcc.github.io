@@ -273,7 +273,7 @@ function Randomize() {
 		
 		function chooseOp(op, _) {
 			teamheader.classList.remove('hidden')
-			CreateOpCheckbox(op, null, null, null, null, team, -op.rarity)
+			CreateOpCheckbox(op, null, null, null, null, team, -op.rarity, [], op.randomizedSkill)
 			draftedOps.push(op.charId)
 			
 			localFilters.Rarity[parseInt(op.rarity)].min -= 1
@@ -322,7 +322,13 @@ function Randomize() {
 				let op = oplist.pop()
 				currentSelection.push(op.charId)
 				availableOperators = availableOperators.filter(x => x!=op)
-				CreateOpCheckbox(op, null, null, null, chooseOp, selection, -op.rarity)
+                let skid = null;
+                if (filters.Squad.randomizeSkills.enabled && op.skills.length) {
+                    skid = op.skills[Math.floor(Math.random() * op.skills.length)].skillId
+                    skid = skillIconMap[skid] || skid
+                    op.randomizedSkill = skid
+                }
+				CreateOpCheckbox(op, null, null, null, chooseOp, selection, -op.rarity, [], skid)
 				remaining--
 			}
 			header.innerHTML = 'Choose one ('+(localFilters.Squad.Size.max - draftedOps.length)+' remaining):'
@@ -356,7 +362,7 @@ function Randomize() {
 		if (!randomOne)
 			break
         let skid = null;
-        if (filters.Squad.randomizeSkills.enabled) {
+        if (filters.Squad.randomizeSkills.enabled && randomOne.skills.length) {
             skid = randomOne.skills[Math.floor(Math.random() * randomOne.skills.length)].skillId
             skid = skillIconMap[skid] || skid
         }
