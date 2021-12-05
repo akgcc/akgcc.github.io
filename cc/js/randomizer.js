@@ -1,5 +1,13 @@
 var story_table,operatorData,challengeList,divMap = {},episode_list = {},skillIconMap
 const maxTeamSize = 12
+const hopeMap = {
+    0:0,
+    1:0,
+    2:1,
+    3:2,
+    4:4,
+    5:6
+}
 var filters = {
 	Squad: {
 		Size: {
@@ -293,35 +301,82 @@ function Randomize() {
 			destDiv.classList.remove('draft')
 		}
 		function draftRound() {
+            function assignWeights(oplist, currentSelection=[]) {
+                let existingClasses = currentSelection.map(o => operatorData[o].profession)
+                let existingRarities = currentSelection.map(o => operatorData[o].rarity)
+                Object.keys(oplist).forEach(chrid => {
+                    let op = operatorData[chrid]
+                    let weight = 10
+                    // add weight if needed for min requirement
+                    if(localFilters.Rarity[parseInt(op.rarity)].min > 0)
+                        weight += 100
+                    if(localFilters.Class[op.profession].min > 0)
+                        weight += 100
+                    // reduce 6* weight
+                    if (op.rarity >= 5)
+                        weight /= 2
+                    // also reduce 1-2* weights
+                    if (op.rarity < 2)
+                        weight /= 2
+                    // reduce weights based on existing ops in this pack:
+                    // sharply reduce for same class
+                    if (existingClasses.includes(op.profession))
+                        weight /= 4
+                    // if same rarity, reduce based on rarity (higher rarity = more reduction)
+                    if (existingClasses.includes(op.rarity))
+                        switch (op.rarity) {
+                            case 5:
+                                weight /= 4
+                            case 4:
+                                weight /= 2
+                            default:
+                                weight *= 4/5
+                        }
+                    oplist[op.charId] = weight
+                })
+                return oplist
+            }
 			function getOpList(){
 				// filter by rarity:
 				let thisDraft = availableOperators.filter( x => localFilters.Rarity[parseInt(x.rarity)].enabled && localFilters.Rarity[parseInt(x.rarity)].max > 0)
 				// filter by class:
 				thisDraft = thisDraft.filter( x => localFilters.Class[x.profession].enabled && localFilters.Class[x.profession].max > 0)
-				
-				let oplist = shuffleArray(thisDraft).sort((a,b) => {
-					if(localFilters.Rarity[parseInt(a.rarity)].min > 0) return 1;
-					if(localFilters.Class[a.profession].min > 0) return 1;
-					if(localFilters.Rarity[parseInt(b.rarity)].min > 0) return -1;
-					if(localFilters.Class[b.profession].min > 0) return -1;
-					return 0;
-				})
-				return oplist
+                if (thisDraft.length == 0)
+                    return {}
+                oplist = {}
+                thisDraft.forEach(op => {
+                    oplist[op.charId] = 0
+                })
+                return oplist
 			}
-			let oplist = getOpList()
+			let oplist = assignWeights(getOpList())
 			let currentSelection = []
 			let remaining = localFilters.Squad.draftSize.max
 			while (remaining) {
-				if (!oplist.length) {
+				if (!Object.keys(oplist).length) {
 					// set available then rebuild oplist
 					availableOperators = Object.values(operatorData).filter(x=> x.selected && !draftedOps.includes(x.charId) && !currentSelection.includes(x.charId))
-					oplist = getOpList()
-					if (!oplist.length)
+					oplist = assignWeights(getOpList(),currentSelection)
+					if (!Object.keys(oplist).length)
 						break
 				}
-				let op = oplist.pop()
+                // get weighted random op
+                oplist = assignWeights(oplist,currentSelection)
+                let weightSum = Object.values(oplist).reduce((a,b) => a+b, 0)
+                let rng = Math.random()*weightSum
+                let tot = 0
+                let chrid = Object.keys(oplist).at(-1)
+                Object.keys(oplist).some(k => {
+                    tot += oplist[k]
+                    if (rng < tot) {
+                        chrid = k
+                        return true
+                    }
+                })
+                let op = operatorData[chrid]
+                delete oplist[chrid]
 				currentSelection.push(op.charId)
-				availableOperators = availableOperators.filter(x => x!=op)
+				availableOperators = availableOperators.filter(x => x.charId!=op.charId)
                 let skid = null;
                 if (filters.Squad.randomizeSkills.enabled && op.skills.length) {
                     skid = op.skills[Math.floor(Math.random() * op.skills.length)].skillId
