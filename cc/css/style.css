@@ -252,7 +252,10 @@ html * {
   height: calc(100% - var(--nameplate-height));
   opacity: 0.75;
 }
-.opskillCheckbox._selected,
+.opskillCheckbox {
+    opacity: 0.75;
+}
+.operatorCheckbox .opskillCheckbox._selected,
 .operatorCheckbox._selected > img {
   opacity: 1;
 }
