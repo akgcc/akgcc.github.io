@@ -243,3 +243,6 @@ table {
 #draftBtn {
 	margin-left: .5em;
 }
+#output .skimg {
+    opacity: 1;
+}

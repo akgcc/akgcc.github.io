@@ -250,9 +250,8 @@ html * {
 .operatorCheckbox img:not(.skimg) {
   width: 100%;
   height: calc(100% - var(--nameplate-height));
-  opacity: 0.75;
 }
-.opskillCheckbox {
+.operatorCheckbox img {
     opacity: 0.75;
 }
 .operatorCheckbox .opskillCheckbox._selected,

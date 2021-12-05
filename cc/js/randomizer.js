@@ -24,6 +24,12 @@ var filters = {
 			maxvalmin: 1,
 			maxvalmax: 10,
 		},
+        pointDraft:{
+            enabled: true,
+			disp: "Point Draft",
+			max: 40,
+            maxvalmax: 12*6,
+		},
         randomizeSkills:{
 			disp: "Randomize Skills",
 			enabled: 1,
@@ -254,12 +260,18 @@ function Randomize() {
 		let draftedOps = []
 		let availableOperators = Object.values(operatorData).filter(x=> x.selected && !draftedOps.includes(x.charId))
 		let localFilters = JSON.parse(JSON.stringify(filters))
+        let hope = -1;
+        if (filters.Squad.pointDraft.enabled)
+            hope = filters.Squad.pointDraft.max
 		
 		destDiv = document.getElementById('output')
 		destDiv.classList.add('draft')
 		destDiv.innerHTML = ''
 		let header = document.createElement('span')
-		header.innerHTML = 'Choose one ('+(localFilters.Squad.Size.max - draftedOps.length)+' remaining):'
+        header.innerHTML = 'Choose one '
+        if (filters.Squad.pointDraft.enabled)
+            header.innerHTML += '(Hope: '+hope+') '
+        header.innerHTML += '['+draftedOps.length+'/'+localFilters.Squad.Size.max+']'
 		header.style.order = -999
 		let selection = document.createElement('div')
 		selection.classList.add('opDraft')
@@ -283,6 +295,7 @@ function Randomize() {
 			teamheader.classList.remove('hidden')
 			CreateOpCheckbox(op, null, null, null, null, team, -op.rarity, [], op.randomizedSkill)
 			draftedOps.push(op.charId)
+            hope -= hopeMap[op.rarity]
 			
 			localFilters.Rarity[parseInt(op.rarity)].min -= 1
 			localFilters.Rarity[parseInt(op.rarity)].max -= 1
@@ -327,10 +340,13 @@ function Randomize() {
                         switch (op.rarity) {
                             case 5:
                                 weight /= 4
+                                break
                             case 4:
                                 weight /= 2
+                                break
                             default:
-                                weight *= 4/5
+                                // weight *= 4/5
+                                break
                         }
                     oplist[op.charId] = weight
                 })
@@ -341,9 +357,12 @@ function Randomize() {
 				let thisDraft = availableOperators.filter( x => localFilters.Rarity[parseInt(x.rarity)].enabled && localFilters.Rarity[parseInt(x.rarity)].max > 0)
 				// filter by class:
 				thisDraft = thisDraft.filter( x => localFilters.Class[x.profession].enabled && localFilters.Class[x.profession].max > 0)
+                // filter by hope remaining: // is this too powerful?
+                if (filters.Squad.pointDraft.enabled)
+                    thisDraft = thisDraft.filter( x => hopeMap[x.rarity] <= hope)
                 if (thisDraft.length == 0)
                     return {}
-                oplist = {}
+                let oplist = {}
                 thisDraft.forEach(op => {
                     oplist[op.charId] = 0
                 })
@@ -383,10 +402,19 @@ function Randomize() {
                     skid = skillIconMap[skid] || skid
                     op.randomizedSkill = skid
                 }
-				CreateOpCheckbox(op, null, null, null, chooseOp, selection, -op.rarity, [], skid)
+				let cb = CreateOpCheckbox(op, null, null, null, chooseOp, selection, -op.rarity, [], skid)
+                if (filters.Squad.pointDraft.enabled) {
+                    let hopeamt = document.createElement("div");
+                    hopeamt.classList.add('data1');
+                    hopeamt.innerHTML = hopeMap[op.rarity]
+                    cb.appendChild(hopeamt)
+                }
 				remaining--
 			}
-			header.innerHTML = 'Choose one ('+(localFilters.Squad.Size.max - draftedOps.length)+' remaining):'
+            header.innerHTML = 'Choose one '
+            if (filters.Squad.pointDraft.enabled)
+                header.innerHTML += '(Hope: '+hope+') '
+            header.innerHTML += '['+draftedOps.length+'/'+localFilters.Squad.Size.max+']'
 			if (!availableOperators.length && !currentSelection.length)
 				// no ops left for further drafts, so finalize.
 				finalizeDraft()
