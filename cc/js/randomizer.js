@@ -293,7 +293,7 @@ function Randomize() {
 		
 		function chooseOp(op, _) {
 			teamheader.classList.remove('hidden')
-			CreateOpCheckbox(op, null, null, null, null, team, -op.rarity, [], op.randomizedSkill)
+			CreateOpCheckbox(op, null, null, null, null, team, -op.rarity, [], filters.Squad.randomizeSkills.enabled ? op.randomizedSkill : null)
 			draftedOps.push(op.charId)
             hope -= hopeMap[op.rarity]
 			
