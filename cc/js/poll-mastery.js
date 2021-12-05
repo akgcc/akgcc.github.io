@@ -271,6 +271,8 @@ get_char_table().then(js => {
 			}]
 		},
 		options: {
+            split_images: true,
+            borderColor: '#999',
 			onResize: (chart) => {
 				chart.options.layout.padding.top = imgSize/2
 				chart.options.layout.padding.right = imgSize/2

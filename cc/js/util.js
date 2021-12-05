@@ -140,13 +140,19 @@ if (typeof Chart !== 'undefined') {
 				ctx.save();
 				ctx.translate(x, y);
 				ctx.rotate(rad);
-				
+                
 				// below block is modified code.
-				ctx.beginPath()
-				ctx.arc(0, 0, Math.min(style.height/2, style.width/2), 0, 2*Math.PI, false);
-				ctx.strokeStyle = '#999'
-				ctx.stroke()
-				ctx.clip()
+                let sliceSize = Math.max(1/4*2,1/options.pointStyle.conflictCount*2)
+                sliceSize = 1/options.pointStyle.conflictCount*2
+                let sliceStart = sliceSize * options.pointStyle.conflict
+                ctx.beginPath()
+                ctx.arc(0, 0, Math.min(style.height/2, style.width/2), Math.PI/2 + Math.PI*sliceStart, Math.PI/2 + Math.PI*sliceStart + Math.PI*sliceSize, false);
+                if (options.pointStyle.conflictCount > 1)
+                    ctx.lineTo(0,0)
+                ctx.closePath()
+                ctx.stroke()
+                ctx.clip()
+                // ctx.globalAlpha = 0.8;
 				ctx.drawImage(style, -style.width / 2, -style.height / 2, style.width, style.height);
 				///////////////////////////////
 				
@@ -175,8 +181,55 @@ if (typeof Chart !== 'undefined') {
 	Chart.defaults.scales.logarithmic.ticks.callback = function(tick, index, ticks) {
 		  return tick.toLocaleString()
 		}
+        
+        
+    Chart.register({
+        id: 'imgsplit',
+      beforeDatasetDraw: function(chart, args, options) {
+        if (chart.config.options.split_images) {
+          let conflicts = {}
+          for (let i=0; i < chart.data.datasets[0].data.length; i ++) {
+              let pt = chart.data.datasets[0].data[i]
+              conflicts[pt.x] || (conflicts[pt.x] = {})
+              chart.data.datasets[0].pointStyle[i].conflict = 0
+              if (pt.y in conflicts[pt.x]) {
+                  conflicts[pt.x][pt.y] += 1
+                  chart.data.datasets[0].pointStyle[i].conflict = conflicts[pt.x][pt.y]
+              } else {
+                  conflicts[pt.x][pt.y] = 0
+              }
+          }
+          for (let i=0; i < chart.data.datasets[0].data.length; i ++) {
+              let pt = chart.data.datasets[0].data[i]
+              chart.data.datasets[0].pointStyle[i].conflictCount = conflicts[pt.x][pt.y]+1
+          }
+        }
+      }
+    });
 }
 
+function beforeDatasetDraw(chart, args) {
+  if (chart.animating || chart.$deferred.loaded) {
+    const { index: dataIndex, meta } = args;
+    const points = meta.data.map(el => ({ x: el._model.x, y: el._model.y }));
+    const { length: dsLength } = chart.data.datasets;
+    const adjustedMap = []; // keeps track of adjustments to prevent double offsets
+
+    for (let datasetIndex = 0; datasetIndex < dsLength; datasetIndex += 1) {
+      if (dataIndex !== datasetIndex) {
+        const datasetMeta = chart.getDatasetMeta(datasetIndex);
+        datasetMeta.data.forEach(el => {
+          const overlap = points.find(point => point.x === el._model.x && point.y === el._model.y);
+          if (overlap) {
+            const adjusted = adjustedMap.find(item => item.datasetIndex === datasetIndex && item.dataIndex === dataIndex);
+            if (!adjusted && datasetIndex % 2) { el._model.x += 7; } else { el._model.x -= 7; }
+              adjustedMap.push({ datasetIndex, dataIndex });
+          }
+        });
+       }
+     }
+   }
+ }
 
 // https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
 function getCssStyle(element, prop) {

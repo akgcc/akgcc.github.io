@@ -211,6 +211,8 @@ fetch('./json/cctitles.json').then(res => res.json()).then(json => {
 			}]
 		},
 		options: {
+            split_images: true,
+            borderColor: '#999',
 			onResize: (chart) => {
 				chart.options.layout.padding.top = imgSize/2
 				chart.options.layout.padding.right = imgSize/2
