@@ -328,7 +328,10 @@ function Randomize() {
                     // reduce 6* weight
                     if (op.rarity >= 5)
                         weight /= 2
-                    // also reduce 1-2* weights
+                    // reduce 5* weight
+                    if (op.rarity >= 5)
+                        weight *= 2/3
+                    // reduce 1-2* weights
                     if (op.rarity < 2)
                         weight /= 2
                     // reduce weights based on existing ops in this pack:
@@ -336,18 +339,19 @@ function Randomize() {
                     if (existingClasses.includes(op.profession))
                         weight /= 4
                     // if same rarity, reduce based on rarity (higher rarity = more reduction)
-                    if (existingClasses.includes(op.rarity))
+                    if (existingRarities.includes(op.rarity)) {
                         switch (op.rarity) {
                             case 5:
                                 weight /= 4
                                 break
                             case 4:
-                                weight /= 2
+                                weight /= 3
                                 break
                             default:
                                 // weight *= 4/5
                                 break
                         }
+                    }
                     oplist[op.charId] = weight
                 })
                 return oplist
