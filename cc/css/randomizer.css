@@ -31,6 +31,7 @@ body {
 	display: flex;
 	--nameplate-height: min(1.8667vw, 20px);
 	--operator-image-size: min(7vw, 75px);
+    --large-operator-image-size: min(7vw, 75px);
 	/* align-items: center; */
 	flex: 0 1 auto;
 	flex-direction: row;

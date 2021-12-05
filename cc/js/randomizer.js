@@ -1,4 +1,4 @@
-var story_table,operatorData,challengeList,divMap = {},episode_list = {}
+var story_table,operatorData,challengeList,divMap = {},episode_list = {},skillIconMap
 const maxTeamSize = 12
 var filters = {
 	Squad: {
@@ -15,6 +15,10 @@ var filters = {
 			max: 3,
 			maxvalmin: 1,
 			maxvalmax: 10,
+		},
+        randomizeSkills:{
+			disp: "Randomize Skills",
+			enabled: 1,
 		}
 	},
 	Rarity: {
@@ -108,7 +112,11 @@ var filters = {
 }
 
 // fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/zone_table.json')
-fetch('./json/challenges.json')
+fetch('./json/skill_icon_map.json')
+.then(res => res.json())
+.then(json => {
+skillIconMap = json;
+return fetch('./json/challenges.json')})
 .then(res => res.json())
 .then(js => {
 	challengeList = js
@@ -347,7 +355,12 @@ function Randomize() {
 		}).pop()
 		if (!randomOne)
 			break
-		CreateOpCheckbox(randomOne, null, null, null, null, destDiv, -randomOne.rarity)
+        let skid = null;
+        if (filters.Squad.randomizeSkills.enabled) {
+            skid = randomOne.skills[Math.floor(Math.random() * randomOne.skills.length)].skillId
+            skid = skillIconMap[skid] || skid
+        }
+		CreateOpCheckbox(randomOne, null, null, null, null, destDiv, -randomOne.rarity, [], skid)
 		// reduce min and max
 		localFilters.Rarity[parseInt(randomOne.rarity)].min -= 1
 		localFilters.Rarity[parseInt(randomOne.rarity)].max -= 1

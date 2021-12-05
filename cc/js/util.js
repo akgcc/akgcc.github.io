@@ -270,7 +270,7 @@ function divideString(text) {
 	
 }
 
-function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScaleMax = null, clickfunc = null, destDiv = document.getElementById("checkboxes"), order = null, skills = []) {
+function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScaleMax = null, clickfunc = null, destDiv = document.getElementById("checkboxes"), order = null, skills = [], dispSkillId = null) {
     let operatorName = operator.name;
     var checkboxDiv = document.createElement("div");
     checkboxDiv.classList.add('operatorCheckbox');
@@ -340,6 +340,14 @@ function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScale
 	if (skills.length > 1)
 		checkboxDiv.appendChild(skilldiv)
 	
+    if (dispSkillId) {
+        let skimg = document.createElement('img')
+        skimg.classList.add('skimg')
+        skimg.setAttribute('loading','lazy')
+        skimg.src = 'https://aceship.github.io/AN-EN-Tags/img/skills/skill_icon_' + dispSkillId + '.png'
+        checkboxDiv.appendChild(skimg)
+    }
+    
     destDiv.appendChild(checkboxDiv);
 	
 	if (clickfunc) {
