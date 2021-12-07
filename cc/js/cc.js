@@ -1,25 +1,10 @@
-let customSlideHTML = `<div class="gslide">
-    <div class="gslide-inner-content">
-        <div class="ginner-container">
-            <div class="gslide-media">
-            </div>
-            <div class="gslide-description">
-                <div class="gdesc-inner">
-                    <h4 class="gslide-title"></h4>
-                    <div class="gslide-desc"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>`;
 const lightbox = GLightbox({
 	selector: '.glightbox',
 	touchNavigation: true,
 	loop: true,
 	closeOnOutsideClick: true,
 	moreLength: 0,
-	zoomable: false,
-	slideHTML: customSlideHTML
+	zoomable: false
 });
 if (!window.location.hash)
 	window.location.hash = '#4'
@@ -420,11 +405,11 @@ return get_char_table()})
 		lightboxElementsOriginal = lightbox.elements
 		reloadLightbox()
 		
-		lightbox.on('slide_before_load', (data) => {
+        lightbox.on('slide_before_load', (data) => {
 			const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-			let [soul, group, dupe] = slideConfig.content.split(',')
-			slideNode.setAttribute('data-group', group);
-			slideNode.querySelector('.gslide-media').setAttribute('data-soul', soul);
+            slideNode.setAttribute('data-group', slideConfig.group);
+            slideNode.querySelector('.gslide-media').setAttribute('data-soul', slideConfig.soul);
+            let dupe = slideConfig.dupe;
 			if (dupe) {
 				slideNode.setAttribute('data-dupe', dupe)
 				slideConfig.description='More from this doctor:'
@@ -484,15 +469,15 @@ function reloadLightbox() {
 	Object.entries(lightboxOriginalIndexMapping).forEach(([k,v]) => {
 		lightboxElementsOriginal[v].filename = k
 		lightboxElementsOriginal[v].original_idx = v
-		lightboxElementsOriginal[v].content = ''+cardData[k].soul.toFixed(2)
-		lightboxElementsOriginal[v].content += ','+cardData[k].group
+        lightboxElementsOriginal[v].soul = cardData[k].soul.toFixed(2)
+        lightboxElementsOriginal[v].group = cardData[k].group
 		has_dupe = cardData[k].duplicate_of || ((k in dupe_groups) ? k : undefined)
 		if (has_dupe) {
 			next_dupe = (dupe_groups[has_dupe][(cardData[k].group+1)%3] || dupe_groups[has_dupe][(cardData[k].group+2)%3] || dupe_groups[has_dupe][(cardData[k].group+3)%3])[0]
 			if (next_dupe != k) {
 				// don't set next dupe to self.
-				lightboxElementsOriginal[v].content += ','+next_dupe
 				dupeChain[k] = next_dupe
+                lightboxElementsOriginal[v].dupe = next_dupe
 			}
 		}
 	})

@@ -27,7 +27,8 @@ body {
 #filterWrapper input[type='number'] {
 	width: 3.2em;
 }
-#output {
+#output,
+.opDraft {
 	display: flex;
 	--nameplate-height: min(1.8667vw, 20px);
 	--operator-image-size: min(7vw, 75px);
@@ -50,6 +51,11 @@ body {
 #output > .operatorCheckbox .name {
 	transform: none;
 	cursor: initial;
+}
+
+.opDraft > .operatorCheckbox,
+.opDraft > .operatorCheckbox .name {
+	transform: none;
 }
 #results {
 	margin-top: 8px;
