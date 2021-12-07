@@ -118,23 +118,28 @@ body.clear-mode .riskHeader[data-count="1"]::after {
 	height: 100%;
 	width: 100%;
 }
+
+.gslide {
+    flex-direction: column;
+}
+.gslide.center:before {
+    content: "";
+    flex-basis: var(--spacer-size);
+    flex-shrink: 1;
+    order: -999;
+}
+.gslide-description {
+    flex: 1 0 !important;
+    /* max-width: 100vw !important; */
+}
+.gslide {
+ max-height: 100vh;
+ --spacer-size: 0px;
+}
+
 .gslide .gslide-inner-content .gslide-description {
-	position: absolute;
-	top: 100%;
-	left: 50%;
-	transform: translateX(-50%);
-	/* width: 12em; */
-	margin-top: 1em;
-	background: 0;
 	width: auto;
 	
-	/* add styling from when it was a button */
-	border: 1px solid white;
-	padding: 0.2em 0.3em;
-	border-radius: 0.2em;
-	color: var(--main-text-color);
-	font-size: 1.2rem;
-	line-height: 1.2rem;
 }
 
 .gslide .gslide-inner-content .dupe-thumbs {
@@ -142,6 +147,7 @@ body.clear-mode .riskHeader[data-count="1"]::after {
 }
 .gslide .gslide-inner-content .dupe-thumbs > img {
 	margin: 0.3em;
+    height: min(166px, 20vh);
 }
 @media (hover: hover) {
 	.gslide .gslide-inner-content .dupe-thumbs > img:hover {
@@ -154,6 +160,15 @@ body.clear-mode .riskHeader[data-count="1"]::after {
 	font-size: 1.2em;
 	line-height: 1.2em;
 	text-align: center;
+    
+    /* add styling from when it was a button */
+	border: 1px solid white;
+	padding: 0.2em 0.3em;
+	border-radius: 0.2em;
+	color: var(--main-text-color);
+	font-size: 1.2rem;
+	line-height: 1.2rem;
+    margin-top: .5em;
 }
 
 .glightbox-clean .gslide-inner-content .gslide-description {

@@ -411,6 +411,7 @@ return get_char_table()})
             slideNode.querySelector('.gslide-media').setAttribute('data-soul', slideConfig.soul);
             let dupe = slideConfig.dupe;
 			if (dupe) {
+                slideNode.classList.add('center')
 				slideNode.setAttribute('data-dupe', dupe)
 				slideConfig.description='More from this doctor:'
 				slideConfig.description+='<div class="dupe-thumbs">'
@@ -424,7 +425,9 @@ return get_char_table()})
 
 		lightbox.on('slide_after_load', (data) => {
 			const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-			let dupeDiv = slideNode.querySelector('.gdesc-inner')
+            slideNode.querySelectorAll('.gslide-description').forEach(desc => {
+                slideNode.style.setProperty('--spacer-size', desc.offsetHeight+'px')
+            })
 			slideNode.querySelectorAll('.dupe-thumbs > img').forEach( dupeDiv => {
 				let dupe = dupeDiv.getAttribute('data-dupe')
 				dupeDiv.onclick = () => {
