@@ -372,6 +372,25 @@ function Randomize() {
                 })
                 return oplist
 			}
+            function addToSelection(chrid) {
+                let op = operatorData[chrid]
+                delete oplist[chrid]
+				currentSelection.push(op.charId)
+				availableOperators = availableOperators.filter(x => x.charId!=op.charId)
+                let skid = null;
+                if (filters.Squad.randomizeSkills.enabled && op.skills.length) {
+                    skid = op.skills[Math.floor(Math.random() * op.skills.length)].skillId
+                    skid = skillIconMap[skid] || skid
+                    op.randomizedSkill = skid
+                }
+				let cb = CreateOpCheckbox(op, null, null, null, chooseOp, selection, -op.rarity, [], skid)
+                if (filters.Squad.pointDraft.enabled) {
+                    let hopeamt = document.createElement("div");
+                    hopeamt.classList.add('data1');
+                    hopeamt.innerHTML = hopeMap[op.rarity]
+                    cb.appendChild(hopeamt)
+                }
+            }
 			let oplist = assignWeights(getOpList())
 			let currentSelection = []
 			let remaining = localFilters.Squad.draftSize.max
@@ -396,25 +415,18 @@ function Randomize() {
                         return true
                     }
                 })
-                let op = operatorData[chrid]
-                delete oplist[chrid]
-				currentSelection.push(op.charId)
-				availableOperators = availableOperators.filter(x => x.charId!=op.charId)
-                let skid = null;
-                if (filters.Squad.randomizeSkills.enabled && op.skills.length) {
-                    skid = op.skills[Math.floor(Math.random() * op.skills.length)].skillId
-                    skid = skillIconMap[skid] || skid
-                    op.randomizedSkill = skid
-                }
-				let cb = CreateOpCheckbox(op, null, null, null, chooseOp, selection, -op.rarity, [], skid)
-                if (filters.Squad.pointDraft.enabled) {
-                    let hopeamt = document.createElement("div");
-                    hopeamt.classList.add('data1');
-                    hopeamt.innerHTML = hopeMap[op.rarity]
-                    cb.appendChild(hopeamt)
-                }
+                addToSelection(chrid)
 				remaining--
 			}
+            if (filters.Squad.pointDraft.enabled) {
+                let freeops = currentSelection.filter(x => hopeMap[operatorData[x].rarity] <= 0)
+                if (freeops.length == 0) {
+                    // add one free op if none in selection.
+                    let zerocost = Object.values(operatorData).filter(x=> x.selected && !draftedOps.includes(x.charId) && !currentSelection.includes(x.charId) && hopeMap[x.rarity] <= 0)
+                    if (zerocost.length)
+                        addToSelection(zerocost[Math.floor(Math.random() * zerocost.length)].charId)
+                }
+            }
             header.innerHTML = 'Choose one '
             if (filters.Squad.pointDraft.enabled)
                 header.innerHTML += '(Hope: '+hope+') '
