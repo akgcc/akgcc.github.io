@@ -430,7 +430,7 @@ function Randomize() {
             if (filters.Squad.pointDraft.enabled)
                 header.innerHTML += '(Hope: '+hope+') '
             header.innerHTML += '['+draftedOps.length+'/'+localFilters.Squad.Size.max+']'
-			if (!availableOperators.length && !currentSelection.length)
+			if (!currentSelection.length)
 				// no ops left for further drafts, so finalize.
 				finalizeDraft()
 		}
