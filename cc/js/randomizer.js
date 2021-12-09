@@ -149,10 +149,6 @@ return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/mast
 .then(js => {
 	stageData = js;
 	
-	// load local filter data.
-	let f = localStorage.getItem('randomizerFilters')
-	if (f)
-		updateJSON(filters, JSON.parse(f))
 
 
 // create list of available stages (episode_list)
@@ -181,7 +177,10 @@ Object.keys(episode_list).forEach(x=> {
 })
 
 
-
+	// load local filter data.
+	let f = localStorage.getItem('randomizerFilters')
+	if (f)
+		updateJSON(filters, JSON.parse(f))
 
 
 // remove all non-obtainable "operators"
