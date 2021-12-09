@@ -1,5 +1,6 @@
 .stageMap {
 	--color_floor: dimgrey;
+    --color_roof: #999;
 	--color_forbidden: #222;
 	border-spacing: 2px;
 	border-collapse: separate;
@@ -11,42 +12,42 @@
 	background-color: lime;
 	background-size: cover;
 	background-position: center;
+    position: relative;
 }
+.stageMap td:before,
+.stageMap td:after {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background-size: cover;
+	background-position: center;
+}
+/* data-deploy = 0,1,3 */
 .stageMap td[data-height="0"] {
 	background-color: var(--color_floor);
+    /* background-color: transparent; */
 }
+/* data-deploy = 2 */
 .stageMap td[data-height="1"] {
-	background-color: darkgrey;
+	background-color: var(--color_roof);
+    /* background-color: transparent; */
 }
-
-
-/* deployable tiles */
-/* .stageMap td[data-tile=tile_rcm_operator], /* recommend op placement */ */
-/* .stageMap td[data-tile=tile_bigforce], */
-/* .stageMap td[data-tile=tile_grass], */
-/* .stageMap td[data-tile=tile_gazebo], */
-/* .stageMap td[data-tile=tile_wall] { */
-	/* background:darkgrey; */
+/* .stageMap td[data-height="1"]:before { */
+    /* content: ""; */
+	/* background-image: url("../tiles/tile_high.png"); */
+    /* z-index:-1; */
 /* } */
-/* .stageMap td[data-tile=tile_healing], */
-/* .stageMap td[data-tile=tile_rcm_crate], /* box placement suggestion */ */
-/* .stageMap td[data-tile=tile_volcano], */
-/* .stageMap td[data-tile=tile_infection], */
-/* .stageMap td[data-tile=tile_fence], */
-/* .stageMap td[data-tile=tile_floor], */
-/* .stageMap td[data-tile=tile_road] { */
-	/* background: var(--color_floor); */
+
+/* .stageMap td[data-height="0"]:before { */
+    /* content: ""; */
+	/* background-image: url("../tiles/tile_ground.png"); */
+    /* z-index:-1; */
 /* } */
+
 .stageMap td[data-tile=tile_fence] {
-	box-shadow: inset 0 0 0 .1875em #999;
+	box-shadow: inset 0 0 0 .1875em var(--color_roof);
 }
-/* undeployable */
-.stageMap td[data-tile=tile_forbidden] {
-	background-color: var(--color_forbidden);
-}
-.stageMap td[data-tile=tile_empty] {
-	background-color: #0002;
-}
+
 .stageMap td[data-tile=tile_hole] {
     background: radial-gradient(var(--color_forbidden) 70%, var(--color_floor) 75%);
     box-shadow: inset 0 0 0 .125em var(--color_floor);
@@ -68,47 +69,78 @@
     /* filter: brightness(0.5) sepia(1) saturate(10000%) hue-rotate(328deg); */
 
 /* teleporter/stairwell */
-/* .stageMap td[data-tile=tile_telout], */
-/* .stageMap td[data-tile=tile_telin] { */
-	/* background-color:  var(--color_floor); */
-/* } */
+.stageMap td[data-tile=tile_telout],
+.stageMap td[data-tile=tile_telin] {
+	background-color:  var(--color_forbidden);
+    box-shadow: inset 0 0 0 .1875em var(--color_floor);
+}
 
-/* tile icons */
+/* undeployable texture */
+.stageMap td[data-tile=tile_infection][data-deploy="0"],
 .stageMap td[data-tile=tile_floor] {
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/forb.png");
 }
-.stageMap td[data-tile=tile_start], 
-.stageMap td[data-tile=tile_end] {
+.stageMap td[data-tile=tile_start]:after, 
+.stageMap td[data-tile=tile_end]:after {
+    content: "";
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/base.png");
 }
-.stageMap td[data-tile=tile_gazebo] {
-	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/air.png");
-}
-.stageMap td[data-tile=tile_grass] {
-	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/grass2.png");
-}
-.stageMap td[data-tile=tile_flystart] {
+.stageMap td[data-tile=tile_flystart]:after {
+    content: "";
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/drone.png");
 }
-
-.stageMap td[data-tile=tile_infection] {
-	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/infection.png");
+.stageMap td[data-tile=tile_gazebo]:after {
+    content: "";
+	background-image: url("../tiles/tile_gazebo.png");
 }
-.stageMap td[data-tile=tile_volcano] {
+.stageMap td[data-tile=tile_grass]:after {
+    content: "";
+	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/grass2.png");
+}
+
+
+.stageMap td[data-tile=tile_infection]:after {
+    content: "";
+	background-image: url("../tiles/tile_infection.png");
+}
+.stageMap td[data-tile=tile_volcano]:after {
+    content: "";
 	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/volcano3.png");
 }
-.stageMap td[data-tile=tile_bigforce] {
-	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/force2.png");
+.stageMap td[data-tile=tile_bigforce]:after {
+    content: "";
+	background-image: url("../tiles/tile_bigforce.png");
 }
-.stageMap td[data-tile=tile_telin] {
-	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/telin.png");
+.stageMap td[data-tile=tile_telin]:after {
+    content: "";
+	background-image: url("../tiles/tile_telin.png");
 }
-.stageMap td[data-tile=tile_telout] {
-	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/telout.png");
+.stageMap td[data-tile=tile_telout]:after {
+    content: "";
+	background-image: url("../tiles/tile_telout.png");
 }
-.stageMap td[data-tile=tile_defup] {
-	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/def.png");
+.stageMap td[data-tile=tile_defup]:after {
+    content: "";
+	background-image: url("../tiles/tile_defup.png");
 }
-.stageMap td[data-tile=tile_healing] {
-	background-image: url("https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/img/ui/stage/tile/healing.png");
+.stageMap td[data-tile=tile_healing]:after {
+    content: "";
+	background-image: url("../tiles/tile_healing.png");
+}
+
+
+/* undeployable tiles, must apply these rules last */
+.stageMap td[data-tile=tile_forbidden] {
+	background-color: var(--color_forbidden);
+    background-image: none;
+}
+.stageMap td[data-tile=tile_empty] {
+	background-color: #0002;
+    background-image: none;
+}
+.stageMap td[data-tile=tile_empty]:after,
+.stageMap td[data-tile=tile_forbidden]:after,
+.stageMap td[data-tile=tile_empty]:before,
+.stageMap td[data-tile=tile_forbidden]:before {
+    content: none;
 }

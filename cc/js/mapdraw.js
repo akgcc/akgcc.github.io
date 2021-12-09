@@ -10,6 +10,12 @@ function tableFromStageData(stageData) {
 			let td = document.createElement('td')
 			td.setAttribute('data-tile',mapData.tiles[mapData.map[h][w]].tileKey)
 			td.setAttribute('data-height',mapData.tiles[mapData.map[h][w]].heightType)
+            // data-deploy is one of:
+            // 0: can't deploy
+            // 1: ground units only
+            // 2: air units only
+            // 3: both (for special maps like CE)
+            td.setAttribute('data-deploy',mapData.tiles[mapData.map[h][w]].buildableType)
 			tr.appendChild(td)
 		}
 		table.appendChild(tr)
