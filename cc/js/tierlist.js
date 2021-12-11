@@ -12,15 +12,17 @@ fetch('./json/cctitles.json').then(res => res.json()).then(json => {
 	if (window.location.hash == '#all')
 		document.getElementById('clearsLink').style.display='none'
     Object.keys(CCMAP).forEach(k => {
-      let btn = document.createElement('div')
-      btn.classList.add('button')
-      if (k==window.location.hash)
-      btn.classList.add('checked')
-      btn.innerHTML = k
-      btn.onclick = () => {
-          window.location.hash = btn.innerHTML
-      }
-      document.getElementById('ccselector').appendChild(btn)
+        if (k!='#all') {
+          let btn = document.createElement('div')
+          btn.classList.add('button')
+          if (k==window.location.hash)
+          btn.classList.add('checked')
+          btn.innerHTML = k
+          btn.onclick = () => {
+              window.location.hash = btn.innerHTML
+          }
+          document.getElementById('ccselector').appendChild(btn)
+        }
     })
 	return get_char_table()})
 	.then(js => {
