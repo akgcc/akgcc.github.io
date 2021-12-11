@@ -159,8 +159,15 @@ availableStages.map(x => main_ids.add(x.zoneId))
 const now = Math.floor(Date.now()/1000)
 
 for (const [key, value] of Object.entries(story_table)) {
-	if (value.remakeStartTime > 0 || value.startTime >= 1633003200)
-		episode_list[value.name + ' (' +value.infoUnlockDatas.slice(-1)[0].storyCode.split('-')[0] +')'] = value.id
+	if (value.remakeStartTime > 0 || value.startTime >= 1633003200) {
+        let code = value.infoUnlockDatas.slice(-1)[0].storyCode.split('-')[0]
+        if (!code)
+            code = ( stageData.stages[value.infoUnlockDatas[0].storyGroup+'_01'] || {code:""} ).code.split('-')[0]
+        if (code)
+            episode_list[value.name + ' (' + code +')'] = value.id
+        else
+            episode_list[value.name] = value.id
+    }
 }
 
 main_ids.forEach(x=> {
