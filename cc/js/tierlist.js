@@ -66,7 +66,7 @@ fetch('./json/cctitles.json').then(res => res.json()).then(json => {
         }
     })
     Object.keys(ops).forEach(k => {
-      ops[k].score = ops[k].score/(Object.keys(clearData).length/25) + risk_weight(ops[k].max)*1.5
+      ops[k].score = ops[k].score/(Object.keys(clearData).length/35) + risk_weight(ops[k].max)*1.1
       if (ops[k].score > max_score)
             max_score = ops[k].score
         if (ops[k].score < min_score)
