@@ -1,0 +1,59 @@
+.tierRow {
+    display: flex;
+    flex-direction: row;
+    min-height: 80px;
+    border-top: solid 1px #000;
+    border-bottom: solid 1px #000;
+}
+.tierLabel {
+    min-width: 100px;
+    min-height: 80px;
+    border-right: solid 1px #000;
+    display: flex;
+    align-items: center;
+    align-items: center;
+    justify-content: center;
+}
+.tierLabel[data-tier="S"] {
+    background: rgb(255, 127, 127);
+}
+.tierLabel[data-tier="A"] {
+    background: rgb(255, 191, 127);
+}
+.tierLabel[data-tier="B"] {
+    background: rgb(255, 223, 127);
+}
+.tierLabel[data-tier="C!"],
+.tierLabel[data-tier="C"] {
+    background: rgb(255, 255, 127);
+}
+.tierLabel[data-tier="D"] {
+    background: rgb(191, 255, 127);
+}
+.tierLabel[data-tier="F"] {
+    background: rgb(127, 255, 127);
+}
+.tierLabel > span {
+    color: #333;
+    overflow: hidden;
+    text-align: center;
+    margin: 5px;
+    }
+#tierList {
+    display: flex;
+    flex-direction: column;
+    border-left: solid 1px #000;
+    border-right: solid 1px #000;
+    background: #1a1a17;
+    
+    margin: 8px 20px;
+}
+
+.tierMembers {
+    flex: 1;
+    display:flex;
+    flex-wrap:wrap;
+}
+#ccselector {
+    padding-left: 20px;
+}
