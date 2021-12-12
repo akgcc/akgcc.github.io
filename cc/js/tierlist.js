@@ -67,16 +67,17 @@ fetch('./json/cctitles.json').then(res => res.json()).then(json => {
     })
     Object.keys(ops).forEach(k => {
       ops[k].score = ops[k].score/(Object.keys(clearData).length/35) + risk_weight(ops[k].max)*1.1
+      ops[k].charid = k
       if (ops[k].score > max_score)
             max_score = ops[k].score
         if (ops[k].score < min_score)
             min_score = ops[k].score
     })
     let bins = linspace(min_score,max_score,7)
-    Object.keys(ops).forEach(charid => {
+    Object.values(ops).sort((a,b) => b.score-a.score).forEach(op => {
         for (let i = bins.length-2; i >= 0; i--) {
-            if (bins[i] <= ops[charid].score) {
-                CreateOpCheckbox(operatorData[charid],null, null, null, null, document.getElementById(tierMap[i+1]));
+            if (bins[i] <= op.score) {
+                CreateOpCheckbox(operatorData[op.charid],null, null, null, null, document.getElementById(tierMap[i+1]));
                 break;
             }
         }
