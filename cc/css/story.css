@@ -1,0 +1,64 @@
+:root {
+    --story-width: 60em;
+}
+.scene {
+    width: 100%;
+    min-height: calc(var(--story-width) / 16 * 9);
+    background-repeat: repeat-y;
+    background-size: contain;
+    display: flex;
+    flex-direction: column;
+}
+#storyDisp {
+ display:flex;
+ flex-direction: column; 
+ max-width: var(--story-width);
+ margin: 2em auto;
+}
+.dialog {
+  display: flex;
+  padding: 0 2em;
+  margin: .4em 0;
+  justify-content: space-between;
+}
+.avatar-spacer,
+.avatar {
+    width: 6em;
+    height: 6em;
+    opacity: .75;
+    margin: 0 .2em;
+}
+.avatar.active {
+    opacity: 1;
+}
+.avatar.unknown {
+    filter: brightness(0);
+}
+.text {
+    background: #000b;
+    flex: 1 1;
+    padding: .2em .5em;
+    font-size: 1.3em;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.name {
+    color: #777;
+    font-size: .8em;
+    margin-bottom: .2em;
+}
+
+#topBtn {
+    display: none;
+    position: fixed;
+    font-size: 4em;
+    bottom: .25em;
+    right: .25em;
+    opacity: .75;
+    z-index: 999;
+    cursor: pointer;
+}
+#topBtn:hover {
+    opacity: 1;
+}
