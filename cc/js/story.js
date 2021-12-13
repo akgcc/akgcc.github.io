@@ -105,7 +105,7 @@ function genStory(key) {
               else if (line[2]) {
                   // group 2 alone indicates speakerless text (narrator)
                   if (scene)
-                    scene.appendChild(makeDialog(null, line[2], chars, speaker))
+                    scene.appendChild(makeDialog(null, line[2], {}, 0))
               }
           }
           storyDiv.appendChild(scene)
