@@ -9,7 +9,7 @@
   </head>
   <body ontouchstart>
     <div id="topNav">
-      <span id="pageTitle">Operator Records</span>
+      <span id="pageTitle">Story Reader</span>
       <a class="rightButton" href="./../index.html">
         <div class="button iconButton" id="homeButton">
           <i class="fas fa-home"></i>
@@ -18,8 +18,15 @@
     </div>
     <div class="btnPanel" id="ccselector">
         <select id="recordSelect"></select>
+        <select id="mainSelect"></select>
+        <select id="eventSelect"></select>
     </div>
     <div id="storyDisp">
+    </div>
+    <div id="storyNav">
+    <i class="fas fa-angle-double-left story_nav" id="story_prev"></i>
+    <div class="spacer"></div>
+    <i class="fas fa-angle-double-right story_nav" id="story_next"></i>
     </div>
     <i onclick="topFunction()" id="topBtn" class="fas fa-caret-square-up"></i>
 	<script type="text/javascript" src="./js/story.js"></script>

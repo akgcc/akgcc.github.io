@@ -1,7 +1,8 @@
 var charIdMap = {},
     operatorData,
     charNumMap = {},
-    charCodeMap = {}
+    charCodeMap = {},
+    currentCategory
 get_char_table()
 	.then(js => {
     operatorData = js;
@@ -33,9 +34,54 @@ get_char_table()
       document.getElementById('recordSelect').appendChild(opt)
     })
     document.getElementById('recordSelect').onchange = (e) => {
-        genStory(document.getElementById('recordSelect').value)
+        currentCategory = document.getElementById('recordSelect')
+        genStory(currentCategory.value)
     }
-    genStory(document.getElementById('recordSelect').value)
+    currentCategory = document.getElementById('recordSelect')
+    genStory(currentCategory.value)
+    
+    Object.keys(storyData).filter(x => x.startsWith('obt/main/')).sort((a,b) => {
+        let code_a = /\d+-\d+/.exec(a)[0],code_b = /\d+-\d+/.exec(b)[0]
+        if (code_b > code_a) {
+            return -1
+        }
+        if (code_b < code_a) {
+            return 1
+        }
+        return 0
+    }).forEach(n => {
+      let opt = document.createElement('option')
+      opt.value = n
+      opt.innerHTML = n.split('/').slice(-1)
+      document.getElementById('mainSelect').appendChild(opt)
+    })
+    document.getElementById('mainSelect').onchange = (e) => {
+        currentCategory = document.getElementById('mainSelect')
+        genStory(currentCategory.value)
+    }
+    
+    Object.keys(storyData).filter(x => x.startsWith('activities/')).forEach(n => {
+      let opt = document.createElement('option')
+      opt.value = n
+      opt.innerHTML = n.split('/').slice(-1)
+      document.getElementById('eventSelect').appendChild(opt)
+    })
+    document.getElementById('eventSelect').onchange = (e) => {
+        currentCategory = document.getElementById('eventSelect')
+        genStory(currentCategory.value)
+    }
+    
+    // nav buttons
+    document.getElementById('story_next').onclick = () => {
+        currentCategory.options[++currentCategory.selectedIndex%currentCategory.options.length].selected = true;
+        currentCategory.onchange()
+        topFunction()
+    }
+    document.getElementById('story_prev').onclick = () => {
+        currentCategory.options[(--currentCategory.selectedIndex+currentCategory.options.length)%currentCategory.options.length].selected = true;
+        currentCategory.onchange()
+        topFunction()
+    }
 })
 
 function genStory(key) {
@@ -77,7 +123,10 @@ function genStory(key) {
                             storyDiv.appendChild(scene)
                         scene = document.createElement('div')
                         scene.classList.add('scene')
-                        scene.style.backgroundImage = 'url(https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/'+args.image+'.png)'
+                        if (!args)
+                            scene.style.backgroundImage = 'url(https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/bg_black.png)'
+                        else
+                            scene.style.backgroundImage = 'url(https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/'+args.image+'.png)'
                       break;
                       case 'character':
                         if (args) {
