@@ -33,6 +33,7 @@ async function get_char_table() {
 	let raw = await fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')
 	let json = await raw.json()
 	// add amiya alts
+    // this actually does exist officially in https://github.com/Kengxxiao/ArknightsGameData/blob/master/en_US/gamedata/excel/char_patch_table.json, but that's an extra fetch.
 	json['char_1001_amiya2'] = JSON.parse(JSON.stringify(json['char_002_amiya']))
 	json['char_1001_amiya2'].name = 'Guardmiya'
 	json['char_1001_amiya2'].profession = json['char_350_surtr'].profession
