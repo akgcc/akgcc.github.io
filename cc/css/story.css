@@ -34,6 +34,10 @@
 .avatar.unknown {
     filter: brightness(0);
 }
+.avatar.npc {
+    object-fit: none;
+    object-position: top;
+}
 .text {
     background: #000b;
     flex: 1 1;

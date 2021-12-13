@@ -14,7 +14,7 @@ get_char_table()
     // }
 	// charIdMap['Skadiva'] = 'char_1012_skadi2'
     for (var key in operatorData) {
-        charNumMap[key.split('_').slice(0,2).join('_')] = key
+        charNumMap[key.split('_')[1]] = key
         charCodeMap[key.split('_')[2]] = key
     }
     return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/story_table.json')
@@ -42,7 +42,6 @@ get_char_table()
 })
 
 function genStory(key) {
-    console.log('story for',key)
     fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/story/'+key+'.txt')
     .then(r => r.text())
     .then(txt => {
@@ -51,6 +50,7 @@ function genStory(key) {
         storyDiv.innerHTML = ''
         let scene,speaker,chars = {}
           for (const line of lines) {
+              
               if (line[1]) {
                   [_,cmd,args] = /\[([^\(\]]+)(?:\((.+)\))?\]/.exec(line[1])
                   // stage
@@ -66,7 +66,7 @@ function genStory(key) {
                   }
                   
               }
-              if (line[1] && line[2]) {
+              if (line[1] && line[2] && line[2].trim()) {
                   // group 1&2 indicates dialog with speaker.
                   if (scene)
                     scene.appendChild(makeDialog(args, line[2], chars, speaker))
@@ -86,19 +86,16 @@ function genStory(key) {
                       break;
                       case 'character':
                         if (args) {
-                            
-                            let key = 'name'
-                            if ('focus' in args) {
-                                let num = parseInt(args.focus)
-                                if (num > 1)
-                                    key+=num
-                            }
-                            speaker = key
+                            speaker = parseInt(args.focus) || 1 // set to 1 if focus key doesnt exist.
                             chars = args
                             Object.keys(chars).forEach( k => {
                               if (!k.startsWith('name'))
                                     delete chars[k]
                             })
+                        }
+                        else {
+                            chars = {}
+                            speaker = 0
                         }
                       break;
                       default:
@@ -130,40 +127,43 @@ function makeDialog(args, dialogLine, chars, currentSpeaker) {
         return spacer
     }
     if (args) {
-
-            
         let nameplate = document.createElement('span')
         nameplate.classList.add('name')
         nameplate.innerHTML = args.name
         txt.prepend(nameplate)
     
         Object.keys(chars).forEach( (key,i) => {
+            let isActive = (currentSpeaker == 1 && key == 'name') || (key == 'name'+currentSpeaker)
             let avatar = document.createElement('img')
-            avatar.classList.add('avatar')        
+            avatar.classList.add('avatar')   
+            avatar.classList.add('npc')            
             avatar.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + chars[key].replace(/(char_\d+_[^_]+)_.+/,'$1') + '.png'
-            let subcharid = charNumMap[chars[key].split('_').slice(0,2).join('_')]
-            if (subcharid)
-                avatar.setAttribute('onerror',"this.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/"+subcharid+".png'")
-            else
-                avatar.setAttribute('onerror',"this.classList.add('unknown'); this.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/avg_npc_012.png'")
+            avatar.src = 'https://aceship.github.io/AN-EN-Tags/img/smallavg/characters/'+encodeURIComponent(chars[key])+'.png'
+            let operator_charid = charNumMap[chars[key].split('_')[1]]
+            if (operator_charid) {
+                avatar.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/'+operator_charid+'.png'
+                avatar.classList.remove('npc')
+            }
+            avatar.setAttribute('onerror',"console.log('not found:',this.src);this.classList.remove('npc');this.classList.add('unknown');this.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/avg_npc_012.png'")
             avatar.setAttribute('loading','lazy')
             if (chars[key] == 'char_empty')
                 avatar = spacer()
-            if (key == currentSpeaker)
-            avatar.classList.add('active')
-            if (key == currentSpeaker)
+            if (isActive)
+                avatar.classList.add('active')
+            if (isActive)
                 wrap.prepend(avatar)
             else 
                 wrap.appendChild(avatar)
-            // prepend if current
         })
-        if (Object.keys(chars).length < 2) {
-            wrap.appendChild(spacer()) 
-        }
     }
-    else {
+    if (Object.keys(chars).length < 1) {
         wrap.prepend(spacer()) 
-        wrap.appendChild(spacer()) 
+    }
+    if (Object.keys(chars).length < 2) {
+        if (currentSpeaker < 0)
+            wrap.prepend(spacer()) 
+        else
+            wrap.appendChild(spacer()) 
     }
 
     return wrap
