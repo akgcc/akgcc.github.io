@@ -52,7 +52,7 @@ get_char_table()
       opt.innerHTML = storyTypeNames[t]
       document.getElementById('catSelect').appendChild(opt)
     })
-    function buildThirdSelector(uppercat,cat) {
+    function buildThirdSelector(uppercat,cat,trigger = true) {
         document.getElementById('thirdCatSelect').innerHTML = ''
         let stories = storyReview[cat].infoUnlockDatas
         
@@ -101,10 +101,12 @@ get_char_table()
             // load the story.
             let data = storyReview[cat].infoUnlockDatas[document.getElementById('thirdCatSelect').value]
             genStory(data.storyName, data.storyTxt)
+            window.location.hash = uppercat+'&'+cat+'&'+document.getElementById('thirdCatSelect').value
         }
-        document.getElementById('thirdCatSelect').onchange()
+        if (trigger)
+            document.getElementById('thirdCatSelect').onchange()
     }
-    function buildSecondSelector(cat) {
+    function buildSecondSelector(cat, trigger = true) {
         document.getElementById('subCatSelect').innerHTML = ''
         let namefunc = (k) => k
         switch(cat) {
@@ -115,7 +117,6 @@ get_char_table()
                 namefunc = (n) => {
                     let name = operatorData[charCodeMap[n.split('story_')[1].split('_')[0]]].name
                     let storynum = parseInt(/set_(\d+)/i.exec(n)[1])
-                    // if (storyReview[n].infoUnlockDatas.length > 1)
                     if (storynum > 1 || (n.slice(0,-1)+'2' in storyReview))
                         name+= ' [' + n.split('_').slice(-1)+']'
                     return name
@@ -136,13 +137,14 @@ get_char_table()
         document.getElementById('subCatSelect').onchange = () => {
             buildThirdSelector(cat,document.getElementById('subCatSelect').value)
         }
-        document.getElementById('subCatSelect').onchange()
+        if (trigger)
+            document.getElementById('subCatSelect').onchange()
     }
     document.getElementById('catSelect').onchange = () => {
         buildSecondSelector(document.getElementById('catSelect').value)
     }
     
-    document.getElementById('catSelect').onchange()
+    
     
     // nav buttons
     Array.from(document.getElementsByClassName('story_next')).forEach(e => {
@@ -161,6 +163,27 @@ get_char_table()
             topFunction()
         }
     })
+    
+    if (window.location.hash) {
+        [uppercat,cat,idx] = window.location.hash.slice(1).split('&')
+        Array.from(document.getElementById('catSelect').options).forEach(o => {
+            if (o.value == uppercat)
+                o.selected = true;
+        })
+        buildSecondSelector(uppercat, false)
+        Array.from(document.getElementById('subCatSelect').options).forEach(o => {
+            if (o.value == cat)
+                o.selected = true;
+        })
+        buildThirdSelector(uppercat, cat, false)
+        Array.from(document.getElementById('thirdCatSelect').options).forEach(o => {
+            if (o.value == idx)
+                o.selected = true;
+        })
+        document.getElementById('thirdCatSelect').onchange()
+    } else
+        document.getElementById('catSelect').onchange()
+    
 })
 
 function genStory(storyName,key) {
@@ -192,7 +215,7 @@ function genStory(storyName,key) {
                   }
                   
               }
-              if (line[1] && line[2] && line[2].trim()) {
+              if (line[1] && line[1].startsWith('[name=') && line[2] && line[2].trim()) {
                   // group 1&2 indicates dialog with speaker.
                   if (scene)
                     scene.appendChild(makeDialog(args, line[2], chars, speaker))
