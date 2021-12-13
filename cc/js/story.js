@@ -72,14 +72,12 @@ function genStory(key) {
                   // group 1 alone indicates stage direction
                   switch(cmd.toLowerCase()) {
                       case 'background':
-                      // insert new div when background changes and set active to it.
+                      // insert new div when background changes and set to current scene
                         if (scene)
                             storyDiv.appendChild(scene)
                         scene = document.createElement('div')
                         scene.classList.add('scene')
-                        scene.style.backgroundImage = 'url(https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/'+args.image+'.png'
-                        
-                        
+                        scene.style.backgroundImage = 'url(https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/'+args.image+'.png)'
                       break;
                       case 'character':
                         if (args) {
@@ -95,6 +93,10 @@ function genStory(key) {
                             speaker = 0
                         }
                       break;
+                      case 'dialog':
+                            chars = {}
+                            speaker = 0
+                      break
                       default:
                       break;
                   }
