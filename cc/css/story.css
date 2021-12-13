@@ -13,8 +13,7 @@
  display:flex;
  flex-direction: column; 
  max-width: var(--story-width);
- margin: 2em auto;
- margin-bottom: 0;
+ margin: 0 auto;
 }
 .dialog {
   display: flex;
@@ -30,6 +29,7 @@
     margin: 0 .5em;
     overflow: hidden;
     position: relative;
+    border-radius: .3em;
 }
 .avatar.active {
     opacity: 1;
@@ -61,6 +61,7 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+    border-radius: .3em;
 }
 .name {
     color: #777;
@@ -84,12 +85,25 @@
 #topBtn:hover {
     opacity: 1;
 }
-#storyNav {
+.storyNav {
     display: flex;
     justify-content: center;
     font-size: 4em;
     margin: .2em 0;
 }
-#storyNav .spacer {
+.storyNav.top {
+    font-size: 2em;
+}
+.storyNav .spacer {
     flex-basis: 1em;
+}
+.storyName {
+    text-align:center;
+    font-size: 2em;
+    background: #222;
+    padding: .25em;
+}
+.storySelect {
+    font-size: 1.2em;
+    padding-right: .3em;
 }

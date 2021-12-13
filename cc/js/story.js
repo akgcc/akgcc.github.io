@@ -2,7 +2,11 @@ var charIdMap = {},
     operatorData,
     charNumMap = {},
     charCodeMap = {},
-    currentCategory
+    currentCategory,
+    storyData,
+    storyReview,
+    storyTypes = {record:[], main:[], side: []},
+    storyTypeNames = {record:'Operator Record',main:'Main Story',side:'Side Story'}
 get_char_table()
 	.then(js => {
     operatorData = js;
@@ -20,77 +24,156 @@ get_char_table()
     }
     return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/story_table.json')
 }).then(res => res.json()).then(js => {
-    storyData = js;
-    Object.keys(storyData).filter(x => x.startsWith('obt/memory/')).sort((a,b) => {
-        let na = (operatorData[charCodeMap[a.split('/story_')[1].split('_')[0]]].name + ' ' + a.split('_').slice(-2).join('-')).toLowerCase()
-        let nb = (operatorData[charCodeMap[b.split('/story_')[1].split('_')[0]]].name + ' ' + b.split('_').slice(-2).join('-')).toLowerCase()
+    storyData = js
+    return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/story_review_table.json')
+}).then( res => res.json()).then(js=> {
+    storyReview = js
+    Object.values(storyReview).forEach(x => {
+      if (x.id.startsWith('main_'))
+          storyTypes.main.push(x.id)
+      else if (x.id.startsWith('story_'))
+          storyTypes.record.push(x.id)
+      else
+          storyTypes.side.push(x.id)
+    })
+    
+    storyTypes.record.sort((a,b) => {
+        let na = (operatorData[charCodeMap[a.split('story_')[1].split('_')[0]]].name + ' ' + a.split('_').slice(-1)).toLowerCase()
+        let nb = (operatorData[charCodeMap[b.split('story_')[1].split('_')[0]]].name + ' ' + b.split('_').slice(-1)).toLowerCase()
         if (na < nb) return -1;
         if (nb < na) return 1;
         return 0;
-    }).forEach(n => {
-      let opt = document.createElement('option')
-      opt.value = n
-      opt.innerHTML = operatorData[charCodeMap[n.split('/story_')[1].split('_')[0]]].name + ' ' + n.split('_').slice(-2).join('-')
-      document.getElementById('recordSelect').appendChild(opt)
     })
-    document.getElementById('recordSelect').onchange = (e) => {
-        currentCategory = document.getElementById('recordSelect')
-        genStory(currentCategory.value)
-    }
-    currentCategory = document.getElementById('recordSelect')
-    genStory(currentCategory.value)
-    
-    Object.keys(storyData).filter(x => x.startsWith('obt/main/')).sort((a,b) => {
-        let code_a = /\d+-\d+/.exec(a)[0],code_b = /\d+-\d+/.exec(b)[0]
-        if (code_b > code_a) {
-            return -1
+        
+        
+    Object.keys(storyTypes).forEach(t => {
+      let opt = document.createElement('option')
+      opt.value = t
+      opt.innerHTML = storyTypeNames[t]
+      document.getElementById('catSelect').appendChild(opt)
+    })
+    function buildThirdSelector(uppercat,cat) {
+        document.getElementById('thirdCatSelect').innerHTML = ''
+        let stories = storyReview[cat].infoUnlockDatas
+        
+        // sort if needed:
+        switch (uppercat) {
+            case 'side':
+            case 'main':
+                // if main sort by story code:
+                stories.sort((a,b) => {
+                    let code_a = /\d+-\d+(_.)?/.exec(a.storyDependence) && /\d+-\d+(_.)?/.exec(a.storyDependence)[0]
+                    let code_b = /\d+-\d+(_.)?/.exec(b.storyDependence) && /\d+-\d+(_.)?/.exec(b.storyDependence)[0]
+                    if (/_spst_/.exec(b.storyId) || /_spst_/.exec(a.storyId)) {
+                        if (code_b >= code_a) {
+                            return -1
+                        }
+                        return 1
+                    }
+                    return 0
+                })
+            break;
         }
-        if (code_b < code_a) {
-            return 1
+        stories.forEach((d,i) => {
+            let name = d.storyName 
+
+            switch(uppercat) {
+                case 'main':
+                case 'side':
+                    if (d.storyCode) {
+                        let pos = d.avgTag.split(' ')[0]
+                        name = d.storyCode
+                        if (['Before','After'].includes(pos))
+                            name += ' ' + pos
+                    }
+                break
+                case 'record':
+                    if (stories.length > 1)
+                        name += ' ['+(i+1)+']'
+                break
+            }
+            let opt = document.createElement('option')
+            opt.value = i
+            opt.innerHTML = name
+            document.getElementById('thirdCatSelect').appendChild(opt)
+        })
+        document.getElementById('thirdCatSelect').onchange = () => {
+            // load the story.
+            let data = storyReview[cat].infoUnlockDatas[document.getElementById('thirdCatSelect').value]
+            genStory(data.storyName, data.storyTxt)
         }
-        return 0
-    }).forEach(n => {
-      let opt = document.createElement('option')
-      opt.value = n
-      opt.innerHTML = n.split('/').slice(-1)
-      document.getElementById('mainSelect').appendChild(opt)
-    })
-    document.getElementById('mainSelect').onchange = (e) => {
-        currentCategory = document.getElementById('mainSelect')
-        genStory(currentCategory.value)
+        document.getElementById('thirdCatSelect').onchange()
+    }
+    function buildSecondSelector(cat) {
+        document.getElementById('subCatSelect').innerHTML = ''
+        let namefunc = (k) => k
+        switch(cat) {
+            case 'main':
+                namefunc = (k) => 'Chapter '+k.split('_')[1].padStart(2,'0')
+            break
+            case 'record':
+                namefunc = (n) => {
+                    let name = operatorData[charCodeMap[n.split('story_')[1].split('_')[0]]].name
+                    let storynum = parseInt(/set_(\d+)/i.exec(n)[1])
+                    // if (storyReview[n].infoUnlockDatas.length > 1)
+                    if (storynum > 1 || (n.slice(0,-1)+'2' in storyReview))
+                        name+= ' [' + n.split('_').slice(-1)+']'
+                    return name
+                }
+            break
+            case 'side':
+                namefunc = (k) => storyReview[k].name
+            break
+        }
+        storyTypes[cat].forEach(k=>{
+        let opt = document.createElement('option')
+        opt.value = k
+        
+        opt.innerHTML = namefunc(k)
+        document.getElementById('subCatSelect').appendChild(opt)
+        })
+        
+        document.getElementById('subCatSelect').onchange = () => {
+            buildThirdSelector(cat,document.getElementById('subCatSelect').value)
+        }
+        document.getElementById('subCatSelect').onchange()
+    }
+    document.getElementById('catSelect').onchange = () => {
+        buildSecondSelector(document.getElementById('catSelect').value)
     }
     
-    Object.keys(storyData).filter(x => x.startsWith('activities/')).forEach(n => {
-      let opt = document.createElement('option')
-      opt.value = n
-      opt.innerHTML = n.split('/').slice(-1)
-      document.getElementById('eventSelect').appendChild(opt)
-    })
-    document.getElementById('eventSelect').onchange = (e) => {
-        currentCategory = document.getElementById('eventSelect')
-        genStory(currentCategory.value)
-    }
+    document.getElementById('catSelect').onchange()
     
     // nav buttons
-    document.getElementById('story_next').onclick = () => {
-        currentCategory.options[++currentCategory.selectedIndex%currentCategory.options.length].selected = true;
-        currentCategory.onchange()
-        topFunction()
-    }
-    document.getElementById('story_prev').onclick = () => {
-        currentCategory.options[(--currentCategory.selectedIndex+currentCategory.options.length)%currentCategory.options.length].selected = true;
-        currentCategory.onchange()
-        topFunction()
-    }
+    Array.from(document.getElementsByClassName('story_next')).forEach(e => {
+        e.onclick = () => {
+            let currentCategory = document.getElementById('thirdCatSelect')
+            currentCategory.options[++currentCategory.selectedIndex%currentCategory.options.length].selected = true;
+            currentCategory.onchange()
+            topFunction()
+        }
+    })
+    Array.from(document.getElementsByClassName('story_prev')).forEach(e => {
+        e.onclick = () => {
+            let currentCategory = document.getElementById('thirdCatSelect')
+            currentCategory.options[(--currentCategory.selectedIndex+currentCategory.options.length)%currentCategory.options.length].selected = true;
+            currentCategory.onchange()
+            topFunction()
+        }
+    })
 })
 
-function genStory(key) {
+function genStory(storyName,key) {
     fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/story/'+key+'.txt')
     .then(r => r.text())
     .then(txt => {
         const lines = txt.matchAll(/^(\[[^\]]+])?(.*)?$/gim)
         let storyDiv = document.getElementById('storyDisp')
         storyDiv.innerHTML = ''
+        let title = document.createElement('div')
+        title.classList.add('storyName')
+        title.innerHTML = storyName
+        storyDiv.appendChild(title)
         let scene,speaker,chars = {}
           for (const line of lines) {
               

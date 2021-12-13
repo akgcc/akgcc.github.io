@@ -17,16 +17,21 @@
       </a>
     </div>
     <div class="btnPanel" id="ccselector">
-        <select id="recordSelect"></select>
-        <select id="mainSelect"></select>
-        <select id="eventSelect"></select>
+        <select class="storySelect" id="catSelect"></select>
+        <select class="storySelect" id="subCatSelect"></select>
+        <select class="storySelect" id="thirdCatSelect"></select>
+    </div>
+    <div class="storyNav top">
+    <i class="fas fa-angle-double-left story_nav story_prev"></i>
+    <div class="spacer"></div>
+    <i class="fas fa-angle-double-right story_nav story_next"></i>
     </div>
     <div id="storyDisp">
     </div>
-    <div id="storyNav">
-    <i class="fas fa-angle-double-left story_nav" id="story_prev"></i>
+    <div class="storyNav">
+    <i class="fas fa-angle-double-left story_nav story_prev"></i>
     <div class="spacer"></div>
-    <i class="fas fa-angle-double-right story_nav" id="story_next"></i>
+    <i class="fas fa-angle-double-right story_nav story_next"></i>
     </div>
     <i onclick="topFunction()" id="topBtn" class="fas fa-caret-square-up"></i>
 	<script type="text/javascript" src="./js/story.js"></script>
