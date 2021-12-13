@@ -35,10 +35,7 @@ get_char_table()
     document.getElementById('recordSelect').onchange = (e) => {
         genStory(document.getElementById('recordSelect').value)
     }
-    // Object.keys(storyData).filter(x => x.startsWith('obt/memory/')).some(n=>{
-      // genStory(n)
-        // return true;      
-    // })
+    genStory(document.getElementById('recordSelect').value)
 })
 
 function genStory(key) {
@@ -134,18 +131,30 @@ function makeDialog(args, dialogLine, chars, currentSpeaker) {
     
         Object.keys(chars).forEach( (key,i) => {
             let isActive = (currentSpeaker == 1 && key == 'name') || (key == 'name'+currentSpeaker)
-            let avatar = document.createElement('img')
+            let avatar = document.createElement('div')
+            let img = document.createElement('img')
             avatar.classList.add('avatar')   
-            avatar.classList.add('npc')            
-            avatar.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/' + chars[key].replace(/(char_\d+_[^_]+)_.+/,'$1') + '.png'
-            avatar.src = 'https://aceship.github.io/AN-EN-Tags/img/smallavg/characters/'+encodeURIComponent(chars[key])+'.png'
+            avatar.classList.add('npc')    
+            avatar.appendChild(img)
+            img.src = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key])+'.png'
+            let fallbackimg = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key].split('#')[0])+'.png'
             let operator_charid = charNumMap[chars[key].split('_')[1]]
             if (operator_charid) {
-                avatar.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/'+operator_charid+'.png'
+                img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/'+operator_charid+'.png'
                 avatar.classList.remove('npc')
             }
-            avatar.setAttribute('onerror',"console.log('not found:',this.src);this.classList.remove('npc');this.classList.add('unknown');this.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/avg_npc_012.png'")
-            avatar.setAttribute('loading','lazy')
+            img.onerror = () => {
+                console.log('img not found:',img.src);
+                img.src = fallbackimg
+                img.onerror = () => {
+                    console.log('fallback img not found:',img.src);
+                    img.parentElement.classList.remove('npc');
+                    img.parentElement.classList.add('unknown');
+                    img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/avg_npc_012.png'
+                    img.onerror = null;
+                }
+            }
+            img.setAttribute('loading','lazy')
             if (chars[key] == 'char_empty')
                 avatar = spacer()
             if (isActive)
