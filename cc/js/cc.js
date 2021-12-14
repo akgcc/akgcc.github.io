@@ -20,7 +20,6 @@ function changeSetting(key, value) {
 	localStorage.setItem('ccSettings', JSON.stringify(ccSettings))
 }
 
-var charIdMap = {}
 var totalChecked = new Set()
 var filterSet = new Set()
 var cardData
@@ -283,14 +282,6 @@ return get_char_table()})
 				delete operatorData[key]
 		}
 		// all operators, we opt instead for only those that appear in at least 1 clear
-		// for (var key in operatorData) {
-		// if (!operatorData[key].displayNumber)
-		// delete operatorData[key]
-		// }
-		for (var key in operatorData) {
-			charIdMap[operatorData[key].name] = key;
-			operatorData[key].charId = key;
-		}
 		var filtercontainer = document.getElementById('filters')
 		divMap = {}
 		let checkboxes = document.getElementById("checkboxes")

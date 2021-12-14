@@ -190,13 +190,7 @@ Object.keys(episode_list).forEach(x=> {
 		updateJSON(filters, JSON.parse(f))
 
 
-// remove all non-obtainable "operators"
-for (var key in operatorData) {
-	operatorData[key].charId = key
-	operatorData[key].selected = true
-	if (!operatorData[key].displayNumber)
-		delete operatorData[key]
-	}
+Object.values(operatorData).forEach( op => op.selected = true)
 function saveOpList() {
 	let exclusions = Object.values(operatorData).filter(x=> !x.selected).map(x => x.charId)
 	localStorage.setItem('excludedOps', JSON.stringify(exclusions))

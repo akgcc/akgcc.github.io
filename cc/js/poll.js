@@ -1,16 +1,8 @@
 if (!window.location.hash) window.location.hash = '#1'
 window.onhashchange = () => window.location.reload()
-var charIdMap = {},
-    PTAG = window.location.hash.substr(1);
+var PTAG = window.location.hash.substr(1);
 get_char_table().then(js => {
     let operatorData = js;
-    for (var key in operatorData) {
-        if (!operatorData[key].displayNumber) delete operatorData[key]
-    }
-    for (var key in operatorData) {
-        charIdMap[operatorData[key].name] = key;
-		operatorData[key].charId = key;
-    }
     return fetch('./json/poll_results_' + PTAG + '.json')
 }).then(res => res.json()).then(js => {
 	let scatter_data = js['scatter']['data']

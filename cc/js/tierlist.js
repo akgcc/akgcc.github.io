@@ -1,8 +1,7 @@
 if (!window.location.hash) window.location.hash = '#4'
 document.getElementById('clearsLink').href = './cc.html' + window.location.hash
 window.onhashchange = () => window.location.reload()
-var charIdMap = {},
-    operatorData,
+var operatorData,
     CCTAG;
 const tierMap = {6:'S',5:'A',4:'B',3:'C!',2:'D',1:'F'}
 fetch('./json/cctitles.json').then(res => res.json()).then(json => {
@@ -27,14 +26,6 @@ fetch('./json/cctitles.json').then(res => res.json()).then(json => {
 	return get_char_table()})
 	.then(js => {
     operatorData = js;
-    for (var key in operatorData) {
-        if (!operatorData[key].displayNumber) delete operatorData[key]
-    }
-    for (var key in operatorData) {
-        charIdMap[operatorData[key].name] = key;
-		operatorData[key].charId = key;
-    }
-	charIdMap['Skadiva'] = 'char_1012_skadi2'
     return fetch('./json/data' + CCTAG + '.json')
 }).then(res => res.json()).then(js => {
     clearData = js;

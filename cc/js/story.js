@@ -1,5 +1,4 @@
-var charIdMap = {},
-    operatorData,
+var operatorData,
     charNumMap = {},
     charCodeMap = {},
     currentCategory,
@@ -10,14 +9,6 @@ var charIdMap = {},
 get_char_table()
 	.then(js => {
     operatorData = js;
-    for (var key in operatorData) {
-        if (!operatorData[key].displayNumber) delete operatorData[key]
-    }
-    // for (var key in operatorData) {
-        // charIdMap[operatorData[key].name] = key;
-		// operatorData[key].charId = key;
-    // }
-	// charIdMap['Skadiva'] = 'char_1012_skadi2'
     for (var key in operatorData) {
         charNumMap[key.split('_')[1]] = key
         charCodeMap[key.split('_')[2]] = key

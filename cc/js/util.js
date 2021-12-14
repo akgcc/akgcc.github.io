@@ -1,5 +1,5 @@
 const CLASS_MAPPING = {WARRIOR: 'Guard', SUPPORT: 'Supporter', CASTER: 'Caster', SNIPER: 'Sniper', TANK: 'Defender', PIONEER: 'Vanguard', SPECIAL: 'Specialist', MEDIC: 'Medic'}
-
+var charIdMap = {}
 function intersection(a,b) {
 	return new Set([...a].filter(x => b.has(x)))
 }
@@ -12,13 +12,11 @@ function shuffleArray(array) {
 }
 
 function updateJSON(dest, src) {
-	for (let key in dest) {
-	  if(src.hasOwnProperty(key)){
+	for (let key in src) {
 		if (typeof dest[key] == 'object')
 			dest[key] = updateJSON(dest[key], src[key])
 		else
 			dest[key] = src[key];
-	  }
 	}
 	return dest
 }
@@ -29,21 +27,33 @@ tt.id = 'chartjs-tooltip'
 tt.classList.add('hidden')
 document.addEventListener("DOMContentLoaded",() => document.body.appendChild(tt))
 
-async function get_char_table() {
+async function get_char_table(keep_non_playable = false) {
+    // gets a modified character table:
+    // non-playable characters removed
+    // add charId key for each character
+    // patch characters added and renamed (only guardmiya for now)
+    // also builds charIdMap for use elsewhere
+    // converts internal profession names to in-game ones
 	let raw = await fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json')
 	let json = await raw.json()
-	// add amiya alts
-    // this actually does exist officially in https://github.com/Kengxxiao/ArknightsGameData/blob/master/en_US/gamedata/excel/char_patch_table.json, but that's an extra fetch.
-	json['char_1001_amiya2'] = JSON.parse(JSON.stringify(json['char_002_amiya']))
+    raw = await fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/char_patch_table.json')
+	let patch = await raw.json()
+    updateJSON(json, patch.patchChars)
+    // change guardmiya name
 	json['char_1001_amiya2'].name = 'Guardmiya'
-	json['char_1001_amiya2'].profession = json['char_350_surtr'].profession
-	json['char_1001_amiya2'].skills = json['char_1001_amiya2'].skills.slice(0,2)
-	json['char_1001_amiya2'].skills[0].skillId = 'skchr_amiya2_1'
-    json['char_1001_amiya2'].skills[1].skillId = 'skchr_amiya2_2'
-	
 	Object.keys(json).forEach(op => {
 		json[op].profession = CLASS_MAPPING[json[op].profession] || json[op].profession
 	})
+    if (!keep_non_playable)
+        for (var key in json) {
+            if (!json[key].displayNumber) delete json[key]
+        }
+    for (var key in json) {
+        charIdMap[json[key].name] = key;
+		json[key].charId = key;
+    }
+    // add skadiva short name
+    charIdMap['Skadiva'] = 'char_1012_skadi2'
 	return json
 }
 
