@@ -1,19 +1,23 @@
 :root {
     --story-width: min(60em,95vw);
+    --dialog-size: 6em;
 }
 .scene {
     width: 100%;
-    min-height: calc(var(--story-width) / 16 * 9);
+    padding-top: calc(var(--dialog-size) / 2);
+    min-height: calc(var(--story-width) / 16 * 9 - var(--dialog-size) / 2);
     background-repeat: repeat-y;
     background-size: contain;
     display: flex;
     flex-direction: column;
+    
 }
 #storyDisp {
  display:flex;
  flex-direction: column; 
  max-width: var(--story-width);
  margin: 0 auto;
+ background: #222;
 }
 .dialog {
   display: flex;
@@ -23,8 +27,8 @@
 }
 .avatar-spacer,
 .avatar {
-    width: 6em;
-    height: 6em;
+    width: var(--dialog-size);
+    height: var(--dialog-size);
     opacity: .75;
     margin: 0 .5em;
     overflow: hidden;
@@ -54,7 +58,7 @@
     transform: translate(-33%, 0);
 }
 .text {
-    background: #000c;
+    background: #000b;
     flex: 1 1;
     padding: .2em .5em;
     font-size: 1.3em;
