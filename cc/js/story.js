@@ -197,9 +197,8 @@ function genStory(storyName,key) {
         title.classList.add('storyName')
         title.innerHTML = storyName
         storyDiv.appendChild(title)
-        let scene,speaker,chars = {}
+        let scene,speaker,chars = {},speakerList = new Set()
           for (const line of lines) {
-              
               if (line[1]) {
                   [_,cmd,args] = /\[([^\(\]]+)(?:\((.+)\))?\]/.exec(line[1])
                   // stage
@@ -208,7 +207,7 @@ function genStory(storyName,key) {
                   }
                   if (args) {
                       let tmp = {}
-                      Array.from(args.matchAll(/("?[^=", ]+"?)="?([^",]+)"?/gim)).forEach(l => {
+                      Array.from(args.matchAll(/("?[^=", ]+"?)="?([^",]*)"?/gim)).forEach(l => {
                         tmp[l[1]] = l[2] 
                       })
                       args = tmp
@@ -217,8 +216,9 @@ function genStory(storyName,key) {
               }
               if (line[1] && line[1].startsWith('[name=') && line[2] && line[2].trim()) {
                   // group 1&2 indicates dialog with speaker.
+                  speakerList.add(args.name.toLowerCase())
                   if (scene)
-                    scene.appendChild(makeDialog(args, line[2], chars, speaker))
+                    scene.appendChild(makeDialog(args, line[2], chars, speaker, Array.from(speakerList).indexOf(args.name.toLowerCase())))
               }
               else if (line[1]) {
                   // group 1 alone indicates stage direction
@@ -266,12 +266,19 @@ function genStory(storyName,key) {
     })
 }
 
-function makeDialog(args, dialogLine, chars, currentSpeaker) {
+function selectColor(number) {
+  const hue = number * 137.508; // use golden angle approximation
+  return `hsl(${hue},15%,60%)`;
+}
+
+function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
     let wrap = document.createElement('div')
     wrap.classList.add('dialog')
     
     let txt = document.createElement('div')
     txt.classList.add('text')
+    txt.setAttribute('data-name', '')
+    txt.style.setProperty('--name-color','#777')
     txt.innerHTML = dialogLine
     wrap.appendChild(txt)
     
@@ -281,11 +288,8 @@ function makeDialog(args, dialogLine, chars, currentSpeaker) {
         return spacer
     }
     if (args) {
-        let nameplate = document.createElement('span')
-        nameplate.classList.add('name')
-        nameplate.innerHTML = args.name
-        txt.prepend(nameplate)
-    
+        txt.setAttribute('data-name', args.name)
+        txt.style.setProperty('--name-color',selectColor(colorIndex))
         Object.keys(chars).forEach( (key,i) => {
             let isActive = (currentSpeaker == 1 && key == 'name') || (key == 'name'+currentSpeaker)
             let avatar = document.createElement('div')

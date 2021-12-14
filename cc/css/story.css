@@ -54,7 +54,7 @@
     transform: translate(-33%, 0);
 }
 .text {
-    background: #000b;
+    background: #000c;
     flex: 1 1;
     padding: .2em .5em;
     font-size: 1.3em;
@@ -63,8 +63,10 @@
     justify-content: flex-start;
     border-radius: .3em;
 }
-.name {
-    color: #777;
+.text:before {
+    content: attr(data-name);
+    color: var(--name-color);
+    /* font-weight: 600; */
     font-size: .8em;
     margin-bottom: .2em;
     margin-left: -.3em;
