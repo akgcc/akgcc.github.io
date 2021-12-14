@@ -198,7 +198,7 @@ function genStory(storyName,key) {
         title.classList.add('storyName')
         title.innerHTML = storyName
         storyDiv.appendChild(title)
-        let scene,speaker,chars = {},speakerList = new Set(), predicate = {}, activeReferences = []
+        let scene,speaker,chars = {},speakerList = new Set(), predicate = {}, activeReferences = [], defaultPredicate = '1' 
           for (const line of lines) {
               if (line[1]) {
                   [_,cmd,args] = /\[([^\(\]]+)(?:\((.+)\))?\]/.exec(line[1])
@@ -224,7 +224,7 @@ function genStory(storyName,key) {
                         predicate[r].push(dlg)  
                       })
                       scene.appendChild(dlg)
-                      if (activeReferences.length && !activeReferences.includes('1'))
+                      if (activeReferences.length && !activeReferences.includes(defaultPredicate))
                           dlg.classList.add('hidden')
                   }
               }
@@ -271,6 +271,7 @@ function genStory(storyName,key) {
                       break
                       case 'decision':
                             predicate = {}
+                            defaultPredicate = args.values.split(';')[0]
                             scene.appendChild(makeDecisionDialog(args, predicate))
                       break
                       case 'predicate':

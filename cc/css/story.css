@@ -10,7 +10,7 @@
     background-size: contain;
     display: flex;
     flex-direction: column;
-    
+    background-position: 50% 0;
 }
 #storyDisp {
  display:flex;
