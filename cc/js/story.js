@@ -281,7 +281,7 @@ function genStory(storyName,key) {
                         } else {
                             activeReferences = args.references.split(';')
                             activeReferences.forEach(r=> {
-                                predicate[r] = []
+                                predicate[r] = predicate[r] || []
                             })
                         }
                       break
@@ -331,11 +331,12 @@ function makeDecisionDialog(args, predicate) {
             let thispredicate = opt.getAttribute('data-predicate')
             Object.keys(predicate).forEach(p => {
               predicate[p].forEach(el => {
-                  if (p==thispredicate)
-                      el.classList.remove('hidden')
-                  else
-                      el.classList.add('hidden')
+                  el.classList.add('hidden')
               })
+            })
+            console.log(predicate[thispredicate])
+            predicate[thispredicate].forEach(el => {
+                el.classList.remove('hidden')
             })
         }
     })
