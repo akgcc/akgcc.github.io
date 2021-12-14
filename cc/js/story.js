@@ -5,8 +5,8 @@ var charIdMap = {},
     currentCategory,
     storyData,
     storyReview,
-    storyTypes = {record:[], main:[], side: []},
-    storyTypeNames = {record:'Operator Record',main:'Main Story',side:'Side Story'}
+    storyTypes = {record:[], main:[], side: [], mini:[]},
+    storyTypeNames = {record:'Operator Record',main:'Main Story',side:'Side Story',mini:'Vignette'}
 get_char_table()
 	.then(js => {
     operatorData = js;
@@ -33,6 +33,8 @@ get_char_table()
           storyTypes.main.push(x.id)
       else if (x.id.startsWith('story_'))
           storyTypes.record.push(x.id)
+      else if (x.entryType.startsWith('MINI_'))
+          storyTypes.mini.push(x.id)
       else
           storyTypes.side.push(x.id)
     })
@@ -59,6 +61,7 @@ get_char_table()
         // sort if needed:
         switch (uppercat) {
             case 'side':
+            case 'mini':
             case 'main':
                 // if main sort by story code:
                 stories.sort((a,b) => {
@@ -79,6 +82,7 @@ get_char_table()
 
             switch(uppercat) {
                 case 'main':
+                case 'mini':
                 case 'side':
                     if (d.storyCode) {
                         let pos = d.avgTag.split(' ')[0]
@@ -122,6 +126,7 @@ get_char_table()
                     return name
                 }
             break
+            case 'mini':
             case 'side':
                 namefunc = (k) => storyReview[k].name
             break
