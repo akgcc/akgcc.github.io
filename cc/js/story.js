@@ -159,8 +159,7 @@ get_char_table()
             topFunction()
         }
     })
-    
-    if (window.location.hash) {
+    function loadFromHash() {
         [uppercat,cat,idx] = window.location.hash.slice(1).split('&')
         Array.from(document.getElementById('catSelect').options).forEach(o => {
             if (o.value == uppercat)
@@ -177,10 +176,15 @@ get_char_table()
                 o.selected = true;
         })
         document.getElementById('thirdCatSelect').onchange()
+    }
+    if (window.location.hash) {
+        loadFromHash()
     } else
         document.getElementById('catSelect').onchange()
-    
+    window.onhashchange = loadFromHash
 })
+
+
 
 function genStory(storyName,key) {
     fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/story/'+key+'.txt')
@@ -337,6 +341,7 @@ function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
 
 //Get the button:
 mybutton = document.getElementById("topBtn");
+mybutton.onclick = topFunction
 
 // When the user scrolls down 20px from the top of the document, show the button
 window.onscroll = function() {scrollFunction()};
