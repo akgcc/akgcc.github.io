@@ -299,6 +299,8 @@ function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
             avatar.appendChild(img)
             img.src = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key])+'.png'
             let fallbackimg = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key].split('#')[0])+'.png'
+            if (fallbackimg == img.src)
+                fallbackimg = fallbackimg.split('.').slice(0,-1).join('.')+encodeURIComponent('#1')+'.'+fallbackimg.split('.').slice(-1)
             let operator_charid = charNumMap[chars[key].split('_')[1]]
             if (operator_charid) {
                 img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/'+operator_charid+'.png'
