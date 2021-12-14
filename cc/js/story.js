@@ -13,6 +13,7 @@ get_char_table()
         charNumMap[key.split('_')[1]] = key
         charCodeMap[key.split('_')[2]] = key
     }
+    charNumMap['001'] = 'npc_001_doctor'
     return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/story_table.json')
 }).then(res => res.json()).then(js => {
     storyData = js
@@ -197,7 +198,7 @@ function genStory(storyName,key) {
         title.classList.add('storyName')
         title.innerHTML = storyName
         storyDiv.appendChild(title)
-        let scene,speaker,chars = {},speakerList = new Set()
+        let scene,speaker,chars = {},speakerList = new Set(), predicate = {}, activeReferences = []
           for (const line of lines) {
               if (line[1]) {
                   [_,cmd,args] = /\[([^\(\]]+)(?:\((.+)\))?\]/.exec(line[1])
@@ -207,7 +208,7 @@ function genStory(storyName,key) {
                   }
                   if (args) {
                       let tmp = {}
-                      Array.from(args.matchAll(/("?[^=", ]+"?)="?([^",]*)"?/gim)).forEach(l => {
+                      Array.from(args.matchAll(/("?[^=", ]+"?)="?([^"]*)"?/gim)).forEach(l => {
                         tmp[l[1]] = l[2] 
                       })
                       args = tmp
@@ -217,22 +218,38 @@ function genStory(storyName,key) {
               if (line[1] && line[1].startsWith('[name=') && line[2] && line[2].trim()) {
                   // group 1&2 indicates dialog with speaker.
                   speakerList.add(args.name.toLowerCase())
-                  if (scene)
-                    scene.appendChild(makeDialog(args, line[2], chars, speaker, Array.from(speakerList).indexOf(args.name.toLowerCase())))
+                  if (scene) {
+                      let dlg = makeDialog(args, line[2], chars, speaker, Array.from(speakerList).indexOf(args.name.toLowerCase()))
+                      activeReferences.forEach(r => {
+                        predicate[r].push(dlg)  
+                      })
+                      scene.appendChild(dlg)
+                      if (activeReferences.length && !activeReferences.includes('1'))
+                          dlg.classList.add('hidden')
+                  }
               }
               else if (line[1]) {
                   // group 1 alone indicates stage direction
                   switch(cmd.toLowerCase()) {
                       case 'background':
+                      case 'image':
                       // insert new div when background changes and set to current scene
                         if (scene)
                             storyDiv.appendChild(scene)
                         scene = document.createElement('div')
                         scene.classList.add('scene')
-                        if (!args)
+                        if (!args || !args.image)
                             scene.style.backgroundImage = 'url(https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/bg_black.png)'
-                        else
-                            scene.style.backgroundImage = 'url(https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/'+args.image+'.png)'
+                        else {
+                            switch(cmd.toLowerCase()) {
+                                case 'image':
+                                    scene.style.backgroundImage = 'url(https://aceship.github.io/AN-EN-Tags/img/avg/images/'+args.image+'.png)'
+                                break
+                                case 'background':
+                                    scene.style.backgroundImage = 'url(https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/'+args.image+'.png)'
+                                break
+                            }
+                        }
                       break;
                       case 'character':
                         if (args) {
@@ -252,14 +269,35 @@ function genStory(storyName,key) {
                             chars = {}
                             speaker = 0
                       break
+                      case 'decision':
+                            predicate = {}
+                            scene.appendChild(makeDecisionDialog(args, predicate))
+                      break
+                      case 'predicate':
+                        // predicate maps the VALUE to a list of dom objects
+                        if (!args) {
+                            predicate = {}
+                            activeReferences = []
+                        } else {
+                            activeReferences = args.references.split(';')
+                            activeReferences.forEach(r=> {
+                                predicate[r] = []
+                            })
+                        }
+                      break
                       default:
                       break;
                   }
               }
               else if (line[2]) {
                   // group 2 alone indicates speakerless text (narrator)
-                  if (scene)
-                    scene.appendChild(makeDialog(null, line[2], {}, 0))
+                  if (scene) {
+                      let dlg = makeDialog(null, line[2], {}, 0)
+                      activeReferences.forEach(r => {
+                        predicate[r].push(dlg)  
+                      })
+                      scene.appendChild(dlg)
+                  }
               }
           }
           storyDiv.appendChild(scene)
@@ -270,7 +308,39 @@ function selectColor(number) {
   const hue = number * 137.508; // use golden angle approximation
   return `hsl(${hue},15%,60%)`;
 }
-
+function makeDecisionDialog(args, predicate) {
+    let choices = args.options.split(';')
+    let vals = args.values.split(';')
+    // keys.forEach((key, i) => result[key] = values[i]);
+    let dialog = makeDialog({name:'Dr {@nickname}'}, choices[0], {name:'npc_001_doctor'}, 1)
+    let txt = dialog.querySelector('.text')
+    txt.innerHTML = ''
+    choices.forEach((c,i) => {
+        let opt = document.createElement('div')
+        opt.classList.add('decision')
+        if (i==0)
+            opt.classList.add('selected')
+        opt.setAttribute('data-predicate',vals[i])
+        opt.innerHTML = c
+        txt.append(opt)
+        opt.onclick = () => {
+            Array.from(txt.querySelectorAll('.decision')).forEach(el=> {
+                el.classList.remove('selected')
+            })
+            opt.classList.add('selected')
+            let thispredicate = opt.getAttribute('data-predicate')
+            Object.keys(predicate).forEach(p => {
+              predicate[p].forEach(el => {
+                  if (p==thispredicate)
+                      el.classList.remove('hidden')
+                  else
+                      el.classList.add('hidden')
+              })
+            })
+        }
+    })
+    return dialog
+}
 function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
     let wrap = document.createElement('div')
     wrap.classList.add('dialog')

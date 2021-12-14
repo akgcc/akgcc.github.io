@@ -25,6 +25,9 @@
   margin: .4em 0;
   justify-content: space-between;
 }
+.dialog.hidden {
+    display: none;
+}
 .avatar-spacer,
 .avatar {
     width: var(--dialog-size);
@@ -74,6 +77,17 @@
     font-size: .8em;
     margin-bottom: .2em;
     margin-left: -.3em;
+}
+.decision {
+    border: 1px solid white;
+    cursor: pointer;
+    margin: .2em 0;
+    padding: .2em;
+    border-radius: .25em;
+}
+.decision.selected {
+    color: #000;
+    background: #aaa;
 }
 .story_nav:hover {
     color: #777;
