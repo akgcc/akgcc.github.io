@@ -1,5 +1,5 @@
 :root {
-    --story-width: min(80em,95vw);
+    --story-width: min(65vh / 9 * 16, 95vw);
     --dialog-size: 6em;
 }
 .scene {
@@ -25,10 +25,23 @@
     background-position: center;
     background-repeat: no-repeat;
     width: 100%;
-    height:100%;
+    height: 100%;
     position: absolute;
     filter: blur(5px);
     z-index: -1;
+}
+.scene.multipart {
+    background-attachment: scroll, scroll;
+    background-size: 75%, 75%;
+    background-position: left center, right center;
+    background-repeat: no-repeat, no-repeat;
+}
+.scene.multipart:before {
+    /* only one bg will actually show due to cover + fixed */
+    background-attachment: fixed, fixed;
+    background-size: cover, cover;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
 }
 .scenebreak {
     width: 100%;

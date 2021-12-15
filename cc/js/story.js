@@ -245,9 +245,11 @@ async function genStory(storyName,key) {
                       // insert new div when background changes and set to current scene
                         let getdim = new Image()
                         let setDims = function() {
-                            this.div.setAttribute('data-bgheight', getdim.height)
-                            this.div.setAttribute('data-bgwidth', getdim.width)
-                            this.div.style.minHeight = 'calc(var(--story-width) / '+getdim.width+' * '+getdim.height+')'
+                            let h = this.im.height
+                            let w = parseInt(this.div.getAttribute('data-bgwidth')) + this.im.width
+                            this.div.setAttribute('data-bgheight', h)
+                            this.div.setAttribute('data-bgwidth', w)
+                            this.div.style.minHeight = 'calc(var(--story-width) / '+w+' * '+h+')'
                         }
                         if (scene) {
                             storyDiv.appendChild(scene)
@@ -283,8 +285,23 @@ async function genStory(storyName,key) {
                             }
                         }
                         scene.style.setProperty('--background-image-url','url("'+imgurl+'")')
+                        scene.setAttribute('data-bgheight', 0)
+                        scene.setAttribute('data-bgwidth', 0)
                         getdim.src = imgurl
-                        getdim.onload = setDims.bind({div: scene})
+                        getdim.onload = setDims.bind({div: scene, im:getdim})
+                        getdim.onerror = (function() {
+                            // may be a multi-part image, try using first 2 parts to form a bg.
+                            this.div.classList.add('multipart')
+                            let left = getdim.src.split('.').slice(0,-1).join('.') + '_1.' + getdim.src.split('.').slice(-1)
+                            let right = getdim.src.split('.').slice(0,-1).join('.') + '_2.' + getdim.src.split('.').slice(-1)
+                            this.div.style.setProperty('--background-image-url','url("'+left+'"), url("'+right+'")')
+                            let dimleft = new Image()
+                            let dimright = new Image()
+                            dimleft.src = left
+                            dimright.src = right
+                            dimleft.onload = setDims.bind({div: this.div, im:dimleft})
+                            dimright.onload = setDims.bind({div: this.div, im:dimright})
+                            }).bind({div: scene})
                       break;
                       case 'character':
                         if (args) {
@@ -504,9 +521,16 @@ function alignBackground(s) {
     let midp = window.innerHeight / 2
     let imheight = s.getAttribute('data-bgheight')
     let imwidth = s.getAttribute('data-bgwidth')
-    // if (imwidth > pos.width)
+    if (s.classList.contains('multipart')) {
+        // adjust for zoom in
+        imwidth = imwidth-pos.width/2
+    }
     imheight = pos.width/imwidth*imheight
-    s.style.backgroundPosition = '50% '+Math.min(pos.height-imheight,Math.max(0,midp-pos.top-imheight/2))+', center'
+    if (s.classList.contains('multipart')) {
+        s.style.backgroundPosition = 'calc(var(--story-width) * -.25) '+Math.min(pos.height-imheight,Math.max(0,midp-pos.top-imheight/2))+', calc(var(--story-width) / 2) '+Math.min(pos.height-imheight,Math.max(0,midp-pos.top-imheight/2))
+    } else {
+        s.style.backgroundPosition = 'center '+Math.min(pos.height-imheight,Math.max(0,midp-pos.top-imheight/2))
+    }
 }
 document.getElementById('playPauseBtn').onclick = () => playPauseMusic(true)
 var firstMusicPlayed = false
