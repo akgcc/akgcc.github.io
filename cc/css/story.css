@@ -227,6 +227,13 @@ audio {
 }
 #volControl i {
     font-size: 1.5em;
+    
+}
+#volControl #playPauseBtn {
+    margin: 0 .4em;
+}
+#volControl #playPauseBtn i {
+    font-size: 1em;
 }
 #volSlider {
     margin: 0 .4em;

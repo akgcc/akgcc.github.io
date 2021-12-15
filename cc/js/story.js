@@ -103,6 +103,9 @@ get_char_table()
             let data = storyReview[cat].infoUnlockDatas[document.getElementById('thirdCatSelect').value]
             genStory(data.storyName, data.storyTxt)
             window.location.hash = uppercat+'&'+cat+'&'+document.getElementById('thirdCatSelect').value
+            // reset bgm status when loading new story.
+            firstMusicPlayed = musicGlobalPaused
+            document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>'
         }
         if (trigger)
             document.getElementById('thirdCatSelect').onchange()
@@ -192,8 +195,8 @@ get_char_table()
 
 
 
-function genStory(storyName,key) {
-    fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/story/'+key+'.txt')
+async function genStory(storyName,key) {
+    return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/story/'+key+'.txt')
     .then(r => r.text())
     .then(txt => {
         const lines = txt.matchAll(/^(\[[^\]]+])?(.*)?$/gim)
@@ -334,6 +337,10 @@ function genStory(storyName,key) {
                         }
                         let sound = document.createElement('source')
                         sound.src = './sounds/assets/torappu/dynamicassets/audio/'+soundMap[args.key.substring(1)].toLowerCase()+'.wav'
+                        sound.setAttribute('type','audio/wav')
+                        audio.appendChild(sound)
+                        sound = document.createElement('source')
+                        sound.src = 'https://aceship.github.io/AN-EN-Tags/etc/'+soundMap[args.key.substring(1)].toLowerCase().split('/').slice(1).join('/')+'.wav'
                         sound.setAttribute('type','audio/wav')
                         audio.appendChild(sound)
                         if (cmd.toLowerCase() == 'playsound') {
@@ -506,6 +513,47 @@ function alignBackground(s) {
     imheight = pos.width/imwidth*imheight
     s.style.backgroundPosition = '50% '+Math.min(pos.height-imheight,Math.max(0,midp-pos.top-imheight/2))+', center'
 }
+document.getElementById('playPauseBtn').onclick = () => playPauseMusic(true)
+var firstMusicPlayed = false
+var musicGlobalPaused = false
+function playPauseMusic(toggle = false) {
+  let midp = window.innerHeight / 2
+  let targetMusic
+  const allMusic = Array.from(document.getElementById('storyDisp').querySelectorAll('.music'))
+  targetMusic = allMusic[0]
+  let wasPlaying = !firstMusicPlayed
+  allMusic.forEach(a => {
+    let rect = a.getBoundingClientRect()
+    if (rect.top < midp) {
+        targetMusic = a
+    }
+    wasPlaying |= !a.paused
+  })
+  if (targetMusic) {
+      targetMusic.volume = volSlider.value/100 * targetMusic.getAttribute('data-defvol')
+      if (toggle) {
+          if (targetMusic.paused) {
+              targetMusic.play()
+          } else {
+              targetMusic.pause()
+          }
+      }
+      else if (targetMusic.paused && wasPlaying) {
+          // new audio to play.
+          allMusic.forEach(a => {
+              a.pause()
+          })
+          targetMusic.play()
+      }
+      musicGlobalPaused = targetMusic.paused
+      if (!targetMusic.paused) {
+          firstMusicPlayed = true
+          document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>'
+      }
+      else
+          document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>'
+  }
+}
 function scrollFunction() {
   if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
     mybutton.style.display = "block";
@@ -520,25 +568,7 @@ function scrollFunction() {
   Array.from(document.getElementById('storyDisp').querySelectorAll('.scene')).forEach(s => {
     alignBackground(s)
   })
-  
-  let midp = window.innerHeight / 2
-  let targetMusic
-  const allMusic = Array.from(document.getElementById('storyDisp').querySelectorAll('.music'))
-  allMusic.forEach(a => {
-    let rect = a.getBoundingClientRect()
-    if (rect.top < midp) {
-        targetMusic = a
-    }
-  })
-  
-  if (targetMusic && targetMusic.paused) {
-      // new audio to play.
-      allMusic.forEach(a => {
-          a.pause()
-      })
-      targetMusic.volume = volSlider.value/100 * targetMusic.getAttribute('data-defvol')
-      targetMusic.play()
-  }
+  playPauseMusic()
 }
 
 // When the user clicks on the button, scroll to the top of the document
