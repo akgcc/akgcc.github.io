@@ -428,68 +428,63 @@ function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
     let wrap = document.createElement('div')
     wrap.classList.add('dialog')
     wrap.classList.add('forceShow')
-    
+    let left = document.createElement('div')
+    left.classList.add('dialog-left')
+    let right = document.createElement('div')
+    right.classList.add('dialog-right')
     let txt = document.createElement('div')
     txt.classList.add('text')
     txt.setAttribute('data-name', '')
     txt.style.setProperty('--name-color','#777')
     txt.innerHTML = dialogLine
+    wrap.appendChild(left)
     wrap.appendChild(txt)
+    wrap.appendChild(right)
     
-    function spacer() {
-       let spacer = document.createElement('div')
-        spacer.classList.add('avatar-spacer')
-        return spacer
-    }
     if (args && args.name) {
         txt.setAttribute('data-name', args.name)
         txt.style.setProperty('--name-color',selectColor(colorIndex))
         Object.keys(chars).forEach( (key,i) => {
-            let isActive = (currentSpeaker == 1 && key == 'name') || (key == 'name'+currentSpeaker)
-            let avatar = document.createElement('div')
-            let img = document.createElement('img')
-            avatar.classList.add('avatar')   
-            avatar.classList.add('npc')    
-            avatar.appendChild(img)
-            img.src = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key])+'.png'
-            let fallbackimg = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key].split('#')[0])+'.png'
-            if (fallbackimg == img.src)
-                fallbackimg = fallbackimg.split('.').slice(0,-1).join('.')+encodeURIComponent('#1')+'.'+fallbackimg.split('.').slice(-1)
-            let operator_charid = charNumMap[chars[key].split('_')[1]]
-            if (operator_charid) {
-                img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/'+operator_charid+'.png'
-                avatar.classList.remove('npc')
-            }
-            img.onerror = () => {
-                console.log('img not found:',img.src);
-                img.src = fallbackimg
-                img.onerror = () => {
-                    console.log('fallback img not found:',img.src);
-                    img.parentElement.classList.remove('npc');
-                    img.parentElement.classList.add('unknown');
-                    img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/avg_npc_012.png'
-                    img.onerror = null;
+            if (chars[key] != 'char_empty') {
+                let isActive = (currentSpeaker == 1 && key == 'name') || (key == 'name'+currentSpeaker)
+                let avatar = document.createElement('div')
+                let img = document.createElement('img')
+                avatar.classList.add('avatar')   
+                avatar.classList.add('npc')    
+                avatar.appendChild(img)
+                img.src = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key])+'.png'
+                let fallbackimg = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key].split('#')[0])+'.png'
+                if (fallbackimg == img.src)
+                    fallbackimg = fallbackimg.split('.').slice(0,-1).join('.')+encodeURIComponent('#1')+'.'+fallbackimg.split('.').slice(-1)
+                let operator_charid = charNumMap[chars[key].split('_')[1]]
+                if (operator_charid) {
+                    img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/'+operator_charid+'.png'
+                    avatar.classList.remove('npc')
                 }
+                img.onerror = () => {
+                    console.log('img not found:',img.src);
+                    img.src = fallbackimg
+                    img.onerror = () => {
+                        console.log('fallback img not found:',img.src);
+                        img.parentElement.classList.remove('npc');
+                        img.parentElement.classList.add('unknown');
+                        img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/avg_npc_012.png'
+                        img.onerror = null;
+                    }
+                }
+                img.setAttribute('loading','lazy')
+                if (isActive)
+                    avatar.classList.add('active')
+                if (isActive)
+                    left.appendChild(avatar)
+                else 
+                    right.appendChild(avatar)
             }
-            img.setAttribute('loading','lazy')
-            if (chars[key] == 'char_empty')
-                avatar = spacer()
-            if (isActive)
-                avatar.classList.add('active')
-            if (isActive)
-                wrap.prepend(avatar)
-            else 
-                wrap.appendChild(avatar)
         })
     }
-    if (Object.keys(chars).length < 1) {
-        wrap.prepend(spacer()) 
-    }
-    if (Object.keys(chars).length < 2) {
-        if (currentSpeaker < 0)
-            wrap.prepend(spacer()) 
-        else
-            wrap.appendChild(spacer()) 
+    // balance out avatars if too many inactive.
+    if (left.childElementCount == 0 && right.childElementCount > 1) {
+        left.appendChild(right.firstChild)
     }
 
     return wrap
