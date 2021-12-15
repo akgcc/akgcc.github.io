@@ -5,7 +5,8 @@ var operatorData,
     storyData,
     storyReview,
     storyTypes = {record:[], main:[], side: [], mini:[]},
-    storyTypeNames = {record:'Operator Record',main:'Main Story',side:'Side Story',mini:'Vignette'}
+    storyTypeNames = {record:'Operator Record',main:'Main Story',side:'Side Story',mini:'Vignette'},
+    soundMap
 get_char_table()
 	.then(js => {
     operatorData = js;
@@ -17,6 +18,10 @@ get_char_table()
     return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/story_table.json')
 }).then(res => res.json()).then(js => {
     storyData = js
+    return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/story/story_variables.json')
+})
+.then(res => res.json()).then(js => {
+    soundMap = js
     return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/story_review_table.json')
 }).then( res => res.json()).then(js=> {
     storyReview = js
@@ -199,7 +204,7 @@ function genStory(storyName,key) {
         title.innerHTML = storyName
         document.getElementById('storyTitle').innerHTML = storyName
         storyDiv.appendChild(title)
-        let scene,speaker,chars = {},speakerList = new Set(), predicate = {}, activeReferences = [], defaultPredicate = '1'
+        let scene,speaker,chars = {},speakerList = new Set(), predicate = {}, activeReferences = [], defaultPredicate = '1', firstAudio
           for (const line of lines) {
               if (line[1]) {
                   [_,cmd,args] = /\[([^\(\]]+)(?:\((.+)\))?\]/.exec(line[1])
@@ -209,7 +214,7 @@ function genStory(storyName,key) {
                   }
                   if (args) {
                       let tmp = {}
-                      Array.from(args.matchAll(/("?[^=", ]+"?)="?([^"]*)"?/gim)).forEach(l => {
+                      Array.from(args.matchAll(/("?[^=", ]+"?)="?((?<=")[^"]*|[^,]*)/gim)).forEach(l => {
                         tmp[l[1]] = l[2] 
                       })
                       args = tmp
@@ -257,6 +262,10 @@ function genStory(storyName,key) {
                         }
                         scene = document.createElement('div')
                         scene.classList.add('scene')
+                        if (firstAudio) {
+                            scene.appendChild(firstAudio)
+                            firstAudio = null
+                        }
                         let imgurl; 
                         if (!args || !args.image)
                             imgurl = 'https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/bg_black.png'
@@ -308,6 +317,47 @@ function genStory(storyName,key) {
                                 predicate[r] = predicate[r] || []
                             })
                         }
+                      break
+                      case 'playmusic':
+                      case 'playsound':
+                        let audio = document.createElement('audio')
+                        audio.setAttribute('controls','')
+                        if (cmd.toLowerCase() == 'playmusic') {
+                            audio.setAttribute('loop','')
+                            audio.classList.add('music')
+                        } else {
+                            audio.classList.add('sound')
+                        }
+                        audio.setAttribute('data-defvol',1)
+                        if (args.volume) {
+                            audio.setAttribute('data-defvol',args.volume)
+                        }
+                        let sound = document.createElement('source')
+                        sound.src = './sounds/assets/torappu/dynamicassets/audio/'+soundMap[args.key.substring(1)].toLowerCase()+'.wav'
+                        sound.setAttribute('type','audio/wav')
+                        audio.appendChild(sound)
+                        if (cmd.toLowerCase() == 'playsound') {
+                            let btn = document.createElement('i')
+                            btn.classList.add('fas')
+                            btn.classList.add('fa-volume-up')
+                            btn.classList.add('soundBtn')
+                            let wrap = document.createElement('div')
+                            function playSound() {
+                                this.audio.volume = volSlider.value/100 * this.audio.getAttribute('data-defvol')
+                                if (this.audio.volume == 0)
+                                    this.audio.volume = this.audio.getAttribute('data-defvol')
+                                this.audio.play()
+                            }
+                            btn.onclick = playSound.bind({audio:audio})
+                            wrap.appendChild(audio)
+                            wrap.appendChild(btn)
+                            wrap.classList.add('dialog')
+                            audio = wrap
+                        }    
+                        if (scene)
+                            scene.appendChild(audio)
+                        else
+                            firstAudio = audio
                       break
                       default:
                       break;
@@ -470,10 +520,37 @@ function scrollFunction() {
   Array.from(document.getElementById('storyDisp').querySelectorAll('.scene')).forEach(s => {
     alignBackground(s)
   })
+  
+  let midp = window.innerHeight / 2
+  let targetMusic
+  const allMusic = Array.from(document.getElementById('storyDisp').querySelectorAll('.music'))
+  allMusic.forEach(a => {
+    let rect = a.getBoundingClientRect()
+    if (rect.top < midp) {
+        targetMusic = a
+    }
+  })
+  
+  if (targetMusic && targetMusic.paused) {
+      // new audio to play.
+      allMusic.forEach(a => {
+          a.pause()
+      })
+      targetMusic.volume = volSlider.value/100 * targetMusic.getAttribute('data-defvol')
+      targetMusic.play()
+  }
 }
 
 // When the user clicks on the button, scroll to the top of the document
 function topFunction() {
   document.body.scrollTop = 0; // For Safari
   document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+}
+
+const volSlider = document.getElementById('volSlider')
+volSlider.oninput = () => {
+    Array.from(document.getElementById('storyDisp').querySelectorAll('.music')).forEach(a => {
+        a.volume = volSlider.value/100 * a.getAttribute('data-defvol')
+    })
+    scrollFunction()
 }

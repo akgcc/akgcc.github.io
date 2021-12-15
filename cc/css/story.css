@@ -97,6 +97,7 @@
     transform: translate(-33%, 0);
 }
 .text {
+    box-sizing: border-box;
     background: #000b;
     flex: 0;
     flex-basis: 35em;
@@ -108,7 +109,7 @@
     border-radius: .3em;
 }
 .text:not([data-name=""]) {
-    box-sizing: border-box;
+    
     min-height: calc(var(--dialog-size) / 1.3);
 }
 .text:before {
@@ -137,10 +138,7 @@
     color: #000;
     background: #888;
 }
-.story_nav:hover {
-    color: #777;
-    cursor: pointer;
-}
+
 #topBtn {
     display: none;
     position: fixed;
@@ -151,8 +149,14 @@
     z-index: 999;
     cursor: pointer;
 }
-#topBtn:hover {
-    opacity: 1;
+@media (hover: hover) {
+    .story_nav:hover {
+    color: #777;
+    cursor: pointer;
+    }
+    #topBtn:hover {
+        opacity: 1;
+    }
 }
 .storyNav {
     display: flex;
@@ -175,4 +179,82 @@
 .storySelect {
     font-size: 1.2em;
     padding-right: .3em;
+}
+audio {
+    /* margin: .4em auto; */
+}
+.music {
+    visibility: hidden;
+    height: 0px;
+    margin: 0;
+}
+.sound {
+    display: none;
+}
+#volControl {
+    display: flex;
+    align-items: center;
+    margin: 1em;
+}
+.vol-spacer {
+    /* flex: 1; */
+}
+.soundBtn {
+    --btn-size: 2rem;
+    font-size: var(--btn-size);
+    width: var(--btn-size);
+    height: var(--btn-size);
+    line-height: var(--btn-size);
+    text-align: center;
+    border: 2px solid #aaa;
+    border-radius: .25em;
+    align-self: center;
+    padding: .2em;
+    color: #777;
+    background: #222e;
+    cursor: pointer;
+}
+
+@media (hover: hover) {
+    .soundBtn:hover {
+        background: #888;
+        color: black;
+    }
+}
+.soundBtn:active {
+    color: black;
+    background: #444;
+}
+#volControl i {
+    font-size: 1.5em;
+}
+#volSlider {
+    margin: 0 .4em;
+  -webkit-appearance: none; /* Override default CSS styles */
+  appearance: none;
+  /* height: 25px; /* Specified height */
+  height: .8em;
+  background: #808080; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -webkit-transition: 0.2s; /* 0.2 seconds transition on hover */
+  transition: opacity 0.2s;
+  border-radius: .5em;
+}
+#volSlider::-webkit-slider-thumb {
+  -webkit-appearance: none; 
+  appearance: none;
+  width: 1.3em;
+  height: 1.3em; 
+  background: #dddddd; 
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+#volSlider::-moz-range-thumb {
+  width: 1.3em;
+  height: 1.3em;
+  background: #dddddd;
+  cursor: pointer;
+  border-radius: 50%;
 }
