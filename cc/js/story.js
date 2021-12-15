@@ -439,7 +439,8 @@ mybutton = document.getElementById("topBtn");
 mybutton.onclick = topFunction
 
 // When the user scrolls down 20px from the top of the document, show the button
-window.onscroll = function() {scrollFunction()};
+window.onscroll = scrollFunction
+window.onresize = scrollFunction
 
 function alignBackground(s) {
     let pos = s.getBoundingClientRect()

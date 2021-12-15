@@ -1,5 +1,5 @@
 :root {
-    --story-width: min(60em,95vw);
+    --story-width: min(80em,95vw);
     --dialog-size: 6em;
 }
 .scene {
@@ -43,12 +43,17 @@
 }
 .dialog {
   display: flex;
-  padding: 0 2em;
-  margin: .4em 0;
-  justify-content: space-between;
+  padding: 0;
+  margin: .4em .4em;
+  justify-content: center;
 }
 .dialog.hidden {
     display: none;
+}
+.dialog:after,
+.dialog:before {
+    content: "";
+    flex: 0 99;
 }
 .avatar-spacer,
 .avatar {
@@ -59,6 +64,7 @@
     overflow: hidden;
     position: relative;
     border-radius: .3em;
+    flex-shrink: 0;
 }
 .avatar.active {
     opacity: 1;
@@ -84,7 +90,8 @@
 }
 .text {
     background: #000b;
-    flex: 1 1;
+    flex: 0;
+    flex-basis: 35em;
     padding: .2em .5em;
     font-size: 1.3em;
     display: flex;
@@ -95,7 +102,6 @@
 .text:before {
     content: attr(data-name);
     color: var(--name-color);
-    /* font-weight: 600; */
     font-size: .8em;
     margin-bottom: .2em;
     margin-left: -.3em;
