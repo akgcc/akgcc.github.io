@@ -235,9 +235,10 @@ function genStory(storyName,key) {
                       case 'image':
                       // insert new div when background changes and set to current scene
                         let getdim = new Image()
-                        let setHeight = function() {
+                        let setDims = function() {
                             this.div.setAttribute('data-bgheight', getdim.height)
                             this.div.setAttribute('data-bgwidth', getdim.width)
+                            this.div.style.minHeight = 'calc(var(--story-width) / '+getdim.width+' * '+getdim.height+')'
                         }
                         if (scene) {
                             storyDiv.appendChild(scene)
@@ -247,9 +248,9 @@ function genStory(storyName,key) {
                         }
                         else {
                             // if this is the first (topmost) scene, set background position.
-                            setHeight = function() {
-                                this.div.setAttribute('data-bgheight', getdim.height)
-                                this.div.setAttribute('data-bgwidth', getdim.width)
+                            const oldfunc = setDims
+                            setDims = function() {
+                                oldfunc.apply(this)
                                 alignBackground(this.div)
                             }
                         }
@@ -268,9 +269,9 @@ function genStory(storyName,key) {
                                 break
                             }
                         }
-                        scene.style.setProperty('--background-image-url','url('+imgurl+')')
+                        scene.style.setProperty('--background-image-url','url("'+imgurl+'")')
                         getdim.src = imgurl
-                        getdim.onload = setHeight.bind({div: scene})
+                        getdim.onload = setDims.bind({div: scene})
                       break;
                       case 'character':
                         if (args) {
@@ -445,8 +446,8 @@ function alignBackground(s) {
     let midp = window.innerHeight / 2
     let imheight = s.getAttribute('data-bgheight')
     let imwidth = s.getAttribute('data-bgwidth')
-    if (imwidth > pos.width)
-        imheight = pos.width/imwidth*imheight
+    // if (imwidth > pos.width)
+    imheight = pos.width/imwidth*imheight
     s.style.backgroundPosition = '50% '+Math.min(pos.height-imheight,Math.max(0,midp-pos.top-imheight/2))+', center'
 }
 function scrollFunction() {

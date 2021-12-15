@@ -11,7 +11,7 @@
     overflow:hidden;
     position: relative;
     background-image: var(--background-image-url);
-    background-size: contain;
+    background-size: 100%;
     background-attachment: scroll;
     background-position: center;
     background-repeat: no-repeat;
