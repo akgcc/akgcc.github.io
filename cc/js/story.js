@@ -239,8 +239,12 @@ function genStory(storyName,key) {
                             this.div.setAttribute('data-bgheight', getdim.height)
                             this.div.setAttribute('data-bgwidth', getdim.width)
                         }
-                        if (scene)
+                        if (scene) {
                             storyDiv.appendChild(scene)
+                            let scenebreak = document.createElement('div')
+                            scenebreak.classList.add('scenebreak')
+                            storyDiv.appendChild(scenebreak)
+                        }
                         else {
                             // if this is the first (topmost) scene, set background position.
                             setHeight = function() {
