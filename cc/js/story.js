@@ -362,6 +362,7 @@ function makeDecisionDialog(args, predicate) {
             predicate[thispredicate].forEach(el => {
                 el.classList.remove('hidden')
             })
+            scrollFunction()
         }
     })
     return dialog
@@ -383,7 +384,7 @@ function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
         spacer.classList.add('avatar-spacer')
         return spacer
     }
-    if (args) {
+    if (args && args.name) {
         txt.setAttribute('data-name', args.name)
         txt.style.setProperty('--name-color',selectColor(colorIndex))
         Object.keys(chars).forEach( (key,i) => {

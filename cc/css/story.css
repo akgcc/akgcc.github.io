@@ -69,6 +69,10 @@
     position: relative;
     border-radius: .3em;
     flex-shrink: 0;
+    align-self: center;
+}
+.avatar-spacer {
+    height: calc(var(--dialog-size) / 2);
 }
 .avatar.active {
     opacity: 1;
@@ -103,6 +107,10 @@
     justify-content: flex-start;
     border-radius: .3em;
 }
+.text:not([data-name=""]) {
+    box-sizing: border-box;
+    min-height: calc(var(--dialog-size) / 1.3);
+}
 .text:before {
     content: attr(data-name);
     color: var(--name-color);
@@ -110,8 +118,13 @@
     margin-bottom: .2em;
     margin-left: -.3em;
 }
-.text.doctor:before {
+.text.doctor:before,
+.text[data-name=""]:before {
     content: none;
+}
+.text[data-name=""] {
+    justify-content: center;
+    text-align: center;
 }
 .decision {
     border: 1px solid #aaa;
