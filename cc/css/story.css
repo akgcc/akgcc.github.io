@@ -46,9 +46,13 @@
   padding: 0;
   margin: .4em .4em;
   justify-content: center;
+  transition: opacity .5s;
+  opacity: 1;
 }
 .dialog.hidden {
-    display: none;
+    visibility: hidden;
+    position: absolute;
+    opacity: 0;
 }
 .dialog:after,
 .dialog:before {

@@ -9,12 +9,19 @@
   </head>
   <body ontouchstart>
     <div id="topNav">
-      <span id="pageTitle">Story Reader</span>
-      <a class="rightButton" href="./../index.html">
+      <div class="nav-left">
+        <span id="pageTitle">Story Reader</span>
+      </div>
+      <div class="nav-center">
+        <div id="storyTitle" class="hidden"></div>
+      </div>
+      <div class="nav-right">
+        <a class="rightButton" href="./../index.html">
         <div class="button iconButton" id="homeButton">
           <i class="fas fa-home"></i>
         </div>
-      </a>
+        </a>
+      </div>
     </div>
     <div class="btnPanel" id="ccselector">
         <select class="storySelect" id="catSelect"></select>

@@ -197,6 +197,7 @@ function genStory(storyName,key) {
         let title = document.createElement('div')
         title.classList.add('storyName')
         title.innerHTML = storyName
+        document.getElementById('storyTitle').innerHTML = storyName
         storyDiv.appendChild(title)
         let scene,speaker,chars = {},speakerList = new Set(), predicate = {}, activeReferences = [], defaultPredicate = '1'
           for (const line of lines) {
@@ -368,6 +369,7 @@ function makeDecisionDialog(args, predicate) {
 function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
     let wrap = document.createElement('div')
     wrap.classList.add('dialog')
+    wrap.classList.add('forceShow')
     
     let txt = document.createElement('div')
     txt.classList.add('text')
@@ -438,6 +440,7 @@ function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
 //Get the button:
 mybutton = document.getElementById("topBtn");
 mybutton.onclick = topFunction
+titlediv = document.getElementById('storyTitle')
 
 // When the user scrolls down 20px from the top of the document, show the button
 window.onscroll = scrollFunction
@@ -457,6 +460,11 @@ function scrollFunction() {
     mybutton.style.display = "block";
   } else {
     mybutton.style.display = "none";
+  }
+  if (document.body.scrollTop > 120 || document.documentElement.scrollTop > 120) {
+        titlediv.classList.remove('hidden')
+  } else {
+    titlediv.classList.add('hidden')
   }
   Array.from(document.getElementById('storyDisp').querySelectorAll('.scene')).forEach(s => {
     alignBackground(s)

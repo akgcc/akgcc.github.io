@@ -547,7 +547,7 @@ div:not(.chartjs-size-monitor).hidden:not(.forceShow) {
 	margin: 0 .125em;
 	flex-shrink: 0;
 }
-
+#storyTitle,
 #pageTitle {
   font-size: min(2.3em, 3.2vw);
   line-height: var(--topNav-height);
@@ -729,3 +729,14 @@ body.icon-mode .riskContainer {
 	z-index: 1;
   }
 /* } */
+
+/* for centering in nav bar */
+.nav-right,
+.nav-left {
+    flex: 1;
+    display: flex;
+    min-width: -webkit-min-content;
+}
+.nav-right {
+    justify-content: flex-end;
+}
