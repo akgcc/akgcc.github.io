@@ -112,7 +112,7 @@
     flex-direction: column;
     justify-content: flex-start;
     border-radius: .3em;
-    height: calc(var(--dialog-size) / 2 / 1.3);
+    min-height: calc(var(--dialog-size) / 2 / 1.3);
 }
 .text:not([data-name=""]) {
     min-height: calc(var(--dialog-size) / 1.3);
