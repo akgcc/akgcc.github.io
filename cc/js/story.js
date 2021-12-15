@@ -198,7 +198,7 @@ function genStory(storyName,key) {
         title.classList.add('storyName')
         title.innerHTML = storyName
         storyDiv.appendChild(title)
-        let scene,speaker,chars = {},speakerList = new Set(), predicate = {}, activeReferences = [], defaultPredicate = '1' 
+        let scene,speaker,chars = {},speakerList = new Set(), predicate = {}, activeReferences = [], defaultPredicate = '1'
           for (const line of lines) {
               if (line[1]) {
                   [_,cmd,args] = /\[([^\(\]]+)(?:\((.+)\))?\]/.exec(line[1])
@@ -234,22 +234,39 @@ function genStory(storyName,key) {
                       case 'background':
                       case 'image':
                       // insert new div when background changes and set to current scene
+                        let getdim = new Image()
+                        let setHeight = function() {
+                            this.div.setAttribute('data-bgheight', getdim.height)
+                            this.div.setAttribute('data-bgwidth', getdim.width)
+                        }
                         if (scene)
                             storyDiv.appendChild(scene)
+                        else {
+                            // if this is the first (topmost) scene, set background position.
+                            setHeight = function() {
+                                this.div.setAttribute('data-bgheight', getdim.height)
+                                this.div.setAttribute('data-bgwidth', getdim.width)
+                                alignBackground(this.div)
+                            }
+                        }
                         scene = document.createElement('div')
                         scene.classList.add('scene')
+                        let imgurl; 
                         if (!args || !args.image)
-                            scene.style.backgroundImage = 'url(https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/bg_black.png)'
+                            imgurl = 'https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/bg_black.png'
                         else {
                             switch(cmd.toLowerCase()) {
                                 case 'image':
-                                    scene.style.backgroundImage = 'url(https://aceship.github.io/AN-EN-Tags/img/avg/images/'+args.image+'.png)'
+                                    imgurl = 'https://aceship.github.io/AN-EN-Tags/img/avg/images/'+args.image+'.png'
                                 break
                                 case 'background':
-                                    scene.style.backgroundImage = 'url(https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/'+args.image+'.png)'
+                                    imgurl = 'https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/'+args.image+'.png'
                                 break
                             }
                         }
+                        scene.style.setProperty('--background-image-url','url('+imgurl+')')
+                        getdim.src = imgurl
+                        getdim.onload = setHeight.bind({div: scene})
                       break;
                       case 'character':
                         if (args) {
@@ -335,7 +352,6 @@ function makeDecisionDialog(args, predicate) {
                   el.classList.add('hidden')
               })
             })
-            console.log(predicate[thispredicate])
             predicate[thispredicate].forEach(el => {
                 el.classList.remove('hidden')
             })
@@ -420,12 +436,24 @@ mybutton.onclick = topFunction
 // When the user scrolls down 20px from the top of the document, show the button
 window.onscroll = function() {scrollFunction()};
 
+function alignBackground(s) {
+    let pos = s.getBoundingClientRect()
+    let midp = window.innerHeight / 2
+    let imheight = s.getAttribute('data-bgheight')
+    let imwidth = s.getAttribute('data-bgwidth')
+    if (imwidth > pos.width)
+        imheight = pos.width/imwidth*imheight
+    s.style.backgroundPosition = '50% '+Math.min(pos.height-imheight,Math.max(0,midp-pos.top-imheight/2))+', center'
+}
 function scrollFunction() {
   if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
     mybutton.style.display = "block";
   } else {
     mybutton.style.display = "none";
   }
+  Array.from(document.getElementById('storyDisp').querySelectorAll('.scene')).forEach(s => {
+    alignBackground(s)
+  })
 }
 
 // When the user clicks on the button, scroll to the top of the document

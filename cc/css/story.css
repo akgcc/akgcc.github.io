@@ -4,20 +4,37 @@
 }
 .scene {
     width: 100%;
-    padding-top: calc(var(--dialog-size) / 2);
-    min-height: calc(var(--story-width) / 16 * 9 - var(--dialog-size) / 2);
-    background-repeat: repeat-y;
-    background-size: contain;
+    padding: 0;
+    min-height: calc(var(--story-width) / 16 * 9);
     display: flex;
     flex-direction: column;
+    overflow:hidden;
+    position: relative;
+    background-image: var(--background-image-url);
+    background-size: contain;
+    background-attachment: scroll;
     background-position: 50% 0;
+    background-repeat: no-repeat;
+}
+.scene:before {
+    content: "";
+    background-color: #222;
+    background-image: var(--background-image-url);
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 100%;
+    height:100%;
+    position: absolute;
+    filter: blur(5px);
+    z-index: -1;
 }
 #storyDisp {
  display:flex;
  flex-direction: column; 
  max-width: var(--story-width);
  margin: 0 auto;
- background: #222;
 }
 .dialog {
   display: flex;
