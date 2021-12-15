@@ -106,8 +106,11 @@
     margin-bottom: .2em;
     margin-left: -.3em;
 }
+.text.doctor:before {
+    content: none;
+}
 .decision {
-    border: 1px solid white;
+    border: 1px solid #aaa;
     cursor: pointer;
     margin: .2em 0;
     padding: .2em;
@@ -115,7 +118,7 @@
 }
 .decision.selected {
     color: #000;
-    background: #aaa;
+    background: #888;
 }
 .story_nav:hover {
     color: #777;

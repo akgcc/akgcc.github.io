@@ -338,6 +338,7 @@ function makeDecisionDialog(args, predicate) {
     let dialog = makeDialog({name:'Dr {@nickname}'}, choices[0], {name:'npc_001_doctor'}, 1)
     let txt = dialog.querySelector('.text')
     txt.innerHTML = ''
+    txt.classList.add('doctor')
     choices.forEach((c,i) => {
         let opt = document.createElement('div')
         opt.classList.add('decision')
