@@ -249,7 +249,10 @@ async function genStory(storyName,key) {
                             let w = parseInt(this.div.getAttribute('data-bgwidth')) + this.im.width
                             this.div.setAttribute('data-bgheight', h)
                             this.div.setAttribute('data-bgwidth', w)
-                            this.div.style.minHeight = 'calc(var(--story-width) / '+w+' * '+h+')'
+                            if (this.div.classList.contains('multipart'))
+                                this.div.style.minHeight = 'calc(1.5 * var(--story-width) / '+w+' * '+h+')'
+                            else
+                                this.div.style.minHeight = 'calc(var(--story-width) / '+w+' * '+h+')'
                         }
                         if (scene) {
                             storyDiv.appendChild(scene)
@@ -521,11 +524,11 @@ function alignBackground(s) {
     let midp = window.innerHeight / 2
     let imheight = s.getAttribute('data-bgheight')
     let imwidth = s.getAttribute('data-bgwidth')
-    if (s.classList.contains('multipart')) {
+    if (s.classList.contains('multipart'))
         // adjust for zoom in
-        imwidth = imwidth-pos.width/2
-    }
-    imheight = pos.width/imwidth*imheight
+        imheight = 1.5*pos.width/imwidth*imheight
+    else
+        imheight = pos.width/imwidth*imheight
     if (s.classList.contains('multipart')) {
         s.style.backgroundPosition = 'calc(var(--story-width) * -.25) '+Math.min(pos.height-imheight,Math.max(0,midp-pos.top-imheight/2))+', calc(var(--story-width) / 2) '+Math.min(pos.height-imheight,Math.max(0,midp-pos.top-imheight/2))
     } else {
