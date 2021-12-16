@@ -370,12 +370,18 @@ async function genStory(storyName,key) {
                             btn.classList.add('soundBtn')
                             let wrap = document.createElement('div')
                             function playSound() {
+                                if (this.btn.classList.contains('playing'))
+                                    return
                                 this.audio.volume = volSlider.value/100 * this.audio.getAttribute('data-defvol')
                                 if (this.audio.volume == 0)
-                                    this.audio.volume = this.audio.getAttribute('data-defvol')
+                                    this.audio.volume = this.audio.getAttribute('data-defvol') * .8
                                 this.audio.play()
+                                this.btn.classList.add('playing')
+                                this.audio.onended = () => {
+                                    this.btn.classList.remove('playing')
+                                }
                             }
-                            btn.onclick = playSound.bind({audio:audio})
+                            btn.onclick = playSound.bind({audio:audio,btn:btn})
                             wrap.appendChild(audio)
                             wrap.appendChild(btn)
                             wrap.classList.add('dialog')
