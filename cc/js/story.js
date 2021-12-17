@@ -181,7 +181,7 @@ get_char_table()
         })
         let data = storyReview[cat].infoUnlockDatas[document.getElementById('thirdCatSelect').value]
         genStory(data.storyName, data.storyTxt).then(()=>{
-            playPauseMusic()
+            scrollFunction()
         })
     }
     window.onhashchange = loadFromHash
@@ -252,20 +252,13 @@ async function genStory(storyName,key) {
                                 this.div.style.minHeight = 'calc(1.5 * var(--story-width) / '+w+' * '+h+')'
                             else
                                 this.div.style.minHeight = 'calc(var(--story-width) / '+w+' * '+h+')'
+                            alignBackground(this.div)
                         }
                         if (scene) {
                             storyDiv.appendChild(scene)
                             let scenebreak = document.createElement('div')
                             scenebreak.classList.add('scenebreak')
                             storyDiv.appendChild(scenebreak)
-                        }
-                        else {
-                            // if this is the first (topmost) scene, set background position.
-                            const oldfunc = setDims
-                            setDims = function() {
-                                oldfunc.apply(this)
-                                alignBackground(this.div)
-                            }
                         }
                         scene = document.createElement('div')
                         scene.classList.add('scene')
@@ -412,8 +405,11 @@ function playWhenReady(audio) {
             }
     }
     if (audio.classList.contains('sound')) {
-        if (audio.readyState == 0)
+        if (audio.readyState == 0) {
             audio.nextSibling.classList.add('stalled')
+            audio.oncanplaythrough = () => audio.nextSibling.classList.remove('stalled')
+            audio.oncanplay = () => audio.nextSibling.classList.remove('stalled')
+        }
         audio.onplaying = () => audio.nextSibling.classList.add('playing')
         audio.onended = () => audio.nextSibling.classList.remove('playing')
     }
@@ -611,5 +607,5 @@ volSlider.oninput = () => {
     Array.from(document.getElementById('storyDisp').querySelectorAll('.music')).forEach(a => {
         a.volume = volSlider.value/100 * a.getAttribute('data-defvol')
     })
-    scrollFunction()
+    playPauseMusic()
 }
