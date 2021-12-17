@@ -577,7 +577,7 @@ function playPauseMusic(toggle = false) {
               document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>'
           }
       }
-      else if (!musicState.paused) {
+      else if (targetMusic.paused && !musicState.paused) {
           allMusic.forEach(a => a.pause())
           playWhenReady(targetMusic)
       }
