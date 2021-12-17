@@ -436,7 +436,7 @@ function makeDecisionDialog(args, predicate) {
     let choices = args.options.split(';')
     let vals = args.values.split(';')
     // keys.forEach((key, i) => result[key] = values[i]);
-    let dialog = makeDialog({name:'Dr {@nickname}'}, choices[0], {name:'npc_001_doctor'}, 1)
+    let dialog = makeDialog({name:'Dr {@nickname}'}, choices[0], {name:'avg_npc_048'}, 1)
     let txt = dialog.querySelector('.text')
     txt.innerHTML = ''
     txt.classList.add('doctor')
