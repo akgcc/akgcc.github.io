@@ -6,7 +6,11 @@ var operatorData,
     storyReview,
     storyTypes = {record:[], main:[], side: [], mini:[]},
     storyTypeNames = {record:'Operator Record',main:'Main Story',side:'Side Story',mini:'Vignette'},
-    soundMap
+    soundMap,
+    avatarCoords
+const charPathFixes = {
+    "char_2006_weiywfmzuki_1" : "char_2006_fmzuki_1"
+}
 get_char_table()
 	.then(js => {
     operatorData = js;
@@ -19,9 +23,12 @@ get_char_table()
 }).then(res => res.json()).then(js => {
     storyData = js
     return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/story/story_variables.json')
+}).then(res => res.json()).then(js => {
+    soundMap = js
+    return fetch('./json/avatar_coords.json')
 })
 .then(res => res.json()).then(js => {
-    soundMap = js
+    avatarCoords = js
     return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/story_review_table.json')
 }).then( res => res.json()).then(js=> {
     storyReview = js
@@ -460,6 +467,76 @@ function makeDecisionDialog(args, predicate) {
     })
     return dialog
 }
+function avatarImg(path) {
+    // return image element with many, many fallbacks.
+    let varkey = /\$?(.+)/i.exec(path)[1]
+    if (varkey in soundMap) {
+        path = soundMap[varkey]
+    }
+    let base_name = /^(.+?_\d(?=(_|#)|$)|.+?(?=(_|#)\d{1,2}$|$)|.+)/.exec(path)[1]
+    let alt_name, na_name
+    let mods = path.substring(base_name.length)
+    let alt_mods
+    // emergency repairs:
+    if (base_name in charPathFixes)
+        base_name = charPathFixes[base_name]
+    if (!mods)
+        mods = '_1' // this will create some extra failed requests.
+    if (mods.includes('#')) {
+        alt_mods = mods.replace('#','_')
+    }
+    else {
+        alt_mods = mods.replace('_','#')
+    }
+    if (/(_\d)$/.test(base_name)) {
+        alt_name = base_name.replace(/(_\d)$/,'')
+        na_name = base_name.replace(/(_\d)$/,'_na')
+    }
+    else {
+        alt_name = base_name+'_1'
+        na_name = base_name+'_na'
+    }
+    var src_array = []
+    // trying all base_name permutations first results in less misses, but also could serve the wrong image.
+    src_array.push(base_name+mods)
+    src_array.push(alt_name+mods)
+    src_array.push(base_name+alt_mods)
+    src_array.push(alt_name+alt_mods)
+    src_array.push(base_name)
+    src_array.push(alt_name)
+    src_array.push(na_name+mods)
+    src_array.push(na_name+alt_mods)
+    src_array.push(na_name)
+    src_array.push(base_name+'#2') // special case for missing mayer #1 image.
+    
+    let img = document.createElement('img')
+    var i = 1
+    img.onerror = function() {
+        if (i < src_array.length) {
+            this.src = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(src_array[i])+'.png'
+            i++
+        } else {
+            this.onerror = null
+            this.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/avg_npc_012.png'
+            this.parentElement.classList.remove('npc');
+            this.parentElement.classList.add('unknown');
+            console.log('ALL ERROR (serve mystery npc)',src_array)
+        }
+    }
+    img.setAttribute('loading','lazy')
+    if (avatarCoords[base_name]) {
+        img.style.left = avatarCoords[base_name].x
+        img.style.top = avatarCoords[base_name].y
+        let scale = avatarCoords[base_name].s
+        img.style.transform = `scale(${scale})`;
+    }
+    img.src = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(src_array[0])+'.png'
+    let wrap = document.createElement('div')
+    wrap.classList.add('avatar')
+    wrap.classList.add('npc')
+    wrap.appendChild(img)
+    return wrap
+}
 function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
     let wrap = document.createElement('div')
     wrap.classList.add('dialog')
@@ -483,37 +560,7 @@ function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
         Object.keys(chars).forEach( (key,i) => {
             if (chars[key] != 'char_empty') {
                 let isActive = (currentSpeaker == 1 && key == 'name') || (key == 'name'+currentSpeaker)
-                let avatar = document.createElement('div')
-                let img = document.createElement('img')
-                avatar.classList.add('avatar')   
-                avatar.classList.add('npc')    
-                avatar.appendChild(img)
-                img.src = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key])+'.png'
-                let fallbackimg = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key].split('#')[0])+'.png'
-                let fallbackimg2 = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key].split('#')[0])+'_1.png'
-                if (fallbackimg == img.src)
-                    fallbackimg = fallbackimg.split('.').slice(0,-1).join('.')+encodeURIComponent('#1')+'.'+fallbackimg.split('.').slice(-1)
-                let operator_charid = charNumMap[chars[key].split('_')[1]]
-                if (operator_charid) {
-                    img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/'+operator_charid+'.png'
-                    avatar.classList.remove('npc')
-                }
-                img.onerror = () => {
-                    console.log('img not found:',img.src);
-                    img.src = fallbackimg
-                    img.onerror = () => {
-                        console.log('1st fallback img not found:',img.src);
-                        img.src = fallbackimg2
-                        img.onerror = () => {
-                            console.log('2nd fallback img not found:',img.src);
-                            img.parentElement.classList.remove('npc');
-                            img.parentElement.classList.add('unknown');
-                            img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/avg_npc_012.png'
-                            img.onerror = null;
-                        }
-                    }
-                }
-                img.setAttribute('loading','lazy')
+                let avatar = avatarImg(chars[key])
                 if (isActive)
                     avatar.classList.add('active')
                 if (isActive)
