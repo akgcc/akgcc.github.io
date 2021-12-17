@@ -364,7 +364,7 @@ function CreateOpCheckbox(operator, data1map = null, data2map = null, colorScale
 	if (clickfunc) {
 		checkboxDiv.onclick = (e) => {
 			checkboxDiv.classList.toggle('_selected')
-			clickfunc(operator, checkboxDiv.classList.contains('_selected'))
+			clickfunc(operator, checkboxDiv.classList.contains('_selected'), parseInt(checkboxDiv.getAttribute('data-selsk'))||0)
 		}
 	}
 
