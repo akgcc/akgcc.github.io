@@ -245,6 +245,12 @@ audio {
     color: black;
     background: #444;
 }
+.soundBtn.stalled {
+    background: #944;
+}
+.soundBtn.stalled:before {
+    content: "\f6a9"
+}
 #volControl i {
     font-size: 1.5em;
     

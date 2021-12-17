@@ -99,13 +99,8 @@ get_char_table()
             document.getElementById('thirdCatSelect').appendChild(opt)
         })
         document.getElementById('thirdCatSelect').onchange = () => {
-            // load the story.
-            let data = storyReview[cat].infoUnlockDatas[document.getElementById('thirdCatSelect').value]
-            genStory(data.storyName, data.storyTxt)
+            // change hash, this will trigger the listener to load the story.
             window.location.hash = uppercat+'&'+cat+'&'+document.getElementById('thirdCatSelect').value
-            // reset bgm status when loading new story.
-            firstMusicPlayed = musicGlobalPaused
-            document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>'
         }
         if (trigger)
             document.getElementById('thirdCatSelect').onchange()
@@ -184,19 +179,23 @@ get_char_table()
             if (o.value == idx)
                 o.selected = true;
         })
-        document.getElementById('thirdCatSelect').onchange()
+        let data = storyReview[cat].infoUnlockDatas[document.getElementById('thirdCatSelect').value]
+        genStory(data.storyName, data.storyTxt).then(()=>{
+            playPauseMusic()
+        })
     }
+    window.onhashchange = loadFromHash
     if (window.location.hash) {
         loadFromHash()
     } else
         document.getElementById('catSelect').onchange()
-    window.onhashchange = loadFromHash
+    
 })
 
 
 
 async function genStory(storyName,key) {
-    return fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/story/'+key+'.txt')
+    return await fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/story/'+key+'.txt')
     .then(r => r.text())
     .then(txt => {
         const lines = txt.matchAll(/^(\[[^\]]+])?(.*)?$/gim)
@@ -351,16 +350,15 @@ async function genStory(storyName,key) {
                         } else {
                             audio.classList.add('sound')
                         }
-                        audio.setAttribute('data-defvol',1)
-                        if (args.volume) {
-                            audio.setAttribute('data-defvol',args.volume)
-                        }
+                        audio.setAttribute('data-defvol',args.volume || .8)
                         let sound = document.createElement('source')
-                        sound.src = './sounds/assets/torappu/dynamicassets/audio/'+soundMap[args.key.substring(1)].toLowerCase()+'.wav'
+                        let soundkey = /\$?(.+)/i.exec(args.key)[1]
+                        let soundpath = soundMap[soundkey] || soundkey
+                        sound.src = ('./sounds/assets/torappu/dynamicassets/audio/'+ soundpath +'.wav').toLowerCase()
                         sound.setAttribute('type','audio/wav')
                         audio.appendChild(sound)
                         sound = document.createElement('source')
-                        sound.src = 'https://aceship.github.io/AN-EN-Tags/etc/'+soundMap[args.key.substring(1)].toLowerCase().split('/').slice(1).join('/')+'.wav'
+                        sound.src = ('https://aceship.github.io/AN-EN-Tags/etc/'+soundpath.split('/').slice(1).join('/')+'.wav').toLowerCase()
                         sound.setAttribute('type','audio/wav')
                         audio.appendChild(sound)
                         if (cmd.toLowerCase() == 'playsound') {
@@ -370,16 +368,12 @@ async function genStory(storyName,key) {
                             btn.classList.add('soundBtn')
                             let wrap = document.createElement('div')
                             function playSound() {
-                                if (this.btn.classList.contains('playing'))
+                                if (!this.audio.paused)
                                     return
                                 this.audio.volume = volSlider.value/100 * this.audio.getAttribute('data-defvol')
                                 if (this.audio.volume == 0)
-                                    this.audio.volume = this.audio.getAttribute('data-defvol') * .8
-                                this.audio.play()
-                                this.btn.classList.add('playing')
-                                this.audio.onended = () => {
-                                    this.btn.classList.remove('playing')
-                                }
+                                    this.audio.volume = .5
+                                playWhenReady(this.audio)
                             }
                             btn.onclick = playSound.bind({audio:audio,btn:btn})
                             wrap.appendChild(audio)
@@ -410,7 +404,26 @@ async function genStory(storyName,key) {
           storyDiv.appendChild(scene)
     })
 }
-
+function playWhenReady(audio) {
+    if (audio.classList.contains('music')) {
+        audio.onplaying = () => {
+            musicState.paused = false
+            document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>'
+            }
+    }
+    if (audio.classList.contains('sound')) {
+        if (audio.readyState == 0)
+            audio.nextSibling.classList.add('stalled')
+        audio.onplaying = () => audio.nextSibling.classList.add('playing')
+        audio.onended = () => audio.nextSibling.classList.remove('playing')
+    }
+    if (audio.readyState > 3)// already ready to play
+        audio.play()
+    else {
+        audio.oncanplaythrough = audio.play
+        audio.oncanplay = audio.play
+    }
+}
 function selectColor(number) {
   const hue = number * 137.508; // use golden angle approximation
   return `hsl(${hue},15%,60%)`;
@@ -542,44 +555,32 @@ function alignBackground(s) {
     }
 }
 document.getElementById('playPauseBtn').onclick = () => playPauseMusic(true)
-var firstMusicPlayed = false
-var musicGlobalPaused = false
+const musicState = {paused: false}
 function playPauseMusic(toggle = false) {
   let midp = window.innerHeight / 2
-  let targetMusic
   const allMusic = Array.from(document.getElementById('storyDisp').querySelectorAll('.music'))
-  targetMusic = allMusic[0]
-  let wasPlaying = !firstMusicPlayed
+  let targetMusic = allMusic[0]
   allMusic.forEach(a => {
     let rect = a.getBoundingClientRect()
     if (rect.top < midp) {
         targetMusic = a
     }
-    wasPlaying |= !a.paused
   })
   if (targetMusic) {
       targetMusic.volume = volSlider.value/100 * targetMusic.getAttribute('data-defvol')
       if (toggle) {
-          if (targetMusic.paused) {
-              targetMusic.play()
-          } else {
-              targetMusic.pause()
+          if (musicState.paused)
+              playWhenReady(targetMusic)
+          else {
+              allMusic.forEach(a => a.pause())
+              musicState.paused = true
+              document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>'
           }
       }
-      else if (targetMusic.paused && wasPlaying) {
-          // new audio to play.
-          allMusic.forEach(a => {
-              a.pause()
-          })
-          targetMusic.play()
+      else if (!musicState.paused) {
+          allMusic.forEach(a => a.pause())
+          playWhenReady(targetMusic)
       }
-      musicGlobalPaused = targetMusic.paused
-      if (!targetMusic.paused) {
-          firstMusicPlayed = true
-          document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-pause"></i>'
-      }
-      else
-          document.getElementById('playPauseBtn').innerHTML = '<i class="fas fa-play"></i>'
   }
 }
 function scrollFunction() {
