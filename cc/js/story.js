@@ -253,6 +253,7 @@ async function genStory(storyName,key) {
                             else
                                 this.div.style.minHeight = 'calc(var(--story-width) / '+w+' * '+h+')'
                             alignBackground(this.div)
+                            this.im.remove()
                         }
                         if (scene) {
                             storyDiv.appendChild(scene)
@@ -489,6 +490,7 @@ function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
                 avatar.appendChild(img)
                 img.src = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key])+'.png'
                 let fallbackimg = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key].split('#')[0])+'.png'
+                let fallbackimg2 = 'https://aceship.github.io/AN-EN-Tags/img/avg/characters/'+encodeURIComponent(chars[key].split('#')[0])+'_1.png'
                 if (fallbackimg == img.src)
                     fallbackimg = fallbackimg.split('.').slice(0,-1).join('.')+encodeURIComponent('#1')+'.'+fallbackimg.split('.').slice(-1)
                 let operator_charid = charNumMap[chars[key].split('_')[1]]
@@ -500,11 +502,15 @@ function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
                     console.log('img not found:',img.src);
                     img.src = fallbackimg
                     img.onerror = () => {
-                        console.log('fallback img not found:',img.src);
-                        img.parentElement.classList.remove('npc');
-                        img.parentElement.classList.add('unknown');
-                        img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/avg_npc_012.png'
-                        img.onerror = null;
+                        console.log('1st fallback img not found:',img.src);
+                        img.src = fallbackimg2
+                        img.onerror = () => {
+                            console.log('2nd fallback img not found:',img.src);
+                            img.parentElement.classList.remove('npc');
+                            img.parentElement.classList.add('unknown');
+                            img.src = 'https://aceship.github.io/AN-EN-Tags/img/avatars/avg_npc_012.png'
+                            img.onerror = null;
+                        }
                     }
                 }
                 img.setAttribute('loading','lazy')
