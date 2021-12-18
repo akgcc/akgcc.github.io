@@ -1,292 +1,291 @@
 :root {
-    --story-width: min(65vh / 9 * 16, 95vw);
-    --dialog-size: 6em;
+  --story-width: min(65vh / 9 * 16, 95vw);
+  --dialog-size: 6em;
 }
 .scene {
-    width: 100%;
-    padding: 0;
-    min-height: calc(var(--story-width) / 16 * 9);
-    display: flex;
-    flex-direction: column;
-    overflow:hidden;
-    position: relative;
-    background-image: var(--background-image-url);
-    background-size: 100%;
-    background-attachment: scroll;
-    background-position: center;
-    background-repeat: no-repeat;
+  width: 100%;
+  padding: 0;
+  min-height: calc(var(--story-width) / 16 * 9);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  background-image: var(--background-image-url);
+  background-size: 100%;
+  background-attachment: scroll;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 .scene:before {
-    content: "";
-    background-color: var(--main-background-color);
-    background-image: var(--background-image-url);
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    filter: blur(5px);
-    z-index: -1;
+  content: "";
+  background-color: var(--main-background-color);
+  background-image: var(--background-image-url);
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  filter: blur(5px);
+  z-index: -1;
 }
 .scene.multipart {
-    background-attachment: scroll, scroll;
-    background-size: 75%, 75%;
-    background-position: left center, right center;
-    background-repeat: no-repeat, no-repeat;
+  background-attachment: scroll, scroll;
+  background-size: 75%, 75%;
+  background-position: left center, right center;
+  background-repeat: no-repeat, no-repeat;
 }
 .scene.multipart:before {
-    /* only one bg will actually show due to cover + fixed */
-    background-attachment: fixed, fixed;
-    background-size: cover, cover;
-    background-position: center, center;
-    background-repeat: no-repeat, no-repeat;
+  /* only one bg will actually show due to cover + fixed */
+  background-attachment: fixed, fixed;
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
 }
 .scenebreak {
-    width: 100%;
-    height: 2em;
-    background: var(--main-background-color);
+  width: 100%;
+  height: 2em;
+  background: var(--main-background-color);
 }
 #storyDisp {
- display:flex;
- flex-direction: column; 
- max-width: var(--story-width);
- margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  max-width: var(--story-width);
+  margin: 0 auto;
 }
 .dialog {
   display: flex;
   padding: 0;
-  margin: .4em .4em;
+  margin: 0.4em 0.4em;
   justify-content: center;
-  transition: opacity .5s;
+  transition: opacity 0.5s;
   opacity: 1;
 }
 .dialog.hidden {
-    visibility: hidden;
-    position: absolute;
-    opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  opacity: 0;
 }
 .dialog:after,
 .dialog:before {
-    content: "";
-    flex: 0 99;
+  content: "";
+  flex: 0 99;
 }
 .dialog-right,
 .dialog-left {
-    flex: 1;
-    display: flex;
-    min-width: -webkit-min-content;
-    min-width: calc(var(--dialog-size) + 1em);
+  flex: 1;
+  display: flex;
+  min-width: -webkit-min-content;
+  min-width: calc(var(--dialog-size) + 1em);
 }
 .dialog-left {
-    justify-content: flex-end;
+  justify-content: flex-end;
 }
 .avatar {
-    width: var(--dialog-size);
-    height: var(--dialog-size);
-    opacity: .75;
-    margin: 0 .5em;
-    overflow: hidden;
-    position: relative;
-    border-radius: .3em;
-    flex-shrink: 0;
-    align-self: center;
+  width: var(--dialog-size);
+  height: var(--dialog-size);
+  opacity: 0.75;
+  margin: 0 0.5em;
+  overflow: hidden;
+  position: relative;
+  border-radius: 0.3em;
+  flex-shrink: 0;
+  align-self: center;
 }
 .avatar.active {
-    opacity: 1;
+  opacity: 1;
 }
 .avatar.unknown img {
-    filter: brightness(0);
+  filter: brightness(0);
 }
 .avatar img {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
-.avatar.npc img{
-    position: absolute;
-    /* width: initial; */
-    /* height: initial; */
-    /* margin: auto; */
-    /* width: 200px; */
-    /* height: 200px; */
-    /* transform: translate(-25%,25%) scale(1.5); */
-    /* width: 300px; */
-    /* height: 300px; */
-    /* transform: translate(-33%, 0); */
-    width: 1024px;
-    height: 1024px;
-    /* transform: scale(.5) translate(-50%,-50%) translate(-40%,0); */
-    transform-origin: top left;
-    transform: scale(0.5);
-    left: -205px;
-    top: 0px;
+.avatar.npc img {
+  position: absolute;
+  /* width: initial; */
+  /* height: initial; */
+  /* margin: auto; */
+  /* width: 200px; */
+  /* height: 200px; */
+  /* transform: translate(-25%,25%) scale(1.5); */
+  /* width: 300px; */
+  /* height: 300px; */
+  /* transform: translate(-33%, 0); */
+  width: 1024px;
+  height: 1024px;
+  /* transform: scale(.5) translate(-50%,-50%) translate(-40%,0); */
+  transform-origin: top left;
+  transform: scale(0.5);
+  left: -205px;
+  top: 0px;
 }
 .text {
-    box-sizing: border-box;
-    background: #000b;
-    flex: 0;
-    flex-basis: 35em;
-    padding: .2em .5em;
-    font-size: 1.3em;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    border-radius: .3em;
-    min-height: calc(var(--dialog-size) / 2 / 1.3);
+  box-sizing: border-box;
+  background: #000b;
+  flex: 0;
+  flex-basis: 35em;
+  padding: 0.2em 0.5em;
+  font-size: 1.3em;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border-radius: 0.3em;
+  min-height: calc(var(--dialog-size) / 2 / 1.3);
 }
 .text:not([data-name=""]) {
-    min-height: calc(var(--dialog-size) / 1.3);
+  min-height: calc(var(--dialog-size) / 1.3);
 }
 .text:before {
-    content: attr(data-name);
-    color: var(--name-color);
-    font-size: .8em;
-    margin-bottom: .2em;
-    margin-left: -.3em;
+  content: attr(data-name);
+  color: var(--name-color);
+  font-size: 0.8em;
+  margin-bottom: 0.2em;
+  margin-left: -0.3em;
 }
 .text.doctor:before,
 .text[data-name=""]:before {
-    content: none;
+  content: none;
 }
 .text[data-name=""] {
-    justify-content: center;
-    text-align: center;
+  justify-content: center;
+  text-align: center;
 }
 .decision {
-    border: 1px solid #aaa;
-    cursor: pointer;
-    margin: .2em 0;
-    padding: .2em;
-    border-radius: .25em;
+  border: 1px solid #aaa;
+  cursor: pointer;
+  margin: 0.2em 0;
+  padding: 0.2em;
+  border-radius: 0.25em;
 }
 .decision.selected {
-    color: #000;
-    background: #888;
+  color: #000;
+  background: #888;
 }
 
 #topBtn {
-    display: none;
-    position: fixed;
-    font-size: 4em;
-    bottom: .25em;
-    right: .25em;
-    opacity: .75;
-    z-index: 999;
-    cursor: pointer;
+  display: none;
+  position: fixed;
+  font-size: 4em;
+  bottom: 0.25em;
+  right: 0.25em;
+  opacity: 0.75;
+  z-index: 999;
+  cursor: pointer;
 }
 @media (hover: hover) {
-    .story_nav:hover {
+  .story_nav:hover {
     color: #777;
     cursor: pointer;
-    }
-    #topBtn:hover {
-        opacity: 1;
-    }
+  }
+  #topBtn:hover {
+    opacity: 1;
+  }
 }
 .storyNav {
-    display: flex;
-    justify-content: center;
-    font-size: 4em;
-    margin: .2em 0;
+  display: flex;
+  justify-content: center;
+  font-size: 4em;
+  margin: 0.2em 0;
 }
 .storyNav.top {
-    font-size: 2em;
+  font-size: 2em;
 }
 .storyNav .spacer {
-    flex-basis: 1em;
+  flex-basis: 1em;
 }
 .storyName {
-    text-align:center;
-    font-size: 2em;
-    background: var(--main-background-color);
-    padding: .25em;
+  text-align: center;
+  font-size: 2em;
+  background: var(--main-background-color);
+  padding: 0.25em;
 }
 .storySelect {
-    font-size: 1.2em;
-    padding-right: .3em;
+  font-size: 1.2em;
+  padding-right: 0.3em;
 }
 audio {
-    /* margin: .4em auto; */
+  /* margin: .4em auto; */
 }
 .music {
-    visibility: hidden;
-    height: 0px;
-    margin: 0;
+  visibility: hidden;
+  height: 0px;
+  margin: 0;
 }
 .sound {
-    display: none;
+  display: none;
 }
 #volControl {
-    display: flex;
-    align-items: center;
-    margin: 1em;
+  display: flex;
+  align-items: center;
+  margin: 1em;
 }
 .vol-spacer {
-    /* flex: 1; */
+  /* flex: 1; */
 }
 .soundBtn {
-    --btn-size: 2rem;
-    font-size: var(--btn-size);
-    width: var(--btn-size);
-    height: var(--btn-size);
-    line-height: var(--btn-size);
-    text-align: center;
-    border: 2px solid #aaa;
-    border-radius: .25em;
-    align-self: center;
-    padding: .2em;
-    color: #777;
-    background: #222e;
-    cursor: pointer;
+  --btn-size: 2rem;
+  font-size: var(--btn-size);
+  width: var(--btn-size);
+  height: var(--btn-size);
+  line-height: var(--btn-size);
+  text-align: center;
+  border: 2px solid #aaa;
+  border-radius: 0.25em;
+  align-self: center;
+  padding: 0.2em;
+  color: #777;
+  background: #222e;
+  cursor: pointer;
 }
 
 @media (hover: hover) {
-    .soundBtn:hover {
-        background: #888;
-        color: black;
-    }
+  .soundBtn:hover {
+    background: #888;
+    color: black;
+  }
 }
 .soundBtn.playing,
 .soundBtn:active {
-    color: black;
-    background: #444;
+  color: black;
+  background: #444;
 }
 .soundBtn.stalled {
-    background: #944;
+  background: #944;
 }
 .soundBtn.stalled:before {
-    content: "\f6a9"
+  content: "\f6a9";
 }
 #volControl i {
-    font-size: 1.5em;
-    
+  font-size: 1.5em;
 }
 #volControl #playPauseBtn {
-    margin: 0 .4em;
+  margin: 0 0.4em;
 }
 #volControl #playPauseBtn i {
-    font-size: 1em;
+  font-size: 1em;
 }
 #volSlider {
-    margin: 0 .4em;
+  margin: 0 0.4em;
   -webkit-appearance: none; /* Override default CSS styles */
   appearance: none;
   /* height: 25px; /* Specified height */
-  height: .8em;
+  height: 0.8em;
   background: #808080; /* Grey background */
   outline: none; /* Remove outline */
   opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
   -webkit-transition: 0.2s; /* 0.2 seconds transition on hover */
   transition: opacity 0.2s;
-  border-radius: .5em;
+  border-radius: 0.5em;
 }
 #volSlider::-webkit-slider-thumb {
-  -webkit-appearance: none; 
+  -webkit-appearance: none;
   appearance: none;
   width: 1.3em;
-  height: 1.3em; 
-  background: #dddddd; 
+  height: 1.3em;
+  background: #dddddd;
   cursor: pointer;
   border-radius: 50%;
 }

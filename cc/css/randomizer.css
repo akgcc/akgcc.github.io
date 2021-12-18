@@ -1,254 +1,253 @@
 :root {
-	--nameplate-height: 16px;
-	--operator-image-size: 60px;
+  --nameplate-height: 16px;
+  --operator-image-size: 60px;
 }
 #buttons {
-	align-content: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-	flex: 1;
+  align-content: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  flex: 1;
 }
 #goBtn {
-	margin: 8px;
-	font-size: 2em;
-	padding:.5em;
+  margin: 8px;
+  font-size: 2em;
+  padding: 0.5em;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(100% - 10px - var(--topNav-height));
-    align-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100% - 10px - var(--topNav-height));
+  align-content: center;
 }
-#filterWrapper input[type='number'] {
-	width: 3.2em;
+#filterWrapper input[type="number"] {
+  width: 3.2em;
 }
 #output,
 .opDraft {
-	display: flex;
-	--nameplate-height: min(1.8667vw, 20px);
-	--operator-image-size: min(7vw, 75px);
-    --large-operator-image-size: min(7vw, 75px);
-	/* align-items: center; */
-	flex: 0 1 auto;
-	flex-direction: row;
-	flex-wrap: wrap;
-	justify-content: center;
+  display: flex;
+  --nameplate-height: min(1.8667vw, 20px);
+  --operator-image-size: min(7vw, 75px);
+  --large-operator-image-size: min(7vw, 75px);
+  /* align-items: center; */
+  flex: 0 1 auto;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 #output img {
-	opacity: 1;
+  opacity: 1;
 }
 #output .operatorCheckbox {
-	margin: min(.6em, .6vw) min(.3em, .3vw);
+  margin: min(0.6em, 0.6vw) min(0.3em, 0.3vw);
 }
 #draftedOps .operatorCheckbox,
 #draftedOps .operatorCheckbox .name,
 #output > .operatorCheckbox,
 #output > .operatorCheckbox .name {
-	transform: none;
-	cursor: initial;
+  transform: none;
+  cursor: initial;
 }
 
 .opDraft > .operatorCheckbox,
 .opDraft > .operatorCheckbox .name {
-	transform: none;
+  transform: none;
 }
 #results {
-	margin-top: 8px;
-	display: flex;
-	flex-direction: column;
-	width:100%;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 #results > .title {
-	text-align: center;
-	font-size: 2em;
-	padding: .1em 0;
-	background: #fff1;
-	display: flex;
-	justify-content: center;
-    align-items: center;
+  text-align: center;
+  font-size: 2em;
+  padding: 0.1em 0;
+  background: #fff1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 #results .iconButton {
-	margin-left: .5em;
+  margin-left: 0.5em;
 }
 #results .bigText {
-	text-align: center;
-	font-size: 2.5em;
+  text-align: center;
+  font-size: 2.5em;
 }
 #results .smallText {
-	text-align: center;
-	margin-top: .5em;
-	/* font-size: 2.5em; */
+  text-align: center;
+  margin-top: 0.5em;
+  /* font-size: 2.5em; */
 }
 #filterWrapper {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	margin: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 8px;
 }
 #rosterFilter {
-	margin-top: 8px;
-	display: flex;
-	justify-content: center;
-	flex-wrap: wrap;
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 #rosterFilter > div {
-	margin: 2px;
+  margin: 2px;
 }
 
 #options {
-	margin: 8px;
-	display: flex;
+  margin: 8px;
+  display: flex;
 }
 
 .filterSection {
-	/* display: flex; */
-	/* flex-direction: column; */
-	border: 1px solid var(--main-text-color);
-	border-radius: .25em;
-	margin: .5em;
-	border-collapse: separate;
-	padding: .3em;
+  /* display: flex; */
+  /* flex-direction: column; */
+  border: 1px solid var(--main-text-color);
+  border-radius: 0.25em;
+  margin: 0.5em;
+  border-collapse: separate;
+  padding: 0.3em;
 }
 #challengeRoll.hidden,
 #challengeTitle.hidden,
 #results.hidden,
 #filterWrapper.hidden,
 #options.hidden {
-	display: none;
+  display: none;
 }
 table {
-	display: table;
-	table-layout: fixed;
+  display: table;
+  table-layout: fixed;
 }
-.operatorCheckbox[data-rarity='5'] .name {
-	background-color: rgba(255, 102, 0, .1);
+.operatorCheckbox[data-rarity="5"] .name {
+  background-color: rgba(255, 102, 0, 0.1);
 }
-.operatorCheckbox[data-rarity='4'] .name {
-	background-color: rgba(255, 174, 0, .1);
+.operatorCheckbox[data-rarity="4"] .name {
+  background-color: rgba(255, 174, 0, 0.1);
 }
-.operatorCheckbox[data-rarity='3'] .name {
-	background-color: rgba(219, 177, 219, .1);
+.operatorCheckbox[data-rarity="3"] .name {
+  background-color: rgba(219, 177, 219, 0.1);
 }
-.operatorCheckbox[data-rarity='2'] .name {
-	background-color: rgba(0, 178, 246, .1);
+.operatorCheckbox[data-rarity="2"] .name {
+  background-color: rgba(0, 178, 246, 0.1);
 }
-.operatorCheckbox[data-rarity='1'] .name {
-	background-color: rgba(220, 229, 55, .1);
+.operatorCheckbox[data-rarity="1"] .name {
+  background-color: rgba(220, 229, 55, 0.1);
 }
-.operatorCheckbox[data-rarity='0'] .name {
-	background-color: rgba(159, 159, 159, .1);
-}
-
-#output .operatorCheckbox[data-rarity='5'] .name,
-.operatorCheckbox[data-rarity='5']._selected .name {
-	background-color: rgba(255, 102, 0, .4);
-}
-#output .operatorCheckbox[data-rarity='4'] .name,
-.operatorCheckbox[data-rarity='4']._selected .name {
-	background-color: rgba(255, 174, 0, .4);
-}
-#output .operatorCheckbox[data-rarity='3'] .name,
-.operatorCheckbox[data-rarity='3']._selected .name {
-	background-color: rgba(219, 177, 219, .4);
-}
-#output .operatorCheckbox[data-rarity='2'] .name,
-.operatorCheckbox[data-rarity='2']._selected .name {
-	background-color: rgba(0, 178, 246, .4);
-}
-#output .operatorCheckbox[data-rarity='1'] .name,
-.operatorCheckbox[data-rarity='1']._selected .name {
-	background-color: rgba(220, 229, 55, .4);
-}
-#output .operatorCheckbox[data-rarity='0'] .name,
-.operatorCheckbox[data-rarity='0']._selected .name {
-	background-color: rgba(159, 159, 159, .4);
+.operatorCheckbox[data-rarity="0"] .name {
+  background-color: rgba(159, 159, 159, 0.1);
 }
 
+#output .operatorCheckbox[data-rarity="5"] .name,
+.operatorCheckbox[data-rarity="5"]._selected .name {
+  background-color: rgba(255, 102, 0, 0.4);
+}
+#output .operatorCheckbox[data-rarity="4"] .name,
+.operatorCheckbox[data-rarity="4"]._selected .name {
+  background-color: rgba(255, 174, 0, 0.4);
+}
+#output .operatorCheckbox[data-rarity="3"] .name,
+.operatorCheckbox[data-rarity="3"]._selected .name {
+  background-color: rgba(219, 177, 219, 0.4);
+}
+#output .operatorCheckbox[data-rarity="2"] .name,
+.operatorCheckbox[data-rarity="2"]._selected .name {
+  background-color: rgba(0, 178, 246, 0.4);
+}
+#output .operatorCheckbox[data-rarity="1"] .name,
+.operatorCheckbox[data-rarity="1"]._selected .name {
+  background-color: rgba(220, 229, 55, 0.4);
+}
+#output .operatorCheckbox[data-rarity="0"] .name,
+.operatorCheckbox[data-rarity="0"]._selected .name {
+  background-color: rgba(159, 159, 159, 0.4);
+}
 
-.operatorCheckbox[data-rarity='5'] {
-	background-color: rgba(255, 102, 0, .05);
+.operatorCheckbox[data-rarity="5"] {
+  background-color: rgba(255, 102, 0, 0.05);
 }
-.operatorCheckbox[data-rarity='4'] {
-	background-color: rgba(255, 174, 0, .05);
+.operatorCheckbox[data-rarity="4"] {
+  background-color: rgba(255, 174, 0, 0.05);
 }
-.operatorCheckbox[data-rarity='3'] {
-	background-color: rgba(219, 177, 219, .05);
+.operatorCheckbox[data-rarity="3"] {
+  background-color: rgba(219, 177, 219, 0.05);
 }
-.operatorCheckbox[data-rarity='2'] {
-	background-color: rgba(0, 178, 246, .05);
+.operatorCheckbox[data-rarity="2"] {
+  background-color: rgba(0, 178, 246, 0.05);
 }
-.operatorCheckbox[data-rarity='1'] {
-	background-color: rgba(220, 229, 55, .05);
+.operatorCheckbox[data-rarity="1"] {
+  background-color: rgba(220, 229, 55, 0.05);
 }
-.operatorCheckbox[data-rarity='0'] {
-	background-color: rgba(159, 159, 159, .05);
+.operatorCheckbox[data-rarity="0"] {
+  background-color: rgba(159, 159, 159, 0.05);
 }
 
 #classFilter {
-	display:flex;
-	/* flex-basis: 100%; */
-	justify-content: center;
-	border: 1px solid var(--main-text-color);
-	border-radius: .5em;
-	overflow:hidden;
+  display: flex;
+  /* flex-basis: 100%; */
+  justify-content: center;
+  border: 1px solid var(--main-text-color);
+  border-radius: 0.5em;
+  overflow: hidden;
 }
 #classFilter img {
-	width: 60px;
-	height: 60px;
+  width: 60px;
+  height: 60px;
 }
 .flex-br {
-	flex-basis:100%;
+  flex-basis: 100%;
 }
 .class-selector {
-	cursor: pointer;
+  cursor: pointer;
 }
 .class-selector._selected {
-	background: #44c8;
+  background: #44c8;
 }
 
 #stageRoll > div {
-	padding: .1em 0;
-	display: flex;
-	justify-content: center;
-	flex-direction: column;
-	align-items: center;
+  padding: 0.1em 0;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .hr-row {
-	font-weight: 600;
-	border-bottom: 1px solid var(--main-text-color);
-	height: 1em;
-	margin-bottom: .1em;
+  font-weight: 600;
+  border-bottom: 1px solid var(--main-text-color);
+  height: 1em;
+  margin-bottom: 0.1em;
 }
 .hr-row th {
-	padding: .25em 0;
+  padding: 0.25em 0;
 }
 .filterSection td {
-	vertical-align: middle;
-	/* padding: .25em; */
+  vertical-align: middle;
+  /* padding: .25em; */
 }
 
 .opDraft {
-	display: flex;
-	flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
 #output span {
-	flex-basis: 100%;
-	text-align:center;
-	font-size: 1.5em;
-	margin-top: .25em;
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 1.5em;
+  margin-top: 0.25em;
 }
 #output span.hidden {
-	display:none;
+  display: none;
 }
 #draftBtn {
-	margin-left: .5em;
+  margin-left: 0.5em;
 }
 #output .skimg {
-    opacity: 1;
+  opacity: 1;
 }
