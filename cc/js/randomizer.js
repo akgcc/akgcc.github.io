@@ -10,7 +10,7 @@ const hopeMap = {
   1: 0,
   2: 1,
   3: 2,
-  4: 4,
+  4: 3,
   5: 6,
 };
 var filters = {
