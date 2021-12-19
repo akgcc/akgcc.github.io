@@ -20,11 +20,11 @@ function shuffleArray(array) {
   return array;
 }
 
-function updateJSON(dest, src) {
+function updateJSON(dest, src, existingOnly = false) {
   for (let key in src) {
-    if (typeof dest[key] == "object")
-      dest[key] = updateJSON(dest[key], src[key]);
-    else dest[key] = src[key];
+    if (typeof dest[key] == "object" && typeof src[key] == "object")
+      dest[key] = updateJSON(dest[key], src[key], existingOnly);
+    else if (!existingOnly || key in dest) dest[key] = src[key];
   }
   return dest;
 }

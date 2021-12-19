@@ -174,7 +174,10 @@ fetch("./json/skill_icon_map.json")
     const now = Math.floor(Date.now() / 1000);
 
     for (const [key, value] of Object.entries(story_table)) {
-      if (value.remakeStartTime > 0 || value.startTime >= 1633003200) {
+      if (
+        (value.remakeStartTime > 0 || value.startTime >= 1633003200) &&
+        (value.entryType == "ACTIVITY" || now <= value.startShowTime)
+      ) {
         let code = value.infoUnlockDatas.slice(-1)[0].storyCode.split("-")[0];
         if (!code)
           code = (
@@ -202,7 +205,7 @@ fetch("./json/skill_icon_map.json")
 
     // load local filter data.
     let f = localStorage.getItem("randomizerFilters");
-    if (f) updateJSON(filters, JSON.parse(f));
+    if (f) updateJSON(filters, JSON.parse(f), true);
 
     Object.values(operatorData).forEach((op) => (op.selected = true));
     function saveOpList() {
