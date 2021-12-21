@@ -5,7 +5,7 @@
     <link type="text/css" href="./css/style2.css" rel="stylesheet" />
     <link type="text/css" href="./css/story.css" rel="stylesheet" />
     <link type="text/css" rel="stylesheet" href="./css/all.min.css" />
-	<script type="text/javascript" src="./js/util.js"></script>
+    <script type="text/javascript" src="./js/util.js"></script>
   </head>
   <body ontouchstart>
     <div id="topNav">
@@ -17,39 +17,51 @@
       </div>
       <div class="nav-right">
         <div id="volControl">
-        <div class="iconButton button" id="playPauseBtn">
+          <div class="iconButton button" id="playPauseBtn">
             <i class="fas fa-play"></i>
-        </div>
-        <i class="fa fa-volume-down"></i>
-        <input type="range" min="0" max="100" value="0" class="slider" id="volSlider"/>
-        <i class="fa fa-volume-up"></i>
+          </div>
+          <i class="fa fa-volume-down"></i>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value="0"
+            class="slider"
+            id="volSlider"
+          />
+          <i class="fa fa-volume-up"></i>
         </div>
         <div class="vol-spacer"></div>
         <a class="rightButton" href="./../index.html">
-        <div class="button iconButton" id="homeButton">
-          <i class="fas fa-home"></i>
-        </div>
+          <div class="button iconButton" id="homeButton">
+            <i class="fas fa-home"></i>
+          </div>
         </a>
       </div>
     </div>
+    <div id="avatarModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <p>Some text in the Modal..</p>
+      </div>
+    </div>
     <div class="btnPanel" id="ccselector">
-        <select class="storySelect" id="catSelect"></select>
-        <select class="storySelect" id="subCatSelect"></select>
-        <select class="storySelect" id="thirdCatSelect"></select>
+      <select class="storySelect" id="catSelect"></select>
+      <select class="storySelect" id="subCatSelect"></select>
+      <select class="storySelect" id="thirdCatSelect"></select>
     </div>
     <div class="storyNav top">
-    <i class="fas fa-angle-double-left story_nav story_prev"></i>
-    <div class="spacer"></div>
-    <i class="fas fa-angle-double-right story_nav story_next"></i>
+      <i class="fas fa-angle-double-left story_nav story_prev"></i>
+      <div class="spacer"></div>
+      <i class="fas fa-angle-double-right story_nav story_next"></i>
     </div>
-    <div id="storyDisp">
-    </div>
+    <div id="storyDisp"></div>
     <div class="storyNav">
-    <i class="fas fa-angle-double-left story_nav story_prev"></i>
-    <div class="spacer"></div>
-    <i class="fas fa-angle-double-right story_nav story_next"></i>
+      <i class="fas fa-angle-double-left story_nav story_prev"></i>
+      <div class="spacer"></div>
+      <i class="fas fa-angle-double-right story_nav story_next"></i>
     </div>
     <i id="topBtn" class="fas fa-caret-square-up"></i>
-	<script type="text/javascript" src="./js/story.js"></script>
+    <script type="text/javascript" src="./js/story.js"></script>
   </body>
 </html>

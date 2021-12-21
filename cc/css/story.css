@@ -297,3 +297,52 @@ audio {
   cursor: pointer;
   border-radius: 50%;
 }
+
+/* The Modal (background) */
+.modal {
+  display: none;
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: hidden; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #222e;
+  border: 1px solid #777;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: min(1024px, 80vh, 80vw);
+  width: min(1024px, 80vw, 80vh);
+}
+.modal-content,
+.modal-content img {
+  border-radius: 0.5em;
+  pointer-events: none;
+}
+.modal-content img {
+  max-width: 100%;
+}
+
+.avatar {
+  cursor: pointer;
+}
+.avatar:hover {
+  transition: transform 0.1s;
+  transform: scale(1.05);
+}
+.avatar:hover:after {
+  content: "\f00e";
+  font-weight: 900;
+  position: absolute;
+  font-family: "Font Awesome 5 Free";
+  font-size: 1.5em;
+}

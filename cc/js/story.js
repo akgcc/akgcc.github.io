@@ -655,7 +655,7 @@ function avatarImg(path) {
     src_array.push(na_name);
     src_array.push(base_name + "#2"); // special case for missing mayer #1 image.
 
-    let img = document.createElement("img");
+    const img = document.createElement("img");
     var i = 1;
     img.onerror = function () {
         if (i < src_array.length) {
@@ -677,7 +677,7 @@ function avatarImg(path) {
     if (avatarCoords[base_name]) {
         img.style.left = avatarCoords[base_name].x;
         img.style.top = avatarCoords[base_name].y;
-        let scale = avatarCoords[base_name].s;
+        let scale = avatarCoords[base_name].s || 0.5;
         img.style.transform = `scale(${scale})`;
     }
     img.src =
@@ -688,6 +688,7 @@ function avatarImg(path) {
     wrap.classList.add("avatar");
     wrap.classList.add("npc");
     wrap.appendChild(img);
+    wrap.onclick = () => enlargeAvatar(img.src);
     return wrap;
 }
 function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
@@ -728,6 +729,19 @@ function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
     }
 
     return wrap;
+}
+
+const avatarModal = document.getElementById("avatarModal");
+window.onclick = (e) => {
+    if (e.target == avatarModal) avatarModal.style.display = "none";
+};
+function enlargeAvatar(src) {
+    avatarModal.style.display = "block";
+    let content = avatarModal.querySelector(".modal-content");
+    content.innerHTML = "";
+    let im = document.createElement("img");
+    im.src = src;
+    content.appendChild(im);
 }
 
 //Get the button:
