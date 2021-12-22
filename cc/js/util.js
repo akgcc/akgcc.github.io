@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () =>
   document.body.appendChild(tt)
 );
 
-async function get_char_table(keep_non_playable = false) {
+async function get_char_table(keep_non_playable = false, server = "en_US") {
   // gets a modified character table:
   // non-playable characters removed
   // add charId key for each character
@@ -45,11 +45,15 @@ async function get_char_table(keep_non_playable = false) {
   // also builds charIdMap for use elsewhere
   // converts internal profession names to in-game ones
   let raw = await fetch(
-    "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/character_table.json"
+    "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+      server +
+      "/gamedata/excel/character_table.json"
   );
   let json = await raw.json();
   raw = await fetch(
-    "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/char_patch_table.json"
+    "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+      server +
+      "/gamedata/excel/char_patch_table.json"
   );
   let patch = await raw.json();
   updateJSON(json, patch.patchChars);

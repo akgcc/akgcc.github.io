@@ -346,3 +346,6 @@ audio {
   font-family: "Font Awesome 5 Free";
   font-size: 1.5em;
 }
+#serverSelect {
+  margin-right: 8px;
+}

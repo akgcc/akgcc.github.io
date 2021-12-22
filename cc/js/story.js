@@ -15,21 +15,26 @@ var operatorData,
 const charPathFixes = {
     char_2006_weiywfmzuki_1: "char_2006_fmzuki_1",
 };
-get_char_table()
+const serverString = localStorage.getItem("server") || "en_US";
+get_char_table(false, serverString)
     .then((js) => {
         operatorData = js;
         for (var key in operatorData) {
             charCodeMap[key.split("_")[2]] = key;
         }
         return fetch(
-            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/story_table.json"
+            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+                serverString +
+                "/gamedata/excel/story_table.json"
         );
     })
     .then((res) => res.json())
     .then((js) => {
         storyData = js;
         return fetch(
-            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/story/story_variables.json"
+            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+                serverString +
+                "/gamedata/story/story_variables.json"
         );
     })
     .then((res) => res.json())
@@ -41,7 +46,9 @@ get_char_table()
     .then((js) => {
         avatarCoords = js;
         return fetch(
-            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/story_review_table.json"
+            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+                serverString +
+                "/gamedata/excel/story_review_table.json"
         );
     })
     .then((res) => res.json())
@@ -58,15 +65,19 @@ get_char_table()
         storyTypes.record.sort((a, b) => {
             let na = (
                 operatorData[charCodeMap[a.split("story_")[1].split("_")[0]]]
-                    .name +
-                " " +
-                a.split("_").slice(-1)
+                    .name ||
+                operatorData[charCodeMap[a.split("story_")[1].split("_")[0]]]
+                    .appellation +
+                    " " +
+                    a.split("_").slice(-1)
             ).toLowerCase();
             let nb = (
                 operatorData[charCodeMap[b.split("story_")[1].split("_")[0]]]
-                    .name +
-                " " +
-                b.split("_").slice(-1)
+                    .name ||
+                operatorData[charCodeMap[b.split("story_")[1].split("_")[0]]]
+                    .appellation +
+                    " " +
+                    b.split("_").slice(-1)
             ).toLowerCase();
             if (na < nb) return -1;
             if (nb < na) return 1;
@@ -156,7 +167,10 @@ get_char_table()
                         let name =
                             operatorData[
                                 charCodeMap[n.split("story_")[1].split("_")[0]]
-                            ].name;
+                            ].name ||
+                            operatorData[
+                                charCodeMap[n.split("story_")[1].split("_")[0]]
+                            ].appellation;
                         let storynum = parseInt(/set_(\d+)/i.exec(n)[1]);
                         if (storynum > 1 || n.slice(0, -1) + "2" in storyReview)
                             name += " [" + n.split("_").slice(-1) + "]";
@@ -253,7 +267,9 @@ get_char_table()
 
 async function genStory(storyName, key) {
     return await fetch(
-        "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/story/" +
+        "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+            serverString +
+            "/gamedata/story/" +
             key +
             ".txt"
     )
@@ -854,3 +870,25 @@ volSlider.oninput = () => {
     });
     playPauseMusic();
 };
+const SERVERS = {
+    EN: "en_US",
+    JP: "ja_JP",
+    KR: "ko_KR",
+    CN: "zh_CN",
+};
+const serverSelect = document.getElementById("serverSelect");
+Object.keys(SERVERS).forEach((k) => {
+    let opt = document.createElement("option");
+    opt.value = SERVERS[k];
+    opt.innerHTML = k;
+    serverSelect.appendChild(opt);
+});
+serverSelect.onchange = () => {
+    localStorage.setItem("server", serverSelect.value);
+    location.reload();
+};
+
+Array.from(serverSelect.options).forEach((opt, i) => {
+    if (opt.value == serverString) opt.selected = true;
+    else opt.selected = false;
+});
