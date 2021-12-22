@@ -234,12 +234,26 @@ get_char_table(false, serverString)
         );
         function loadFromHash() {
             [uppercat, cat, idx] = window.location.hash.slice(1).split("&");
+
             Array.from(document.getElementById("catSelect").options).forEach(
                 (o) => {
                     if (o.value == uppercat) o.selected = true;
                 }
             );
             buildSecondSelector(uppercat, false);
+
+            // change server & reload page if CN exclusive
+            if (!(cat in storyReview)) {
+                if (!sessionStorage.getItem("userChange")) {
+                    localStorage.setItem("server", "zh_CN");
+                    location.reload();
+                } else {
+                    cat =
+                        document.getElementById("subCatSelect").options[0]
+                            .value;
+                }
+            }
+
             Array.from(document.getElementById("subCatSelect").options).forEach(
                 (o) => {
                     if (o.value == cat) o.selected = true;
@@ -257,6 +271,7 @@ get_char_table(false, serverString)
                 ];
             genStory(data.storyName, data.storyTxt).then(() => {
                 scrollFunction();
+                sessionStorage.setItem("userChange", false);
             });
         }
         window.onhashchange = loadFromHash;
@@ -885,6 +900,7 @@ Object.keys(SERVERS).forEach((k) => {
 });
 serverSelect.onchange = () => {
     localStorage.setItem("server", serverSelect.value);
+    sessionStorage.setItem("userChange", true);
     location.reload();
 };
 
