@@ -191,7 +191,6 @@ get_char_table()
           },
           tooltip: {
             callbacks: {
-              afterLabel: tt_size_plugin,
               label: function (context) {
                 if (context.dataset.label.includes("E2"))
                   return (

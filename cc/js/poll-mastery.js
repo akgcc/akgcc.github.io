@@ -275,7 +275,6 @@ get_char_table()
           tooltip: {
             mode: "nearest",
             // callbacks: {
-            // afterLabel: tt_size_plugin,
             // label: function(context) {
             // if (context.dataset.label.includes('E2'))
             // return context.dataset.label + ': ' + context.raw.toFixed(1) + '% (' + (context.raw/context.chart.data.datasets[context.datasetIndex^1].data[context.dataIndex]*100).toFixed(1) + '%)';

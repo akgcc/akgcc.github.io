@@ -201,9 +201,6 @@ fetch("./json/cctitles.json")
 				},
 				plugins: {
 					tooltip: {
-						callbacks: {
-							afterLabel: tt_size_plugin,
-						},
 						enabled: false,
 						position: "nearest",
 						external: thumbnail_tooltip(

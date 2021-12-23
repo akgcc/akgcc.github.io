@@ -8,7 +8,7 @@ const CLASS_MAPPING = {
   SPECIAL: "Specialist",
   MEDIC: "Medic",
 };
-var charIdMap = {};
+const charIdMap = {};
 function intersection(a, b) {
   return new Set([...a].filter((x) => b.has(x)));
 }
@@ -63,13 +63,12 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
     json[op].profession =
       CLASS_MAPPING[json[op].profession] || json[op].profession;
   });
-  if (!keep_non_playable)
-    for (var key in json) {
-      if (!json[key].displayNumber) delete json[key];
-    }
   for (var key in json) {
-    charIdMap[json[key].name] = key;
-    json[key].charId = key;
+    if (!keep_non_playable && !json[key].displayNumber) delete json[key];
+    else {
+      charIdMap[json[key].name] = key;
+      json[key].charId = key;
+    }
   }
   // add skadiva short name
   charIdMap["Skadiva"] = "char_1012_skadi2";
@@ -77,11 +76,14 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
 }
 
 function thumbnail_tooltip(chart_canvas) {
-  // This function is not perfect, it will only work at this exact tooltip height due to the image adding width
-  // to compensate for this extra width, you must set xPadding in your chart's tooltip options to 6+h/2 where h is the computed height of the tooltip - 6. (6 is for the 3px padding defined in the css)
-  // This is done automatically by adding the tt_size_plugin() callback (below) to tooltip.plugins.afterLabel (options:plugins:tooltip:callbacks:afterLabel:)
+  // Works only with this specific custom tooltip CSS.
   return function f(context) {
     let tooltip = context.tooltip;
+    const tooltipStylePadding = 3;
+    const fullTTWidth =
+      tooltip.width +
+      tooltip.height -
+      Chart.defaults.plugins.tooltip.padding * 2;
     var tooltipEl = document.getElementById("chartjs-tooltip");
     if (tooltip.opacity == 0) {
       tooltipEl.classList.add("hidden");
@@ -112,9 +114,44 @@ function thumbnail_tooltip(chart_canvas) {
     }
     innerHtml += "</div>";
     tooltipEl.innerHTML = innerHtml;
-    tooltipEl.style.left = chart_canvas.offsetLeft + tooltip.x + "px";
+    let tt_left = chart_canvas.offsetLeft + tooltip.caretX;
+    let xmod = 0;
+    switch (tooltip.xAlign) {
+      case "left":
+        break;
+      case "center":
+        tt_left += -fullTTWidth / 2 - tooltipStylePadding;
+        break;
+      case "right":
+        xmod = -tooltip.height;
+        tt_left += -fullTTWidth - tooltipStylePadding * 2;
+        break;
+    }
+    switch (tooltip.yAlign) {
+      case "center":
+        switch (tooltip.xAlign) {
+          case "right":
+            tt_left -= 5 + 1;
+            break;
+          case "left":
+            tt_left += 5 + 1;
+            break;
+        }
+        break;
+      default:
+        switch (tooltip.xAlign) {
+          case "right":
+            tt_left += 7;
+            break;
+          case "left":
+            tt_left -= 7;
+            break;
+        }
+        break;
+    }
+    tooltipEl.style.left = tt_left + "px";
     tooltipEl.style.top = chart_canvas.offsetTop + tooltip.y + "px";
-    tooltipEl.style.height = tooltip.height - 6 + "px"; // -3px padding
+    tooltipEl.style.height = tooltip.height + "px";
     tooltipEl.style.font = Chart.helpers.toFont(
       tooltip.options.bodyFont
     ).string;
@@ -136,26 +173,6 @@ function thumbnail_tooltip(chart_canvas) {
       });
     });
   };
-}
-
-// Call this plugin in tooltip's afterLabel callback to set the size appropriately for use of thumbnail_tooltip()
-function tt_size_plugin(context) {
-  let default_x =
-    context.chart.options.plugins.tooltip.x ||
-    Chart.defaults.plugins.tooltip.padding;
-  let new_padding = default_x + (context.chart.tooltip.height - default_x) / 2;
-  if (
-    new_padding &&
-    new_padding != context.chart.options.plugins.tooltip.padding.x
-  ) {
-    context.chart.options.plugins.tooltip.padding = {
-      x: new_padding,
-      y:
-        context.chart.options.plugins.tooltip.y ||
-        Chart.defaults.plugins.tooltip.padding,
-    };
-    context.chart.update("none");
-  }
 }
 
 var percentColors; // define this according to your data.

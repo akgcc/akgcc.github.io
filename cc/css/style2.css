@@ -82,6 +82,7 @@ html {
   top: calc(50% - 5px);
 }
 #chartjs-tooltip {
+  box-sizing: border-box;
   display: inline-flex;
   position: absolute;
   background: rgba(0, 0, 0, 0.7);
