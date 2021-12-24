@@ -32,8 +32,8 @@ var filters = {
     pointDraft: {
       enabled: true,
       disp: "Point Draft",
-      max: 34,
-      maxvalmax: 12 * 6,
+      max: 30,
+      maxvalmax: maxTeamSize * 6,
     },
     randomizeSkills: {
       disp: "Randomize Skills",
