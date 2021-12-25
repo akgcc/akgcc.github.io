@@ -719,7 +719,10 @@ function avatarImg(path) {
     wrap.classList.add("avatar");
     wrap.classList.add("npc");
     wrap.appendChild(img);
-    wrap.onclick = () => enlargeAvatar(img.src);
+    wrap.onclick = (e) => {
+        e.stopPropagation();
+        enlargeAvatar(img.src);
+    };
     return wrap;
 }
 function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
@@ -738,7 +741,6 @@ function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
     wrap.appendChild(left);
     wrap.appendChild(txt);
     wrap.appendChild(right);
-
     if (args && args.name) {
         txt.setAttribute("data-name", args.name);
         txt.style.setProperty("--name-color", selectColor(colorIndex));
@@ -908,3 +910,16 @@ Array.from(serverSelect.options).forEach((opt, i) => {
     if (opt.value == serverString) opt.selected = true;
     else opt.selected = false;
 });
+
+// document.onclick = (e) => {
+//     console.log(e.target);
+//     if (
+//         ["dialog", "dialog-left", "dialog-right", "scene"].some((cname) =>
+//             e.target.classList.contains(cname)
+//         )
+//     ) {
+//         Array.from(document.querySelectorAll(".dialog")).forEach((d) => {
+//             d.classList.toggle("invisible");
+//         });
+//     }
+// };
