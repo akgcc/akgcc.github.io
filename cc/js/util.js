@@ -9,6 +9,16 @@ const CLASS_MAPPING = {
   MEDIC: "Medic",
 };
 const charIdMap = {};
+const CCMAP = {
+  "#b": {
+    tag: "-ccbclear",
+    title: "Operation Beta (CCβ)",
+  },
+  "#all": {
+    tag: "-cc-all",
+    title: "Combined Data (All CCs)",
+  },
+};
 function intersection(a, b) {
   return new Set([...a].filter((x) => b.has(x)));
 }
@@ -36,7 +46,21 @@ tt.classList.add("hidden");
 document.addEventListener("DOMContentLoaded", () =>
   document.body.appendChild(tt)
 );
-
+async function get_cc_list(server = "en_US") {
+  let raw = await fetch(
+    "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+      server +
+      "/gamedata/excel/crisis_table.json"
+  );
+  let data = await raw.json();
+  data.seasonInfo.forEach((cc) => {
+    let cc_num = /rune_season_(\d+)_1/.exec(cc.seasonId)[1];
+    CCMAP["#" + cc_num] = {
+      tag: "-cc" + cc_num + "clear",
+      title: cc.name + " (CC#" + cc_num + ")",
+    };
+  });
+}
 async function get_char_table(keep_non_playable = false, server = "en_US") {
   // gets a modified character table:
   // non-playable characters removed

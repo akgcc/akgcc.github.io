@@ -3,10 +3,8 @@ document.getElementById("clearsLink").href = "./cc.html" + window.location.hash;
 window.onhashchange = () => window.location.reload();
 var operatorData, CCTAG;
 const tierMap = { 6: "S", 5: "A", 4: "B", 3: "C!", 2: "D", 1: "F" };
-fetch("./json/cctitles.json")
-  .then((res) => res.json())
-  .then((json) => {
-    CCMAP = json;
+get_cc_list()
+  .then(() => {
     CCTAG = CCMAP[window.location.hash].tag;
     document.getElementById("pageTitle").innerHTML =
       CCMAP[window.location.hash].title;

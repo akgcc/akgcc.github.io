@@ -21,10 +21,8 @@ function changeSetting(key, value) {
 	usageSettings[key] = value;
 	localStorage.setItem("usageSettings", JSON.stringify(usageSettings));
 }
-fetch("./json/cctitles.json")
-	.then((res) => res.json())
-	.then((json) => {
-		CCMAP = json;
+get_cc_list()
+	.then(() => {
 		CCTAG = CCMAP[window.location.hash].tag;
 		document.getElementById("pageTitle").innerHTML =
 			CCMAP[window.location.hash].title;

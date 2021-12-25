@@ -6,6 +6,7 @@ const lightbox = GLightbox({
   moreLength: 0,
   zoomable: false,
 });
+get_cc_list();
 if (!window.location.hash) window.location.hash = "#4";
 document.getElementById("usageLink").href =
   "./cc-usage.html" + window.location.hash;
@@ -46,11 +47,9 @@ fetch("./json/skill_icon_map.json")
   .then((res) => res.json())
   .then((json) => {
     skillIconMap = json;
-    return fetch("./json/cctitles.json");
+    return get_cc_list();
   })
-  .then((res) => res.json())
-  .then((json) => {
-    CCMAP = json;
+  .then(() => {
     CCTAG = CCMAP[window.location.hash].tag;
     document.getElementById("pageTitle").innerHTML =
       CCMAP[window.location.hash].title;
