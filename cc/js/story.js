@@ -272,6 +272,9 @@ get_char_table(false, serverString)
             genStory(data.storyName, data.storyTxt).then(() => {
                 scrollFunction();
                 sessionStorage.setItem("userChange", false);
+                let visicon = toggleVisBtn.querySelector("i");
+                visicon.classList.add("fa-eye-slash");
+                visicon.classList.remove("fa-eye");
             });
         }
         window.onhashchange = loadFromHash;
@@ -910,7 +913,15 @@ Array.from(serverSelect.options).forEach((opt, i) => {
     if (opt.value == serverString) opt.selected = true;
     else opt.selected = false;
 });
-
+const toggleVisBtn = document.getElementById("visButton");
+toggleVisBtn.onclick = () => {
+    Array.from(document.querySelectorAll(".dialog")).forEach((d) => {
+        d.classList.toggle("invisible");
+    });
+    let icon = toggleVisBtn.querySelector("i");
+    icon.classList.toggle("fa-eye-slash");
+    icon.classList.toggle("fa-eye");
+};
 // document.onclick = (e) => {
 //     console.log(e.target);
 //     if (

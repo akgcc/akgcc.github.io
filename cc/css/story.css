@@ -224,7 +224,7 @@ audio {
 #volControl {
   display: flex;
   align-items: center;
-  margin: 1em;
+  margin: 0 1em 0 0;
 }
 .vol-spacer {
   /* flex: 1; */

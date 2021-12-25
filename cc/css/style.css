@@ -370,6 +370,7 @@ body {
 .rightButton > .button {
   font-size: 1.2rem;
   line-height: 1.2rem;
+  text-decoration: none;
 }
 .iconButton {
   width: 1.2rem;
@@ -378,9 +379,11 @@ body {
   /* align-self: flex-end; */
   text-align: center;
   justify-content: center;
+  align-items: center;
   /* line-height: 1rem; */
   /* text-justify: center; */
-  /* display:flex; */
+  display: flex;
+  text-decoration: none;
 }
 
 @media (hover: hover) {
@@ -420,7 +423,7 @@ div.button.toggled.legend {
 }
 
 .fa-home {
-  transform: translateX(-4%);
+  /*transform: translateX(-4%);*/
 }
 #topNav,
 #filters,
