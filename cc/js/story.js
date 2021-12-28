@@ -11,7 +11,8 @@ var operatorData,
         mini: "Vignette",
     },
     soundMap,
-    avatarCoords;
+    avatarCoords,
+    lastBackgroundImage;
 const charPathFixes = {
     char_2006_weiywfmzuki_1: "char_2006_fmzuki_1",
 };
@@ -309,6 +310,21 @@ async function genStory(storyName, key) {
                 activeReferences = [],
                 defaultPredicate = "1",
                 firstAudio;
+            function addSceneBreak() {
+                let scenebreak = document.createElement("div");
+                scenebreak.classList.add("scenebreak");
+                storyDiv.appendChild(scenebreak);
+            }
+            function addCurrentScene() {
+                if (
+                    scene &&
+                    (scene.childElementCount ||
+                        scene.classList.contains("image"))
+                ) {
+                    storyDiv.appendChild(scene);
+                    addSceneBreak();
+                }
+            }
             for (const line of lines) {
                 if (line[1]) {
                     [_, cmd, args] = /\[([^\(\]]+)(?:\((.+)\))?\]/.exec(
@@ -378,8 +394,15 @@ async function genStory(storyName, key) {
                             };
                             if (scene) scene.appendChild(wrap);
                             break;
+
                         case "background":
+                            if (!args || !args.image) break;
                         case "image":
+                            if (
+                                (!args || !args.image) &&
+                                (!scene || !scene.classList.contains("image"))
+                            )
+                                break;
                             // insert new div when background changes and set to current scene
                             let getdim = new Image();
                             let setDims = function () {
@@ -407,23 +430,38 @@ async function genStory(storyName, key) {
                                 alignBackground(this.div);
                                 this.im.remove();
                             };
+                            let wasDisplayingImage = false;
                             if (scene) {
-                                storyDiv.appendChild(scene);
-                                let scenebreak = document.createElement("div");
-                                scenebreak.classList.add("scenebreak");
-                                storyDiv.appendChild(scenebreak);
+                                wasDisplayingImage =
+                                    scene.classList.contains("image");
+                                addCurrentScene();
                             }
                             scene = document.createElement("div");
                             scene.classList.add("scene");
+                            if (
+                                cmd.toLowerCase() == "image" &&
+                                args &&
+                                args.image
+                            )
+                                scene.classList.add("image");
                             if (firstAudio) {
                                 scene.appendChild(firstAudio);
                                 firstAudio = null;
                             }
                             let imgurl;
-                            if (!args || !args.image)
+                            if (!args || !args.image) {
                                 imgurl =
                                     "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/bg_black.png";
-                            else {
+                                if (
+                                    cmd.toLowerCase() == "image" &&
+                                    wasDisplayingImage &&
+                                    lastBackgroundImage
+                                )
+                                    // end of image, revert back to last bg
+                                    // there are many redundancies here, this will always be reached if the outer if() is true
+                                    // wasDisplayingImage is not needed at all.
+                                    imgurl = lastBackgroundImage;
+                            } else {
                                 switch (cmd.toLowerCase()) {
                                     case "image":
                                         imgurl =
@@ -436,12 +474,7 @@ async function genStory(storyName, key) {
                                             "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/" +
                                             args.image +
                                             ".png";
-                                        break;
-                                    case "showitem":
-                                        imgurl =
-                                            "https://aceship.github.io/AN-EN-Tags/img/avg/items/" +
-                                            args.image +
-                                            ".png";
+                                        lastBackgroundImage = imgurl;
                                         break;
                                 }
                             }
@@ -598,6 +631,7 @@ async function genStory(storyName, key) {
                             break;
                         case "header":
                         case "blocker":
+                        // responsible for fade effects/fade to black for certain lines
                         case "delay":
                         case "characteraction":
                         case "charactercutin":
@@ -632,7 +666,7 @@ async function genStory(storyName, key) {
                     }
                 }
             }
-            storyDiv.appendChild(scene);
+            addCurrentScene();
         });
 }
 function playWhenReady(audio) {
