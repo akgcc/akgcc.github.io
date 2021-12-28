@@ -480,6 +480,17 @@ async function genStory(storyName, key) {
                                 speaker = 0;
                             }
                             break;
+                        case "subtitle":
+                            chars = {};
+                            speaker = 0;
+                            if (scene && args && args.text) {
+                                let dlg = makeDialog(null, args.text, {}, 0);
+                                activeReferences.forEach((r) => {
+                                    predicate[r].push(dlg);
+                                });
+                                scene.appendChild(dlg);
+                            }
+                            break;
                         case "dialog":
                             chars = {};
                             speaker = 0;
