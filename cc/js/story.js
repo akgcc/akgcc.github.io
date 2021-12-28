@@ -624,6 +624,7 @@ async function genStory(storyName, key) {
                     // group 2 alone indicates speakerless text (narrator)
                     if (scene) {
                         let dlg = makeDialog(null, line[2], {}, 0);
+                        dlg.classList.add("narration");
                         activeReferences.forEach((r) => {
                             predicate[r].push(dlg);
                         });

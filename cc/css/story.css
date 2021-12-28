@@ -62,6 +62,10 @@
   transition: opacity 0.5s;
   opacity: 1;
 }
+.dialog.narration .text {
+  background: #fff8;
+  color: black;
+}
 .dialog.hidden {
   visibility: hidden;
   position: absolute;
