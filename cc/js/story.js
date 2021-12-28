@@ -600,15 +600,21 @@ async function genStory(storyName, key) {
                         case "blocker":
                         case "delay":
                         case "characteraction":
+                        case "charactercutin":
                         case "camerashake":
                         case "cameraeffect":
                         case "fadetime":
+                        case "soundvolume":
                         case "musicvolume":
                         case "stopmusic":
+                        case "stopsound":
                         case "imagetween":
+                        case "backgroundtween":
                         case "skiptothis":
                         case "gotopage":
                         case "hideitem":
+                        case "startbattle":
+                        case "tutorial":
                             break;
                         default:
                             // console.log("line not parsed:", line);
