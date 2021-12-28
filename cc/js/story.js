@@ -361,6 +361,23 @@ async function genStory(storyName, key) {
                 } else if (line[1]) {
                     // group 1 alone indicates stage direction
                     switch (cmd.toLowerCase()) {
+                        case "showitem":
+                            let wrap = document.createElement("div");
+                            wrap.classList.add("dialog");
+                            let imgbtn = document.createElement("i");
+                            imgbtn.classList.add("fas");
+                            imgbtn.classList.add("fa-image");
+                            imgbtn.classList.add("itemBtn");
+                            wrap.appendChild(imgbtn);
+                            const itemsrc =
+                                "https://aceship.github.io/AN-EN-Tags/img/avg/items/" +
+                                args.image +
+                                ".png";
+                            imgbtn.onclick = () => {
+                                enlargeAvatar(itemsrc, true);
+                            };
+                            if (scene) scene.appendChild(wrap);
+                            break;
                         case "background":
                         case "image":
                             // insert new div when background changes and set to current scene
@@ -417,6 +434,12 @@ async function genStory(storyName, key) {
                                     case "background":
                                         imgurl =
                                             "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/" +
+                                            args.image +
+                                            ".png";
+                                        break;
+                                    case "showitem":
+                                        imgurl =
+                                            "https://aceship.github.io/AN-EN-Tags/img/avg/items/" +
                                             args.image +
                                             ".png";
                                         break;
@@ -573,7 +596,22 @@ async function genStory(storyName, key) {
                             if (scene) scene.appendChild(audio);
                             else firstAudio = audio;
                             break;
+                        case "header":
+                        case "blocker":
+                        case "delay":
+                        case "characteraction":
+                        case "camerashake":
+                        case "cameraeffect":
+                        case "fadetime":
+                        case "musicvolume":
+                        case "stopmusic":
+                        case "imagetween":
+                        case "skiptothis":
+                        case "gotopage":
+                        case "hideitem":
+                            break;
                         default:
+                            // console.log("line not parsed:", line);
                             break;
                     }
                 } else if (line[2]) {
@@ -782,12 +820,13 @@ const avatarModal = document.getElementById("avatarModal");
 window.onclick = (e) => {
     if (e.target == avatarModal) avatarModal.style.display = "none";
 };
-function enlargeAvatar(src) {
+function enlargeAvatar(src, cover = false) {
     avatarModal.style.display = "block";
     let content = avatarModal.querySelector(".modal-content");
     content.innerHTML = "";
     let im = document.createElement("img");
     im.src = src;
+    if (cover) im.classList.add("item");
     content.appendChild(im);
 }
 
