@@ -1124,7 +1124,7 @@ Array.from(serverSelect.options).forEach((opt, i) => {
 });
 const toggleVisBtn = document.getElementById("visButton");
 toggleVisBtn.onclick = () => {
-    Array.from(document.querySelectorAll(".dialog")).forEach((d) => {
+    Array.from(document.querySelectorAll(".scene")).forEach((d) => {
         d.classList.toggle("invisible");
     });
     let icon = toggleVisBtn.querySelector("i");

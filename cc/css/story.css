@@ -35,6 +35,9 @@
   flex: 1;
   background-color: var(--fill-blocker);
 }
+.scene:after {
+  transition: opacity 0.5s;
+}
 .scene.multipart {
   background-attachment: scroll, scroll;
   background-size: 75%, 75%;
@@ -95,7 +98,8 @@
   position: absolute;
   opacity: 0;
 }
-.dialog.invisible {
+.scene.invisible:after,
+.scene.invisible * {
   opacity: 0;
   pointer-events: none;
 }
