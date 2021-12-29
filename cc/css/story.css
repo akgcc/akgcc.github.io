@@ -30,6 +30,11 @@
   filter: blur(5px);
   z-index: -1;
 }
+.scene.blockerPadded:after {
+  content: "";
+  flex: 1;
+  background-color: var(--fill-blocker);
+}
 .scene.multipart {
   background-attachment: scroll, scroll;
   background-size: 75%, 75%;
@@ -45,8 +50,26 @@
 }
 .scenebreak {
   width: 100%;
-  height: 2.5em;
+  height: 2em;
   background: var(--main-background-color);
+}
+.blocker {
+  width: 100%;
+  background-color: #f008;
+}
+.blocker.fadein {
+  background: radial-gradient(
+    200% 200% at 50% 0%,
+    var(--start-color) 25%,
+    var(--end-color) 50%
+  );
+}
+.blocker.fadeout {
+  background: radial-gradient(
+    200% 200% at 50% 100%,
+    var(--end-color) 25%,
+    var(--start-color) 50%
+  );
 }
 #storyDisp {
   display: flex;
@@ -56,15 +79,16 @@
 }
 .dialog {
   display: flex;
-  padding: 0;
-  margin: 0.4em 0.4em;
+  margin: 0;
+  padding: 0.4em 0.4em;
   justify-content: center;
   transition: opacity 0.5s;
   opacity: 1;
 }
+.dialog.blocker {
+  padding: 0;
+}
 .dialog.narration .text {
-  background: #fff8;
-  color: black;
 }
 .dialog.hidden {
   visibility: hidden;

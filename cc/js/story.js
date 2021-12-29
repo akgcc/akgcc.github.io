@@ -309,21 +309,248 @@ async function genStory(storyName, key) {
                 predicate = {},
                 activeReferences = [],
                 defaultPredicate = "1",
-                firstAudio;
-            function addSceneBreak() {
+                firstAudio,
+                lastBlockerColor = "rgba(0,0,0,0)",
+                hangingBlocker;
+            function addSceneBreak(requireBreak) {
                 let scenebreak = document.createElement("div");
                 scenebreak.classList.add("scenebreak");
                 storyDiv.appendChild(scenebreak);
+
+                Array.from(scene.children)
+                    .reverse()
+                    .some((el) => {
+                        if (
+                            el.classList.contains("blocker") &&
+                            el.classList.contains("fadein")
+                        ) {
+                            //color scenebreak based on last blocker
+                            scenebreak.style.background = `linear-gradient(${el.style.getPropertyValue(
+                                "--end-color"
+                            )},${el.style.getPropertyValue(
+                                "--end-color"
+                            )}), linear-gradient(#000,#000)`;
+                            let spacer = document.createElement("div");
+                            spacer.style.flex = 99999;
+                            el.before(spacer);
+                            // if last element is soundplayer, don't need a scene break.
+                            if (
+                                !requireBreak &&
+                                scene.querySelector(".soundPlayer:last-child")
+                            )
+                                scenebreak.remove();
+                            return true;
+                        }
+                        if (
+                            el.classList.contains("blocker") &&
+                            el.classList.contains("fadeout")
+                        )
+                            return true;
+                    });
+
+                if (
+                    parseFloat(
+                        /(?:[\.\d]+,){3}([\.\d]+)/.exec(lastBlockerColor)[1]
+                    )
+                ) {
+                    // apply opaque blocker color to rest of scene.
+                    scene.style.setProperty(
+                        "--fill-blocker",
+                        lastBlockerColor.split(" ")[0]
+                    );
+                    scene.classList.add("blockerPadded");
+                }
             }
-            function addCurrentScene() {
+            function addCurrentScene(requireBreak = false) {
                 if (
                     scene &&
                     (scene.childElementCount ||
                         scene.classList.contains("image"))
                 ) {
+                    // remove stray blocker (add it to the next scene later)
+                    hangingBlocker = scene.querySelector(
+                        ".blocker.fadeout:last-child"
+                    );
+                    if (hangingBlocker) hangingBlocker.remove();
                     storyDiv.appendChild(scene);
-                    addSceneBreak();
+                    addSceneBreak(requireBreak);
                 }
+            }
+            function getWorkingScene(imageScene = false) {
+                if (!scene) {
+                    scene = createScene(
+                        "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/bg_black.png",
+                        imageScene
+                    );
+                }
+                return scene;
+            }
+            function createScene(imgurl, isImage) {
+                scene = document.createElement("div");
+                scene.classList.add("scene");
+                if (isImage) scene.classList.add("image");
+                if (hangingBlocker) {
+                    scene.appendChild(hangingBlocker);
+                    hangingBlocker = null;
+                }
+                if (firstAudio) {
+                    scene.appendChild(firstAudio);
+                    firstAudio = null;
+                }
+
+                let getdim = new Image();
+                let setDims = function () {
+                    let h = this.im.height;
+                    let w =
+                        parseInt(this.div.getAttribute("data-bgwidth")) +
+                        this.im.width;
+                    this.div.setAttribute("data-bgheight", h);
+                    this.div.setAttribute("data-bgwidth", w);
+                    if (this.div.classList.contains("multipart"))
+                        this.div.style.minHeight =
+                            "calc(1.5 * var(--story-width) / " +
+                            w +
+                            " * " +
+                            h +
+                            ")";
+                    else
+                        this.div.style.minHeight =
+                            "calc(var(--story-width) / " + w + " * " + h + ")";
+                    alignBackground(this.div);
+                    this.im.remove();
+                };
+                scene.style.setProperty(
+                    "--background-image-url",
+                    'url("' + imgurl + '")'
+                );
+                scene.setAttribute("data-bgheight", 0);
+                scene.setAttribute("data-bgwidth", 0);
+                getdim.onload = setDims.bind({
+                    div: scene,
+                    im: getdim,
+                });
+                getdim.onerror = function () {
+                    // may be a multi-part image, try using first 2 parts to form a bg.
+                    this.div.classList.add("multipart");
+                    let left =
+                        getdim.src.split(".").slice(0, -1).join(".") +
+                        "_1." +
+                        getdim.src.split(".").slice(-1);
+                    let right =
+                        getdim.src.split(".").slice(0, -1).join(".") +
+                        "_2." +
+                        getdim.src.split(".").slice(-1);
+                    this.div.style.setProperty(
+                        "--background-image-url",
+                        'url("' + left + '"), url("' + right + '")'
+                    );
+                    let dimleft = new Image();
+                    let dimright = new Image();
+                    dimleft.src = left;
+                    dimright.src = right;
+                    dimleft.onload = setDims.bind({
+                        div: this.div,
+                        im: dimleft,
+                    });
+                    dimright.onload = setDims.bind({
+                        div: this.div,
+                        im: dimright,
+                    });
+                }.bind({ div: scene });
+                getdim.src = imgurl;
+                return scene;
+            }
+            function makeDecisionDialog(args, predicate) {
+                let choices = args.options.split(";");
+                let vals = args.values.split(";");
+                // keys.forEach((key, i) => result[key] = values[i]);
+                let dialog = makeDialog(
+                    { name: "Dr {@nickname}" },
+                    choices[0],
+                    { name: "avg_npc_048" },
+                    1
+                );
+                let txt = dialog.querySelector(".text");
+                txt.innerHTML = "";
+                txt.classList.add("doctor");
+                choices.forEach((c, i) => {
+                    let opt = document.createElement("div");
+                    opt.classList.add("decision");
+                    if (i == 0) opt.classList.add("selected");
+                    opt.setAttribute("data-predicate", vals[i]);
+                    opt.innerHTML = c;
+                    txt.append(opt);
+                    opt.onclick = () => {
+                        Array.from(txt.querySelectorAll(".decision")).forEach(
+                            (el) => {
+                                el.classList.remove("selected");
+                            }
+                        );
+                        opt.classList.add("selected");
+                        let thispredicate = opt.getAttribute("data-predicate");
+                        Object.keys(predicate).forEach((p) => {
+                            predicate[p].forEach((el) => {
+                                el.classList.add("hidden");
+                            });
+                        });
+                        predicate[thispredicate].forEach((el) => {
+                            el.classList.remove("hidden");
+                        });
+                        scrollFunction();
+                    };
+                });
+                return dialog;
+            }
+            function makeDialog(
+                args,
+                dialogLine,
+                chars,
+                currentSpeaker,
+                colorIndex = 0
+            ) {
+                let wrap = document.createElement("div");
+                wrap.classList.add("dialog");
+                wrap.classList.add("forceShow");
+                wrap.style.backgroundColor = lastBlockerColor.split(" ")[0];
+                let left = document.createElement("div");
+                left.classList.add("dialog-left");
+                let right = document.createElement("div");
+                right.classList.add("dialog-right");
+                let txt = document.createElement("div");
+                txt.classList.add("text");
+                txt.setAttribute("data-name", "");
+                txt.style.setProperty("--name-color", "#777");
+                txt.innerHTML = dialogLine;
+                wrap.appendChild(left);
+                wrap.appendChild(txt);
+                wrap.appendChild(right);
+                if (args && args.name) {
+                    txt.setAttribute("data-name", args.name);
+                    txt.style.setProperty(
+                        "--name-color",
+                        selectColor(colorIndex)
+                    );
+                    Object.keys(chars).forEach((key, i) => {
+                        if (chars[key] != "char_empty") {
+                            let isActive =
+                                (currentSpeaker == 1 && key == "name") ||
+                                key == "name" + currentSpeaker;
+                            let avatar = avatarImg(chars[key]);
+                            if (isActive) avatar.classList.add("active");
+                            if (isActive) left.appendChild(avatar);
+                            else right.appendChild(avatar);
+                        }
+                    });
+                }
+                // balance out avatars if too many inactive.
+                if (
+                    left.childElementCount == 0 &&
+                    right.childElementCount > 1
+                ) {
+                    left.appendChild(right.firstChild);
+                }
+
+                return wrap;
             }
             for (const line of lines) {
                 if (line[1]) {
@@ -354,26 +581,22 @@ async function genStory(storyName, key) {
                 ) {
                     // group 1&2 indicates dialog with speaker.
                     speakerList.add(args.name.toLowerCase());
-                    if (scene) {
-                        let dlg = makeDialog(
-                            args,
-                            line[2],
-                            chars,
-                            speaker,
-                            Array.from(speakerList).indexOf(
-                                args.name.toLowerCase()
-                            )
-                        );
-                        activeReferences.forEach((r) => {
-                            predicate[r].push(dlg);
-                        });
-                        scene.appendChild(dlg);
-                        if (
-                            activeReferences.length &&
-                            !activeReferences.includes(defaultPredicate)
-                        )
-                            dlg.classList.add("hidden");
-                    }
+                    let dlg = makeDialog(
+                        args,
+                        line[2],
+                        chars,
+                        speaker,
+                        Array.from(speakerList).indexOf(args.name.toLowerCase())
+                    );
+                    activeReferences.forEach((r) => {
+                        predicate[r].push(dlg);
+                    });
+                    getWorkingScene().appendChild(dlg);
+                    if (
+                        activeReferences.length &&
+                        !activeReferences.includes(defaultPredicate)
+                    )
+                        dlg.classList.add("hidden");
                 } else if (line[1]) {
                     // group 1 alone indicates stage direction
                     switch (cmd.toLowerCase()) {
@@ -392,7 +615,7 @@ async function genStory(storyName, key) {
                             imgbtn.onclick = () => {
                                 enlargeAvatar(itemsrc, true);
                             };
-                            if (scene) scene.appendChild(wrap);
+                            getWorkingScene().appendChild(wrap);
                             break;
 
                         case "background":
@@ -404,49 +627,12 @@ async function genStory(storyName, key) {
                             )
                                 break;
                             // insert new div when background changes and set to current scene
-                            let getdim = new Image();
-                            let setDims = function () {
-                                let h = this.im.height;
-                                let w =
-                                    parseInt(
-                                        this.div.getAttribute("data-bgwidth")
-                                    ) + this.im.width;
-                                this.div.setAttribute("data-bgheight", h);
-                                this.div.setAttribute("data-bgwidth", w);
-                                if (this.div.classList.contains("multipart"))
-                                    this.div.style.minHeight =
-                                        "calc(1.5 * var(--story-width) / " +
-                                        w +
-                                        " * " +
-                                        h +
-                                        ")";
-                                else
-                                    this.div.style.minHeight =
-                                        "calc(var(--story-width) / " +
-                                        w +
-                                        " * " +
-                                        h +
-                                        ")";
-                                alignBackground(this.div);
-                                this.im.remove();
-                            };
+
                             let wasDisplayingImage = false;
                             if (scene) {
                                 wasDisplayingImage =
                                     scene.classList.contains("image");
                                 addCurrentScene();
-                            }
-                            scene = document.createElement("div");
-                            scene.classList.add("scene");
-                            if (
-                                cmd.toLowerCase() == "image" &&
-                                args &&
-                                args.image
-                            )
-                                scene.classList.add("image");
-                            if (firstAudio) {
-                                scene.appendChild(firstAudio);
-                                firstAudio = null;
                             }
                             let imgurl;
                             if (!args || !args.image) {
@@ -478,51 +664,12 @@ async function genStory(storyName, key) {
                                         break;
                                 }
                             }
-                            scene.style.setProperty(
-                                "--background-image-url",
-                                'url("' + imgurl + '")'
+                            scene = createScene(
+                                imgurl,
+                                cmd.toLowerCase() == "image" &&
+                                    args &&
+                                    args.image
                             );
-                            scene.setAttribute("data-bgheight", 0);
-                            scene.setAttribute("data-bgwidth", 0);
-                            getdim.src = imgurl;
-                            getdim.onload = setDims.bind({
-                                div: scene,
-                                im: getdim,
-                            });
-                            getdim.onerror = function () {
-                                // may be a multi-part image, try using first 2 parts to form a bg.
-                                this.div.classList.add("multipart");
-                                let left =
-                                    getdim.src
-                                        .split(".")
-                                        .slice(0, -1)
-                                        .join(".") +
-                                    "_1." +
-                                    getdim.src.split(".").slice(-1);
-                                let right =
-                                    getdim.src
-                                        .split(".")
-                                        .slice(0, -1)
-                                        .join(".") +
-                                    "_2." +
-                                    getdim.src.split(".").slice(-1);
-                                this.div.style.setProperty(
-                                    "--background-image-url",
-                                    'url("' + left + '"), url("' + right + '")'
-                                );
-                                let dimleft = new Image();
-                                let dimright = new Image();
-                                dimleft.src = left;
-                                dimright.src = right;
-                                dimleft.onload = setDims.bind({
-                                    div: this.div,
-                                    im: dimleft,
-                                });
-                                dimright.onload = setDims.bind({
-                                    div: this.div,
-                                    im: dimright,
-                                });
-                            }.bind({ div: scene });
                             break;
                         case "character":
                             if (args) {
@@ -539,12 +686,12 @@ async function genStory(storyName, key) {
                         case "subtitle":
                             chars = {};
                             speaker = 0;
-                            if (scene && args && args.text) {
+                            if (args && args.text) {
                                 let dlg = makeDialog(null, args.text, {}, 0);
                                 activeReferences.forEach((r) => {
                                     predicate[r].push(dlg);
                                 });
-                                scene.appendChild(dlg);
+                                getWorkingScene().appendChild(dlg);
                             }
                             break;
                         case "dialog":
@@ -554,7 +701,7 @@ async function genStory(storyName, key) {
                         case "decision":
                             predicate = {};
                             defaultPredicate = args.values.split(";")[0];
-                            scene.appendChild(
+                            getWorkingScene().appendChild(
                                 makeDecisionDialog(args, predicate)
                             );
                             break;
@@ -584,6 +731,7 @@ async function genStory(storyName, key) {
                                 "data-defvol",
                                 args.volume || 0.8
                             );
+
                             let sound = document.createElement("source");
                             let soundkey = /\$?(.+)/i.exec(args.key)[1];
                             let soundpath = soundMap[soundkey] || soundkey;
@@ -608,6 +756,8 @@ async function genStory(storyName, key) {
                                 btn.classList.add("fa-volume-up");
                                 btn.classList.add("soundBtn");
                                 let wrap = document.createElement("div");
+                                wrap.style.backgroundColor =
+                                    lastBlockerColor.split(" ")[0];
                                 function playSound() {
                                     if (!this.audio.paused) return;
                                     this.audio.volume =
@@ -624,19 +774,64 @@ async function genStory(storyName, key) {
                                 wrap.appendChild(audio);
                                 wrap.appendChild(btn);
                                 wrap.classList.add("dialog");
+                                wrap.classList.add("soundPlayer");
                                 audio = wrap;
                             }
                             if (scene) scene.appendChild(audio);
                             else firstAudio = audio;
                             break;
-                        case "header":
                         case "blocker":
-                        // responsible for fade effects/fade to black for certain lines
+                            // responsible for fade effects/fade to black for certain lines
+                            if (scene && args && "fadetime" in args) {
+                                let blocker = document.createElement("div");
+                                blocker.classList.add("dialog");
+                                blocker.classList.add("blocker");
+                                blocker.style.height =
+                                    Math.max(
+                                        1,
+                                        Math.min(
+                                            4,
+                                            parseFloat(args.fadetime) * 2
+                                        )
+                                    ) + "em";
+                                let color = "rgba(0,0,0,1)";
+                                const blockerOpacity = 1;
+
+                                if (
+                                    "a" in args &&
+                                    "r" in args &&
+                                    "g" in args &&
+                                    "b" in args
+                                ) {
+                                    color = `rgba(${args.r},${args.g},${
+                                        args.b
+                                    },${parseFloat(args.a) * blockerOpacity})`;
+                                } else if ("a" in args) {
+                                    color = `rgba(0,0,0,${
+                                        parseFloat(args.a) * blockerOpacity
+                                    })`;
+                                }
+                                blocker.style.setProperty(
+                                    "--start-color",
+                                    lastBlockerColor
+                                );
+                                blocker.style.setProperty("--end-color", color);
+                                if ("a" in args && parseFloat(args.a)) {
+                                    blocker.classList.add("fadein"); // fade to opaque
+                                } else {
+                                    blocker.classList.add("fadeout"); // fade to transparent
+                                }
+                                lastBlockerColor = color;
+                                scene.appendChild(blocker);
+                            }
+                            break;
+                        case "header":
                         case "delay":
                         case "characteraction":
                         case "charactercutin":
                         case "camerashake":
                         case "cameraeffect":
+                        // grayscale
                         case "fadetime":
                         case "soundvolume":
                         case "musicvolume":
@@ -656,17 +851,16 @@ async function genStory(storyName, key) {
                     }
                 } else if (line[2]) {
                     // group 2 alone indicates speakerless text (narrator)
-                    if (scene) {
-                        let dlg = makeDialog(null, line[2], {}, 0);
-                        dlg.classList.add("narration");
-                        activeReferences.forEach((r) => {
-                            predicate[r].push(dlg);
-                        });
-                        scene.appendChild(dlg);
-                    }
+
+                    let dlg = makeDialog(null, line[2], {}, 0);
+                    dlg.classList.add("narration");
+                    activeReferences.forEach((r) => {
+                        predicate[r].push(dlg);
+                    });
+                    getWorkingScene().appendChild(dlg);
                 }
             }
-            addCurrentScene();
+            addCurrentScene(true);
         });
 }
 function playWhenReady(audio) {
@@ -700,45 +894,7 @@ function selectColor(number) {
     const hue = number * 137.508; // use golden angle approximation
     return `hsl(${hue},15%,60%)`;
 }
-function makeDecisionDialog(args, predicate) {
-    let choices = args.options.split(";");
-    let vals = args.values.split(";");
-    // keys.forEach((key, i) => result[key] = values[i]);
-    let dialog = makeDialog(
-        { name: "Dr {@nickname}" },
-        choices[0],
-        { name: "avg_npc_048" },
-        1
-    );
-    let txt = dialog.querySelector(".text");
-    txt.innerHTML = "";
-    txt.classList.add("doctor");
-    choices.forEach((c, i) => {
-        let opt = document.createElement("div");
-        opt.classList.add("decision");
-        if (i == 0) opt.classList.add("selected");
-        opt.setAttribute("data-predicate", vals[i]);
-        opt.innerHTML = c;
-        txt.append(opt);
-        opt.onclick = () => {
-            Array.from(txt.querySelectorAll(".decision")).forEach((el) => {
-                el.classList.remove("selected");
-            });
-            opt.classList.add("selected");
-            let thispredicate = opt.getAttribute("data-predicate");
-            Object.keys(predicate).forEach((p) => {
-                predicate[p].forEach((el) => {
-                    el.classList.add("hidden");
-                });
-            });
-            predicate[thispredicate].forEach((el) => {
-                el.classList.remove("hidden");
-            });
-            scrollFunction();
-        };
-    });
-    return dialog;
-}
+
 function avatarImg(path) {
     // return image element with many, many fallbacks.
     let varkey = /\$?(.+)/i.exec(path)[1];
@@ -816,44 +972,6 @@ function avatarImg(path) {
         e.stopPropagation();
         enlargeAvatar(img.src);
     };
-    return wrap;
-}
-function makeDialog(args, dialogLine, chars, currentSpeaker, colorIndex = 0) {
-    let wrap = document.createElement("div");
-    wrap.classList.add("dialog");
-    wrap.classList.add("forceShow");
-    let left = document.createElement("div");
-    left.classList.add("dialog-left");
-    let right = document.createElement("div");
-    right.classList.add("dialog-right");
-    let txt = document.createElement("div");
-    txt.classList.add("text");
-    txt.setAttribute("data-name", "");
-    txt.style.setProperty("--name-color", "#777");
-    txt.innerHTML = dialogLine;
-    wrap.appendChild(left);
-    wrap.appendChild(txt);
-    wrap.appendChild(right);
-    if (args && args.name) {
-        txt.setAttribute("data-name", args.name);
-        txt.style.setProperty("--name-color", selectColor(colorIndex));
-        Object.keys(chars).forEach((key, i) => {
-            if (chars[key] != "char_empty") {
-                let isActive =
-                    (currentSpeaker == 1 && key == "name") ||
-                    key == "name" + currentSpeaker;
-                let avatar = avatarImg(chars[key]);
-                if (isActive) avatar.classList.add("active");
-                if (isActive) left.appendChild(avatar);
-                else right.appendChild(avatar);
-            }
-        });
-    }
-    // balance out avatars if too many inactive.
-    if (left.childElementCount == 0 && right.childElementCount > 1) {
-        left.appendChild(right.firstChild);
-    }
-
     return wrap;
 }
 
