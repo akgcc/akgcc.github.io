@@ -99,7 +99,7 @@
   opacity: 0;
 }
 .scene.invisible:after,
-.scene.invisible * {
+.scene.invisible > * {
   opacity: 0;
   pointer-events: none;
 }
