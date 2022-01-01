@@ -15,6 +15,7 @@ var operatorData,
     lastBackgroundImage;
 const charPathFixes = {
     char_2006_weiywfmzuki_1: "char_2006_fmzuki_1",
+    avg_NPC_017_3: "avg_npc_017_3",
 };
 const serverString = localStorage.getItem("server") || "en_US";
 get_char_table(false, serverString)
@@ -915,8 +916,8 @@ function avatarImg(path) {
     let alt_name, na_name;
     let mods = path.substring(base_name.length);
     let alt_mods;
-    base_name = base_name.toLowerCase();
-    mods = mods.toLowerCase();
+    // base_name = base_name.toLowerCase();
+    // mods = mods.toLowerCase();
     // emergency repairs:
     if (base_name in charPathFixes) base_name = charPathFixes[base_name];
     if (!mods) mods = "_1"; // this will create some extra failed requests.
