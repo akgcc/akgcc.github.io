@@ -316,42 +316,45 @@ async function genStory(storyName, key) {
                 let scenebreak = document.createElement("div");
                 scenebreak.classList.add("scenebreak");
                 storyDiv.appendChild(scenebreak);
+                lastBlocker = null;
 
                 Array.from(scene.children)
                     .reverse()
                     .some((el) => {
-                        if (
-                            el.classList.contains("blocker") &&
-                            el.classList.contains("fadein")
-                        ) {
-                            //color scenebreak based on last blocker
-                            scenebreak.style.background = `linear-gradient(${el.style.getPropertyValue(
-                                "--end-color"
-                            )},${el.style.getPropertyValue(
-                                "--end-color"
-                            )}), linear-gradient(#000,#000)`;
-                            let spacer = document.createElement("div");
-                            spacer.style.flex = 99999;
-                            el.before(spacer);
-                            // if last element is soundplayer, don't need a scene break.
-                            if (
-                                !requireBreak &&
-                                scene.querySelector(".soundPlayer:last-child")
-                            )
-                                scenebreak.remove();
-                            return true;
+                        if (el.classList.contains("blocker")) {
+                            lastBlocker = lastBlocker || el;
+                            if (el.classList.contains("fadein")) {
+                                //color scenebreak based on last blocker
+                                scenebreak.style.background = `linear-gradient(${el.style.getPropertyValue(
+                                    "--end-color"
+                                )},${el.style.getPropertyValue(
+                                    "--end-color"
+                                )}), linear-gradient(#000,#000)`;
+                                let spacer = document.createElement("div");
+                                spacer.classList.add("blocker");
+                                spacer.style.flex = 99999;
+                                spacer.style.backgroundColor =
+                                    el.style.getPropertyValue("--start-color");
+                                el.before(spacer);
+                                // if last element is soundplayer, don't need a scene break.
+                                if (
+                                    !requireBreak &&
+                                    scene.querySelector(
+                                        ".soundPlayer:last-child"
+                                    )
+                                )
+                                    scenebreak.remove();
+                                return true;
+                            }
+                            if (el.classList.contains("fadeout")) return true;
                         }
-                        if (
-                            el.classList.contains("blocker") &&
-                            el.classList.contains("fadeout")
-                        )
-                            return true;
                     });
 
                 if (
                     parseFloat(
                         /(?:[\.\d]+,){3}([\.\d]+)/.exec(lastBlockerColor)[1]
-                    )
+                    ) &&
+                    (lastBlocker.classList.contains("fadein") || !lastBlocker)
                 ) {
                     // apply opaque blocker color to rest of scene.
                     scene.style.setProperty(
@@ -362,19 +365,24 @@ async function genStory(storyName, key) {
                 }
             }
             function addCurrentScene(requireBreak = false) {
-                if (
-                    scene &&
-                    (scene.childElementCount ||
-                        scene.classList.contains("image"))
-                ) {
-                    // remove stray blocker (add it to the next scene later)
-                    hangingBlocker = scene.querySelector(
-                        ".blocker.fadeout:last-child"
-                    );
-                    if (hangingBlocker) hangingBlocker.remove();
-                    storyDiv.appendChild(scene);
-                    addSceneBreak(requireBreak);
+                // do not add the scene if it has no children, is not an image, and is not full of blockers only.
+                if (!scene) return;
+                if (!scene.classList.contains("image")) {
+                    if (!scene.childElementCount) return;
+                    if (
+                        Array.from(scene.childNodes).every((n) =>
+                            n.classList.contains("blocker")
+                        )
+                    )
+                        return;
                 }
+                // remove stray blocker (add it to the next scene later)
+                hangingBlocker = scene.querySelector(
+                    ".blocker.fadeout:last-child"
+                );
+                if (hangingBlocker) hangingBlocker.remove();
+                storyDiv.appendChild(scene);
+                addSceneBreak(requireBreak);
             }
             function getWorkingScene(imageScene = false) {
                 if (!scene) {
@@ -907,6 +915,8 @@ function avatarImg(path) {
     let alt_name, na_name;
     let mods = path.substring(base_name.length);
     let alt_mods;
+    base_name = base_name.toLowerCase();
+    mods = mods.toLowerCase();
     // emergency repairs:
     if (base_name in charPathFixes) base_name = charPathFixes[base_name];
     if (!mods) mods = "_1"; // this will create some extra failed requests.

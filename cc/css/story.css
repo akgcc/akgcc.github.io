@@ -58,7 +58,6 @@
 }
 .blocker {
   width: 100%;
-  background-color: #f008;
 }
 .blocker.fadein {
   background: radial-gradient(
@@ -87,6 +86,9 @@
   justify-content: center;
   transition: opacity 0.5s;
   opacity: 1;
+}
+.blocker {
+  transition: opacity 0.5s;
 }
 .dialog.blocker {
   padding: 0;
