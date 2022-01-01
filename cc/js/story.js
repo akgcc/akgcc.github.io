@@ -695,8 +695,8 @@ async function genStory(storyName, key) {
                             }
                             break;
                         case "dialog":
-                            chars = {};
-                            speaker = 0;
+                            // chars = {};
+                            // speaker = 0;
                             break;
                         case "decision":
                             predicate = {};
