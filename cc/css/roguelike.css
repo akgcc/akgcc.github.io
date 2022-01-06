@@ -59,9 +59,12 @@
 }
 .rl_effect {
 	background: #0006;
-	background-image: url("/../images/roguelike_btn.png");
+	background-image: var(--btn-url);
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
+}
+.rl_item[rarity="n"] .rl_effect {
+	color: #222;
 }
 .btnPanel {
 	padding-bottom: 8px;
@@ -72,7 +75,7 @@
 	justify-content: space-between;
 	align-items: center;
 	min-height: 0;
-	background-image: url("/../images/roguelike_bg.png");
+	background-image: var(--bg-url);
 	background-repeat: no-repeat;
 	background-size: cover;
 	flex: 1;
@@ -82,13 +85,13 @@
 	width: 100%;
 	min-height: 3px;
 	max-height: calc(var(--item-height) * 0.1);
-	background-image: url("/../images/roguelike_border.png");
+	background-image: var(--top-url);
 	background-repeat: no-repeat;
 	background-position: bottom;
 	background-size: 100% auto;
 }
 .rl_bottom_trim {
-	background-image: url("/../images/roguelike_bot.png");
+	background-image: var(--bot-url);
 	background-repeat: no-repeat;
 	background-size: 100% 100%;
 	min-height: 3px;

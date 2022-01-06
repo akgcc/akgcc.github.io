@@ -25,9 +25,22 @@ fetch(
 			}
 	});
 const itemList = document.getElementById("itemList");
+const rarityMap = {
+	NORMAL: "n",
+	RARE: "r",
+	SUPER_RARE: "sr",
+};
 function addItem(data) {
 	let item = document.createElement("div");
 	item.classList.add("rl_item");
+	let item_rarity = rarityMap[data.rarity] || "n";
+	item.setAttribute("rarity", item_rarity);
+	["bg", "top", "bot", "btn"].forEach((n) => {
+		item.style.setProperty(
+			`--${n}-url`,
+			`url(/../images/rl_${item_rarity}_${n}.png)`
+		);
+	});
 	let title = document.createElement("div");
 	title.classList.add("rl_title");
 	let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
