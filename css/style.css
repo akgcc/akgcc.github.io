@@ -38,9 +38,12 @@
   src: url("../webfonts/airstrike.ttf") format("truetype");
 }
 .btnContainer a:active img {
-  -webkit-box-shadow: 0pt 0pt 1pt 1pt #111;
+  /*-webkit-box-shadow: 0pt 0pt 1pt 1pt #111;
   -moz-box-shadow: 0pt 0pt 1pt 1pt #111;
-  box-shadow: 0pt 0pt 1pt 1pt #111;
+  box-shadow: 0pt 0pt 1pt 1pt #111;*/
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
 }
 .btnContainer a:active {
   transform: translateY(2px);
@@ -68,12 +71,12 @@ h1 {
   content: attr(data-label);
   color: var(--main-text-color);
   position: absolute;
-  transform: translate(0, .75em);
+  transform: translate(0, 0.75em);
   font-weight: 600;
   width: 100%;
   text-align: center;
-  top:100%;
-  left:0;
+  top: 100%;
+  left: 0;
 }
 #links a {
   margin-bottom: 2.5em;
