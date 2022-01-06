@@ -62,12 +62,15 @@ function addItem(data) {
 	effect.innerHTML = data.usage;
 	let spacer = document.createElement("div");
 	spacer.classList.add("rl_inner_spacer");
+	let bot_border = document.createElement("div");
+	bot_border.classList.add("rl_bottom_trim");
 	inner.appendChild(title);
 	inner.appendChild(img_wrapper);
 	inner.appendChild(desc);
 	inner.appendChild(spacer);
 	item.appendChild(inner);
 	item.appendChild(effect);
+	item.appendChild(bot_border);
 	itemList.appendChild(item);
 
 	// squish title text
