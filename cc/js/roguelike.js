@@ -11,7 +11,6 @@ fetch(
 )
 	.then((res) => res.json())
 	.then((js) => {
-		console.log(js);
 		if (serverString == "zh_CN") {
 			for (const [key, value] of Object.entries(
 				js.details.rogue_1.items
