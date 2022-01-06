@@ -539,8 +539,8 @@ function CreateOpCheckbox(
     );
     firstLine.setAttribute("dy", "0");
     firstLine.setAttribute("x", "50%");
-    if (getTextWidth(first, getCanvasFontSize(name)) > plateWidth)
-      firstLine.setAttribute("textLength", "100%");
+    if (getTextWidth(first, getCanvasFontSize(name)) > plateWidth * 0.95)
+      firstLine.setAttribute("textLength", plateWidth * 0.95);
     firstLine.innerHTML = first;
     let secondLine = document.createElementNS(
       "http://www.w3.org/2000/svg",
@@ -548,12 +548,13 @@ function CreateOpCheckbox(
     );
     secondLine.setAttribute("dy", "1em");
     secondLine.setAttribute("x", "50%");
-    if (getTextWidth(second, getCanvasFontSize(name)) > plateWidth)
-      secondLine.setAttribute("textLength", "100%");
+    if (getTextWidth(second, getCanvasFontSize(name)) > plateWidth * 0.95)
+      secondLine.setAttribute("textLength", plateWidth * 0.95);
     secondLine.innerHTML = second;
     txt.appendChild(firstLine);
     txt.appendChild(secondLine);
-  } else if (nameWidth > plateWidth) txt.setAttribute("textLength", "100%");
+  } else if (nameWidth > plateWidth * 0.95)
+    txt.setAttribute("textLength", plateWidth * 0.95);
 
   return checkboxDiv;
 }

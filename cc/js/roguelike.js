@@ -73,7 +73,8 @@ function addItem(data) {
 	// squish title text
 	let nameWidth = getTextWidth(data.name, getCanvasFontSize(title));
 	let itemWidth = parseInt(getComputedStyle(item).width);
-	if (nameWidth > itemWidth * 0.95) txt.setAttribute("textLength", "95%");
+	if (nameWidth > itemWidth * 0.95)
+		txt.setAttribute("textLength", itemWidth * 0.95);
 	return item;
 }
 
