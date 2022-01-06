@@ -52,15 +52,21 @@ function addItem(data) {
 		this.classList.add("unknown");
 	};
 	img_wrapper.appendChild(img);
+	let inner = document.createElement("div");
+	inner.classList.add("rl_inner");
 	let desc = document.createElement("div");
 	desc.classList.add("rl_desc");
 	desc.innerHTML = data.description;
 	let effect = document.createElement("div");
 	effect.classList.add("rl_effect");
 	effect.innerHTML = data.usage;
-	item.appendChild(title);
-	item.appendChild(img_wrapper);
-	item.appendChild(desc);
+	let spacer = document.createElement("div");
+	spacer.classList.add("rl_inner_spacer");
+	inner.appendChild(title);
+	inner.appendChild(img_wrapper);
+	inner.appendChild(desc);
+	inner.appendChild(spacer);
+	item.appendChild(inner);
 	item.appendChild(effect);
 	itemList.appendChild(item);
 
