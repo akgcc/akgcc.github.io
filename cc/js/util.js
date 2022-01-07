@@ -558,3 +558,11 @@ function CreateOpCheckbox(
 
   return checkboxDiv;
 }
+function htmlDecode(input) {
+  var doc = new DOMParser().parseFromString(input, "text/html");
+  return doc.documentElement.textContent;
+}
+function selectColor(number, saturation = 15) {
+  const hue = number * 137.508; // use golden angle approximation
+  return `hsl(${hue},${saturation}%,60%)`;
+}

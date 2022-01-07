@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <link type="text/css" href="./css/reset.css" rel="stylesheet" />
+    <link type="text/css" href="./css/style.css" rel="stylesheet" />
+    <link type="text/css" href="./css/style2.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="./css/all.min.css" />
+    <script type="text/javascript" src="./js/chart.3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script type="text/javascript" src="./js/util.js"></script>
+  </head>
+  <body ontouchstart>
+    <div id="topNav">
+      <div class="nav-left">
+        <span id="pageTitle">Shop Operator History</span>
+      </div>
+      <div class="nav-right">
+        <a class="rightButton" href="./../index.html">
+          <div class="button iconButton" id="homeButton">
+            <i class="fas fa-home"></i>
+          </div>
+        </a>
+      </div>
+    </div>
+    <div class="btnPanel" id="chartPicker"></div>
+    <div id="chartDiv">
+      <div class="chartContainer chartOption" id="barChartContainer">
+        <canvas id="opChart"></canvas>
+      </div>
+      <canvas id="scatterChart" class="chartOption"></canvas>
+    </div>
+    <script type="text/javascript" src="./js/shoplist.js"></script>
+  </body>
+</html>
