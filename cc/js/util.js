@@ -562,7 +562,7 @@ function htmlDecode(input) {
   var doc = new DOMParser().parseFromString(input, "text/html");
   return doc.documentElement.textContent;
 }
-function selectColor(number, saturation = 15) {
+function selectColor(number, saturation = 15, lightness = 60) {
   const hue = number * 137.508; // use golden angle approximation
-  return `hsl(${hue},${saturation}%,60%)`;
+  return `hsl(${hue},${saturation}%,${lightness}%)`;
 }
