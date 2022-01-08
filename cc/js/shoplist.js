@@ -265,7 +265,7 @@ get_char_table(false, "zh_CN")
 				},
 				layout: {
 					padding: {
-						// right: 40,
+						right: 30,
 					},
 				},
 				indexAxis: "y",
