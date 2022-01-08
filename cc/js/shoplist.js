@@ -247,6 +247,7 @@ get_char_table(false, "zh_CN")
 			},
 			plugins: [testp],
 			options: {
+				events: [],
 				animation: {
 					duration: 0,
 				},
