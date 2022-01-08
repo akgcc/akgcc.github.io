@@ -9,6 +9,13 @@ const CLASS_MAPPING = {
   MEDIC: "Medic",
 };
 const charIdMap = {};
+// maps some en names to their appellations
+const CN_ID_MAP = {
+  Zima: "Зима",
+  "Mr. Nothing": "Mr.Nothing",
+  Rosa: "Роса",
+  Istina: "Истина",
+};
 const CCMAP = {
   "#b": {
     tag: "-ccbclear",
@@ -91,8 +98,12 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
     if (!keep_non_playable && !json[key].displayNumber) delete json[key];
     else {
       charIdMap[json[key].name] = key;
+      if (json[key].appellation) charIdMap[json[key].appellation] = key;
       json[key].charId = key;
     }
+  }
+  for (const [k, v] of Object.entries(CN_ID_MAP)) {
+    if (!(k in charIdMap)) charIdMap[k] = charIdMap[v];
   }
   // add skadiva short name
   charIdMap["Skadiva"] = "char_1012_skadi2";

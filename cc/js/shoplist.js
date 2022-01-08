@@ -1,4 +1,3 @@
-const serverString = localStorage.getItem("server") || "en_US";
 var operatorData;
 const GAMEPRESS_NAME_MAP = { "Rosa (Poca)": "Rosa" };
 const SHORTENED_NAME_MAP = { "Skadi the Corrupting Heart": "Skadiva" };
@@ -37,102 +36,95 @@ function createDiagonalPattern(fillcolor) {
 	// create the pattern from the shape
 	return c.createPattern(shape, "repeat");
 }
-get_char_table()
+get_char_table(false, "zh_CN")
 	.then((js) => {
 		operatorData = js;
 		return fetch("./json/banner_history.json");
 	})
 	.then((res) => res.json())
 	.then((js) => {
-		const SERV_START = Date.parse("2020-01-16");
-		const SERV_DATA = js.NA;
-
-		for (const [op, data] of Object.entries(SERV_DATA)) {
-			let name = htmlDecode(op);
-			data.op = SHORTENED_NAME_MAP[name] || name;
-			data.op = GAMEPRESS_NAME_MAP[data.op] || data.op;
-			data.charId = charIdMap[data.op];
-			const img = new Image();
-			// img.src = `https://aceship.github.io/AN-EN-Tags/img/avatars/${
-			// 	chart.data.datasets[args.index].data[i].charId
-			// }.png`;
-			img.src = `https://aceship.github.io/AN-EN-Tags/img/avatars/${data.charId}.png`;
-			data.img = img;
-			data.first = Math.min(...data.banner.map(Date.parse));
-
-			data.shop = data.shop.map(Date.parse).sort();
-			// data.diff = 0;
-			// if (data.shop.length) {
-			// 	data.diff = Math.min(...data.shop.map(Date.parse)) - data.first;
-			// }
-			if (operatorData[data.charId].rarity != 5) delete SERV_DATA[op];
-		}
-		var datasets = [
-			{
-				data: Object.values(SERV_DATA),
-				xValueType: "dateTime",
-				backgroundColor: "#0000",
-				parsing: {
-					xAxisKey: "first",
-					yAxisKey: "op",
-				},
-				stack: "1",
-				categoryPercentage: 1.0,
-				barPercentage: 0.6,
-			},
-		];
-		let idx = 0;
-		let cont = true;
-		while (cont) {
-			cont = false;
-			for (const [op, data] of Object.entries(SERV_DATA)) {
-				if (data.shop.length > idx) {
-					cont = true;
-					data[idx.toString()] =
-						data.shop[idx] - (data.shop[idx - 1] || data.first);
-					// data[`${idx}_sum`] =
-					// 	(idx == 0 ? data["first"] : data[(idx - 1).toString()]) + data.shop;
-				} else data[idx.toString()] = 0;
+		const SERVERS = { EN: js.NA, CN: js.CN };
+		const SERVER_STARTS = {
+			EN: Date.parse("2020-01-16"),
+			CN: 1556582400000,
+		};
+		let selectedServer = "EN";
+		var shownrarities = new Set([5]);
+		Object.values(SERVERS).forEach((servdata) => {
+			for (const [op, data] of Object.entries(servdata)) {
+				let name = htmlDecode(op);
+				data.op = SHORTENED_NAME_MAP[name] || name;
+				data.op = GAMEPRESS_NAME_MAP[data.op] || data.op;
+				data.charId = charIdMap[data.op];
+				if (data.charId == undefined) delete servdata[op];
+				else {
+					const img = new Image();
+					img.src = `https://aceship.github.io/AN-EN-Tags/img/avatars/${data.charId}.png`;
+					data.img = img;
+					data.first = Math.min(...data.banner.map(Date.parse));
+					data.shop = data.shop.map(Date.parse).sort();
+				}
 			}
-			if (cont) {
-				datasets.push({
-					data: Object.values(SERV_DATA),
+		});
+
+		function getDatasets(servdata) {
+			let subset = Object.values(servdata).filter((x) =>
+				shownrarities.has(operatorData[x.charId].rarity)
+			);
+			var datasets = [
+				{
+					data: subset,
 					xValueType: "dateTime",
-					backgroundColor: [
-						...Array(Object.values(SERV_DATA).length).keys(),
-					].map((x) =>
-						!idx
-							? createDiagonalPattern(selectColor(x, 40, 40))
-							: selectColor(x, 80)
-					),
-					// !idx
-					// 	? createDiagonalPattern(selectColor(idx, 50))
-					// 	: selectColor(idx, 100),
+					backgroundColor: "#0000",
 					parsing: {
-						xAxisKey: idx.toString(),
+						xAxisKey: "first",
 						yAxisKey: "op",
 					},
 					stack: "1",
 					categoryPercentage: 1.0,
 					barPercentage: 0.6,
-				});
+				},
+			];
+			let idx = 0;
+			let cont = true;
+			while (cont) {
+				cont = false;
+				for (const [op, data] of Object.entries(servdata)) {
+					if (data.shop.length > idx) {
+						cont = true;
+						data[idx.toString()] =
+							data.shop[idx] - (data.shop[idx - 1] || data.first);
+					} else data[idx.toString()] = 0;
+				}
+				if (cont) {
+					datasets.push({
+						data: subset,
+						xValueType: "dateTime",
+						backgroundColor: [
+							...Array(Object.values(servdata).length).keys(),
+						].map((x) =>
+							!idx
+								? createDiagonalPattern(selectColor(x, 40, 40))
+								: selectColor(x, 80)
+						),
+						parsing: {
+							xAxisKey: idx.toString(),
+							yAxisKey: "op",
+						},
+						stack: "1",
+						categoryPercentage: 1.0,
+						barPercentage: 0.6,
+					});
+				}
+				idx++;
 			}
-			idx++;
+			return datasets;
 		}
 		Chart.defaults.color = "#dddddd";
 		Chart.defaults.font.size = 16;
 		const testp = {
 			id: "testp",
 			afterDatasetDraw(chart, args, options) {
-				// console.log(chart, args, options);
-				// chart.data.datasets[args.index];
-				// console.log(args.index);
-				// console.log(args.index, args.meta._dataset.parsing.xAxisKey);
-				// console.log(
-				// 	chart.data.datasets[args.index].data[0][
-				// 		args.meta._dataset.parsing.xAxisKey
-				// 	]
-				// );
 				const {
 					ctx,
 					chartArea: { top, bottom, left, right, width, height },
@@ -175,7 +167,6 @@ get_char_table()
 						]
 					);
 					if (!x_pos || !y_pos) {
-						// console.log(x_pos, y_pos);
 						ctx.restore();
 						continue;
 					}
@@ -207,72 +198,58 @@ get_char_table()
 				}
 			},
 		};
-		document.getElementById("barChartContainer").style.height =
-			((Object.keys(SERV_DATA).length *
-				parseFloat(getComputedStyle(document.body).fontSize) *
-				5) /
-				5) *
-			2;
+		function adjustChartHeight(size) {
+			document.getElementById("barChartContainer").style.height =
+				((size *
+					parseFloat(getComputedStyle(document.body).fontSize) *
+					5) /
+					5) *
+				2;
+		}
+
+		const sorters = {
+			Name: (a, b) => {
+				if (
+					operatorData[a.charId].rarity ==
+					operatorData[b.charId].rarity
+				) {
+					if (a.op > b.op) return 1;
+					return -1;
+				}
+				if (
+					operatorData[a.charId].rarity >
+					operatorData[b.charId].rarity
+				)
+					return -1;
+				return 1;
+			},
+			Release: (a, b) => {
+				if (a.first == b.first) {
+					if (a.op > b.op) return 1;
+					return -1;
+				}
+				if (a.first > b.first) return 1;
+				return -1;
+			},
+		};
+		var labelSort = sorters.Name;
+
+		let subset = Object.values(SERVERS[selectedServer]).filter((x) =>
+			shownrarities.has(operatorData[x.charId].rarity)
+		);
+		var labels = subset.sort(sorters.Name).map((x) => x.op);
+		adjustChartHeight(labels.length);
 		let barGraph = new Chart(document.getElementById("opChart"), {
 			type: "bar",
 			data: {
-				labels: Object.values(SERV_DATA)
-
-					.sort((a, b) => {
-						if (
-							operatorData[a.charId].rarity ==
-							operatorData[b.charId].rarity
-						) {
-							if (a.op > b.op) return 1;
-							return -1;
-						}
-						if (
-							operatorData[a.charId].rarity >
-							operatorData[b.charId].rarity
-						)
-							return -1;
-						return 1;
-					})
-					.map((x) => x.op),
-				datasets: datasets,
-				// [
-				// 	{
-				// 		// label: "hello",
-				// 		// categoryPercentage: 0.8,
-				// 		// barPercentage: 1,
-				// 		data: Object.values(SERV_DATA),
-				// 		xValueType: "dateTime",
-				// 		backgroundColor: "#845994",
-				// 		parsing: {
-				// 			xAxisKey: "first",
-				// 			yAxisKey: "op",
-				// 		},
-				// 		stack: "1",
-				// 	},
-				// 	{
-				// 		data: Object.values(SERV_DATA),
-				// 		xValueType: "dateTime",
-				// 		backgroundColor: "#ffa",
-				// 		parsing: {
-				// 			xAxisKey: "diff",
-				// 			yAxisKey: "op",
-				// 		},
-				// 		stack: "1",
-				// 	},
-				// 	// {
-				// 	// 	label: barMetrics[1],
-				// 	// 	categoryPercentage: 0.8,
-				// 	// 	barPercentage: 1,
-				// 	// 	data: sorted_bar_data.map(
-				// 	// 		(x) => 100 * x[barMetrics[1]]
-				// 	// 	),
-				// 	// backgroundColor: "#948d52",
-				// 	// },
-				// ],
+				labels: labels,
+				datasets: getDatasets(SERVERS[selectedServer]),
 			},
-			// plugins: [ChartDataLabels],
 			plugins: [testp],
 			options: {
+				animation: {
+					duration: 0,
+				},
 				layout: {
 					padding: {
 						// right: 40,
@@ -300,7 +277,7 @@ get_char_table()
 						time: {
 							unit: "month",
 						},
-						min: SERV_START,
+						min: SERVER_STARTS[selectedServer],
 						max: Date.now(),
 						grid: {
 							// display: false,
@@ -314,7 +291,7 @@ get_char_table()
 						time: {
 							unit: "month",
 						},
-						min: SERV_START,
+						min: SERVER_STARTS[selectedServer],
 						max: Date.now(),
 					},
 					y: {
@@ -323,68 +300,94 @@ get_char_table()
 						},
 					},
 				},
-				// plugins: {
-				// 	datalabels: {
-				// 		color: "#000",
-				// 		formatter: (v, ctx) => v.toFixed(2) + "%",
-				// 	},
-				// 	tooltip: {
-				// 		callbacks: {
-				// 			label: function (context) {
-				// 				if (context.dataset.label.includes("E2"))
-				// 					return (
-				// 						context.dataset.label +
-				// 						": " +
-				// 						context.raw.toFixed(1) +
-				// 						"% (" +
-				// 						(
-				// 							(context.raw /
-				// 								context.chart.data.datasets[
-				// 									context.datasetIndex ^ 1
-				// 								].data[context.dataIndex]) *
-				// 							100
-				// 						).toFixed(1) +
-				// 						"%)"
-				// 					);
-				// 				return (
-				// 					context.dataset.label +
-				// 					": " +
-				// 					context.raw.toFixed(1) +
-				// 					"%"
-				// 				);
-				// 			},
-				// 		},
-				// 		enabled: false,
-				// 		// position: 'nearest',
-				// 		external: thumbnail_tooltip(
-				// 			document.getElementById("opChart")
-				// 		),
-				// 		// xAlign: 'left'
-				// 	},
-				// },
 			},
 		});
-	});
-// const SERVERS = {
-// 	EN: "en_US",
-// 	JP: "ja_JP",
-// 	KR: "ko_KR",
-// 	CN: "zh_CN",
-// };
-// const serverSelect = document.getElementById("serverSelect");
-// Object.keys(SERVERS).forEach((k) => {
-// 	let opt = document.createElement("option");
-// 	opt.value = SERVERS[k];
-// 	opt.innerHTML = k;
-// 	serverSelect.appendChild(opt);
-// });
-// serverSelect.onchange = () => {
-// 	localStorage.setItem("server", serverSelect.value);
-// 	sessionStorage.setItem("userChange", true);
-// 	location.reload();
-// };
+		const btns = document.createElement("div");
+		btns.id = "barSort";
+		btns.classList.add("sortdiv");
+		document.getElementById("sortSelect").appendChild(btns);
+		label = document.createElement("label");
+		label.innerHTML = "Sort By:";
+		btns.appendChild(label);
 
-// Array.from(serverSelect.options).forEach((opt, i) => {
-// 	if (opt.value == serverString) opt.selected = true;
-// 	else opt.selected = false;
-// });
+		for (const [n, sorter] of Object.entries(sorters)) {
+			btn = document.createElement("div");
+			btn.classList = "sorter button";
+			if (n == "Name") btn.classList.add("checked");
+			btn.setAttribute("data-name", n);
+			btn.innerHTML = n;
+			btns.appendChild(btn);
+			btn.onclick = (e) => {
+				labelSort = sorter;
+				Array.from(btns.childNodes).forEach((x) =>
+					x.classList.remove("checked")
+				);
+				e.currentTarget.classList.toggle("checked");
+				redrawCharts();
+			};
+		}
+
+		const raritybtns = document.createElement("div");
+		raritybtns.id = "barRarities";
+		raritybtns.classList.add("sortdiv");
+		document.getElementById("raritySelect").appendChild(raritybtns);
+		label = document.createElement("label");
+		label.innerHTML = "Show:";
+		raritybtns.appendChild(label);
+		for (const i of [3, 4, 5]) {
+			btn = document.createElement("div");
+			btn.classList = "sorter button";
+			if (i == 5) btn.classList.add("checked");
+			btn.setAttribute("data-name", 1 + i + "*");
+			btn.innerHTML = 1 + i + "*";
+			raritybtns.appendChild(btn);
+			btn.onclick = (e) => {
+				e.currentTarget.classList.toggle("checked");
+				if (e.currentTarget.classList.contains("checked"))
+					shownrarities.add(i);
+				else shownrarities.delete(i);
+				redrawCharts();
+			};
+		}
+
+		const serverbtns = document.createElement("div");
+		serverbtns.id = "barServers";
+		serverbtns.classList.add("sortdiv");
+		document.getElementById("serverSelect").appendChild(serverbtns);
+		label = document.createElement("label");
+		label.innerHTML = "Server:";
+		serverbtns.appendChild(label);
+		Object.keys(SERVERS).forEach((s) => {
+			btn = document.createElement("div");
+			btn.classList = "sorter button";
+			if (s == "EN") btn.classList.add("checked");
+			btn.setAttribute("data-name", s);
+			btn.innerHTML = s;
+			serverbtns.appendChild(btn);
+			btn.onclick = (e) => {
+				Array.from(serverbtns.childNodes).forEach((x) =>
+					x.classList.remove("checked")
+				);
+				e.currentTarget.classList.toggle("checked");
+				selectedServer = s;
+				barGraph.data.datasets = getDatasets(SERVERS[selectedServer]);
+				barGraph.options.scales.x.min = SERVER_STARTS[selectedServer];
+				barGraph.options.scales.x1.min = SERVER_STARTS[selectedServer];
+
+				redrawCharts();
+			};
+		});
+		function redrawCharts() {
+			let subset = Object.values(SERVERS[selectedServer]).filter((x) =>
+				shownrarities.has(operatorData[x.charId].rarity)
+			);
+			barGraph.data.labels = subset.sort(labelSort).map((x) => x.op);
+
+			for (i = 0; i < barGraph.data.datasets.length; i++)
+				// remove elements not in labels
+				barGraph.data.datasets[i].data = subset;
+			adjustChartHeight(subset.length);
+
+			barGraph.update();
+		}
+	});
