@@ -140,11 +140,7 @@ get_cc_list()
 		);
 		function getBarLabels(data) {
 			// remember to add any exceptions to charIdMap as well, or else thumbnails will be missing.
-			return data.map((x) =>
-				x[0].name == "Skadi the Corrupting Heart"
-					? "Skadiva"
-					: x[0].name
-			);
+			return data.map((x) => SHORT_NAMES[x[0].name] || x[0].name);
 		}
 		labels = sortedData.map((x) => x[0].name);
 		values = sortedData.map((x) => x[1]);

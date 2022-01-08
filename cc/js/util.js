@@ -8,6 +8,12 @@ const CLASS_MAPPING = {
   SPECIAL: "Specialist",
   MEDIC: "Medic",
 };
+const SHORT_NAMES = {
+  "Skadi the Corrupting Heart": "Skadiva",
+  "Ch'en the Holungday": "Ch'en Blue",
+  "Nearl the Radiant Knight": "NTR",
+};
+const GAMEPRESS_NAME_MAP = { "Rosa (Poca)": "Rosa" };
 const charIdMap = {};
 // maps some en names to their appellations
 const CN_ID_MAP = {
@@ -106,7 +112,9 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
     if (!(k in charIdMap)) charIdMap[k] = charIdMap[v];
   }
   // add skadiva short name
-  charIdMap["Skadiva"] = "char_1012_skadi2";
+  for (const [k, v] of Object.entries(SHORT_NAMES)) {
+    charIdMap[v] = charIdMap[k];
+  }
   return json;
 }
 

@@ -1,6 +1,4 @@
 var operatorData;
-const GAMEPRESS_NAME_MAP = { "Rosa (Poca)": "Rosa" };
-const SHORTENED_NAME_MAP = { "Skadi the Corrupting Heart": "Skadiva" };
 function createDiagonalPattern(fillcolor) {
 	//https://stackoverflow.com/questions/28569667/fill-chart-js-bar-chart-with-diagonal-stripes-or-other-patterns
 	// create a 10x10 px canvas for the pattern's base shape
@@ -53,7 +51,7 @@ get_char_table(false, "zh_CN")
 		Object.values(SERVERS).forEach((servdata) => {
 			for (const [op, data] of Object.entries(servdata)) {
 				let name = htmlDecode(op);
-				data.op = SHORTENED_NAME_MAP[name] || name;
+				data.op = SHORT_NAMES[name] || name;
 				data.op = GAMEPRESS_NAME_MAP[data.op] || data.op;
 				data.charId = charIdMap[data.op];
 				if (data.charId == undefined) delete servdata[op];
@@ -148,8 +146,10 @@ get_char_table(false, "zh_CN")
 					if (
 						first_apperance &&
 						chart.data.datasets[args.index].data[i].shop.length
-					)
+					) {
+						ctx.restore();
 						continue;
+					}
 					let x_pos = x.getPixelForValue(
 						chart.data.datasets[args.index].data[i].shop[
 							parseInt(args.meta._dataset.parsing.xAxisKey)
@@ -209,19 +209,8 @@ get_char_table(false, "zh_CN")
 
 		const sorters = {
 			Name: (a, b) => {
-				if (
-					operatorData[a.charId].rarity ==
-					operatorData[b.charId].rarity
-				) {
-					if (a.op > b.op) return 1;
-					return -1;
-				}
-				if (
-					operatorData[a.charId].rarity >
-					operatorData[b.charId].rarity
-				)
-					return -1;
-				return 1;
+				if (a.op > b.op) return 1;
+				return -1;
 			},
 			Release: (a, b) => {
 				if (a.first == b.first) {
@@ -318,8 +307,8 @@ get_char_table(false, "zh_CN")
 		Promise.all(
 			Object.values(SERVERS[selectedServer]).map((x) => {
 				return new Promise((resolve, reject) => {
-					x.img.onload = resolve();
-					x.img.onerror = reject();
+					x.img.onload = resolve;
+					x.img.onerror = reject;
 				});
 			})
 		).then((p) => {
