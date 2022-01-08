@@ -231,6 +231,18 @@ get_char_table(false, "zh_CN")
 				if (a.first > b.first) return 1;
 				return -1;
 			},
+			Shop: (a, b) => {
+				let a_last = a.shop[a.shop.length - 1];
+				let b_last = b.shop[b.shop.length - 1];
+				if (a_last == b_last) {
+					if (a.first > b.first) return 1;
+					return -1;
+				}
+				if (!a_last) return 1;
+				if (!b_last) return -1;
+				if (a_last > b_last) return 1;
+				return -1;
+			},
 		};
 		var labelSort = sorters.Name;
 
