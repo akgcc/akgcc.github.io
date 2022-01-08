@@ -315,6 +315,17 @@ get_char_table(false, "zh_CN")
 				},
 			},
 		});
+		Promise.all(
+			Object.values(SERVERS[selectedServer]).map((x) => {
+				return new Promise((resolve, reject) => {
+					x.img.onload = resolve();
+					x.img.onerror = reject();
+				});
+			})
+		).then((p) => {
+			barGraph.update();
+		});
+
 		const btns = document.createElement("div");
 		btns.id = "barSort";
 		btns.classList.add("sortdiv");
