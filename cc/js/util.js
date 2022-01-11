@@ -10,7 +10,7 @@ const CLASS_MAPPING = {
 };
 const SHORT_NAMES = {
   "Skadi the Corrupting Heart": "Skadiva",
-  "Ch'en the Holungday": "Ch'en Blue",
+  "Ch'en the Holungday": "Ch'en (Wet)",
   "Nearl the Radiant Knight": "NTR",
 };
 const GAMEPRESS_NAME_MAP = { "Rosa (Poca)": "Rosa" };
