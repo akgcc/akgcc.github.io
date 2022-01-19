@@ -395,6 +395,7 @@ async function genStory(storyName, key) {
                 return scene;
             }
             function createScene(imgurl, isImage) {
+                // imgurl may be an array for largebg, note that only the first 2 images will be used.
                 scene = document.createElement("div");
                 scene.classList.add("scene");
                 if (isImage) scene.classList.add("image");
@@ -407,7 +408,6 @@ async function genStory(storyName, key) {
                     firstAudio = null;
                 }
 
-                let getdim = new Image();
                 let setDims = function () {
                     let h = this.im.height;
                     let w =
@@ -428,27 +428,8 @@ async function genStory(storyName, key) {
                     alignBackground(this.div);
                     this.im.remove();
                 };
-                scene.style.setProperty(
-                    "--background-image-url",
-                    'url("' + imgurl + '")'
-                );
-                scene.setAttribute("data-bgheight", 0);
-                scene.setAttribute("data-bgwidth", 0);
-                getdim.onload = setDims.bind({
-                    div: scene,
-                    im: getdim,
-                });
-                getdim.onerror = function () {
-                    // may be a multi-part image, try using first 2 parts to form a bg.
+                function multipart(left, right) {
                     this.div.classList.add("multipart");
-                    let left =
-                        getdim.src.split(".").slice(0, -1).join(".") +
-                        "_1." +
-                        getdim.src.split(".").slice(-1);
-                    let right =
-                        getdim.src.split(".").slice(0, -1).join(".") +
-                        "_2." +
-                        getdim.src.split(".").slice(-1);
                     this.div.style.setProperty(
                         "--background-image-url",
                         'url("' + left + '"), url("' + right + '")'
@@ -465,8 +446,36 @@ async function genStory(storyName, key) {
                         div: this.div,
                         im: dimright,
                     });
-                }.bind({ div: scene });
-                getdim.src = imgurl;
+                }
+                scene.style.setProperty(
+                    "--background-image-url",
+                    'url("' + imgurl + '")'
+                );
+                scene.setAttribute("data-bgheight", 0);
+                scene.setAttribute("data-bgwidth", 0);
+                if (Array.isArray(imgurl)) {
+                    multipart.bind({ div: scene })(imgurl[0], imgurl[1]);
+                } else {
+                    let getdim = new Image();
+                    getdim.onload = setDims.bind({
+                        div: scene,
+                        im: getdim,
+                    });
+
+                    // may be a multi-part image, try using first 2 parts to form a bg.
+                    getdim.onerror = function () {
+                        let left =
+                            getdim.src.split(".").slice(0, -1).join(".") +
+                            "_1." +
+                            getdim.src.split(".").slice(-1);
+                        let right =
+                            getdim.src.split(".").slice(0, -1).join(".") +
+                            "_2." +
+                            getdim.src.split(".").slice(-1);
+                        return multipart(left, right).bind({ div: this.div })();
+                    }.bind({ div: scene });
+                    getdim.src = imgurl;
+                }
                 return scene;
             }
             function makeDecisionDialog(args, predicate) {
@@ -629,9 +638,11 @@ async function genStory(storyName, key) {
 
                         case "background":
                             if (!args || !args.image) break;
+                        case "largebg":
+                            if (!args || !args.imagegroup) break;
                         case "image":
                             if (
-                                (!args || !args.image) &&
+                                (!args || (!args.imagegroup && !args.image)) &&
                                 (!scene || !scene.classList.contains("image"))
                             )
                                 break;
@@ -643,36 +654,46 @@ async function genStory(storyName, key) {
                                     scene.classList.contains("image");
                                 addCurrentScene();
                             }
-                            let imgurl;
-                            if (!args || !args.image) {
-                                imgurl =
-                                    "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/bg_black.png";
-                                if (
-                                    cmd.toLowerCase() == "image" &&
-                                    wasDisplayingImage &&
-                                    lastBackgroundImage
-                                )
-                                    // end of image, revert back to last bg
-                                    // there are many redundancies here, this will always be reached if the outer if() is true
-                                    // wasDisplayingImage is not needed at all.
-                                    imgurl = lastBackgroundImage;
-                            } else {
-                                switch (cmd.toLowerCase()) {
-                                    case "image":
-                                        imgurl =
-                                            "https://aceship.github.io/AN-EN-Tags/img/avg/images/" +
-                                            args.image +
-                                            ".png";
+                            let imgurl =
+                                "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/bg_black.png";
+
+                            switch (cmd.toLowerCase()) {
+                                case "image":
+                                    if (
+                                        wasDisplayingImage &&
+                                        lastBackgroundImage &&
+                                        (!args || !args.image)
+                                    ) {
+                                        // remove image, revert to prev background
+                                        imgurl = lastBackgroundImage;
                                         break;
-                                    case "background":
-                                        imgurl =
-                                            "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/" +
-                                            args.image +
-                                            ".png";
-                                        lastBackgroundImage = imgurl;
-                                        break;
-                                }
+                                    }
+                                    imgurl =
+                                        "https://aceship.github.io/AN-EN-Tags/img/avg/images/" +
+                                        args.image +
+                                        ".png";
+                                    break;
+                                case "background":
+                                    imgurl =
+                                        "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/" +
+                                        args.image +
+                                        ".png";
+                                    lastBackgroundImage = imgurl;
+                                    break;
+                                case "largebg":
+                                    imgurl = args.imagegroup
+                                        .split("/")
+                                        .slice(0, 2)
+                                        .map(
+                                            (x) =>
+                                                "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/" +
+                                                x +
+                                                ".png"
+                                        );
+                                    lastBackgroundImage = imgurl;
+                                    break;
                             }
+
                             scene = createScene(
                                 imgurl,
                                 cmd.toLowerCase() == "image" &&
