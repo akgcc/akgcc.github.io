@@ -395,6 +395,8 @@ async function genStory(storyName, key) {
                 return scene;
             }
             function createScene(imgurl, isImage) {
+                chars = {};
+                speaker = 0;
                 // imgurl may be an array for largebg, note that only the first 2 images will be used.
                 scene = document.createElement("div");
                 scene.classList.add("scene");
