@@ -637,17 +637,25 @@ async function genStory(storyName, key) {
                             break;
 
                         case "background":
-                            if (!args || !args.image) break;
+                            if (
+                                cmd.toLowerCase() == "background" &&
+                                (!args || !args.image)
+                            )
+                                break;
                         case "largebg":
-                            if (!args || !args.imagegroup) break;
+                            if (
+                                cmd.toLowerCase() == "largebg" &&
+                                (!args || !args.imagegroup)
+                            )
+                                break;
                         case "image":
                             if (
-                                (!args || (!args.imagegroup && !args.image)) &&
+                                cmd.toLowerCase() == "image" &&
+                                (!args || !args.image) &&
                                 (!scene || !scene.classList.contains("image"))
                             )
                                 break;
                             // insert new div when background changes and set to current scene
-
                             let wasDisplayingImage = false;
                             if (scene) {
                                 wasDisplayingImage =
