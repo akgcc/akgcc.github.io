@@ -1035,10 +1035,17 @@ titlediv = document.getElementById("storyTitle");
 // When the user scrolls down 20px from the top of the document, show the button
 window.onscroll = scrollFunction;
 window.onresize = scrollFunction;
-
+function adjustedMidpoint() {
+    let topNavHeight =
+        5 +
+        5 +
+        2.5 * parseFloat(getComputedStyle(document.documentElement).fontSize); // padding + height
+    return window.innerHeight / 2 + topNavHeight / 2;
+}
 function alignBackground(s) {
     let pos = s.getBoundingClientRect();
-    let midp = window.innerHeight / 2;
+
+    let midp = adjustedMidpoint();
     let imheight = s.getAttribute("data-bgheight");
     let imwidth = s.getAttribute("data-bgwidth");
     if (s.classList.contains("multipart"))
@@ -1069,7 +1076,7 @@ function alignBackground(s) {
 document.getElementById("playPauseBtn").onclick = () => playPauseMusic(true);
 const musicState = { paused: false };
 function playPauseMusic(toggle = false) {
-    let midp = window.innerHeight / 2;
+    let midp = adjustedMidpoint();
     const allMusic = Array.from(
         document.getElementById("storyDisp").querySelectorAll(".music")
     );
