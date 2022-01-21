@@ -233,18 +233,24 @@ get_char_table(false, "zh_CN")
 				return -1;
 			},
 		};
-		var labelSort = sorters.Name;
-
+		var labelSort = sorters.Shop;
+		//////////////////////////////////////////////////
+		// this is just the contents of redrawCharts()
 		let subset = Object.values(SERVERS[selectedServer]).filter((x) =>
 			shownrarities.has(operatorData[x.charId].rarity)
 		);
-		var labels = subset.sort(sorters.Name).map((x) => x.op);
-		adjustChartHeight(labels.length);
+		var labels = subset.sort(labelSort).map((x) => x.op);
+		var datasets = getDatasets(SERVERS[selectedServer]);
+		for (i = 0; i < datasets.length; i++)
+			// remove elements not in labels
+			datasets[i].data = subset;
+		adjustChartHeight(subset.length);
+		//////////////////////////////////////////////////
 		let barGraph = new Chart(document.getElementById("opChart"), {
 			type: "bar",
 			data: {
 				labels: labels,
-				datasets: getDatasets(SERVERS[selectedServer]),
+				datasets: datasets,
 			},
 			plugins: [testp],
 			options: {
@@ -326,7 +332,7 @@ get_char_table(false, "zh_CN")
 		for (const [n, sorter] of Object.entries(sorters)) {
 			btn = document.createElement("div");
 			btn.classList = "sorter button";
-			if (n == "Name") btn.classList.add("checked");
+			if (n == "Shop") btn.classList.add("checked");
 			btn.setAttribute("data-name", n);
 			btn.innerHTML = n;
 			btns.appendChild(btn);
