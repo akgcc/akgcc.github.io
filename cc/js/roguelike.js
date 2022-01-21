@@ -5,9 +5,7 @@ fetch(
 		? "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
 				serverString +
 				"/gamedata/excel/roguelike_topic_table.json"
-		: "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-				serverString +
-				"/gamedata/excel/roguelike_table.json"
+		: "./json/" + serverString + "/roguelike_table.json"
 )
 	.then((res) => res.json())
 	.then((js) => {
