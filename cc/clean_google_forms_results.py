@@ -61,4 +61,4 @@ with open('polldata.txt','w') as f:
 # with open('poll_results_2.json','w') as f:
     # json.dump(E2_ANSWER_MAP, f)
 with open('poll_results_1.json','w') as f:
-    json.dump({"scatter":{"data":ANSWER_MAP}, "bar":{"data":E2_ANSWER_MAP,"total":bar_total}}, f)
+    json.dump({"scatter":{"data":ANSWER_MAP,"default_axes":order[:2]}, "bar":{"data":E2_ANSWER_MAP,"total":bar_total}}, f)

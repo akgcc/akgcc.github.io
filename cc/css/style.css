@@ -208,7 +208,7 @@ html {
   overflow-y: scroll;
 }
 
-html * {
+body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -388,7 +388,7 @@ body {
 
 @media (hover: hover) {
   /* .gslide[data-dupe] .gslide-description:hover, */
-  div.button:not(.disabled):hover {
+  .button:not(.disabled):hover {
     color: black;
     background-color: white;
     text-shadow: none;
@@ -396,22 +396,22 @@ body {
 }
 
 /* .gslide[data-dupe] .gslide-description:active, */
-div.button:not(.disabled):active,
-div.button.checked {
+.button:not(.disabled):active,
+.button.checked {
   color: black;
   background: #cccccc;
 }
 
-div.button.toggled,
-div.button.disabled {
+.button.toggled,
+.button.disabled {
   border: 1px solid gray;
 }
 
-div.button.disabled {
+.button.disabled {
   background: dimgrey;
 }
 
-div.button.toggled.legend {
+.button.toggled.legend {
   text-shadow: none;
   opacity: 0.5;
 }

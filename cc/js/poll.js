@@ -1,6 +1,18 @@
 if (!window.location.hash) window.location.hash = "#1";
 window.onhashchange = () => window.location.reload();
 var PTAG = window.location.hash.substr(1);
+const POLLS = ["#1"];
+POLLS.forEach((poll) => {
+  let a = document.createElement("a");
+  a.classList.add("rightButton");
+  a.classList.add("button");
+  a.href = "./poll.html" + poll;
+  if (poll == window.location.hash) a.classList.add("checked");
+  a.innerHTML = poll;
+  document
+    .getElementById("topNav")
+    .insertBefore(a, document.getElementById("homeButton").parentElement);
+});
 get_char_table()
   .then((js) => {
     let operatorData = js;
@@ -20,8 +32,7 @@ get_char_table()
         bar_data[k]["E2"] / bar_data[k]["Ownership"];
     });
     let sortMetrics = Object.keys(Object.values(scatter_data)[0]);
-
-    let axesMetrics = ["Power", "Utility"];
+    let axesMetrics = js["scatter"]["default_axes"];
 
     btns = document.createElement("div");
     btns.id = "scatterSort";

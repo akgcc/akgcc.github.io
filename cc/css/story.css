@@ -2,6 +2,13 @@
   --story-width: min(65vh / 9 * 16, 95vw);
   --dialog-size: 6em;
 }
+@font-face {
+  font-family: "vn";
+  src: url("../../webfonts/vn.woff2") format("woff2");
+}
+.dialog {
+  /*font-family: "vn";*/
+}
 .scene {
   width: 100%;
   padding: 0;
