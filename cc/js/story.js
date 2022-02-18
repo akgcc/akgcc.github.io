@@ -609,7 +609,7 @@ async function genStory(storyName, key) {
                         Array.from(speakerList).indexOf(args.name.toLowerCase())
                     );
                     activeReferences.forEach((r) => {
-                        predicate[r].push(dlg);
+                        if (r in predicate) predicate[r].push(dlg);
                     });
                     getWorkingScene().appendChild(dlg);
                     if (
@@ -729,7 +729,7 @@ async function genStory(storyName, key) {
                             if (args && args.text) {
                                 let dlg = makeDialog(null, args.text, {}, 0);
                                 activeReferences.forEach((r) => {
-                                    predicate[r].push(dlg);
+                                    if (r in predicate) predicate[r].push(dlg);
                                 });
                                 getWorkingScene().appendChild(dlg);
                             }
@@ -895,7 +895,7 @@ async function genStory(storyName, key) {
                     let dlg = makeDialog(null, line[2], {}, 0);
                     dlg.classList.add("narration");
                     activeReferences.forEach((r) => {
-                        predicate[r].push(dlg);
+                        if (r in predicate) predicate[r].push(dlg);
                     });
                     getWorkingScene().appendChild(dlg);
                 }
