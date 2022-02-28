@@ -1,7 +1,7 @@
 if (!window.location.hash) window.location.hash = "#1";
 window.onhashchange = () => window.location.reload();
 var PTAG = window.location.hash.substr(1);
-const POLLS = ["#1"];
+const POLLS = ["#1", "#2"];
 POLLS.forEach((poll) => {
   let a = document.createElement("a");
   a.classList.add("rightButton");
