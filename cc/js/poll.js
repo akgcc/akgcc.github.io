@@ -42,7 +42,7 @@ get_char_table()
       label = document.createElement("label");
       label.innerHTML = axes;
       btns.appendChild(label);
-      sortMetrics.forEach((n, j) => {
+      axesMetrics.forEach((n, j) => {
         btn = document.createElement("div");
         btn.classList = "sorter button";
         if (axesMetrics[i] == n) btn.classList.add("checked");
