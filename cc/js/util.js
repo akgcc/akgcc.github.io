@@ -1,3 +1,10 @@
+const DATA_SOURCE =
+  "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/";
+// const DATA_SOURCE =
+//   "https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/json/gamedata/";
+const CC_DATA_SOURCE = DATA_SOURCE;
+// const CC_DATA_SOURCE =
+//   "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/";
 const CLASS_MAPPING = {
   WARRIOR: "Guard",
   SUPPORT: "Supporter",
@@ -61,9 +68,7 @@ document.addEventListener("DOMContentLoaded", () =>
 );
 async function get_cc_list(server = "en_US") {
   let raw = await fetch(
-    "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-      server +
-      "/gamedata/excel/crisis_table.json"
+    CC_DATA_SOURCE + server + "/gamedata/excel/crisis_table.json"
   );
   let data = await raw.json();
   data.seasonInfo.forEach((cc) => {
@@ -82,15 +87,11 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
   // also builds charIdMap for use elsewhere
   // converts internal profession names to in-game ones
   let raw = await fetch(
-    "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-      server +
-      "/gamedata/excel/character_table.json"
+    DATA_SOURCE + server + "/gamedata/excel/character_table.json"
   );
   let json = await raw.json();
   raw = await fetch(
-    "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-      server +
-      "/gamedata/excel/char_patch_table.json"
+    DATA_SOURCE + server + "/gamedata/excel/char_patch_table.json"
   );
   let patch = await raw.json();
   updateJSON(json, patch.patchChars);
