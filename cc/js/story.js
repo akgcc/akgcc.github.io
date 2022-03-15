@@ -17,6 +17,7 @@ const charPathFixes = {
     char_2006_weiywfmzuki_1: "char_2006_fmzuki_1",
     avg_NPC_017_3: "avg_npc_017_3",
 };
+const forcedBaseNames = ["avg_npc_208"];
 const serverString = localStorage.getItem("server") || "en_US";
 get_char_table(false, serverString)
     .then((js) => {
@@ -962,6 +963,9 @@ function avatarImg(path) {
     }
     var src_array = [];
     // trying all base_name permutations first results in less misses, but also could serve the wrong image.
+    if (forcedBaseNames.includes(base_name)) {
+        src_array.push(base_name);
+    }
     src_array.push(base_name + mods);
     src_array.push(alt_name + mods);
     src_array.push(base_name + alt_mods);
