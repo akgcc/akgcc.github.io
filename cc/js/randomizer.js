@@ -173,16 +173,13 @@ fetch("./json/skill_icon_map.json")
     availableStages.map((x) => main_ids.add(x.zoneId));
 
     const now = Math.floor(Date.now() / 1000);
-
+    var stage_types = {};
     for (const [key, value] of Object.entries(story_table)) {
       if (
         (value.remakeStartTime > 0 || value.startTime >= 1633003200) &&
         (value.entryType == "ACTIVITY" || now <= value.startShowTime) &&
         !excludedActs.includes(value.id)
       ) {
-        if (value.startTime >= 1633003200) {
-          console.log(value);
-        }
         let code = value.infoUnlockDatas.slice(-1)[0].storyCode.split("-")[0];
         if (!code)
           code = (
@@ -190,16 +187,19 @@ fetch("./json/skill_icon_map.json")
               code: "",
             }
           ).code.split("-")[0];
-        if (code) episode_list[value.name + " (" + code + ")"] = value.id;
-        else episode_list[value.name] = value.id;
+        let episode_name = code ? value.name + " (" + code + ")" : value.name;
+        episode_list[episode_name] = value.id;
+        stage_types[episode_name] = value.entryType;
+        // to correctly get stage type (intermezzi, side story, main etc) you need to fetch activity_table.json as well
       }
     }
-
     main_ids.forEach((x) => {
       let m = /^main_(\d+)/gi.exec(x);
       if (m) {
-        episode_list["Episode " + m[1].padStart(2, "0")] =
+        let episode_name = "Episode " + m[1].padStart(2, "0");
+        episode_list[episode_name] =
           "(?:main|sub)_" + m[1].padStart(2, "0") + "-";
+        stage_types[episode_name] = "MAIN";
       }
     });
 
@@ -636,6 +636,8 @@ fetch("./json/skill_icon_map.json")
           updateLocalFilters();
         };
         label.innerHTML = subvalue.disp;
+        if (stage_types[subkey])
+          label.setAttribute("type", stage_types[subkey]);
         if (subvalue.enabled !== undefined) left.appendChild(checkbox);
         left.appendChild(label);
         row.appendChild(left);
