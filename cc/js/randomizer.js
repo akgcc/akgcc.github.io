@@ -4,6 +4,7 @@ var story_table,
   divMap = {},
   episode_list = {},
   skillIconMap;
+const excludedActs = ["act12side"]; //dossoles
 const maxTeamSize = 12;
 const hopeMap = {
   0: 0,
@@ -176,7 +177,8 @@ fetch("./json/skill_icon_map.json")
     for (const [key, value] of Object.entries(story_table)) {
       if (
         (value.remakeStartTime > 0 || value.startTime >= 1633003200) &&
-        (value.entryType == "ACTIVITY" || now <= value.startShowTime)
+        (value.entryType == "ACTIVITY" || now <= value.startShowTime) &&
+        !excludedActs.includes(value.id)
       ) {
         if (value.startTime >= 1633003200) {
           console.log(value);
