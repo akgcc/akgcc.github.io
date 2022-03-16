@@ -178,6 +178,9 @@ fetch("./json/skill_icon_map.json")
         (value.remakeStartTime > 0 || value.startTime >= 1633003200) &&
         (value.entryType == "ACTIVITY" || now <= value.startShowTime)
       ) {
+        if (value.startTime >= 1633003200) {
+          console.log(value);
+        }
         let code = value.infoUnlockDatas.slice(-1)[0].storyCode.split("-")[0];
         if (!code)
           code = (
