@@ -356,7 +356,7 @@ async function genStory(storyName, key) {
                     parseFloat(
                         /(?:[\.\d]+,){3}([\.\d]+)/.exec(lastBlockerColor)[1]
                     ) &&
-                    (lastBlocker.classList.contains("fadein") || !lastBlocker)
+                    (!lastBlocker || lastBlocker.classList.contains("fadein"))
                 ) {
                     // apply opaque blocker color to rest of scene.
                     scene.style.setProperty(
