@@ -1,7 +1,6 @@
 var operatorData,
     charCodeMap = {},
     currentCategory,
-    storyData,
     storyReview,
     storyTypes = { record: [], main: [], side: [], mini: [] },
     storyTypeNames = {
@@ -25,15 +24,6 @@ get_char_table(false, serverString)
         for (var key in operatorData) {
             charCodeMap[key.split("_")[2]] = key;
         }
-        return fetch(
-            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-                serverString +
-                "/gamedata/excel/story_table.json"
-        );
-    })
-    .then((res) => res.json())
-    .then((js) => {
-        storyData = js;
         return fetch(
             "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
                 serverString +
@@ -283,7 +273,34 @@ get_char_table(false, serverString)
         window.onhashchange = loadFromHash;
         if (window.location.hash) {
             loadFromHash();
-        } else document.getElementById("catSelect").onchange();
+        } else {
+            let latest_story = Object.keys(storyReview)
+                .filter((k) => storyReview[k].entryType != "NONE")
+                .sort(
+                    (a, b) =>
+                        (storyReview[a].remakeStartTime > 0
+                            ? storyReview[a].remakeStartTime
+                            : storyReview[a].startTime > 0
+                            ? storyReview[a].startTime
+                            : storyReview[a].startShowTime) -
+                        (storyReview[b].remakeStartTime > 0
+                            ? storyReview[b].remakeStartTime
+                            : storyReview[b].startTime > 0
+                            ? storyReview[b].startTime
+                            : storyReview[b].startShowTime)
+                )
+                .slice(-1)[0];
+            let newHash = "#";
+            for (const [k, v] of Object.entries(storyTypes)) {
+                if (v.includes(latest_story)) {
+                    newHash += k;
+                    break;
+                }
+            }
+            newHash += "&" + latest_story + "&0";
+            history.replaceState(undefined, undefined, newHash);
+            loadFromHash();
+        }
     });
 
 async function genStory(storyName, key) {
