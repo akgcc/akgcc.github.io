@@ -265,9 +265,7 @@ get_char_table(false, serverString)
             genStory(data.storyName, data.storyTxt).then(() => {
                 scrollFunction();
                 sessionStorage.setItem("userChange", false);
-                let visicon = toggleVisBtn.querySelector("i");
-                visicon.classList.add("fa-eye-slash");
-                visicon.classList.remove("fa-eye");
+                reapplyToggles();
             });
         }
         window.onhashchange = loadFromHash;
@@ -1199,15 +1197,30 @@ toggleVisBtn.onclick = () => {
     icon.classList.toggle("fa-eye-slash");
     icon.classList.toggle("fa-eye");
 };
-// document.onclick = (e) => {
-//     console.log(e.target);
-//     if (
-//         ["dialog", "dialog-left", "dialog-right", "scene"].some((cname) =>
-//             e.target.classList.contains(cname)
-//         )
-//     ) {
-//         Array.from(document.querySelectorAll(".dialog")).forEach((d) => {
-//             d.classList.toggle("invisible");
-//         });
-//     }
-// };
+const toggleSfxBtn = document.getElementById("sfxButton");
+toggleSfxBtn.onclick = () => {
+    Array.from(document.querySelectorAll(".dialog.soundPlayer")).forEach(
+        (d) => {
+            d.classList.toggle("invisible");
+        }
+    );
+    scrollFunction();
+    let icon = toggleSfxBtn.querySelector("i");
+    icon.classList.toggle("fa-volume-up");
+    icon.classList.toggle("fa-volume-mute");
+};
+
+function reapplyToggles() {
+    let icon = toggleSfxBtn.querySelector("i");
+    if (icon.classList.contains("fa-volume-up")) {
+        icon.classList.remove("fa-volume-up");
+        icon.classList.add("fa-volume-mute");
+        toggleSfxBtn.click();
+    }
+    icon = toggleVisBtn.querySelector("i");
+    if (icon.classList.contains("fa-eye")) {
+        icon.classList.add("fa-eye-slash");
+        icon.classList.remove("fa-eye");
+        toggleVisBtn.click();
+    }
+}

@@ -565,7 +565,7 @@ fetch("./json/skill_icon_map.json")
                 (localFilters.Class[b.profession].min > 0);
               return ops_needed > chances_left
                 ? score_a - score_b
-                : Math.min(1, score_a) - Math.min(1, score_b);
+                : !!score_a - !!score_b;
             })
             .pop();
           if (!randomOne) break;

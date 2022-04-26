@@ -400,3 +400,6 @@ audio {
 #serverSelect {
   margin-right: 8px;
 }
+.soundPlayer.invisible {
+  display: none;
+}
