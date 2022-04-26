@@ -527,8 +527,18 @@ fetch("./json/skill_icon_map.json")
           (x) => x.selected
         );
         let localFilters = JSON.parse(JSON.stringify(filters));
-
-        for (let i = 0; i < filters.Squad.Size.max; i++) {
+        let real_size_cap = Math.min(
+          filters.Squad.Size.max,
+          Object.values(localFilters.Rarity).reduce(
+            (p, c) => p + (c.enabled ? Math.max(c.max, 0) : 0),
+            0
+          ),
+          Object.values(localFilters.Class).reduce(
+            (p, c) => p + (c.enabled ? Math.max(c.max, 0) : 0),
+            0
+          )
+        );
+        for (let i = 0; i < real_size_cap; i++) {
           // filter by rarity:
           availableOperators = availableOperators.filter(
             (x) =>
@@ -541,14 +551,21 @@ fetch("./json/skill_icon_map.json")
               localFilters.Class[x.profession].enabled &&
               localFilters.Class[x.profession].max > 0
           );
-
+          let ops_needed = Object.values(localFilters.Rarity)
+            .concat(Object.values(localFilters.Class))
+            .reduce((p, c) => p + Math.max(c.min, 0), 0);
+          let chances_left = real_size_cap - i - 1;
           let randomOne = shuffleArray(availableOperators)
             .sort((a, b) => {
-              if (localFilters.Rarity[parseInt(a.rarity)].min > 0) return 1;
-              if (localFilters.Class[a.profession].min > 0) return 1;
-              if (localFilters.Rarity[parseInt(b.rarity)].min > 0) return -1;
-              if (localFilters.Class[b.profession].min > 0) return -1;
-              return 0;
+              let score_a =
+                (localFilters.Rarity[parseInt(a.rarity)].min > 0) +
+                (localFilters.Class[a.profession].min > 0);
+              let score_b =
+                (localFilters.Rarity[parseInt(b.rarity)].min > 0) +
+                (localFilters.Class[b.profession].min > 0);
+              return ops_needed > chances_left
+                ? score_a - score_b
+                : Math.min(1, score_a) - Math.min(1, score_b);
             })
             .pop();
           if (!randomOne) break;
