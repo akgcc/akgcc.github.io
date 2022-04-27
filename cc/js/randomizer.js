@@ -3,8 +3,8 @@ var story_table,
   challengeList,
   divMap = {},
   episode_list = {},
-  skillIconMap;
-const excludedActs = ["act12side"]; //dossoles
+  skillIconMap,
+  activity_table;
 const maxTeamSize = 12;
 const hopeMap = {
   0: 0,
@@ -157,6 +157,15 @@ fetch("./json/skill_icon_map.json")
     return fetch(
       "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
         serverString +
+        "/gamedata/excel/activity_table.json"
+    );
+  })
+  .then((res) => res.json())
+  .then((js) => {
+    activity_table = js;
+    return fetch(
+      "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+        serverString +
         "/gamedata/excel/stage_table.json"
     );
   })
@@ -180,9 +189,8 @@ fetch("./json/skill_icon_map.json")
     var stage_types = {};
     for (const [key, value] of Object.entries(story_table)) {
       if (
-        (value.remakeStartTime > 0 || value.startTime >= 1633003200) &&
-        (value.entryType == "ACTIVITY" || now <= value.startShowTime) &&
-        !excludedActs.includes(value.id)
+        value.replicateActionId ||
+        activity_table.basicInfo[key]?.displayType == "BRANCHLINE"
       ) {
         let code = value.infoUnlockDatas.slice(-1)[0].storyCode.split("-")[0];
         if (!code)
@@ -193,8 +201,8 @@ fetch("./json/skill_icon_map.json")
           ).code.split("-")[0];
         let episode_name = code ? value.name + " (" + code + ")" : value.name;
         episode_list[episode_name] = value.id;
-        stage_types[episode_name] = value.entryType;
-        // to correctly get stage type (intermezzi, side story, main etc) you need to fetch activity_table.json as well
+        stage_types[episode_name] =
+          activity_table.basicInfo[key]?.displayType || value.entryType;
       }
     }
     main_ids.forEach((x) => {

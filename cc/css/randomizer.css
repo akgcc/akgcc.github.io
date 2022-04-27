@@ -251,3 +251,9 @@ table {
 #output .skimg {
   opacity: 1;
 }
+.filterSection label[type="SIDESTORY"] {
+  color: #a6c5c5;
+}
+.filterSection label[type="BRANCHLINE"] {
+  color: #cba2a2;
+}
