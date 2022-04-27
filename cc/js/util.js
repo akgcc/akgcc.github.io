@@ -11,6 +11,7 @@ const SERVERS = {
   KR: "ko_KR",
   CN: "zh_CN",
 };
+const serverString = localStorage.getItem("server") || "en_US";
 const CLASS_MAPPING = {
   WARRIOR: "Guard",
   SUPPORT: "Supporter",

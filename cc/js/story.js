@@ -17,7 +17,7 @@ const charPathFixes = {
     avg_NPC_017_3: "avg_npc_017_3",
 };
 const forcedBaseNames = []; //["avg_npc_208"];
-const serverString = localStorage.getItem("server") || "en_US";
+
 get_char_table(false, serverString)
     .then((js) => {
         operatorData = js;

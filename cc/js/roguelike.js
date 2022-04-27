@@ -1,5 +1,3 @@
-const serverString = localStorage.getItem("server") || "en_US";
-
 fetch(
 	serverString == "zh_CN"
 		? "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +

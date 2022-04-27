@@ -131,7 +131,7 @@ var filters = {
   },
 };
 
-// fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/zone_table.json')
+// fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/'+serverString+'/gamedata/excel/zone_table.json')
 fetch("./json/skill_icon_map.json")
   .then((res) => res.json())
   .then((json) => {
@@ -141,19 +141,23 @@ fetch("./json/skill_icon_map.json")
   .then((res) => res.json())
   .then((js) => {
     challengeList = js;
-    return get_char_table();
+    return get_char_table(false, serverString);
   })
   .then((js) => {
     operatorData = js;
     return fetch(
-      "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/story_review_table.json"
+      "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+        serverString +
+        "/gamedata/excel/story_review_table.json"
     );
   })
   .then((res) => res.json())
   .then((js) => {
     story_table = js;
     return fetch(
-      "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/excel/stage_table.json"
+      "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+        serverString +
+        "/gamedata/excel/stage_table.json"
     );
   })
   .then((res) => res.json())
@@ -275,7 +279,9 @@ fetch("./json/skill_icon_map.json")
         // chosen_stage= availableStages.filter(x=> x.code == "SV-EX-5")[0]
         if (chosen_stage) {
           let stageurl =
-            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/en_US/gamedata/levels/" +
+            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+            serverString +
+            "/gamedata/levels/" +
             chosen_stage.levelId.toLowerCase() +
             ".json";
           fetch(stageurl)
