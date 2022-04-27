@@ -552,16 +552,20 @@ async function genStory(storyName, key) {
                 left.classList.add("dialog-left");
                 let right = document.createElement("div");
                 right.classList.add("dialog-right");
+                let nameplate = document.createElement("div");
+                nameplate.classList.add("dialog-name");
                 let txt = document.createElement("div");
                 txt.classList.add("text");
                 txt.setAttribute("data-name", "");
                 txt.style.setProperty("--name-color", "#777");
                 txt.innerHTML = dialogLine;
                 wrap.appendChild(left);
+                txt.prepend(nameplate);
                 wrap.appendChild(txt);
                 wrap.appendChild(right);
                 if (args && args.name) {
                     txt.setAttribute("data-name", args.name);
+                    nameplate.innerHTML = args.name;
                     txt.style.setProperty(
                         "--name-color",
                         selectColor(colorIndex)
@@ -685,13 +689,14 @@ async function genStory(storyName, key) {
 
                             switch (cmd.toLowerCase()) {
                                 case "image":
-                                    if (
-                                        wasDisplayingImage &&
-                                        lastBackgroundImage &&
-                                        (!args || !args.image)
-                                    ) {
-                                        // remove image, revert to prev background
-                                        imgurl = lastBackgroundImage;
+                                    if (!args || !args.image) {
+                                        if (
+                                            wasDisplayingImage &&
+                                            lastBackgroundImage
+                                        ) {
+                                            // remove image, revert to prev background
+                                            imgurl = lastBackgroundImage;
+                                        }
                                         break;
                                     }
                                     imgurl =
