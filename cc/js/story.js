@@ -1041,10 +1041,10 @@ function avatarImg(path) {
 
 const avatarModal = document.getElementById("avatarModal");
 window.addEventListener("click", (e) => {
-    if (e.target == avatarModal) avatarModal.style.display = "none";
+    if (e.target == avatarModal) avatarModal.classList.remove("show");
 });
 function enlargeAvatar(src, cover = false) {
-    avatarModal.style.display = "block";
+    avatarModal.classList.add("show");
     let content = avatarModal.querySelector(".modal-content");
     content.innerHTML = "";
     let im = document.createElement("img");

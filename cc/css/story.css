@@ -347,7 +347,10 @@ audio {
 
 /* The Modal (background) */
 .modal {
-  display: none;
+  display: block;
+  opacity: 0;
+  visibility: hidden;
+  transition: visibility 0.2s, opacity 0.2s;
   position: fixed; /* Stay in place */
   z-index: 1; /* Sit on top */
   left: 0;
@@ -357,6 +360,10 @@ audio {
   overflow: hidden; /* Enable scroll if needed */
   background-color: rgb(0, 0, 0); /* Fallback color */
   background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+.modal.show {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Modal Content/Box */
