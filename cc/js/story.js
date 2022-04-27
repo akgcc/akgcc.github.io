@@ -1033,16 +1033,16 @@ function avatarImg(path) {
     wrap.classList.add("npc");
     wrap.appendChild(img);
     wrap.onclick = (e) => {
-        e.stopPropagation();
+        // e.stopPropagation();
         enlargeAvatar(img.src);
     };
     return wrap;
 }
 
 const avatarModal = document.getElementById("avatarModal");
-window.onclick = (e) => {
+window.addEventListener("click", (e) => {
     if (e.target == avatarModal) avatarModal.style.display = "none";
-};
+});
 function enlargeAvatar(src, cover = false) {
     avatarModal.style.display = "block";
     let content = avatarModal.querySelector(".modal-content");

@@ -616,11 +616,11 @@ window.onload = () => {
       dd_content.classList.toggle("show");
       dd_btn.classList.toggle("checked");
     };
-    window.onclick = function (e) {
-      if (!(e.target == dd_btn)) {
+    window.addEventListener("click", (e) => {
+      if (e.target != dd_btn) {
         dd_content.classList.remove("show");
         dd_btn.classList.remove("checked");
       }
-    };
+    });
   }
 };
