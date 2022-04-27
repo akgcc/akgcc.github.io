@@ -617,7 +617,6 @@ window.onload = () => {
       dd_btn.classList.toggle("checked");
     };
     window.onclick = function (e) {
-      console.log(e.target == dd_btn);
       if (!(e.target == dd_btn)) {
         dd_content.classList.remove("show");
         dd_btn.classList.remove("checked");
