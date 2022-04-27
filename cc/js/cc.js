@@ -194,7 +194,7 @@ fetch("./json/skill_icon_map.json")
       });
     const orderBtn = document.getElementById("sortOrder");
     orderBtn.onclick = (e) => {
-      switch (orderBtn.innerHTML) {
+      switch (orderBtn.innerHTML.trim()) {
         case "Order by: Date":
           Object.keys(riskMap).forEach((k) => {
             Array.from(riskMap[k].querySelectorAll(".cardContainer"))
@@ -240,7 +240,7 @@ fetch("./json/skill_icon_map.json")
 
     const viewBtn = document.getElementById("viewType");
     viewBtn.onclick = (e) => {
-      switch (viewBtn.innerHTML) {
+      switch (viewBtn.innerHTML.trim()) {
         case "View: Thumbs":
           viewBtn.innerHTML = "View: Icons";
           changeSetting("view", "icons");
