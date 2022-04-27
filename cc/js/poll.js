@@ -11,7 +11,7 @@ POLLS.forEach((poll) => {
   a.innerHTML = poll;
   document
     .getElementById("topNav")
-    .insertBefore(a, document.getElementById("homeButton").parentElement);
+    .insertBefore(a, document.getElementById("homeButton"));
 });
 get_char_table()
   .then((js) => {

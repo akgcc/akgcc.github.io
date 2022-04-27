@@ -398,8 +398,11 @@ audio {
   font-size: 1.5em;
 }
 #serverSelect {
-  margin-right: 8px;
+  margin-right: 0.25em;
 }
 .soundPlayer.invisible {
   display: none;
+}
+#ccselector {
+  justify-content: center;
 }

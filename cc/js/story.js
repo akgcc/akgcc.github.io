@@ -1165,29 +1165,7 @@ volSlider.oninput = () => {
     });
     playPauseMusic();
 };
-const SERVERS = {
-    EN: "en_US",
-    JP: "ja_JP",
-    KR: "ko_KR",
-    CN: "zh_CN",
-};
-const serverSelect = document.getElementById("serverSelect");
-Object.keys(SERVERS).forEach((k) => {
-    let opt = document.createElement("option");
-    opt.value = SERVERS[k];
-    opt.innerHTML = k;
-    serverSelect.appendChild(opt);
-});
-serverSelect.onchange = () => {
-    localStorage.setItem("server", serverSelect.value);
-    sessionStorage.setItem("userChange", true);
-    location.reload();
-};
 
-Array.from(serverSelect.options).forEach((opt, i) => {
-    if (opt.value == serverString) opt.selected = true;
-    else opt.selected = false;
-});
 const toggleVisBtn = document.getElementById("visButton");
 toggleVisBtn.onclick = () => {
     Array.from(document.querySelectorAll(".scene")).forEach((d) => {

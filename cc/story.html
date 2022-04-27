@@ -16,6 +16,13 @@
         <div id="storyTitle" class="hidden"></div>
       </div>
       <div class="nav-right">
+        <div class="nav-dropdown rightButton" id="serverSelect">
+          <div class="dropbtn button">
+            EN
+            <i class="fa fa-caret-down"></i>
+          </div>
+          <div class="dropdown-content"></div>
+        </div>
         <div
           class="button iconButton rightButton"
           id="sfxButton"
@@ -46,11 +53,11 @@
           <i class="fa fa-volume-up"></i>
         </div>
         <div class="vol-spacer"></div>
-        <a class="rightButton" href="./../index.html">
-          <div class="button iconButton" id="homeButton">
-            <i class="fas fa-home"></i>
-          </div>
-        </a>
+        <a
+          class="rightButton button iconButton"
+          href="./../index.html"
+          id="homeButton"
+        ></a>
       </div>
     </div>
     <div id="avatarModal" class="modal">
@@ -60,8 +67,6 @@
       <select class="storySelect" id="catSelect"></select>
       <select class="storySelect" id="subCatSelect"></select>
       <select class="storySelect" id="thirdCatSelect"></select>
-      <div style="flex: 1"></div>
-      <select class="storySelect" id="serverSelect"></select>
     </div>
     <div class="storyNav top">
       <i class="fas fa-angle-double-left story_nav story_prev"></i>

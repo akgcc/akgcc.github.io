@@ -5,6 +5,12 @@ const DATA_SOURCE =
 const CC_DATA_SOURCE = DATA_SOURCE;
 // const CC_DATA_SOURCE =
 //   "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/";
+const SERVERS = {
+  EN: "en_US",
+  JP: "ja_JP",
+  KR: "ko_KR",
+  CN: "zh_CN",
+};
 const CLASS_MAPPING = {
   WARRIOR: "Guard",
   SUPPORT: "Supporter",
@@ -586,3 +592,35 @@ function selectColor(number, saturation = 15, lightness = 60) {
   const hue = number * 137.508; // use golden angle approximation
   return `hsl(${hue},${saturation}%,${lightness}%)`;
 }
+window.onload = () => {
+  const serverSelect = document.getElementById("serverSelect");
+  if (serverSelect) {
+    const dd_content = serverSelect.querySelector(".dropdown-content");
+    const dd_btn = serverSelect.querySelector(".dropbtn");
+    Object.keys(SERVERS).forEach((k) => {
+      let opt = document.createElement("div");
+      opt.setAttribute("data-value", SERVERS[k]);
+      opt.innerHTML = k;
+      opt.onclick = () => {
+        localStorage.setItem("server", SERVERS[k]);
+        sessionStorage.setItem("userChange", true);
+        location.reload();
+      };
+      dd_content.appendChild(opt);
+      if ((localStorage.getItem("server") || "en_US") == SERVERS[k])
+        dd_btn.firstChild.nodeValue = k;
+    });
+    // click handlers for mobile
+    dd_btn.onclick = () => {
+      dd_content.classList.toggle("show");
+      dd_btn.classList.toggle("checked");
+    };
+    window.onclick = function (e) {
+      console.log(e.target == dd_btn);
+      if (!(e.target == dd_btn)) {
+        dd_content.classList.remove("show");
+        dd_btn.classList.remove("checked");
+      }
+    };
+  }
+};

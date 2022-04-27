@@ -13,15 +13,19 @@
         <span id="pageTitle">Roguelike Items</span>
       </div>
       <div class="nav-right">
-        <a class="rightButton" href="./../index.html">
-          <div class="button iconButton" id="homeButton">
-            <i class="fas fa-home"></i>
+        <div class="nav-dropdown rightButton" id="serverSelect">
+          <div class="dropbtn button">
+            EN
+            <i class="fa fa-caret-down"></i>
           </div>
-        </a>
+          <div class="dropdown-content"></div>
+        </div>
+        <a
+          class="rightButton button iconButton"
+          href="./../index.html"
+          id="homeButton"
+        ></a>
       </div>
-    </div>
-    <div class="btnPanel" id="ccselector">
-      <select class="storySelect" id="serverSelect"></select>
     </div>
     <div id="itemList"></div>
     <script type="text/javascript" src="./js/roguelike.js"></script>
