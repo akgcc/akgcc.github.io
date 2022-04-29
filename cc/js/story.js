@@ -123,8 +123,24 @@ get_char_table(false, serverString)
                         if (d.storyCode) {
                             let pos = d.avgTag.split(" ")[0];
                             name = d.storyCode;
-                            if (["Before", "After"].includes(pos))
-                                name += " " + pos;
+                            if (
+                                [
+                                    "Before Operation",
+                                    "戦闘前",
+                                    "작전 전",
+                                    "行动前",
+                                ].some((x) => d.avgTag.includes(x))
+                            )
+                                name += " Before";
+                            else if (
+                                [
+                                    "After Operation",
+                                    "戦闘後",
+                                    "작전 후",
+                                    "行动后",
+                                ].some((x) => d.avgTag.includes(x))
+                            )
+                                name += " After";
                         }
                         break;
                     case "record":
