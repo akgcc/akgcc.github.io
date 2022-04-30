@@ -14,7 +14,8 @@ var operatorData,
     lastBackgroundImage;
 const charPathFixes = {
     char_2006_weiywfmzuki_1: "char_2006_fmzuki_1",
-    avg_NPC_017_3: "avg_npc_017_3",
+    // avg_NPC_017_3: "avg_npc_017_3",
+    // avg_1012_skadiSP_1: "avg_1012_skadisp_1",
 };
 const forcedBaseNames = []; //["avg_npc_208"];
 
@@ -982,6 +983,7 @@ function avatarImg(path) {
     let alt_mods;
     // base_name = base_name.toLowerCase();
     // mods = mods.toLowerCase();
+    let orig_base_name = base_name;
     // emergency repairs:
     if (base_name in charPathFixes) base_name = charPathFixes[base_name];
     if (!mods) mods = "_1"; // this will create some extra failed requests.
@@ -997,6 +999,7 @@ function avatarImg(path) {
         alt_name = base_name + "_1";
         na_name = base_name + "_na";
     }
+    lowercase_name = base_name.toLowerCase();
     var src_array = [];
     // trying all base_name permutations first results in less misses, but also could serve the wrong image.
     if (forcedBaseNames.includes(base_name)) {
@@ -1013,8 +1016,10 @@ function avatarImg(path) {
     src_array.push(na_name + mods);
     src_array.push(na_name + alt_mods);
     src_array.push(na_name);
+    src_array.push(lowercase_name + mods);
+    src_array.push(lowercase_name + alt_mods);
+    src_array.push(lowercase_name);
     src_array.push(base_name + "#2"); // special case for missing mayer #1 image.
-
     const img = document.createElement("img");
     var i = 1;
     img.onerror = function () {
@@ -1034,12 +1039,16 @@ function avatarImg(path) {
         }
     };
     img.setAttribute("loading", "lazy");
-    if (avatarCoords[base_name]) {
-        img.style.left = avatarCoords[base_name].x;
-        img.style.top = avatarCoords[base_name].y;
-        let scale = avatarCoords[base_name].s || 0.5;
-        img.style.transform = `scale(${scale})`;
-    }
+    [base_name, orig_base_name].some((n) => {
+        if (avatarCoords[n]) {
+            img.style.left = avatarCoords[n].x;
+            img.style.top = avatarCoords[n].y;
+            let scale = avatarCoords[n].s || 0.5;
+            img.style.transform = `scale(${scale})`;
+            return true;
+        }
+    });
+
     img.src =
         "https://aceship.github.io/AN-EN-Tags/img/avg/characters/" +
         encodeURIComponent(src_array[0]) +
