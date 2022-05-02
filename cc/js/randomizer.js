@@ -229,7 +229,10 @@ fetch("./json/skill_icon_map.json")
       let exclusions = Object.values(operatorData)
         .filter((x) => !x.selected)
         .map((x) => x.charId);
-      localStorage.setItem("excludedOps", JSON.stringify(exclusions));
+      localStorage.setItem(
+        "excludedOps",
+        JSON.stringify(exclusions.concat(cn_exclusions))
+      );
     }
     function toggleOp(op, state) {
       operatorData[op.charId].selected = state;
@@ -241,11 +244,15 @@ fetch("./json/skill_icon_map.json")
     });
 
     let exclusions = localStorage.getItem("excludedOps");
-
+    let cn_exclusions = [];
     if (exclusions)
       Array.from(JSON.parse(exclusions)).forEach((x) => {
-        divMap[x].classList.toggle("_selected");
-        operatorData[x].selected = false;
+        if (x in divMap) {
+          divMap[x].classList.toggle("_selected");
+          operatorData[x].selected = false;
+        } else {
+          cn_exclusions.push(x);
+        }
       });
 
     Object.values(operatorData)
