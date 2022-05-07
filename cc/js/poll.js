@@ -129,6 +129,14 @@ get_char_table()
     document.getElementById("barChartContainer").classList.toggle("hidden");
     document.getElementById("barSort").classList.toggle("hidden");
 
+    // Show sample size
+    let spacer = document.createElement("div");
+    spacer.style.flexGrow = "1";
+    btns.appendChild(spacer);
+    let samples = document.createElement("div");
+    samples.innerHTML = `Sample Size: ${bar_total}`;
+    btns.appendChild(samples);
+
     Chart.defaults.color = "#dddddd";
 
     let labels = Object.keys(scatter_data);
