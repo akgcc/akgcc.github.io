@@ -257,3 +257,6 @@ table {
 .filterSection label[type="BRANCHLINE"] {
   color: #cba2a2;
 }
+.filterSection label[type="ACTIVITY"] {
+  color: #cdc785;
+}

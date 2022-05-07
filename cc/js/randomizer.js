@@ -190,7 +190,9 @@ fetch("./json/skill_icon_map.json")
     for (const [key, value] of Object.entries(story_table)) {
       if (
         value.replicateActionId ||
-        activity_table.basicInfo[key]?.displayType == "BRANCHLINE"
+        activity_table.basicInfo[key]?.displayType == "BRANCHLINE" ||
+        (activity_table.basicInfo[key]?.endTime > Date.now() / 1000 &&
+          activity_table.basicInfo[key]?.startTime < Date.now() / 1000)
       ) {
         let code = value.infoUnlockDatas.slice(-1)[0].storyCode.split("-")[0];
         if (!code)
