@@ -79,6 +79,9 @@ get_char_table(false, serverString)
                             storyCode:
                                 storyReviewMeta?.actArchiveResData?.avgs[avgid]
                                     ?.desc,
+                            storyName:
+                                storyReviewMeta?.actArchiveResData?.avgs[avgid]
+                                    ?.desc,
                             avgTag: "",
                         });
                     });
