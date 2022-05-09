@@ -11,7 +11,8 @@ var operatorData,
     },
     soundMap,
     avatarCoords,
-    lastBackgroundImage;
+    lastBackgroundImage,
+    storyReviewMeta;
 const charPathFixes = {
     char_2006_weiywfmzuki_1: "char_2006_fmzuki_1",
     // avg_NPC_017_3: "avg_npc_017_3",
@@ -42,6 +43,15 @@ get_char_table(false, serverString)
         return fetch(
             "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
                 serverString +
+                "/gamedata/excel/story_review_meta_table.json"
+        );
+    })
+    .then((res) => res.json())
+    .then((js) => {
+        storyReviewMeta = js;
+        return fetch(
+            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+                serverString +
                 "/gamedata/excel/story_review_table.json"
         );
     })
@@ -49,6 +59,31 @@ get_char_table(false, serverString)
     .then((js) => {
         storyReview = js;
         Object.values(storyReview).forEach((x) => {
+            // add special unlockable stories (like in NL)
+            if (x.id in storyReviewMeta?.actArchiveData?.components) {
+                Object.values(
+                    storyReviewMeta?.actArchiveData?.components[x.id]?.avg
+                        ?.avgs || {}
+                )
+                    .sort((a, b) => (a?.avgSortId || 0) - (b?.avgSortId || 0))
+                    .map((x) => x?.avgId)
+                    .forEach((avgid) => {
+                        x.infoUnlockDatas.push({
+                            storyGroup: x.id,
+                            storyInfo:
+                                storyReviewMeta?.actArchiveResData?.avgs[avgid]
+                                    ?.breifPath,
+                            storyTxt:
+                                storyReviewMeta?.actArchiveResData?.avgs[avgid]
+                                    ?.contentPath,
+                            storyCode:
+                                storyReviewMeta?.actArchiveResData?.avgs[avgid]
+                                    ?.desc,
+                            avgTag: "",
+                        });
+                    });
+            }
+
             if (x.id.startsWith("main_")) storyTypes.main.push(x.id);
             else if (x.id.startsWith("story_")) storyTypes.record.push(x.id);
             else if (x.entryType.startsWith("MINI_"))
