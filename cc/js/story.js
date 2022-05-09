@@ -962,9 +962,8 @@ async function genStory(storyName, key) {
                             // console.log("line not parsed:", line);
                             break;
                     }
-                } else if (line[2]) {
+                } else if (line[2] && !line[2].trim().startsWith("//")) {
                     // group 2 alone indicates speakerless text (narrator)
-
                     let dlg = makeDialog(null, line[2], {}, 0);
                     dlg.classList.add("narration");
                     activeReferences.forEach((r) => {
