@@ -27,8 +27,8 @@
 }
 .ccname {
   position: absolute;
-  bottom: 0;
-  left: 8px;
+  bottom: -1px;
+  left: 6px;
   font-size: 24px;
   color: whitesmoke;
   font-family: airstrike;
