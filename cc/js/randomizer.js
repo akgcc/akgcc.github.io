@@ -663,6 +663,50 @@ fetch("./json/skill_icon_map.json")
       th.setAttribute("colspan", 2);
       title.appendChild(th);
       section.appendChild(title);
+      // if needed (all are checkboxes), add select add/none btn at top:
+      if (
+        Object.values(value).every(
+          (v) => v.enabled !== undefined && v.min == undefined
+        )
+      ) {
+        let row = document.createElement("tr");
+        let td = document.createElement("td");
+        let lbl = document.createElement("label");
+        let btn_all = document.createElement("div");
+        let btn_none = document.createElement("div");
+        let btn_main = document.createElement("div");
+        td.classList.add("flex");
+        lbl.innerHTML = "Select:";
+        btn_all.classList.add("button");
+        btn_all.innerHTML = "All";
+        btn_all.onclick = () => {
+          section.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+            if (!cb.checked) cb.click();
+          });
+        };
+        btn_main.classList.add("button");
+        btn_main.innerHTML = "Main";
+        btn_main.onclick = () => {
+          section
+            .querySelectorAll('td[type="main"] input[type="checkbox"]')
+            .forEach((cb) => {
+              if (!cb.checked) cb.click();
+            });
+        };
+        btn_none.classList.add("button");
+        btn_none.innerHTML = "Invert";
+        btn_none.onclick = () => {
+          section
+            .querySelectorAll('input[type="checkbox"]')
+            .forEach((cb) => cb.click());
+        };
+        row.appendChild(td);
+        td.appendChild(lbl);
+        td.appendChild(btn_all);
+        td.appendChild(btn_none);
+        td.appendChild(btn_main);
+        section.appendChild(row);
+      }
       for (const [subkey, subvalue] of Object.entries(value)) {
         let row = document.createElement("tr");
         let left = document.createElement("td");
@@ -676,8 +720,7 @@ fetch("./json/skill_icon_map.json")
           updateLocalFilters();
         };
         label.innerHTML = subvalue.disp;
-        if (stage_types[subkey])
-          label.setAttribute("type", stage_types[subkey]);
+        if (stage_types[subkey]) left.setAttribute("type", stage_types[subkey]);
         if (subvalue.enabled !== undefined) left.appendChild(checkbox);
         left.appendChild(label);
         row.appendChild(left);

@@ -251,12 +251,22 @@ table {
 #output .skimg {
   opacity: 1;
 }
-.filterSection label[type="SIDESTORY"] {
+.filterSection td[type="SIDESTORY"] label {
   color: #a6c5c5;
 }
-.filterSection label[type="BRANCHLINE"] {
+.filterSection td[type="BRANCHLINE"] label {
   color: #cba2a2;
 }
-.filterSection label[type="ACTIVITY"] {
+.filterSection td[type="ACTIVITY"] label {
   color: #cdc785;
+}
+td.flex {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-evenly;
+}
+td.flex .button {
+  font-size: 1rem;
+  line-height: 1rem;
+  padding: 0.05em 0.2em;
 }
