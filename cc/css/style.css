@@ -610,22 +610,26 @@ body.soul-mode #deco {
   margin-left: 0.25em;
 }
 
+.clearView {
+  --spacing: min(0.5em, max(3px, 0.5vw));
+}
 .clearView.hidden {
   display: none;
 }
 .clearView {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   background: linear-gradient(0deg, #555555, #666666);
   margin: 0.15em 0;
   align-items: center;
   border-radius: 0.2em;
+  padding: var(--spacing);
+  gap: var(--spacing);
 }
 .cardContainer .clearView {
   display: none;
 }
 .clearView .opImgWrapper {
-  margin-right: 0.5em;
   position: relative;
 }
 .clearView .opImg {
@@ -643,7 +647,8 @@ body.soul-mode #deco {
   width: calc(16 / 9 * var(--large-operator-image-size));
 }
 .clearView .cardContainer {
-  margin-right: 0.75em;
+  margin: 0;
+  margin-right: var(--spacing);
 }
 
 body.icon-mode .riskContainer {
