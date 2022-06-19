@@ -117,7 +117,7 @@ fetch("./json/skill_icon_map.json")
     // let date_index = 0;
     Object.keys(cardData)
       .sort((a, b) => {
-        if (cardData[b].group == cardData[a].group) return b - a;
+        if (cardData[b].group == cardData[a].group) return a.localeCompare(b);
         return cardData[a].group - cardData[b].group;
       })
       .forEach((k) => {
@@ -141,10 +141,10 @@ fetch("./json/skill_icon_map.json")
         div.id = k;
         div.setAttribute("data-group", cardData[k].group);
         div.classList.add("cardContainer");
-        div.setAttribute(
-          "data-dateorder",
-          headersMap[cardData[k].risk].childElementCount
-        );
+        // div.setAttribute(
+        //   "data-dateorder",
+        //   headersMap[cardData[k].risk].childElementCount
+        // );
         // lightboxDateOrder[a.href] = date_index++
         // div.style.order = headersMap[cardData[k].risk].childElementCount
 
@@ -186,11 +186,16 @@ fetch("./json/skill_icon_map.json")
       .slice()
       .reverse()
       .forEach((k) => {
-        Array.from(riskMap[k].querySelectorAll(".cardContainer")).forEach(
-          (clear, i) => {
+        Array.from(riskMap[k].querySelectorAll(".cardContainer"))
+          .sort((a, b) => {
+            if (cardData[b.id].group == cardData[a.id].group)
+              return a.id.localeCompare(b.id);
+            return cardData[a.id].group - cardData[b.id].group;
+          })
+          .forEach((clear, i) => {
+            clear.setAttribute("data-dateorder", date_index);
             lightboxDateOrder[clear.querySelector("a").href] = date_index++;
-          }
-        );
+          });
       });
     const orderBtn = document.getElementById("sortOrder");
     orderBtn.onclick = (e) => {
@@ -550,10 +555,10 @@ fetch("./json/skill_icon_map.json")
   });
 function reloadLightbox() {
   lightboxOriginalIndexMapping = {};
-  for (let e in Object.keys(lightboxElementsOriginal))
-    lightboxOriginalIndexMapping[
-      decodeURI(lightboxElementsOriginal[e].href.split("/").slice(-1)[0])
-    ] = e;
+  for (const [idx, e] of lightboxElementsOriginal.entries()) {
+    lightboxOriginalIndexMapping[decodeURI(e.href.split("/").slice(-1)[0])] =
+      idx;
+  }
   Object.entries(lightboxOriginalIndexMapping).forEach(([k, v]) => {
     lightboxElementsOriginal[v].filename = k;
     lightboxElementsOriginal[v].original_idx = v;
