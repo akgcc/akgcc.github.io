@@ -75,7 +75,7 @@ fetch("./json/skill_icon_map.json")
     });
     Object.values(dupe_groups).forEach((x) => {
       Object.values(x).forEach((y) => {
-        y.sort((a, b) => a.localeCompare(b))
+        y.sort((a, b) => b.localeCompare(a))
           .slice(1)
           .forEach((z) => {
             delete cardData[z];
