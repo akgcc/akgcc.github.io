@@ -44,23 +44,27 @@ get_cc_list()
 				maxRisk[y] = Math.max(maxRisk[y] || 0, x.risk);
 			});
 		});
+		min_risk_req = 18;
 		// union all clears from the same doctor, so their ops are only counted once towards use count.
 		Object.keys(usedata).forEach((k) => {
-			if (usedata[k].duplicate_of) {
-				usedata[usedata[k].duplicate_of].squad = [
-					...new Set(
-						usedata[usedata[k].duplicate_of].squad.concat(
-							usedata[k].squad
-						)
-					),
-				];
+			if (usedata[k].dupe_group && usedata[k].risk >= min_risk_req) {
+				usedata[usedata[k].dupe_group] = {
+					risk: min_risk_req,
+					squad: [
+						...new Set(
+							(
+								usedata[usedata[k].dupe_group] ?? { squad: [] }
+							).squad.concat(usedata[k].squad)
+						),
+					],
+				};
 				delete usedata[k];
 			}
 		});
 
 		Object.values(usedata).forEach((x) => {
 			x["squad"].forEach((y) => {
-				if (x.risk >= 18) {
+				if (x.risk >= min_risk_req) {
 					useCount[y] = (useCount[y] || 0) + 1;
 				}
 			});

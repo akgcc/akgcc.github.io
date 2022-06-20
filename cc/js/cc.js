@@ -65,22 +65,17 @@ fetch("./json/skill_icon_map.json")
     // filter out duplicates, keep max 1 per group (day1,week1,week2)
     dupe_groups = {};
     Object.keys(cardData).forEach((x) => {
-      if (cardData[x].duplicate_of) {
-        dupe_groups[cardData[x].duplicate_of] =
-          dupe_groups[cardData[x].duplicate_of] || {};
-        dupe_groups[cardData[x].duplicate_of][cardData[x].group] = (
-          dupe_groups[cardData[x].duplicate_of][cardData[x].group] || []
+      if (cardData[x].dupe_group) {
+        dupe_groups[cardData[x].dupe_group] =
+          dupe_groups[cardData[x].dupe_group] || {};
+        dupe_groups[cardData[x].dupe_group][cardData[x].group] = (
+          dupe_groups[cardData[x].dupe_group][cardData[x].group] || []
         ).concat([x]);
       }
     });
-    Object.keys(dupe_groups).forEach((x) => {
-      dupe_groups[x][cardData[x].group] = (
-        dupe_groups[x][cardData[x].group] || []
-      ).concat([x]);
-    });
     Object.values(dupe_groups).forEach((x) => {
       Object.values(x).forEach((y) => {
-        y.sort((a, b) => parseInt(b.split(".")[0]) - parseInt(a.split(".")[0]))
+        y.sort((a, b) => a.localeCompare(b))
           .slice(1)
           .forEach((z) => {
             delete cardData[z];
@@ -123,10 +118,9 @@ fetch("./json/skill_icon_map.json")
       .forEach((k) => {
         let div = document.createElement("div");
         let a = document.createElement("a");
-        let is_dupe = cardData[k].duplicate_of !== undefined;
-        if (is_dupe) div.setAttribute("data-dupe", cardData[k].duplicate_of);
-        if (k in dupe_groups && Object.keys(dupe_groups[k]).length > 1)
-          div.setAttribute("data-dupe", "");
+        if (cardData[k].dupe_group in dupe_groups)
+          if (Object.keys(dupe_groups[cardData[k].dupe_group]).length > 1)
+            div.setAttribute("data-dupe", cardData[k].dupe_group);
         div.setAttribute("data-soul", cardData[k].soul.toFixed(2));
         a.classList.add("glightbox");
         a.setAttribute("data-gallery", "gallery1");
@@ -564,7 +558,7 @@ function reloadLightbox() {
     lightboxElementsOriginal[v].original_idx = v;
     lightboxElementsOriginal[v].soul = cardData[k].soul.toFixed(2);
     lightboxElementsOriginal[v].group = cardData[k].group;
-    has_dupe = cardData[k].duplicate_of || (k in dupe_groups ? k : undefined);
+    has_dupe = cardData[k].dupe_group;
     if (has_dupe) {
       next_dupe = (dupe_groups[has_dupe][(cardData[k].group + 1) % 3] ||
         dupe_groups[has_dupe][(cardData[k].group + 2) % 3] ||
