@@ -102,9 +102,13 @@ fetch("./json/skill_icon_map.json")
           RARITY_WEIGHTS[operatorData[k].rarity];
         uniqueness[k] = 1 - v / Object.keys(data_copy).length;
       }
-
+      for (const [k, v] of Object.entries(operatorData)) {
+        if (weights[k] === undefined) {
+          weights[k] = 0;
+          uniqueness[k] = 1;
+        }
+      }
       for (const [k, v] of Object.entries(cardData)) {
-        cardData[k].soul = 1;
         let total = v.squad.reduce(
           (p, c) => p + uniqueness[c.name] * weights[c.name],
           0
