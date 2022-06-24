@@ -64,8 +64,10 @@ fetch("./json/skill_icon_map.json")
     cardData = js;
     function calculate_soul() {
       // calculate soul values before mangling data
-      let MIN_WEIGHT = 0.85;
+      let MIN_WEIGHT = 0.95;
+      // let RARITY_WEIGHTS = [0.5, 0.5, 2, 3, 3, 5];
       let RARITY_WEIGHTS = [1, 1, 4, 5, 5, 7.5];
+      let UNIQUENESS_WEIGHT_SCALE = 0.6;
       let data_copy = structuredClone(cardData);
       // flatten squads, remove clears under r18
       for (const [key, value] of Object.entries(data_copy)) {
@@ -98,8 +100,10 @@ fetch("./json/skill_icon_map.json")
       let uniqueness = {};
       for (const [k, v] of Object.entries(tally)) {
         weights[k] =
-          Math.max(MIN_WEIGHT, Math.abs(v - rms) / rms) *
-          RARITY_WEIGHTS[operatorData[k].rarity];
+          Math.max(
+            MIN_WEIGHT,
+            (UNIQUENESS_WEIGHT_SCALE * Math.abs(v - rms)) / rms
+          ) * RARITY_WEIGHTS[operatorData[k].rarity];
         uniqueness[k] = 1 - v / Object.keys(data_copy).length;
       }
       for (const [k, v] of Object.entries(operatorData)) {
