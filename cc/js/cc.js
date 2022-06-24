@@ -62,6 +62,62 @@ fetch("./json/skill_icon_map.json")
   .then((res) => res.json())
   .then((js) => {
     cardData = js;
+    function calculate_soul() {
+      // calculate soul values before mangling data
+      let MIN_WEIGHT = 0.85;
+      let RARITY_WEIGHTS = [1, 1, 4, 5, 5, 7.5];
+      let data_copy = structuredClone(cardData);
+      // flatten squads, remove clears under r18
+      for (const [key, value] of Object.entries(data_copy)) {
+        if (value.risk < 18) delete data_copy[key];
+        else value.squad = value.squad.map((x) => x.name);
+      }
+      // union all clears from the same doctor
+      for (const [k, v] of Object.entries(data_copy)) {
+        if (v.dupe_group !== undefined) {
+          data_copy[v.dupe_group] ??= { squad: [], risk: 18 };
+          data_copy[v.dupe_group].squad = [
+            ...new Set([
+              ...data_copy[v.dupe_group].squad,
+              ...data_copy[k].squad,
+            ]),
+          ];
+          delete data_copy[k];
+        }
+      }
+      // final loop to tally
+      let tally = {};
+      for (const [k, v] of Object.entries(data_copy)) {
+        v.squad.forEach((charid) => {
+          tally[charid] ??= 0;
+          tally[charid] += 1;
+        });
+      }
+      let rms = rootMeanSquare(Object.values(tally));
+      let weights = {};
+      let uniqueness = {};
+      for (const [k, v] of Object.entries(tally)) {
+        weights[k] =
+          Math.max(MIN_WEIGHT, Math.abs(v - rms) / rms) *
+          RARITY_WEIGHTS[operatorData[k].rarity];
+        uniqueness[k] = 1 - v / Object.keys(data_copy).length;
+      }
+
+      for (const [k, v] of Object.entries(cardData)) {
+        cardData[k].soul = 1;
+        let total = v.squad.reduce(
+          (p, c) => p + uniqueness[c.name] * weights[c.name],
+          0
+        );
+        let weight_total = Math.max(
+          1,
+          v.squad.reduce((p, c) => p + weights[c.name], 0)
+        );
+        v.soul = Math.round((10000 * total) / weight_total) / 100;
+      }
+    }
+    calculate_soul();
+
     // filter out duplicates, keep max 1 per group (day1,week1,week2)
     dupe_groups = {};
     Object.keys(cardData).forEach((x) => {
@@ -162,6 +218,7 @@ fetch("./json/skill_icon_map.json")
     });
     document.getElementById("clearCount").innerHTML =
       "Clears: " + Object.values(headerCount).reduce((a, b) => a + b, 0);
+
     //create initial soul order:
     let soul_index = 0;
     Object.keys(riskMap)

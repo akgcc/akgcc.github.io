@@ -49,6 +49,8 @@ const CCMAP = {
 function intersection(a, b) {
   return new Set([...a].filter((x) => b.has(x)));
 }
+const rootMeanSquare = (xs) =>
+  Math.sqrt(xs.reduce((a, x) => a + x * x, 0) / xs.length);
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
