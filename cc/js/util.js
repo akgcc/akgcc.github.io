@@ -51,6 +51,7 @@ function intersection(a, b) {
 }
 const rootMeanSquare = (xs) =>
   Math.sqrt(xs.reduce((a, x) => a + x * x, 0) / xs.length);
+const geometricMean = (xs) => xs.reduce((a, x) => a * x, 1) ** (1 / xs.length);
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));

@@ -64,10 +64,12 @@ fetch("./json/skill_icon_map.json")
     cardData = js;
     function calculate_soul() {
       // calculate soul values before mangling data
-      let MIN_WEIGHT = 0.95;
+      // const MIN_WEIGHT = 0.95;
       // let RARITY_WEIGHTS = [0.5, 0.5, 2, 3, 3, 5];
-      let RARITY_WEIGHTS = [1, 1, 4, 5, 5, 7.5];
-      let UNIQUENESS_WEIGHT_SCALE = 0.6;
+      // const RARITY_WEIGHTS = [1, 1, 4, 5, 5, 7.5];
+      // const UNIQUENESS_WEIGHT_SCALE = 0.6;
+      const ELITE_SOUL_SCALE = [-1, 0.75, 1];
+      const ELITE_SOUL_EXEMPTIONS = ["char_214_kafka"];
       let data_copy = structuredClone(cardData);
       // flatten squads, remove clears under r18
       for (const [key, value] of Object.entries(data_copy)) {
@@ -99,13 +101,14 @@ fetch("./json/skill_icon_map.json")
       let weights = {};
       let uniqueness = {};
       for (const [k, v] of Object.entries(tally)) {
-        weights[k] =
-          Math.max(
-            MIN_WEIGHT,
-            (UNIQUENESS_WEIGHT_SCALE * Math.abs(v - rms)) / rms
-          ) * RARITY_WEIGHTS[operatorData[k].rarity];
-        uniqueness[k] = 1 - v / Object.keys(data_copy).length;
+        weights[k] = 1;
+        uniqueness[k] = 1 / Math.log(20 + v);
       }
+      let uscale = 1 / Math.max(...Object.values(uniqueness));
+      for (const [k, v] of Object.entries(uniqueness)) {
+        uniqueness[k] = v * uscale;
+      }
+
       for (const [k, v] of Object.entries(operatorData)) {
         if (weights[k] === undefined) {
           weights[k] = 0;
@@ -113,13 +116,23 @@ fetch("./json/skill_icon_map.json")
         }
       }
       for (const [k, v] of Object.entries(cardData)) {
+        const elite_soul_scale = (c) =>
+          v.risk == 180 // free pass for r18 CANCELLED
+            ? 1
+            : ELITE_SOUL_SCALE[
+                Math.max(
+                  ELITE_SOUL_EXEMPTIONS.includes(c.name) ? 1 : 0,
+                  3 + c.elite - operatorData[c.name].phases.length
+                )
+              ];
         let total = v.squad.reduce(
-          (p, c) => p + uniqueness[c.name] * weights[c.name],
+          (p, c) =>
+            p + uniqueness[c.name] * weights[c.name] * elite_soul_scale(c),
           0
         );
         let weight_total = Math.max(
           1,
-          v.squad.reduce((p, c) => p + weights[c.name], 0)
+          v.squad.reduce((p, c) => p + weights[c.name] * elite_soul_scale(c), 0)
         );
         v.soul = Math.round((10000 * total) / weight_total) / 100;
       }
