@@ -65,10 +65,10 @@ fetch("./json/skill_icon_map.json")
     function calculate_soul() {
       // calculate soul values before mangling data
       // const MIN_WEIGHT = 0.95;
-      // let RARITY_WEIGHTS = [0.5, 0.5, 2, 3, 3, 5];
+      const RARITY_WEIGHTS = [0.1, 0.02, 1, 2.5, 2.5, 2];
       // const RARITY_WEIGHTS = [1, 1, 4, 5, 5, 7.5];
       // const UNIQUENESS_WEIGHT_SCALE = 0.6;
-      const ELITE_SOUL_SCALE = [-1, 0.75, 1];
+      const ELITE_SOUL_SCALE = [-0.5, 0.75, 1];
       const ELITE_SOUL_EXEMPTIONS = ["char_214_kafka"];
       let data_copy = structuredClone(cardData);
       // flatten squads, remove clears under r18
@@ -127,12 +127,23 @@ fetch("./json/skill_icon_map.json")
               ];
         let total = v.squad.reduce(
           (p, c) =>
-            p + uniqueness[c.name] * weights[c.name] * elite_soul_scale(c),
+            p +
+            uniqueness[c.name] *
+              weights[c.name] *
+              elite_soul_scale(c) *
+              RARITY_WEIGHTS[operatorData[c.name].rarity],
           0
         );
         let weight_total = Math.max(
           1,
-          v.squad.reduce((p, c) => p + weights[c.name] * elite_soul_scale(c), 0)
+          v.squad.reduce(
+            (p, c) =>
+              p +
+              weights[c.name] *
+                elite_soul_scale(c) *
+                RARITY_WEIGHTS[operatorData[c.name].rarity],
+            0
+          )
         );
         v.soul = Math.round((10000 * total) / weight_total) / 100;
       }
