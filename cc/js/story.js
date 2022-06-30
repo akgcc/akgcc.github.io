@@ -854,7 +854,7 @@ async function genStory(storyName, key) {
                             sound.src = (
                                 "./sounds/assets/torappu/dynamicassets/audio/" +
                                 soundpath +
-                                ".wav"
+                                ".mp3"
                             ).toLowerCase();
                             sound.setAttribute("type", "audio/wav");
                             audio.appendChild(sound);
