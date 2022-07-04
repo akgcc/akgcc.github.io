@@ -332,6 +332,8 @@ get_char_table(false, serverString)
             genStory(data.storyName, data.storyTxt).then(() => {
                 scrollFunction();
                 sessionStorage.setItem("userChange", false);
+                soundQueue.length = 0;
+                longSoundQueue.length = 0;
             });
         }
         window.onhashchange = loadFromHash;
@@ -859,7 +861,7 @@ async function genStory(storyName, key) {
                             }
                             audio.setAttribute(
                                 "data-defvol",
-                                args.volume || 0.8
+                                Math.min(args.volume, 1) || 0.8
                             );
 
                             let sound = document.createElement("source");
@@ -870,7 +872,7 @@ async function genStory(storyName, key) {
                                 soundpath +
                                 ".mp3"
                             ).toLowerCase();
-                            sound.setAttribute("type", "audio/wav");
+                            sound.setAttribute("type", "audio/mp3");
                             audio.appendChild(sound);
                             sound = document.createElement("source");
                             sound.src = (
@@ -888,7 +890,7 @@ async function genStory(storyName, key) {
                                 audioWrapper = document.createElement("div");
                                 audioWrapper.style.backgroundColor =
                                     lastBlockerColor.split(" ")[0];
-                                audio.addEventListener("play", () => {
+                                function playFunc() {
                                     audio.volume =
                                         (volSlider.value / 100) *
                                         audio.getAttribute("data-defvol");
@@ -906,7 +908,8 @@ async function genStory(storyName, key) {
                                                 "stalled"
                                             );
                                     }
-                                });
+                                }
+                                audio.addEventListener("play", playFunc);
                                 audio.onplaying = () =>
                                     audio.nextSibling.classList.add("playing");
                                 audio.onended = () =>
