@@ -12,7 +12,12 @@ var operatorData,
     soundMap,
     avatarCoords,
     lastBackgroundImage,
-    storyReviewMeta;
+    storyReviewMeta,
+    allScenes = [],
+    topNavHeight = 0,
+    titleBottomPos = 0,
+    allMusic = [],
+    allSoundButtons = [];
 const charPathFixes = {
     char_2006_weiywfmzuki_1: "char_2006_fmzuki_1",
     // avg_NPC_017_3: "avg_npc_017_3",
@@ -549,6 +554,7 @@ async function genStory(storyName, key) {
                     }.bind({ div: scene });
                     getdim.src = imgurl;
                 }
+                allScenes.push(scene);
                 return scene;
             }
             function makeDecisionDialog(args, predicate) {
@@ -840,6 +846,7 @@ async function genStory(storyName, key) {
                             if (cmd.toLowerCase() == "playmusic") {
                                 audio.setAttribute("loop", "");
                                 audio.classList.add("music");
+                                allMusic.push(audio);
                             } else {
                                 audio.classList.add("sound");
                             }
@@ -892,6 +899,7 @@ async function genStory(storyName, key) {
                                 wrap.classList.add("dialog");
                                 wrap.classList.add("soundPlayer");
                                 audio = wrap;
+                                allSoundButtons.push(wrap);
                             }
                             if (scene) scene.appendChild(audio);
                             else firstAudio = audio;
@@ -1124,10 +1132,8 @@ titlediv = document.getElementById("storyTitle");
 window.onscroll = scrollFunction;
 window.onresize = scrollFunction;
 function adjustedMidpoint() {
-    let topNavHeight =
-        5 +
-        5 +
-        2.5 * parseFloat(getComputedStyle(document.documentElement).fontSize); // padding + height
+    topNavHeight =
+        topNavHeight || document.querySelector("#topNav").offsetHeight;
     return window.innerHeight / 2 + topNavHeight / 2;
 }
 function alignBackground(s) {
@@ -1165,9 +1171,6 @@ document.getElementById("playPauseBtn").onclick = () => playPauseMusic(true);
 const musicState = { paused: false };
 function playPauseMusic(toggle = false) {
     let midp = adjustedMidpoint();
-    const allMusic = Array.from(
-        document.getElementById("storyDisp").querySelectorAll(".music")
-    );
     let targetMusic = allMusic[0];
     allMusic.forEach((a) => {
         let rect = a.getBoundingClientRect();
@@ -1194,24 +1197,26 @@ function playPauseMusic(toggle = false) {
 }
 function scrollFunction() {
     if (
-        document.body.scrollTop > 20 ||
-        document.documentElement.scrollTop > 20
+        document.body.scrollTop > topNavHeight ||
+        document.documentElement.scrollTop > topNavHeight
     ) {
         mybutton.style.display = "block";
     } else {
         mybutton.style.display = "none";
     }
+    titleBottomPos =
+        titleBottomPos ||
+        document.querySelector(".storyName").offsetHeight +
+            document.querySelector(".storyName").offsetTop;
     if (
-        document.body.scrollTop > 120 ||
-        document.documentElement.scrollTop > 120
+        document.body.scrollTop > titleBottomPos - topNavHeight ||
+        document.documentElement.scrollTop > titleBottomPos - topNavHeight
     ) {
         titlediv.classList.remove("hidden");
     } else {
         titlediv.classList.add("hidden");
     }
-    Array.from(
-        document.getElementById("storyDisp").querySelectorAll(".scene")
-    ).forEach((s) => {
+    allScenes.forEach((s) => {
         alignBackground(s);
     });
     playPauseMusic();
@@ -1225,9 +1230,7 @@ function topFunction() {
 
 const volSlider = document.getElementById("volSlider");
 volSlider.oninput = () => {
-    Array.from(
-        document.getElementById("storyDisp").querySelectorAll(".music")
-    ).forEach((a) => {
+    allMusic.forEach((a) => {
         a.volume = (volSlider.value / 100) * a.getAttribute("data-defvol");
     });
     playPauseMusic();
@@ -1235,7 +1238,7 @@ volSlider.oninput = () => {
 
 const toggleVisBtn = document.getElementById("visButton");
 toggleVisBtn.onclick = () => {
-    Array.from(document.querySelectorAll(".scene")).forEach((d) => {
+    allScenes.forEach((d) => {
         d.classList.toggle("invisible");
     });
     let icon = toggleVisBtn.querySelector("i");
@@ -1244,11 +1247,9 @@ toggleVisBtn.onclick = () => {
 };
 const toggleSfxBtn = document.getElementById("sfxButton");
 toggleSfxBtn.onclick = () => {
-    Array.from(document.querySelectorAll(".dialog.soundPlayer")).forEach(
-        (d) => {
-            d.classList.toggle("invisible");
-        }
-    );
+    allSoundButtons.forEach((d) => {
+        d.classList.toggle("invisible");
+    });
     scrollFunction();
     let icon = toggleSfxBtn.querySelector("i");
     icon.classList.toggle("fa-volume-up");
