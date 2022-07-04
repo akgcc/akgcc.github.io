@@ -16,8 +16,15 @@ var operatorData,
     allScenes = [],
     topNavHeight = 0,
     titleBottomPos = 0,
+    realMidpoint,
     allMusic = [],
-    allSoundButtons = [];
+    allSoundButtons = [],
+    autoPlayPoint = 0,
+    soundQueue = [],
+    longSoundQueue = [],
+    maxSoundsQueued = 4,
+    enableSoundAutoplay = false;
+const shortAudioMaxLen = 4;
 const charPathFixes = {
     char_2006_weiywfmzuki_1: "char_2006_fmzuki_1",
     // avg_NPC_017_3: "avg_npc_017_3",
@@ -325,7 +332,6 @@ get_char_table(false, serverString)
             genStory(data.storyName, data.storyTxt).then(() => {
                 scrollFunction();
                 sessionStorage.setItem("userChange", false);
-                reapplyToggles();
             });
         }
         window.onhashchange = loadFromHash;
@@ -841,7 +847,8 @@ async function genStory(storyName, key) {
                             break;
                         case "playmusic":
                         case "playsound":
-                            let audio = document.createElement("audio");
+                            const audio = document.createElement("audio");
+                            let audioWrapper;
                             audio.setAttribute("controls", "");
                             if (cmd.toLowerCase() == "playmusic") {
                                 audio.setAttribute("loop", "");
@@ -878,31 +885,71 @@ async function genStory(storyName, key) {
                                 btn.classList.add("fas");
                                 btn.classList.add("fa-volume-up");
                                 btn.classList.add("soundBtn");
-                                let wrap = document.createElement("div");
-                                wrap.style.backgroundColor =
+                                audioWrapper = document.createElement("div");
+                                audioWrapper.style.backgroundColor =
                                     lastBlockerColor.split(" ")[0];
-                                function playSound() {
-                                    if (!this.audio.paused) return;
-                                    this.audio.volume =
+                                audio.addEventListener("play", () => {
+                                    audio.volume =
                                         (volSlider.value / 100) *
-                                        this.audio.getAttribute("data-defvol");
-                                    if (this.audio.volume == 0)
-                                        this.audio.volume = 0.5;
-                                    playWhenReady(this.audio);
-                                }
-                                btn.onclick = playSound.bind({
-                                    audio: audio,
-                                    btn: btn,
+                                        audio.getAttribute("data-defvol");
+                                    if (audio.volume == 0) audio.volume = 0.5;
+                                    if (audio.readyState == 0) {
+                                        audio.nextSibling.classList.add(
+                                            "stalled"
+                                        );
+                                        audio.oncanplaythrough = () =>
+                                            audio.nextSibling.classList.remove(
+                                                "stalled"
+                                            );
+                                        audio.oncanplay = () =>
+                                            audio.nextSibling.classList.remove(
+                                                "stalled"
+                                            );
+                                    }
                                 });
-                                wrap.appendChild(audio);
-                                wrap.appendChild(btn);
-                                wrap.classList.add("dialog");
-                                wrap.classList.add("soundPlayer");
-                                audio = wrap;
-                                allSoundButtons.push(wrap);
+                                audio.onplaying = () =>
+                                    audio.nextSibling.classList.add("playing");
+                                audio.onended = () =>
+                                    audio.nextSibling.classList.remove(
+                                        "playing"
+                                    );
+                                audio.onpause = () =>
+                                    audio.nextSibling.classList.remove(
+                                        "playing"
+                                    );
+                                btn.addEventListener("click", () => {
+                                    if (audio.paused) {
+                                        audio.play();
+                                    } else {
+                                        audio.pause();
+                                        audio.currentTime = 0;
+                                    }
+                                    // remove from soundqueues
+                                    for (const q of [
+                                        soundQueue,
+                                        longSoundQueue,
+                                    ]) {
+                                        var i = q.length;
+                                        while (i--) {
+                                            if (q[i] == audio) {
+                                                q.splice(i, 1);
+                                            }
+                                        }
+                                    }
+                                });
+                                audioWrapper.appendChild(audio);
+                                audioWrapper.appendChild(btn);
+                                audioWrapper.classList.add("dialog");
+                                audioWrapper.classList.add("soundPlayer");
+                                audioWrapper.audio = audio;
+                                audioWrapper.btn = btn;
+                                allSoundButtons.push(audioWrapper);
                             }
-                            if (scene) scene.appendChild(audio);
-                            else firstAudio = audio;
+                            if (scene) {
+                                if (audioWrapper)
+                                    scene.appendChild(audioWrapper);
+                                else scene.appendChild(audio);
+                            } else firstAudio = audio;
                             break;
                         case "blocker":
                             // responsible for fade effects/fade to black for certain lines
@@ -994,23 +1041,17 @@ function playWhenReady(audio) {
                 '<i class="fas fa-pause"></i>';
         };
     }
-    if (audio.classList.contains("sound")) {
-        if (audio.readyState == 0) {
-            audio.nextSibling.classList.add("stalled");
-            audio.oncanplaythrough = () =>
-                audio.nextSibling.classList.remove("stalled");
-            audio.oncanplay = () =>
-                audio.nextSibling.classList.remove("stalled");
-        }
-        audio.onplaying = () => audio.nextSibling.classList.add("playing");
-        audio.onended = () => audio.nextSibling.classList.remove("playing");
+    function playOrSilentlyFailIfNoInteraction() {
+        audio.play().catch((err) => {
+            if (err.name != "NotAllowedError") throw err;
+        });
     }
-    if (audio.readyState > 3)
+    if (audio.readyState > 3) {
         // already ready to play
-        audio.play();
-    else {
-        audio.oncanplaythrough = audio.play;
-        audio.oncanplay = audio.play;
+        playOrSilentlyFailIfNoInteraction();
+    } else {
+        audio.oncanplaythrough = playOrSilentlyFailIfNoInteraction;
+        audio.oncanplay = playOrSilentlyFailIfNoInteraction;
     }
 }
 
@@ -1136,10 +1177,15 @@ function adjustedMidpoint() {
         topNavHeight || document.querySelector("#topNav").offsetHeight;
     return window.innerHeight / 2 + topNavHeight / 2;
 }
+function autoPlayMidPoint() {
+    // when sounds are scrolled past this point, begin autoplay, for now just use 1/2 down the page.
+    return realMidpoint;
+    // topNavHeight =
+    //     topNavHeight || document.querySelector("#topNav").offsetHeight;
+    // return window.innerHeight * 0.3 + topNavHeight / 2;
+}
 function alignBackground(s) {
     let pos = s.getBoundingClientRect();
-
-    let midp = adjustedMidpoint();
     let imheight = s.getAttribute("data-bgheight");
     let imwidth = s.getAttribute("data-bgwidth");
     if (s.classList.contains("multipart"))
@@ -1151,30 +1197,29 @@ function alignBackground(s) {
             "calc(var(--story-width) * -.25) " +
             Math.min(
                 pos.height - imheight,
-                Math.max(0, midp - pos.top - imheight / 2)
+                Math.max(0, realMidpoint - pos.top - imheight / 2)
             ) +
             ", calc(var(--story-width) / 2) " +
             Math.min(
                 pos.height - imheight,
-                Math.max(0, midp - pos.top - imheight / 2)
+                Math.max(0, realMidpoint - pos.top - imheight / 2)
             );
     } else {
         s.style.backgroundPosition =
             "center " +
             Math.min(
                 pos.height - imheight,
-                Math.max(0, midp - pos.top - imheight / 2)
+                Math.max(0, realMidpoint - pos.top - imheight / 2)
             );
     }
 }
 document.getElementById("playPauseBtn").onclick = () => playPauseMusic(true);
 const musicState = { paused: false };
 function playPauseMusic(toggle = false) {
-    let midp = adjustedMidpoint();
     let targetMusic = allMusic[0];
     allMusic.forEach((a) => {
         let rect = a.getBoundingClientRect();
-        if (rect.top < midp) {
+        if (rect.top < autoPlayPoint) {
             targetMusic = a;
         }
     });
@@ -1195,7 +1240,66 @@ function playPauseMusic(toggle = false) {
         }
     }
 }
+function autoPlaySounds() {
+    allSoundButtons.every((container) => {
+        let soundTop = container.getBoundingClientRect().top;
+        if (soundTop < autoPlayPoint) {
+            if (container.audio.alreadyQueued) return true;
+            if (!container.audio.paused) return true;
+            if (soundTop < 0) return true;
+            const q =
+                container.audio.duration > shortAudioMaxLen
+                    ? longSoundQueue
+                    : soundQueue;
+            if (q.length >= maxSoundsQueued) return true;
+            container.audio.alreadyQueued = true;
+            q.push(container.audio);
+            // if user manually pauses a sound, the next in queue will not be played until the user scrolls (this method is called again)
+            container.audio.addEventListener(
+                "ended",
+                () => {
+                    q.shift();
+                    while (q.length && q[0].paused) {
+                        q[0].play().catch((err) => {
+                            q.shift();
+                        });
+                    }
+                },
+                {
+                    once: true,
+                }
+            );
+            return true;
+        }
+        return false;
+    });
+    for (const q of [soundQueue, longSoundQueue]) {
+        // cancel sounds if user scrolled away from their scene.
+        let currentPos = document.body.scrollTop - topNavHeight; // + autoPlayPoint;
+        var i = q.length;
+        while (i--) {
+            let scene = q[i].parentElement.parentElement;
+            if (
+                currentPos > scene.offsetTop - realMidpoint &&
+                currentPos < scene.offsetTop + scene.offsetHeight
+            ) {
+            } else {
+                q[i].pause();
+                q[i].currentTime = 0;
+                q.splice(i, 1);
+            }
+        }
+        // start playing next sound in queue
+        while (q.length && q[0].paused) {
+            q[0].play().catch((err) => {
+                q.shift();
+            });
+        }
+    }
+}
 function scrollFunction() {
+    autoPlayPoint = autoPlayMidPoint();
+    realMidpoint = adjustedMidpoint();
     if (
         document.body.scrollTop > topNavHeight ||
         document.documentElement.scrollTop > topNavHeight
@@ -1219,6 +1323,7 @@ function scrollFunction() {
     allScenes.forEach((s) => {
         alignBackground(s);
     });
+    if (document.body.scrollTop > 0 && enableSoundAutoplay) autoPlaySounds();
     playPauseMusic();
 }
 
@@ -1237,36 +1342,36 @@ volSlider.oninput = () => {
 };
 
 const toggleVisBtn = document.getElementById("visButton");
+var dialogVisibilityState = 0;
 toggleVisBtn.onclick = () => {
-    allScenes.forEach((d) => {
-        d.classList.toggle("invisible");
-    });
+    dialogVisibilityState = (dialogVisibilityState + 1) % 3;
     let icon = toggleVisBtn.querySelector("i");
-    icon.classList.toggle("fa-eye-slash");
-    icon.classList.toggle("fa-eye");
+    icon.classList.remove("fa-eye-slash");
+    icon.classList.remove("fa-eye");
+    icon.classList.remove("fa-low-vision");
+    document
+        .getElementById("storyDisp")
+        .setAttribute("display-mode", dialogVisibilityState);
+    switch (dialogVisibilityState) {
+        case 0:
+            // show all
+            icon.classList.add("fa-eye");
+            break;
+        case 1:
+            // hide sfx only
+            icon.classList.add("fa-eye-slash");
+            break;
+        case 2:
+            // hide dialogs and sfx
+            icon.classList.add("fa-low-vision");
+            break;
+    }
+    scrollFunction();
 };
 const toggleSfxBtn = document.getElementById("sfxButton");
 toggleSfxBtn.onclick = () => {
-    allSoundButtons.forEach((d) => {
-        d.classList.toggle("invisible");
-    });
-    scrollFunction();
+    enableSoundAutoplay ^= 1;
     let icon = toggleSfxBtn.querySelector("i");
     icon.classList.toggle("fa-volume-up");
     icon.classList.toggle("fa-volume-mute");
 };
-
-function reapplyToggles() {
-    let icon = toggleSfxBtn.querySelector("i");
-    if (icon.classList.contains("fa-volume-up")) {
-        icon.classList.remove("fa-volume-up");
-        icon.classList.add("fa-volume-mute");
-        toggleSfxBtn.click();
-    }
-    icon = toggleVisBtn.querySelector("i");
-    if (icon.classList.contains("fa-eye")) {
-        icon.classList.add("fa-eye-slash");
-        icon.classList.remove("fa-eye");
-        toggleVisBtn.click();
-    }
-}

@@ -107,11 +107,6 @@
   position: absolute;
   opacity: 0;
 }
-.scene.invisible:after,
-.scene.invisible > * {
-  opacity: 0;
-  pointer-events: none;
-}
 .dialog:after,
 .dialog:before {
   content: "";
@@ -408,8 +403,18 @@ audio {
 #serverSelect {
   margin-right: 0.25em;
 }
-.soundPlayer.invisible {
+#storyDisp:not([display-mode="0"]) .soundPlayer {
+  height: 0;
+  padding: 0;
+  margin: 0;
+}
+#storyDisp:not([display-mode="0"]) .soundPlayer i {
   display: none;
+}
+#storyDisp[display-mode="2"] .scene:after,
+#storyDisp[display-mode="2"] .scene > * {
+  opacity: 0;
+  pointer-events: none;
 }
 #ccselector {
   justify-content: center;
