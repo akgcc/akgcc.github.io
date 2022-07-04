@@ -1280,10 +1280,10 @@ function autoPlaySounds() {
         while (i--) {
             let scene = q[i].parentElement.parentElement;
             if (
-                currentPos > scene.offsetTop - realMidpoint &&
-                currentPos < scene.offsetTop + scene.offsetHeight
+                currentPos < scene.offsetTop - realMidpoint ||
+                currentPos > scene.offsetTop + scene.offsetHeight ||
+                (q === longSoundQueue && i > 0)
             ) {
-            } else {
                 q[i].pause();
                 q[i].currentTime = 0;
                 q.splice(i, 1);
@@ -1343,12 +1343,10 @@ volSlider.oninput = () => {
 
 const toggleVisBtn = document.getElementById("visButton");
 toggleVisBtn.onmouseover = () => {
-    document.getElementById("storyDisp").setAttribute("display-mode", -1);
+    document.getElementById("storyDisp").classList.toggle("bg_only");
 };
 toggleVisBtn.onmouseout = () => {
-    document
-        .getElementById("storyDisp")
-        .setAttribute("display-mode", dialogVisibilityState);
+    document.getElementById("storyDisp").classList.toggle("bg_only");
 };
 var dialogVisibilityState = 0;
 toggleVisBtn.onclick = () => {
