@@ -332,8 +332,6 @@ get_char_table(false, serverString)
             genStory(data.storyName, data.storyTxt).then(() => {
                 scrollFunction();
                 sessionStorage.setItem("userChange", false);
-                soundQueue.length = 0;
-                longSoundQueue.length = 0;
             });
         }
         window.onhashchange = loadFromHash;
@@ -370,6 +368,13 @@ get_char_table(false, serverString)
     });
 
 async function genStory(storyName, key) {
+    soundQueue.length = 0;
+    longSoundQueue.length = 0;
+    allScenes.length = 0;
+    allMusic.length = 0;
+    allSoundButtons.length = 0;
+    lastBackgroundImage = undefined;
+
     return await fetch(
         "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
             serverString +
