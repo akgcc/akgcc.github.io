@@ -1354,11 +1354,14 @@ volSlider.oninput = () => {
 
 const toggleVisBtn = document.getElementById("visButton");
 toggleVisBtn.onmouseover = () => {
-    document.getElementById("storyDisp").classList.toggle("bg_only");
+    document.getElementById("storyDisp").classList.add("bg_only");
 };
 toggleVisBtn.onmouseout = () => {
-    document.getElementById("storyDisp").classList.toggle("bg_only");
+    document.getElementById("storyDisp").classList.remove("bg_only");
 };
+toggleVisBtn.addEventListener("click", () => {
+    document.getElementById("storyDisp").classList.remove("bg_only");
+});
 var dialogVisibilityState = 0;
 toggleVisBtn.onclick = () => {
     dialogVisibilityState = (dialogVisibilityState + 1) % 3;
