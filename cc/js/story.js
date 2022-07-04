@@ -23,7 +23,9 @@ var operatorData,
     soundQueue = [],
     longSoundQueue = [],
     maxSoundsQueued = 4,
-    enableSoundAutoplay = false;
+    enableSoundAutoplay = false,
+    predicateQueue = [],
+    activeReferences = [];
 const shortAudioMaxLen = 4;
 const charPathFixes = {
     char_2006_weiywfmzuki_1: "char_2006_fmzuki_1",
@@ -374,7 +376,8 @@ async function genStory(storyName, key) {
     allMusic.length = 0;
     allSoundButtons.length = 0;
     lastBackgroundImage = undefined;
-
+    predicateQueue.length = 0;
+    activeReferences.length = 0;
     return await fetch(
         "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
             serverString +
@@ -396,9 +399,6 @@ async function genStory(storyName, key) {
                 speaker,
                 chars = {},
                 speakerList = new Set(),
-                predicate = {},
-                activeReferences = [],
-                defaultPredicate = "1",
                 firstAudio,
                 lastBlockerColor = "rgba(0,0,0,0)",
                 hangingBlocker;
@@ -570,7 +570,7 @@ async function genStory(storyName, key) {
                 allScenes.push(scene);
                 return scene;
             }
-            function makeDecisionDialog(args, predicate) {
+            function makeDecisionDialog(args) {
                 let choices = args.options.split(";");
                 let vals = args.values.split(";");
                 // keys.forEach((key, i) => result[key] = values[i]);
@@ -580,6 +580,10 @@ async function genStory(storyName, key) {
                     { name: "avg_npc_048" },
                     1
                 );
+                // create predicate after making dialog or the dialog will be hidden.
+                const predicate = {};
+                vals.forEach((v) => (predicate[v] = []));
+                predicateQueue.push(predicate);
                 let txt = dialog.querySelector(".text");
                 txt.innerHTML = "";
                 txt.classList.add("doctor");
@@ -600,11 +604,10 @@ async function genStory(storyName, key) {
                         let thispredicate = opt.getAttribute("data-predicate");
                         Object.keys(predicate).forEach((p) => {
                             predicate[p].forEach((el) => {
-                                el.classList.add("hidden");
+                                p == thispredicate
+                                    ? el.classList.remove("hidden")
+                                    : el.classList.add("hidden");
                             });
-                        });
-                        predicate[thispredicate].forEach((el) => {
-                            el.classList.remove("hidden");
                         });
                         scrollFunction();
                     };
@@ -632,7 +635,7 @@ async function genStory(storyName, key) {
                 txt.classList.add("text");
                 txt.setAttribute("data-name", "");
                 txt.style.setProperty("--name-color", "#777");
-                txt.innerHTML = dialogLine;
+                txt.innerHTML = dialogLine.replace(/\\r\\n|\\r|\\n/g, "<br />");
                 wrap.appendChild(left);
                 txt.prepend(nameplate);
                 wrap.appendChild(txt);
@@ -662,6 +665,17 @@ async function genStory(storyName, key) {
                     right.childElementCount > 1
                 ) {
                     left.appendChild(right.firstChild);
+                }
+                // handle active predicates
+                if (predicateQueue.length) {
+                    let predicate = predicateQueue.slice(-1)[0];
+                    activeReferences.forEach((r) => {
+                        if (r in predicate)
+                            //sanity check
+                            predicate[r].push(wrap);
+                    });
+                    if (!activeReferences.includes(Object.keys(predicate)[0]))
+                        wrap.classList.add("hidden");
                 }
 
                 return wrap;
@@ -702,15 +716,7 @@ async function genStory(storyName, key) {
                         speaker,
                         Array.from(speakerList).indexOf(args.name.toLowerCase())
                     );
-                    activeReferences.forEach((r) => {
-                        if (r in predicate) predicate[r].push(dlg);
-                    });
                     getWorkingScene().appendChild(dlg);
-                    if (
-                        activeReferences.length &&
-                        !activeReferences.includes(defaultPredicate)
-                    )
-                        dlg.classList.add("hidden");
                 } else if (line[1]) {
                     // group 1 alone indicates stage direction
                     switch (cmd.toLowerCase()) {
@@ -823,9 +829,6 @@ async function genStory(storyName, key) {
                             speaker = 0;
                             if (args && args.text) {
                                 let dlg = makeDialog(null, args.text, {}, 0);
-                                activeReferences.forEach((r) => {
-                                    if (r in predicate) predicate[r].push(dlg);
-                                });
                                 getWorkingScene().appendChild(dlg);
                             }
                             break;
@@ -834,22 +837,25 @@ async function genStory(storyName, key) {
                             // speaker = 0;
                             break;
                         case "decision":
-                            predicate = {};
-                            defaultPredicate = args.values.split(";")[0];
                             getWorkingScene().appendChild(
-                                makeDecisionDialog(args, predicate)
+                                makeDecisionDialog(args)
                             );
                             break;
                         case "predicate":
-                            // predicate maps the VALUE to a list of dom objects
                             if (!args) {
-                                predicate = {};
-                                activeReferences = [];
+                                predicateQueue.pop();
+                                activeReferences.length = 0;
                             } else {
                                 activeReferences = args.references.split(";");
-                                activeReferences.forEach((r) => {
-                                    predicate[r] = predicate[r] || [];
-                                });
+                                let predicate = predicateQueue.slice(-1)[0];
+                                if (
+                                    activeReferences.length ==
+                                    Object.keys(predicate).length
+                                ) {
+                                    // contains all predicates, indicating end of decision tree.
+                                    predicateQueue.pop();
+                                    activeReferences.length = 0;
+                                }
                             }
                             break;
                         case "playmusic":
@@ -1032,9 +1038,6 @@ async function genStory(storyName, key) {
                     // group 2 alone indicates speakerless text (narrator)
                     let dlg = makeDialog(null, line[2], {}, 0);
                     dlg.classList.add("narration");
-                    activeReferences.forEach((r) => {
-                        if (r in predicate) predicate[r].push(dlg);
-                    });
                     getWorkingScene().appendChild(dlg);
                 }
             }
