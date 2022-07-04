@@ -1342,6 +1342,14 @@ volSlider.oninput = () => {
 };
 
 const toggleVisBtn = document.getElementById("visButton");
+toggleVisBtn.onmouseover = () => {
+    document.getElementById("storyDisp").setAttribute("display-mode", -1);
+};
+toggleVisBtn.onmouseout = () => {
+    document
+        .getElementById("storyDisp")
+        .setAttribute("display-mode", dialogVisibilityState);
+};
 var dialogVisibilityState = 0;
 toggleVisBtn.onclick = () => {
     dialogVisibilityState = (dialogVisibilityState + 1) % 3;

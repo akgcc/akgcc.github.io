@@ -403,15 +403,19 @@ audio {
 #serverSelect {
   margin-right: 0.25em;
 }
-#storyDisp:not([display-mode="0"]) .soundPlayer {
+#storyDisp[display-mode="1"] .soundPlayer,
+#storyDisp[display-mode="2"] .soundPlayer {
   height: 0;
   padding: 0;
   margin: 0;
 }
-#storyDisp:not([display-mode="0"]) .soundPlayer i {
+#storyDisp[display-mode="1"] .soundPlayer i,
+#storyDisp[display-mode="2"] .soundPlayer i {
   display: none;
 }
+#storyDisp[display-mode="-1"] .scene:after,
 #storyDisp[display-mode="2"] .scene:after,
+#storyDisp[display-mode="-1"] .scene > *,
 #storyDisp[display-mode="2"] .scene > * {
   opacity: 0;
   pointer-events: none;
