@@ -22,12 +22,10 @@ var operatorData,
     autoPlayPoint = 0,
     soundQueue = [],
     longSoundQueue = [],
-    maxSoundsQueued = 4,
-    enableSoundAutoplay = false,
-    predicateQueue = [],
-    activeReferences = [],
-    lastPredicate;
-const shortAudioMaxLen = 4;
+    enableSoundAutoplay = false;
+soundQueue.max_size = 5;
+longSoundQueue.max_size = 2;
+const shortAudioMaxLen = 3.5;
 const charPathFixes = {
     char_2006_weiywfmzuki_1: "char_2006_fmzuki_1",
     // avg_NPC_017_3: "avg_npc_017_3",
@@ -365,7 +363,7 @@ get_char_table(false, serverString)
                 }
             }
             newHash += "&" + latest_story + "&0";
-            history.replaceState(undefined, undefined, newHash);
+            history.replaceState(null, "", newHash);
             loadFromHash();
         }
     });
@@ -377,8 +375,8 @@ async function genStory(storyName, key) {
     allMusic.length = 0;
     allSoundButtons.length = 0;
     lastBackgroundImage = undefined;
-    predicateQueue.length = 0;
-    activeReferences.length = 0;
+    predicateQueue = [];
+    activeReferences = [];
     lastPredicate = { 1: [], 2: [], 3: [] }; // prevents catastrophic failure in an edge case
     return await fetch(
         "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
@@ -401,7 +399,7 @@ async function genStory(storyName, key) {
                 speaker,
                 chars = {},
                 speakerList = new Set(),
-                firstAudio,
+                preSceneAudios = [],
                 lastBlockerColor = "rgba(0,0,0,0)",
                 hangingBlocker;
             function addSceneBreak(requireBreak) {
@@ -496,9 +494,9 @@ async function genStory(storyName, key) {
                     scene.appendChild(hangingBlocker);
                     hangingBlocker = null;
                 }
-                if (firstAudio) {
-                    scene.appendChild(firstAudio);
-                    firstAudio = null;
+                if (preSceneAudios.length) {
+                    for (a of preSceneAudios) scene.appendChild(a);
+                    preSceneAudios.length = 0;
                 }
 
                 let setDims = function () {
@@ -968,10 +966,10 @@ async function genStory(storyName, key) {
                                 allSoundButtons.push(audioWrapper);
                             }
                             if (scene) {
-                                if (audioWrapper)
-                                    scene.appendChild(audioWrapper);
-                                else scene.appendChild(audio);
-                            } else firstAudio = audio;
+                                scene.appendChild(audioWrapper || audio);
+                            } else {
+                                preSceneAudios.push(audioWrapper || audio);
+                            }
                             break;
                         case "blocker":
                             // responsible for fade effects/fade to black for certain lines
@@ -1263,7 +1261,12 @@ function playPauseMusic(toggle = false) {
 function autoPlaySounds() {
     allSoundButtons.every((container) => {
         let soundTop = container.getBoundingClientRect().top;
-        if (soundTop < autoPlayPoint) {
+        if (
+            soundTop < autoPlayPoint ||
+            document.body.scrollTop >
+                document.body.offsetHeight - window.innerHeight - topNavHeight
+        ) {
+            // if scrolled past midpoint OR reached end of story (to make sure the final few sounds get played.)
             if (container.audio.alreadyQueued) return true;
             if (!container.audio.paused) return true;
             if (soundTop < 0) return true;
@@ -1271,7 +1274,7 @@ function autoPlaySounds() {
                 container.audio.duration > shortAudioMaxLen
                     ? longSoundQueue
                     : soundQueue;
-            if (q.length >= maxSoundsQueued) return true;
+            if (q.length >= q.max_size) return true;
             container.audio.alreadyQueued = true;
             q.push(container.audio);
             // if user manually pauses a sound, the next in queue will not be played until the user scrolls (this method is called again)
@@ -1295,14 +1298,16 @@ function autoPlaySounds() {
     });
     for (const q of [soundQueue, longSoundQueue]) {
         // cancel sounds if user scrolled away from their scene.
-        let currentPos = document.body.scrollTop - topNavHeight; // + autoPlayPoint;
+        let disp_top = document.body.scrollTop + topNavHeight; // top of the screen (below topnav)
+        let disp_bot = document.body.scrollTop + window.innerHeight;
         var i = q.length;
         while (i--) {
             let scene = q[i].parentElement.parentElement;
+            let scene_top = scene.offsetTop;
+            let scene_bot = scene_top + scene.offsetHeight;
             if (
-                currentPos < scene.offsetTop - realMidpoint ||
-                currentPos > scene.offsetTop + scene.offsetHeight ||
-                (q === longSoundQueue && i > 0)
+                scene_top > disp_bot + realMidpoint ||
+                scene_bot < disp_top - realMidpoint
             ) {
                 q[i].pause();
                 q[i].currentTime = 0;
