@@ -25,7 +25,8 @@ var operatorData,
     maxSoundsQueued = 4,
     enableSoundAutoplay = false,
     predicateQueue = [],
-    activeReferences = [];
+    activeReferences = [],
+    lastPredicate;
 const shortAudioMaxLen = 4;
 const charPathFixes = {
     char_2006_weiywfmzuki_1: "char_2006_fmzuki_1",
@@ -378,6 +379,7 @@ async function genStory(storyName, key) {
     lastBackgroundImage = undefined;
     predicateQueue.length = 0;
     activeReferences.length = 0;
+    lastPredicate = { 1: [], 2: [], 3: [] }; // prevents catastrophic failure in an edge case
     return await fetch(
         "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
             serverString +
@@ -681,6 +683,7 @@ async function genStory(storyName, key) {
                 return wrap;
             }
             for (const line of lines) {
+                // console.log(line);
                 if (line[1]) {
                     [_, cmd, args] = /\[([^\(\]]+)(?:\((.+)\))?\]/.exec(
                         line[1]
@@ -847,13 +850,18 @@ async function genStory(storyName, key) {
                                 activeReferences.length = 0;
                             } else {
                                 activeReferences = args.references.split(";");
+                                if (!predicateQueue.length) {
+                                    // if there is an error in the script, predicate (below) will be undefined.
+                                    // in this case we assign these predicates to the previous decision
+                                    predicateQueue.push(lastPredicate);
+                                }
                                 let predicate = predicateQueue.slice(-1)[0];
                                 if (
                                     activeReferences.length ==
                                     Object.keys(predicate).length
                                 ) {
                                     // contains all predicates, indicating end of decision tree.
-                                    predicateQueue.pop();
+                                    lastPredicate = predicateQueue.pop();
                                     activeReferences.length = 0;
                                 }
                             }
@@ -1029,6 +1037,7 @@ async function genStory(storyName, key) {
                         case "hideitem":
                         case "startbattle":
                         case "tutorial":
+                        case "theater":
                             break;
                         default:
                             // console.log("line not parsed:", line);
