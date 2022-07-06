@@ -1367,13 +1367,19 @@ volSlider.oninput = () => {
 };
 
 const toggleVisBtn = document.getElementById("visButton");
+var tempHideAll = null;
 toggleVisBtn.onmouseover = () => {
-    document.getElementById("storyDisp").classList.add("bg_only");
+    tempHideAll = setTimeout(
+        () => document.getElementById("storyDisp").classList.add("bg_only"),
+        250
+    );
 };
 toggleVisBtn.onmouseout = () => {
+    clearTimeout(tempHideAll);
     document.getElementById("storyDisp").classList.remove("bg_only");
 };
 toggleVisBtn.addEventListener("click", () => {
+    clearTimeout(tempHideAll);
     document.getElementById("storyDisp").classList.remove("bg_only");
 });
 var dialogVisibilityState = 0;
