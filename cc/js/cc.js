@@ -43,10 +43,15 @@ var lightboxOriginalIndexMapping;
 var lightboxSoulOrder = {};
 var dupeChain = {};
 var CCTAG;
-fetch("./json/skill_icon_map.json")
+var skill_table;
+fetch(
+  "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+    "en_US" +
+    "/gamedata/excel/skill_table.json"
+)
   .then((res) => res.json())
   .then((json) => {
-    skillIconMap = json;
+    skill_table = json;
     return get_cc_list();
   })
   .then(() => {
@@ -373,7 +378,7 @@ fetch("./json/skill_icon_map.json")
           if (op.skill > 0) {
             //1&2* have no skills
             let skid = operatorData[op.name].skills[op.skill - 1].skillId;
-            skid = skillIconMap[skid] || skid;
+            skid = skill_table[skid]?.iconId || skid;
             let skimg = document.createElement("img");
             skimg.classList.add("skimg");
             skimg.setAttribute("loading", "lazy");
@@ -423,7 +428,9 @@ fetch("./json/skill_icon_map.json")
         (op, state, skills) => applyFilters(op, state, skills),
         checkboxes,
         null,
-        operatorData[x].skills.map((x) => skillIconMap[x.skillId] || x.skillId)
+        operatorData[x].skills.map(
+          (x) => skill_table[x.skillId]?.iconId || x.skillId
+        )
       );
     });
     Object.values(operatorData)

@@ -3,7 +3,7 @@ var story_table,
   challengeList,
   divMap = {},
   episode_list = {},
-  skillIconMap,
+  skill_table,
   activity_table;
 const maxTeamSize = 12;
 const hopeMap = {
@@ -132,10 +132,14 @@ var filters = {
 };
 
 // fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/'+serverString+'/gamedata/excel/zone_table.json')
-fetch("./json/skill_icon_map.json")
+fetch(
+  "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+    serverString +
+    "/gamedata/excel/skill_table.json"
+)
   .then((res) => res.json())
   .then((json) => {
-    skillIconMap = json;
+    skill_table = json;
     return fetch("./json/challenges.json");
   })
   .then((res) => res.json())
@@ -459,7 +463,7 @@ fetch("./json/skill_icon_map.json")
             if (filters.Squad.randomizeSkills.enabled && op.skills.length) {
               skid =
                 op.skills[Math.floor(Math.random() * op.skills.length)].skillId;
-              skid = skillIconMap[skid] || skid;
+              skid = skill_table[skid]?.iconId || skid;
               op.randomizedSkill = skid;
             }
             let cb = CreateOpCheckbox(
@@ -601,7 +605,7 @@ fetch("./json/skill_icon_map.json")
               randomOne.skills[
                 Math.floor(Math.random() * randomOne.skills.length)
               ].skillId;
-            skid = skillIconMap[skid] || skid;
+            skid = skill_table[skid]?.iconId || skid;
           }
           CreateOpCheckbox(
             randomOne,
