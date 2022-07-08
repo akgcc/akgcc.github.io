@@ -573,6 +573,7 @@ async function genStory(storyName, key) {
             function makeDecisionDialog(args) {
                 let choices = args.options.split(";");
                 let vals = args.values.split(";");
+                vals = vals.slice(0, choices.length); // fixes some broken script files.
                 // keys.forEach((key, i) => result[key] = values[i]);
                 let dialog = makeDialog(
                     { name: "Dr {@nickname}" },
