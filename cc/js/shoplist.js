@@ -39,7 +39,7 @@ get_char_table(false, "zh_CN")
 		operatorData = js;
 		return fetch("./json/banner_history.json");
 	})
-	.then((res) => res.json())
+	.then((res) => fixedJson(res))
 	.then((js) => {
 		const SERVERS = { EN: js.NA, CN: js.CN };
 		const SERVER_STARTS = {

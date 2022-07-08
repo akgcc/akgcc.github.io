@@ -45,12 +45,12 @@ get_char_table(false, serverString)
                 "/gamedata/story/story_variables.json"
         );
     })
-    .then((res) => res.json())
+    .then((res) => fixedJson(res))
     .then((js) => {
         soundMap = js;
         return fetch("./json/avatar_coords.json");
     })
-    .then((res) => res.json())
+    .then((res) => fixedJson(res))
     .then((js) => {
         avatarCoords = js;
         return fetch(
@@ -59,7 +59,7 @@ get_char_table(false, serverString)
                 "/gamedata/excel/story_review_meta_table.json"
         );
     })
-    .then((res) => res.json())
+    .then((res) => fixedJson(res))
     .then((js) => {
         storyReviewMeta = js;
         return fetch(
@@ -68,7 +68,7 @@ get_char_table(false, serverString)
                 "/gamedata/excel/story_review_table.json"
         );
     })
-    .then((res) => res.json())
+    .then((res) => fixedJson(res))
     .then((js) => {
         storyReview = js;
         Object.values(storyReview).forEach((x) => {

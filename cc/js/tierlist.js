@@ -28,7 +28,7 @@ get_cc_list()
     operatorData = js;
     return fetch("./json/data" + CCTAG + ".json");
   })
-  .then((res) => res.json())
+  .then((res) => fixedJson(res))
   .then((js) => {
     clearData = js;
     var tldiv = document.getElementById("tierList");

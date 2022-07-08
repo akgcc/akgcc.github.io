@@ -80,7 +80,7 @@ async function get_cc_list(server = "en_US") {
   let raw = await fetch(
     CC_DATA_SOURCE + server + "/gamedata/excel/crisis_table.json"
   );
-  let data = await raw.json();
+  let data = await fixedJson(raw);
   data.seasonInfo.forEach((cc) => {
     let cc_num = /rune_season_(\d+)_1/.exec(cc.seasonId)[1];
     CCMAP["#" + cc_num] = {
@@ -99,11 +99,11 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
   let raw = await fetch(
     DATA_SOURCE + server + "/gamedata/excel/character_table.json"
   );
-  let json = await raw.json();
+  let json = await fixedJson(raw);
   raw = await fetch(
     DATA_SOURCE + server + "/gamedata/excel/char_patch_table.json"
   );
-  let patch = await raw.json();
+  let patch = await fixedJson(raw);
   updateJSON(json, patch.patchChars);
   // change guardmiya name
   json["char_1001_amiya2"].name = "Guardmiya";
@@ -127,6 +127,16 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
     charIdMap[v] = charIdMap[k];
   }
   return json;
+}
+
+async function fixedJson(res) {
+  // if .json() fails, try to remove trailing comma then parse with JSON.parse
+  return res
+    .clone()
+    .json()
+    .catch((e) =>
+      res.text().then((txt) => JSON.parse(txt.replace(/,(\W+}\W*$)/, "$1")))
+    );
 }
 
 function thumbnail_tooltip(chart_canvas) {

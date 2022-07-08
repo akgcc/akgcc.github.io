@@ -6,7 +6,7 @@ get_char_table()
     let operatorData = js;
     return fetch("./json/poll_results_" + PTAG + ".json");
   })
-  .then((res) => res.json())
+  .then((res) => fixedJson(res))
   .then((js) => {
     let scatter_data = js["scatter"]["data"];
     let bar_data = js["bar"]["data"];

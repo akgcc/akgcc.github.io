@@ -137,12 +137,12 @@ fetch(
     serverString +
     "/gamedata/excel/skill_table.json"
 )
-  .then((res) => res.json())
+  .then((res) => fixedJson(res))
   .then((json) => {
     skill_table = json;
     return fetch("./json/challenges.json");
   })
-  .then((res) => res.json())
+  .then((res) => fixedJson(res))
   .then((js) => {
     challengeList = js;
     return get_char_table(false, serverString);
@@ -155,7 +155,7 @@ fetch(
         "/gamedata/excel/story_review_table.json"
     );
   })
-  .then((res) => res.json())
+  .then((res) => fixedJson(res))
   .then((js) => {
     story_table = js;
     return fetch(
@@ -164,7 +164,7 @@ fetch(
         "/gamedata/excel/activity_table.json"
     );
   })
-  .then((res) => res.json())
+  .then((res) => fixedJson(res))
   .then((js) => {
     activity_table = js;
     return fetch(
@@ -173,7 +173,7 @@ fetch(
         "/gamedata/excel/stage_table.json"
     );
   })
-  .then((res) => res.json())
+  .then((res) => fixedJson(res))
   .then((js) => {
     stageData = js;
 
@@ -306,7 +306,7 @@ fetch(
             chosen_stage.levelId.toLowerCase() +
             ".json";
           fetch(stageurl)
-            .then((res) => res.json())
+            .then((res) => fixedJson(res))
             .then((js) => {
               div.prepend(tableFromStageData(js));
               if (parentDiv.firstChild)

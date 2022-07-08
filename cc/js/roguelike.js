@@ -5,7 +5,7 @@ fetch(
 				"/gamedata/excel/roguelike_topic_table.json"
 		: "./json/" + serverString + "/roguelike_table.json"
 )
-	.then((res) => res.json())
+	.then((res) => fixedJson(res))
 	.then((js) => {
 		if (serverString == "zh_CN") {
 			for (const [key, value] of Object.entries(

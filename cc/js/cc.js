@@ -49,7 +49,7 @@ fetch(
     "en_US" +
     "/gamedata/excel/skill_table.json"
 )
-  .then((res) => res.json())
+  .then((res) => fixedJson(res))
   .then((json) => {
     skill_table = json;
     return get_cc_list();
@@ -64,7 +64,7 @@ fetch(
     operatorData = js;
     return fetch("./json/data" + CCTAG + ".json");
   })
-  .then((res) => res.json())
+  .then((res) => fixedJson(res))
   .then((js) => {
     cardData = js;
     function calculate_soul() {
