@@ -1,24 +1,13 @@
 fetch(
-	serverString == "zh_CN"
-		? "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-				serverString +
-				"/gamedata/excel/roguelike_topic_table.json"
-		: "./json/" + serverString + "/roguelike_table.json"
+	"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+		serverString +
+		"/gamedata/excel/roguelike_topic_table.json"
 )
 	.then((res) => fixedJson(res))
 	.then((js) => {
-		if (serverString == "zh_CN") {
-			for (const [key, value] of Object.entries(
-				js.details.rogue_1.items
-			)) {
-				if (value.description && value.description.trim())
-					addItem(value);
-			}
-		} else
-			for (const [key, value] of Object.entries(js.itemTable.items)) {
-				if (value.description && value.description.trim())
-					addItem(value);
-			}
+		for (const [key, value] of Object.entries(js.details.rogue_1.items)) {
+			if (value.description && value.description.trim()) addItem(value);
+		}
 	});
 const itemList = document.getElementById("itemList");
 const rarityMap = {
