@@ -50,6 +50,15 @@
 .rl_img.unknown {
 	filter: brightness(0);
 }
+.rl_item.capsule .rl_img {
+	opacity: 0;
+}
+.rl_item.capsule .rl_title {
+	fill: #0000;
+}
+.rl_item.capsule .rl_desc {
+	background: #000a;
+}
 .rl_img_wrap {
 	min-height: 0;
 }

@@ -43,8 +43,11 @@ function addItem(data) {
 	let img = document.createElement("img");
 	img.classList.add("rl_img");
 	img.setAttribute("loading", "lazy");
-	if (data.iconId.match(/capsule/)) img.src = `./images/${data.iconId}.png`;
-	else
+	if (data.iconId.match(/capsule/)) {
+		img.src = `./images/${data.iconId}.png`;
+		item.classList.add("capsule");
+		item.style.setProperty(`--bg-url`, `url(../images/${data.iconId}.png)`);
+	} else
 		img.src = `https://aceship.github.io/AN-EN-Tags/img/ui/roguelike/item/${data.iconId}.png`;
 	img.onerror = function () {
 		this.src =
