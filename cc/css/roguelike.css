@@ -54,7 +54,7 @@
 	opacity: 0;
 }
 .rl_item.capsule .rl_title {
-	fill: #0000;
+	background: #0006;
 }
 .rl_item.capsule .rl_desc {
 	background: #000a;
