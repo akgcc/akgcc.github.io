@@ -60,6 +60,9 @@ function addItem(data) {
 	let desc = document.createElement("div");
 	desc.classList.add("rl_desc");
 	desc.innerHTML = data.description;
+	let unlock = document.createElement("div");
+	unlock.classList.add("rl_unlock");
+	unlock.innerHTML = data.unlockCondDesc;
 	let effect = document.createElement("div");
 	effect.classList.add("rl_effect");
 	effect.innerHTML = data.usage;
@@ -70,6 +73,9 @@ function addItem(data) {
 	inner.appendChild(title);
 	inner.appendChild(img_wrapper);
 	inner.appendChild(desc);
+	if (data.unlockCondDesc) {
+		inner.appendChild(unlock);
+	}
 	inner.appendChild(spacer);
 	item.appendChild(inner);
 	item.appendChild(effect);

@@ -69,6 +69,23 @@
 	width: 100%;
 	text-align: center;
 }
+.rl_unlock {
+	padding: 0.5em 1.5em;
+	width: 100%;
+	text-align: center;
+	position: relative;
+	background: #000a;
+	border: 1px dotted #fff8;
+}
+.rl_unlock:before {
+	content: "\f09c";
+	font-weight: 900;
+	position: absolute;
+	transform: translateY(-50%) translateX(50%);
+	left: 0;
+	top: 50%;
+	font-family: "Font Awesome 5 Free";
+}
 .rl_effect {
 	background: #0006;
 	background-image: var(--btn-url);
