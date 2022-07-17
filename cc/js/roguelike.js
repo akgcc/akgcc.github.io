@@ -82,6 +82,12 @@ function addItem(data) {
 	item.appendChild(bot_border);
 	itemList.appendChild(item);
 
+	let totalTextLen =
+		data.description.length +
+		(data.unlockCondDesc ? data.unlockCondDesc.length : 0) +
+		data.usage.length;
+	if (totalTextLen > 500) item.classList.add("smallText");
+
 	// squish title text
 	let nameWidth = getTextWidth(data.name, getCanvasFontSize(title));
 	let itemWidth = parseInt(getComputedStyle(item).width);

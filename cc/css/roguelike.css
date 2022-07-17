@@ -59,6 +59,10 @@
 .rl_item.capsule .rl_desc {
 	background: #000a;
 }
+.rl_item.smallText .rl_inner > *:not(.rl_title),
+.rl_item.smallText .rl_effect {
+	font-size: 0.75em;
+}
 .rl_img_wrap {
 	min-height: 0;
 }
