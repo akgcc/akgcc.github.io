@@ -1144,7 +1144,7 @@ function avatarImg(path) {
         }
     };
     img.setAttribute("loading", "lazy");
-    [base_name, orig_base_name].some((n) => {
+    [path, base_name, orig_base_name].some((n) => {
         if (avatarCoords[n]) {
             img.style.left = avatarCoords[n].x;
             img.style.top = avatarCoords[n].y;
