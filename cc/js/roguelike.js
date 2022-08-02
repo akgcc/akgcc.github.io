@@ -1,20 +1,63 @@
-fetch(
-	"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-		serverString +
-		"/gamedata/excel/roguelike_topic_table.json"
-)
-	.then((res) => fixedJson(res))
-	.then((js) => {
-		for (const [key, value] of Object.entries(js.details.rogue_1.items)) {
-			if (value.description && value.description.trim()) addItem(value);
-		}
-	});
+const ISLIST = ["#1", "#2"];
 const itemList = document.getElementById("itemList");
 const rarityMap = {
 	NORMAL: "n",
 	RARE: "r",
 	SUPER_RARE: "sr",
 };
+if (!window.location.hash || !ISLIST.includes(window.location.hash))
+	window.location.hash = ISLIST.slice(-1)[0];
+ISLIST.reverse().forEach((is) => {
+	const a = document.createElement("a");
+	a.classList.add("rightButton");
+	a.classList.add("button");
+	a.classList.add("isb");
+	if (is == window.location.hash) a.classList.add("checked");
+	a.innerHTML = is;
+	document.getElementById("topNav").querySelector(".nav-right").prepend(a);
+	a.addEventListener("click", () => {
+		loadItems(is.substring(1));
+		document
+			.querySelectorAll("#topNav .nav-right > .isb")
+			.forEach((e) => e.classList.remove("checked"));
+		a.classList.add("checked");
+		window.location.hash = a.innerHTML;
+	});
+});
+loadItems(window.location.hash.substring(1));
+function loadItems(is) {
+	itemList.innerHTML = "";
+	let source;
+	switch (parseInt(is)) {
+		case 1:
+			source = fetch("./json/" + serverString + "/roguelike_table.json");
+			break;
+		default:
+			source = fetch(
+				"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+					serverString +
+					"/gamedata/excel/roguelike_topic_table.json"
+			);
+			break;
+	}
+	source
+		.then((res) => fixedJson(res))
+		.then((js) => {
+			let table;
+			switch (parseInt(is)) {
+				case 1:
+					table = js.itemTable.items;
+					break;
+				default:
+					table = js.details.rogue_1.items;
+					break;
+			}
+			for (const [key, value] of Object.entries(table)) {
+				if (value.description && value.description.trim())
+					addItem(value);
+			}
+		});
+}
 function addItem(data) {
 	let item = document.createElement("div");
 	item.classList.add("rl_item");
