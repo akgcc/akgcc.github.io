@@ -95,7 +95,8 @@ function addItem(data) {
 	img.onerror = function () {
 		this.src =
 			"https://aceship.github.io/AN-EN-Tags/img/items/MTL_SL_G2.png";
-		this.classList.add("unknown");
+		this.parentElement.classList.add("unknown");
+		this.onerror = null;
 	};
 	img_wrapper.appendChild(img);
 	let inner = document.createElement("div");
