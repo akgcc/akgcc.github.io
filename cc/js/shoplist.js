@@ -372,7 +372,7 @@ get_char_table(false, "zh_CN")
 		const serverbtns = document.createElement("div");
 		serverbtns.id = "barServers";
 		serverbtns.classList.add("sortdiv");
-		document.getElementById("serverSelect").appendChild(serverbtns);
+		document.getElementById("localServerSelect").appendChild(serverbtns);
 		label = document.createElement("label");
 		label.innerHTML = "Server:";
 		serverbtns.appendChild(label);
