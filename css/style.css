@@ -32,6 +32,7 @@
   font-size: 24px;
   color: whitesmoke;
   font-family: airstrike;
+  text-shadow: 0 0 2px black;
 }
 @font-face {
   font-family: "airstrike";
