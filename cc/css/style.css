@@ -1,6 +1,7 @@
 .cardContainer img {
   width: 256px;
   height: 144px;
+  display: block;
 }
 
 .riskHeader,
