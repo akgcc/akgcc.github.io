@@ -5,6 +5,9 @@ const DATA_SOURCE =
 const CC_DATA_SOURCE = DATA_SOURCE;
 // const CC_DATA_SOURCE =
 //   "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/";
+// const IMG_SOURCE = "https://aceship.github.io/AN-EN-Tags/img/";
+const IMG_SOURCE =
+  "https://raw.githubusercontent.com/Aceship/Arknight-Images/main/";
 const SERVERS = {
   EN: "en_US",
   JP: "ja_JP",
@@ -161,7 +164,7 @@ function thumbnail_tooltip(chart_canvas) {
     var innerHtml = "";
     let title = tooltip.title[0] || tooltip.body[0].lines[0].split(":")[0]; // for pie chart legend
     innerHtml =
-      '<img src="https://aceship.github.io/AN-EN-Tags/img/avatars/' +
+      `<img src="${IMG_SOURCE}avatars/` +
       charIdMap[title] +
       '.png"> <div> <span><b>' +
       title +
@@ -480,10 +483,7 @@ function CreateOpCheckbox(
 
   let im = document.createElement("img");
   im.setAttribute("loading", "lazy");
-  im.src =
-    "https://aceship.github.io/AN-EN-Tags/img/avatars/" +
-    operator.charId +
-    ".png";
+  im.src = IMG_SOURCE + "avatars/" + operator.charId + ".png";
   checkboxDiv.appendChild(im);
 
   let name = document.createElement("div");

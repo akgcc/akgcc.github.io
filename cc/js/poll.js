@@ -147,10 +147,7 @@ get_char_table()
     });
     let scatterImages = labels.map((x) => {
       i = new Image(imgSize, imgSize);
-      i.src =
-        "https://aceship.github.io/AN-EN-Tags/img/avatars/" +
-        charIdMap[x] +
-        ".png";
+      i.src = IMG_SOURCE + "avatars/" + charIdMap[x] + ".png";
       return i;
     });
 

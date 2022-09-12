@@ -90,11 +90,9 @@ function addItem(data) {
 		img.src = `./images/${data.iconId}.png`;
 		item.classList.add("capsule");
 		item.style.setProperty(`--bg-url`, `url(../images/${data.iconId}.png)`);
-	} else
-		img.src = `https://aceship.github.io/AN-EN-Tags/img/ui/roguelike/item/${data.iconId}.png`;
+	} else img.src = `${IMG_SOURCE}ui/roguelike/item/${data.iconId}.png`;
 	img.onerror = function () {
-		this.src =
-			"https://aceship.github.io/AN-EN-Tags/img/items/MTL_SL_G2.png";
+		this.src = `${IMG_SOURCE}items/MTL_SL_G2.png`;
 		this.parentElement.classList.add("unknown");
 		this.onerror = null;
 	};

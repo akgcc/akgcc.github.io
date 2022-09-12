@@ -57,7 +57,7 @@ get_char_table(false, "zh_CN")
 				if (data.charId == undefined) delete servdata[op];
 				else {
 					const img = new Image();
-					img.src = `https://aceship.github.io/AN-EN-Tags/img/avatars/${data.charId}.png`;
+					img.src = `${IMG_SOURCE}avatars/${data.charId}.png`;
 					data.img = img;
 					data.first = Math.min(...data.banner.map(Date.parse));
 					data.shop = data.shop.map(Date.parse).sort();

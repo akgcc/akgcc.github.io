@@ -225,10 +225,7 @@ get_cc_list()
 		});
 		let scatterImages = sortedData.map((x) => {
 			i = new Image(imgSize, imgSize);
-			i.src =
-				"https://aceship.github.io/AN-EN-Tags/img/avatars/" +
-				x[3] +
-				".png";
+			i.src = IMG_SOURCE + "avatars/" + x[3] + ".png";
 			i.opname = x[0].name;
 			return i;
 		});

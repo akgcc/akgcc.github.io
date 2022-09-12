@@ -477,7 +477,7 @@ async function genStory(storyName, key) {
             function getWorkingScene(imageScene = false) {
                 if (!scene) {
                     scene = createScene(
-                        "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/bg_black.png",
+                        IMG_SOURCE + "avg/backgrounds/bg_black.png",
                         imageScene
                     );
                 }
@@ -731,9 +731,7 @@ async function genStory(storyName, key) {
                             imgbtn.classList.add("itemBtn");
                             wrap.appendChild(imgbtn);
                             const itemsrc =
-                                "https://aceship.github.io/AN-EN-Tags/img/avg/items/" +
-                                args.image +
-                                ".png";
+                                IMG_SOURCE + "avg/items/" + args.image + ".png";
                             imgbtn.onclick = () => {
                                 enlargeAvatar(itemsrc, true);
                             };
@@ -767,7 +765,7 @@ async function genStory(storyName, key) {
                                 addCurrentScene();
                             }
                             let imgurl =
-                                "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/bg_black.png";
+                                IMG_SOURCE + "avg/backgrounds/bg_black.png";
 
                             switch (cmd.toLowerCase()) {
                                 case "image":
@@ -782,13 +780,15 @@ async function genStory(storyName, key) {
                                         break;
                                     }
                                     imgurl =
-                                        "https://aceship.github.io/AN-EN-Tags/img/avg/images/" +
+                                        IMG_SOURCE +
+                                        "avg/images/" +
                                         args.image +
                                         ".png";
                                     break;
                                 case "background":
                                     imgurl =
-                                        "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/" +
+                                        IMG_SOURCE +
+                                        "avg/backgrounds/" +
                                         args.image +
                                         ".png";
                                     lastBackgroundImage = imgurl;
@@ -799,7 +799,8 @@ async function genStory(storyName, key) {
                                         .slice(0, 2)
                                         .map(
                                             (x) =>
-                                                "https://aceship.github.io/AN-EN-Tags/img/avg/backgrounds/" +
+                                                IMG_SOURCE +
+                                                "avg/backgrounds/" +
                                                 x +
                                                 ".png"
                                         );
@@ -1130,14 +1131,14 @@ function avatarImg(path) {
     img.onerror = function () {
         if (i < src_array.length) {
             this.src =
-                "https://aceship.github.io/AN-EN-Tags/img/avg/characters/" +
+                IMG_SOURCE +
+                "avg/characters/" +
                 encodeURIComponent(src_array[i]) +
                 ".png";
             i++;
         } else {
             this.onerror = null;
-            this.src =
-                "https://aceship.github.io/AN-EN-Tags/img/avatars/avg_npc_012.png";
+            this.src = `${IMG_SOURCE}avatars/avg_npc_012.png`;
             this.parentElement.classList.remove("npc");
             this.parentElement.classList.add("unknown");
             console.log("ALL ERROR (serve mystery npc)", src_array);
@@ -1155,7 +1156,8 @@ function avatarImg(path) {
     });
 
     img.src =
-        "https://aceship.github.io/AN-EN-Tags/img/avg/characters/" +
+        IMG_SOURCE +
+        "avg/characters/" +
         encodeURIComponent(src_array[0]) +
         ".png";
     let wrap = document.createElement("div");
