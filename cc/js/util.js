@@ -506,10 +506,7 @@ function CreateOpCheckbox(
   skilldiv.onclick = (e) => e.stopPropagation();
   skills.forEach((sid, idx) => {
     let i = document.createElement("img");
-    i.src =
-      "https://aceship.github.io/AN-EN-Tags/img/skills/skill_icon_" +
-      sid +
-      ".png";
+    i.src = IMG_SOURCE + "skills/skill_icon_" + sid + ".png";
     i.setAttribute("loading", "lazy");
     i.classList.add("opskillCheckbox");
     skilldiv.appendChild(i);
@@ -542,10 +539,7 @@ function CreateOpCheckbox(
     let skimg = document.createElement("img");
     skimg.classList.add("skimg");
     skimg.setAttribute("loading", "lazy");
-    skimg.src =
-      "https://aceship.github.io/AN-EN-Tags/img/skills/skill_icon_" +
-      dispSkillId +
-      ".png";
+    skimg.src = IMG_SOURCE + "skills/skill_icon_" + dispSkillId + ".png";
     checkboxDiv.appendChild(skimg);
   }
 
