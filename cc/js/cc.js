@@ -126,7 +126,7 @@ fetch(
             ? 1
             : ELITE_SOUL_SCALE[
                 Math.max(
-                  ELITE_SOUL_EXEMPTIONS.includes(c.name) ? 1 : 0,
+                  ELITE_SOUL_EXEMPTIONS.includes(c.name) ? 2 : 0,
                   3 + c.elite - operatorData[c.name].phases.length
                 )
               ];
