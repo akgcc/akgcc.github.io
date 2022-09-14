@@ -73,7 +73,7 @@ fetch(
       const RARITY_WEIGHTS = [0.1, 0.02, 1, 2.5, 2.5, 2];
       // const RARITY_WEIGHTS = [1, 1, 4, 5, 5, 7.5];
       // const UNIQUENESS_WEIGHT_SCALE = 0.6;
-      const ELITE_SOUL_SCALE = [-0.5, 0.75, 1];
+      const ELITE_SOUL_SCALE = [0, 0.75, 1];
       const ELITE_SOUL_EXEMPTIONS = ["char_214_kafka"];
       let data_copy = structuredClone(cardData);
       // flatten squads, remove clears under r18
