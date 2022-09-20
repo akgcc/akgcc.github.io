@@ -684,13 +684,10 @@ async function genStory(storyName, key) {
             for (const line of lines) {
                 // console.log(line);
                 if (line[1]) {
-                    [_, cmd, args] = /\[([^\(\]]+)(?:\((.+)\))?\]/.exec(
-                        line[1]
-                    );
-                    // stage
-                    if (cmd.startsWith("name=")) {
-                        args = cmd;
-                    }
+                    [_, cmd, args] =
+                        /\[\s*?(?:([^=\(\]]+)(?=[\(\]])\(?)?([^\]]*?)\)?\s*?\]/.exec(
+                            line[1]
+                        );
                     if (args) {
                         let tmp = {};
                         Array.from(
@@ -698,14 +695,15 @@ async function genStory(storyName, key) {
                                 /("?[^=", ]+"?)="?((?<=")[^"]*|[^,]*)/gim
                             )
                         ).forEach((l) => {
-                            tmp[l[1]] = l[2];
+                            tmp[l[1].toLowerCase()] = l[2];
                         });
                         args = tmp;
                     }
                 }
                 if (
                     line[1] &&
-                    line[1].startsWith("[name=") &&
+                    args &&
+                    "name" in args &&
                     line[2] &&
                     line[2].trim()
                 ) {
