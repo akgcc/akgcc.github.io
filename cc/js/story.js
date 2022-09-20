@@ -717,7 +717,7 @@ async function genStory(storyName, key) {
                         Array.from(speakerList).indexOf(args.name.toLowerCase())
                     );
                     getWorkingScene().appendChild(dlg);
-                } else if (line[1]) {
+                } else if (line[1] && cmd) {
                     // group 1 alone indicates stage direction
                     switch (cmd.toLowerCase()) {
                         case "showitem":
