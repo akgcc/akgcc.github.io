@@ -344,11 +344,11 @@ get_char_table(false, serverString)
                 .filter(
                     (k) =>
                         storyReview[k].entryType != "NONE" &&
-                        Math.max(
-                            storyReview[k].remakeStartTime,
-                            storyReview[k].startTime,
-                            storyReview[k].startShowTime
-                        ) <
+                        (storyReview[k].remakeStartTime > 0
+                            ? storyReview[k].remakeStartTime
+                            : storyReview[k].startTime > 0
+                            ? storyReview[k].startTime
+                            : storyReview[k].startShowTime) <
                             Date.now() / 1000 - 60 * 60 * 12
                 )
                 .sort(
