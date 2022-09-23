@@ -339,8 +339,18 @@ get_char_table(false, serverString)
         if (window.location.hash) {
             loadFromHash();
         } else {
+            // select current event story; if story begins >12hrs from now, don't select it.
             let latest_story = Object.keys(storyReview)
-                .filter((k) => storyReview[k].entryType != "NONE")
+                .filter(
+                    (k) =>
+                        storyReview[k].entryType != "NONE" &&
+                        Math.max(
+                            storyReview[k].remakeStartTime,
+                            storyReview[k].startTime,
+                            storyReview[k].startShowTime
+                        ) <
+                            Date.now() / 1000 - 60 * 60 * 12
+                )
                 .sort(
                     (a, b) =>
                         (storyReview[a].remakeStartTime > 0
