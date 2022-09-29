@@ -1,6 +1,7 @@
 :root {
   --nameplate-height: 16px;
   --operator-image-size: 60px;
+  --operator-selected-scale: 1;
 }
 #buttons {
   align-content: center;
@@ -208,6 +209,7 @@ table {
 }
 .class-selector._selected {
   background: #44c8;
+  background: #0075ff60;
 }
 
 #stageRoll > div {

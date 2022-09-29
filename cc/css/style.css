@@ -215,7 +215,7 @@ body {
 
 :root {
   --nameplate-height: 16px;
-  --main-background-color: #222222;
+  --main-background-color: #262626;
   --main-highlight-color: #444;
   --operator-image-size: 45px;
   --large-operator-image-size: min(5.4vw, 83px);
@@ -225,6 +225,7 @@ body {
   --main-text-color: #c8c8c8;
   --topNav-height: 2.5rem;
   --operator-shadow-color: #2d2d2d;
+  --operator-selected-scale: 1.1;
 }
 
 .operatorCheckbox {
@@ -281,7 +282,7 @@ body {
 .operatorCheckbox._selected {
   box-shadow: 0 0 2pt 1pt #dddddd, 1px 1px 2px var(--operator-shadow-color);
   background-color: rgb(35, 35, 35);
-  transform: scale(1.1);
+  transform: scale(var(--operator-selected-scale));
 }
 @media (hover: hover) {
   .operatorCheckbox:hover {
