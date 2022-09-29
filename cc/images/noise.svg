@@ -1,0 +1,16 @@
+<!-- https://stackoverflow.com/questions/4011113/can-you-add-noise-to-a-css3-gradient -->
+<svg
+  xmlns='http://www.w3.org/2000/svg'
+  xmlns:xlink='http://www.w3.org/1999/xlink'
+  width='300' height='300'>
+
+    <filter id='n' x='0' y='0'>
+            <feTurbulence
+              type='fractalNoise'
+              baseFrequency='0.65'
+              stitchTiles='stitch'/>
+    </filter>
+
+    <rect width='300' height='300' fill='#333'/>
+    <rect width='300' height='300' filter="url(#n)" opacity='0.15'/>
+</svg> 
