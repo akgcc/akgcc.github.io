@@ -97,15 +97,23 @@ function addItem(data) {
 	let img = document.createElement("img");
 	img.classList.add("rl_img");
 	img.setAttribute("loading", "lazy");
+	const src_array = [];
 	if (data.iconId.match(/capsule/)) {
-		img.src = `./images/${data.iconId}.png`;
+		src_array.push(`./images/${data.iconId}.png`);
 		item.classList.add("capsule");
 		item.style.setProperty(`--bg-url`, `url(../images/${data.iconId}.png)`);
-	} else img.src = `${IMG_SOURCE}ui/roguelike/item/${data.iconId}.png`;
+	} else src_array.push(`${IMG_SOURCE}ui/roguelike/item/${data.iconId}.png`);
+	src_array.push(`${ROGUELIKE_LOCAL_IMAGE_SOURCE}${data.iconId}.png`);
+	img.src = src_array[0];
+	var i = 1;
 	img.onerror = function () {
-		this.src = `${IMG_SOURCE}items/MTL_SL_G2.png`;
-		this.parentElement.classList.add("unknown");
-		this.onerror = null;
+		if (i < src_array.length) {
+			this.src = src_array[i++];
+		} else {
+			this.src = `${IMG_SOURCE}items/MTL_SL_G2.png`;
+			this.parentElement.classList.add("unknown");
+			this.onerror = null;
+		}
 	};
 	img_wrapper.appendChild(img);
 	let inner = document.createElement("div");
