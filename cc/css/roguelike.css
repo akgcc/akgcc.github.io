@@ -37,10 +37,34 @@
 	fill: #fffd;
 	align-self: flex-start;
 	margin-bottom: 0.33333em;
+	position: relative;
 }
-.rl_title svg {
+.rl_title svg,
+.rl_title .mtl_title {
 	height: 100%;
 	width: 100%;
+}
+.rl_title .mtl_title {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.rl_title .mtl_title p {
+	line-height: 0.8em;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 100%;
+	position: absolute;
+}
+html.translated-ltr .rl_title svg,
+html.translated-rtl .rl_title svg {
+	display: none;
+}
+html.translated-ltr .rl_title .mtl_title,
+html.translated-rtl .rl_title .mtl_title {
+	display: initial;
 }
 .rl_img {
 	max-height: 100%;

@@ -92,6 +92,12 @@ function addItem(data) {
 	txt.setAttribute("lengthAdjust", "spacingAndGlyphs");
 	svg.appendChild(txt);
 	title.appendChild(svg);
+	let mtl = document.createElement("div");
+	mtl.classList.add("mtl_title");
+	let centered = document.createElement("p");
+	centered.innerHTML = data.name;
+	mtl.appendChild(centered);
+	title.appendChild(mtl);
 	let img_wrapper = document.createElement("div");
 	img_wrapper.classList.add("rl_img_wrap");
 	let img = document.createElement("img");
