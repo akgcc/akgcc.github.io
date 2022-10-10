@@ -1,4 +1,4 @@
-const ISLIST = ["#1", "#2"];
+const ISLIST = ["#1", "#2", "#3"];
 const itemList = document.getElementById("itemList");
 const rarityMap = {
 	NORMAL: "n",
@@ -32,6 +32,14 @@ function loadItems(is) {
 		case 1:
 			source = fetch("./json/" + serverString + "/roguelike_table.json");
 			break;
+		case 3:
+			// CN exclusive
+			source = fetch(
+				"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+					"zh_CN" +
+					"/gamedata/excel/roguelike_topic_table.json"
+			);
+			break;
 		default:
 			source = fetch(
 				"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
@@ -48,8 +56,11 @@ function loadItems(is) {
 				case 1:
 					table = js.itemTable.items;
 					break;
-				default:
+				case 2:
 					table = js.details.rogue_1.items;
+					break;
+				default:
+					table = js.details.rogue_2.items;
 					break;
 			}
 			for (const [key, value] of Object.entries(table)) {
