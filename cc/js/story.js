@@ -583,6 +583,7 @@ async function genStory(storyName, key) {
             function makeDecisionDialog(args) {
                 let choices = args.options.split(";");
                 let vals = args.values.split(";");
+
                 vals = vals.slice(0, choices.length); // fixes some broken script files.
                 // keys.forEach((key, i) => result[key] = values[i]);
                 let dialog = makeDialog(
@@ -865,7 +866,7 @@ async function genStory(storyName, key) {
                                 }
                                 let predicate = predicateQueue.slice(-1)[0];
                                 if (
-                                    activeReferences.length ==
+                                    activeReferences.length >=
                                     Object.keys(predicate).length
                                 ) {
                                     // contains all predicates, indicating end of decision tree.
