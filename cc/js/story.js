@@ -31,6 +31,16 @@ const charPathFixes = {
     // avg_NPC_017_3: "avg_npc_017_3",
     // avg_1012_skadiSP_1: "avg_1012_skadisp_1",
 };
+sharedCharIds = [
+    "avg_npc_037",
+    "avg_npc_046",
+    "avg_npc_058",
+    "avg_npc_208",
+    "avg_npc_213",
+    "char_180_amgoat",
+    "char_201_moeshd",
+    "char_401_elysm",
+];
 const forcedBaseNames = []; //["avg_npc_208"];
 
 get_char_table(false, serverString)
@@ -1093,6 +1103,9 @@ function avatarImg(path) {
     let base_name = /^(.+?_\d(?=(_|#)|$)|.+?(?=(_|#)\d{1,2}$|$)|.+)/.exec(
         path
     )[1];
+    let coords_name = /^(.+?_\d+[^_#\$]+(?:_[^\d][^_#\$]+)?)/
+        .exec(path)[1]
+        .toLowerCase();
     let alt_name, na_name;
     let mods = path.substring(base_name.length);
     let alt_mods;
@@ -1154,16 +1167,20 @@ function avatarImg(path) {
         }
     };
     img.setAttribute("loading", "lazy");
-    [path, base_name, orig_base_name].some((n) => {
-        if (avatarCoords[n]) {
-            img.style.left = avatarCoords[n].x;
-            img.style.top = avatarCoords[n].y;
-            let scale = avatarCoords[n].s || 0.5;
-            img.style.transform = `scale(${scale})`;
-            return true;
-        }
-    });
-
+    let coords = avatarCoords[coords_name];
+    if (sharedCharIds.includes(coords_name)) {
+        if (path != coords_name) coords = coords.e;
+    }
+    if (!coords)
+        coords = {
+            x: -205,
+            y: 0,
+            s: 0.5,
+            a: 0,
+        };
+    img.style.left = coords.x;
+    img.style.top = coords.y;
+    img.style.transform = `scale(${coords.s})`;
     img.src =
         IMG_SOURCE +
         "avg/characters/" +
