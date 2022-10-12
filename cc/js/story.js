@@ -1167,7 +1167,7 @@ function avatarImg(path) {
         }
     };
     img.setAttribute("loading", "lazy");
-    let coords = avatarCoords[coords_name];
+    let coords = avatarCoords[path] ?? avatarCoords[coords_name];
     if (sharedCharIds.includes(coords_name)) {
         if (path != coords_name) coords = coords.e;
     }
