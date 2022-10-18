@@ -27,11 +27,11 @@ soundQueue.max_size = 5;
 longSoundQueue.max_size = 2;
 const shortAudioMaxLen = 3.5;
 const charPathFixes = {
-    char_2006_weiywfmzuki_1: "char_2006_fmzuki_1",
+    char_2006_weiywfmzuki: "char_2006_fmzuki",
     // avg_NPC_017_3: "avg_npc_017_3",
     // avg_1012_skadiSP_1: "avg_1012_skadisp_1",
 };
-sharedCharIds = [
+const sharedCharIds = [
     "avg_npc_037",
     "avg_npc_046",
     "avg_npc_058",
@@ -41,7 +41,6 @@ sharedCharIds = [
     "char_201_moeshd",
     "char_401_elysm",
 ];
-const forcedBaseNames = []; //["avg_npc_208"];
 
 get_char_table(false, serverString)
     .then((js) => {
@@ -1096,58 +1095,39 @@ function playWhenReady(audio) {
 
 function avatarImg(path) {
     // return image element with many, many fallbacks.
+    path = path.trim().toLowerCase();
     let varkey = /\$?(.+)/i.exec(path)[1];
     if (varkey in soundMap) {
         path = soundMap[varkey];
     }
-    let base_name = /^(.+?_\d(?=(_|#)|$)|.+?(?=(_|#)\d{1,2}$|$)|.+)/.exec(
-        path
-    )[1];
+    let [base, num, variant] =
+        /^\$?([^_$#]+_[^_$#]+(?:_[^_$#]+)?(?:_[^\d_$#]+)?)(?:_(\d+))?([_#$].+)?$/
+            .exec(path)
+            .splice(1);
     let coords_name = /^(.+?_\d+[^_#\$]+(?:_[^\d][^_#\$]+)?)/
         .exec(path)[1]
         .toLowerCase();
-    let alt_name, na_name;
-    let mods = path.substring(base_name.length);
-    let alt_mods;
-    // base_name = base_name.toLowerCase();
-    // mods = mods.toLowerCase();
-    let orig_base_name = base_name;
-    // emergency repairs:
-    if (base_name in charPathFixes) base_name = charPathFixes[base_name];
-    if (!mods) mods = "_1"; // this will create some extra failed requests.
-    if (mods.includes("#")) {
-        alt_mods = mods.replace("#", "_");
-    } else {
-        alt_mods = mods.replace("_", "#");
-    }
-    if (/(_\d)$/.test(base_name)) {
-        alt_name = base_name.replace(/(_\d)$/, "");
-        na_name = base_name.replace(/(_\d)$/, "_na");
-    } else {
-        alt_name = base_name + "_1";
-        na_name = base_name + "_na";
-    }
-    lowercase_name = base_name.toLowerCase();
-    var src_array = [];
-    // trying all base_name permutations first results in less misses, but also could serve the wrong image.
-    if (forcedBaseNames.includes(base_name)) {
-        src_array.push(base_name);
-    }
-    if (path == base_name) src_array.push(base_name);
-    if (path == alt_name) src_array.push(alt_name);
-    src_array.push(base_name + mods);
-    src_array.push(alt_name + mods);
-    src_array.push(base_name + alt_mods);
-    src_array.push(alt_name + alt_mods);
-    if (path != base_name) src_array.push(base_name);
-    if (path != alt_name) src_array.push(alt_name);
-    src_array.push(na_name + mods);
-    src_array.push(na_name + alt_mods);
-    src_array.push(na_name);
-    src_array.push(lowercase_name + mods);
-    src_array.push(lowercase_name + alt_mods);
-    src_array.push(lowercase_name);
-    src_array.push(base_name + "#2"); // special case for missing mayer #1 image.
+    if (base in charPathFixes) base = charPathFixes[base];
+    var src_array = [path];
+
+    src_array.push(`${base}${variant || num || ""}`.replace("#", "_"));
+    src_array.push(`${base}_1${num ? "_" : ""}${num || ""}`);
+    src_array.push(`${base}_1${num ? "#" : ""}${num || ""}${variant || ""}`);
+    src_array.push(`${base}#1${num ? "_" : ""}${num || ""}${variant || ""}`);
+    src_array.push(
+        `${base}_na${num ? "_" : ""}${num || ""}${
+            variant ? variant.replace("#", "_") : ""
+        }`
+    );
+    src_array.push(base);
+    src_array.push(`${base}_na_1`);
+    src_array.push(`${base}_1#1`);
+    src_array.push(`${base}_2`);
+    src_array.push(`${base}#2`);
+    src_array.push(
+        `${base}_${num}${variant ? variant.split("0").join("") : ""}`
+    );
+
     const img = document.createElement("img");
     var i = 1;
     img.onerror = function () {
