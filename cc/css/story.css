@@ -137,6 +137,9 @@
   opacity: 1;
 }
 .avatar.unknown img {
+  left: -265px !important;
+  top: -41px !important;
+  transform: scale(1.2) !important;
   filter: brightness(0);
 }
 .avatar img {
