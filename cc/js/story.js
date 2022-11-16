@@ -1095,7 +1095,7 @@ function playWhenReady(audio) {
 
 function avatarImg(path) {
     // return image element with many, many fallbacks.
-    path = path.trim().toLowerCase();
+    path = path.trim(); //.toLowerCase();
     let varkey = /\$?(.+)/i.exec(path)[1];
     if (varkey in soundMap) {
         path = soundMap[varkey];
@@ -1109,20 +1109,34 @@ function avatarImg(path) {
         .toLowerCase();
     if (base in charPathFixes) base = charPathFixes[base];
     var src_array = [path];
-
-    src_array.push(`${base}${variant || num || ""}`.replace("#", "_"));
-    src_array.push(`${base}_1${num ? "_" : ""}${num || ""}`);
-    src_array.push(`${base}_1${num ? "#" : ""}${num || ""}${variant || ""}`);
-    src_array.push(`${base}#1${num ? "_" : ""}${num || ""}${variant || ""}`);
+    for (const base_n of [
+        base,
+        base.toLowerCase(),
+        base.replace(/(?<=\d_)(\w)(?=[^$])/, (x) => x.toUpperCase()),
+    ]) {
+        src_array.push(`${base_n}${variant || num || ""}`.replace("#", "_"));
+        src_array.push(`${base_n}_1${num ? "_" : ""}${num || ""}`);
+        src_array.push(
+            `${base_n}_1${num ? "#" : ""}${num || ""}${variant || ""}`
+        );
+        src_array.push(
+            `${base_n}#1${num ? "_" : ""}${num || ""}${variant || ""}`
+        );
+        src_array.push(
+            `${base_n}_na${num ? "_" : ""}${num || ""}${
+                variant ? variant.replace("#", "_") : ""
+            }`
+        );
+        src_array.push(base_n);
+        src_array.push(`${base_n}_2`);
+    }
+    src_array.push(path.toLowerCase());
     src_array.push(
-        `${base}_na${num ? "_" : ""}${num || ""}${
-            variant ? variant.replace("#", "_") : ""
-        }`
+        path.replace(/(?<=\d_)(\w)(?=[^$])/, (x) => x.toUpperCase())
     );
-    src_array.push(base);
+
     src_array.push(`${base}_na_1`);
     src_array.push(`${base}_1#1`);
-    src_array.push(`${base}_2`);
     src_array.push(`${base}#2`);
     src_array.push(
         `${base}_${num}${variant ? variant.split("0").join("") : ""}`
