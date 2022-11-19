@@ -725,7 +725,8 @@ async function genStory(storyName, key) {
                     args &&
                     "name" in args &&
                     line[2] &&
-                    line[2].trim()
+                    line[2].trim() &&
+                    !cmd
                 ) {
                     // group 1&2 indicates dialog with speaker.
                     speakerList.add(args.name.toLowerCase());
