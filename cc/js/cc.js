@@ -650,13 +650,17 @@ function reloadLightbox() {
     lightboxElementsOriginal[v].group = cardData[k].group;
     has_dupe = cardData[k].dupe_group;
     if (has_dupe) {
-      next_dupe = (dupe_groups[has_dupe][(cardData[k].group + 1) % 3] ||
-        dupe_groups[has_dupe][(cardData[k].group + 2) % 3] ||
-        dupe_groups[has_dupe][(cardData[k].group + 3) % 3])[0];
-      if (next_dupe != k) {
-        // don't set next dupe to self.
-        dupeChain[k] = next_dupe;
-        lightboxElementsOriginal[v].dupe = next_dupe;
+      next_dupes =
+        dupe_groups[has_dupe][(cardData[k].group + 1) % 3] ||
+        dupe_groups[has_dupe][(cardData[k].group + 2) % 3]; // ||
+      // dupe_groups[has_dupe][(cardData[k].group + 3) % 3])[0];
+      if (next_dupes) {
+        next_dupe = next_dupes[0];
+        if (next_dupe != k && cardData[next_dupe].group != cardData[k].group) {
+          // don't set next dupe to self (or any in the same group)
+          dupeChain[k] = next_dupe;
+          lightboxElementsOriginal[v].dupe = next_dupe;
+        }
       }
     }
   });
