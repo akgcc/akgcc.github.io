@@ -27,11 +27,11 @@ const CLASS_MAPPING = {
   SPECIAL: "Specialist",
   MEDIC: "Medic",
 };
-const SHORT_NAMES = {
-  "Skadi the Corrupting Heart": "Skadiva",
-  "Ch'en the Holungday": "Ch'oom",
-  "Nearl the Radiant Knight": "NTR",
-};
+const SHORT_NAMES = {};
+//   "Skadi the Corrupting Heart": "Skadiva",
+//   "Ch'en the Holungday": "Ch'oom",
+//   "Nearl the Radiant Knight": "NTR",
+// };
 const GAMEPRESS_NAME_MAP = { "Rosa (Poca)": "Rosa" };
 const charIdMap = {};
 // maps some en names to their appellations

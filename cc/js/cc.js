@@ -67,10 +67,10 @@ fetch(
   .then((res) => fixedJson(res))
   .then((js) => {
     cardData = js;
-    // delete clears < 18, will lead to missing images (due to dupe being a <18 clear)
-    // Object.entries(cardData).forEach(([k, v]) => {
-    //   if (v.risk < 18) delete cardData[k];
-    // });
+    // delete clears < r18, will lead to missing images (due to dupe being a <18 clear)
+    Object.entries(cardData).forEach(([k, v]) => {
+      if (v.risk < 18) delete cardData[k];
+    });
     function calculate_soul() {
       // calculate soul values before mangling data
       // const MIN_WEIGHT = 0.95;
