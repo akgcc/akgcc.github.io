@@ -57,3 +57,6 @@
 #ccselector {
   padding-left: 20px;
 }
+.operatorCheckbox {
+  box-shadow: none;
+}
