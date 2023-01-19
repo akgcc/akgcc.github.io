@@ -31,16 +31,6 @@ const charPathFixes = {
     // avg_NPC_017_3: "avg_npc_017_3",
     // avg_1012_skadiSP_1: "avg_1012_skadisp_1",
 };
-const sharedCharIds = [
-    "avg_npc_037",
-    "avg_npc_046",
-    "avg_npc_058",
-    "avg_npc_208",
-    "avg_npc_213",
-    "char_180_amgoat",
-    "char_201_moeshd",
-    "char_401_elysm",
-];
 
 get_char_table(false, serverString)
     .then((js) => {
@@ -1163,7 +1153,7 @@ function avatarImg(path) {
     };
     img.setAttribute("loading", "lazy");
     let coords = avatarCoords[path] ?? avatarCoords[coords_name];
-    if (sharedCharIds.includes(coords_name)) {
+    if (avatarCoords.SHARED_CHAR_IDS.includes(coords_name)) {
         if (path != coords_name) coords = coords.e;
     }
     if (!coords)
