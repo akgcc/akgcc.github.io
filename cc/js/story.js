@@ -117,6 +117,21 @@ get_char_table(false, serverString)
             else storyTypes.side.push(x.id);
         });
 
+        storyTypes.module = [].concat(
+            ...Object.values(moduleStory.charEquip).map((x) => x.slice(1))
+        );
+        storyTypes.module.forEach(
+            (x) =>
+                (storyReview[x] = {
+                    infoUnlockDatas: [
+                        {
+                            storyName: moduleStory.equipDict[x].uniEquipName,
+                            storyTxt: x,
+                        },
+                    ],
+                })
+        );
+
         storyTypes.record.sort((a, b) => {
             let na = (
                 operatorData[charCodeMap[a.split("story_")[1].split("_")[0]]]
@@ -139,20 +154,25 @@ get_char_table(false, serverString)
             return 0;
         });
 
-        storyTypes.module = [].concat(
-            ...Object.values(moduleStory.charEquip).map((x) => x.slice(1))
-        );
-        storyTypes.module.forEach(
-            (x) =>
-                (storyReview[x] = {
-                    infoUnlockDatas: [
-                        {
-                            storyName: moduleStory.equipDict[x].uniEquipName,
-                            storyTxt: x,
-                        },
-                    ],
-                })
-        );
+        storyTypes.module.sort((a, b) => {
+            let na = (
+                operatorData[charCodeMap[a.split("_").slice(-1)[0]]].name ||
+                operatorData[charCodeMap[a.split("_").slice(-1)[0]]]
+                    .appellation +
+                    " " +
+                    parseInt(/uniequip_(\d+)/i.exec(a)[1])
+            ).toLowerCase();
+            let nb = (
+                operatorData[charCodeMap[b.split("_").slice(-1)[0]]].name ||
+                operatorData[charCodeMap[b.split("_").slice(-1)[0]]]
+                    .appellation +
+                    " " +
+                    parseInt(/uniequip_(\d+)/i.exec(b)[1])
+            ).toLowerCase();
+            if (na < nb) return -1;
+            if (nb < na) return 1;
+            return 0;
+        });
 
         Object.keys(storyTypes).forEach((t) => {
             let opt = document.createElement("option");
