@@ -453,6 +453,15 @@ async function genStory(storyName, key) {
                     moduleStory.equipDict[key].uniEquipIcon
                 }",is_module=1)]\n${moduleStory.equipDict[
                     key
+                ].uniEquipDesc.replace(/(?<!\n)\n/g, "\\n")}`,
+        };
+        return {
+            //bg_corridor is a good alternate
+            text: () =>
+                `[background(image="bg_room_2")]\n[ShowItem(image="${
+                    moduleStory.equipDict[key].uniEquipIcon
+                }",is_module=1)]\n${moduleStory.equipDict[
+                    key
                 ].uniEquipDesc.replace(/\n(?!\n)/g, " ")}`,
         };
     }
@@ -471,6 +480,9 @@ async function genStory(storyName, key) {
         .then((txt) => {
             const lines = txt.matchAll(/^(\[[^\]]+])?(.*)?$/gim);
             let storyDiv = document.getElementById("storyDisp");
+            key.startsWith("uniequip")
+                ? storyDiv.classList.add("module")
+                : storyDiv.classList.remove("module");
             storyDiv.innerHTML = "";
             let title = document.createElement("div");
             title.classList.add("storyName");
@@ -721,7 +733,12 @@ async function genStory(storyName, key) {
                 txt.classList.add("text");
                 txt.setAttribute("data-name", "");
                 txt.style.setProperty("--name-color", "#777");
-                txt.innerHTML = dialogLine.replace(/\\r\\n|\\r|\\n/g, "<br />");
+                let blocktxt = document.createElement("div");
+                blocktxt.innerHTML = dialogLine.replace(
+                    /\\r\\n|\\r|\\n/g,
+                    "<br />"
+                );
+                txt.appendChild(blocktxt);
                 wrap.appendChild(left);
                 txt.prepend(nameplate);
                 wrap.appendChild(txt);

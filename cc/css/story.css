@@ -171,8 +171,8 @@
   flex: 0;
   flex-basis: 35em;
   padding: 0.2em 0.5em;
-  font-size: 1.3em;
   display: flex;
+  font-size: 1.3em;
   flex-direction: column;
   justify-content: flex-start;
   border-radius: 0.3em;
@@ -423,4 +423,16 @@ audio {
 }
 #ccselector {
   justify-content: center;
+}
+em,
+i {
+  font-style: italic;
+}
+b,
+strong {
+  font-weight: bold;
+}
+#storyDisp.module .text {
+  text-align: left;
+  flex-basis: 31.45em;
 }
