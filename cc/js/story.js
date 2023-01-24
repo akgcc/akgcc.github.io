@@ -2,12 +2,13 @@ var operatorData,
     charCodeMap = {},
     currentCategory,
     storyReview,
-    storyTypes = { record: [], main: [], side: [], mini: [] },
+    storyTypes = { record: [], main: [], side: [], mini: [], module: [] },
     storyTypeNames = {
         record: "Operator Record",
         main: "Main Story",
         side: "Side Story",
         mini: "Vignette",
+        module: "Operator Module",
     },
     soundMap,
     avatarCoords,
@@ -22,7 +23,8 @@ var operatorData,
     autoPlayPoint = 0,
     soundQueue = [],
     longSoundQueue = [],
-    enableSoundAutoplay = false;
+    enableSoundAutoplay = false,
+    moduleStory;
 soundQueue.max_size = 5;
 longSoundQueue.max_size = 2;
 const shortAudioMaxLen = 3.5;
@@ -52,6 +54,15 @@ get_char_table(false, serverString)
     .then((res) => fixedJson(res))
     .then((js) => {
         avatarCoords = js;
+        return fetch(
+            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+                serverString +
+                "/gamedata/excel/uniequip_table.json"
+        );
+    })
+    .then((res) => fixedJson(res))
+    .then((js) => {
+        moduleStory = js;
         return fetch(
             "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
                 serverString +
@@ -127,6 +138,21 @@ get_char_table(false, serverString)
             if (nb < na) return 1;
             return 0;
         });
+
+        storyTypes.module = [].concat(
+            ...Object.values(moduleStory.charEquip).map((x) => x.slice(1))
+        );
+        storyTypes.module.forEach(
+            (x) =>
+                (storyReview[x] = {
+                    infoUnlockDatas: [
+                        {
+                            storyName: moduleStory.equipDict[x].uniEquipName,
+                            storyTxt: x,
+                        },
+                    ],
+                })
+        );
 
         Object.keys(storyTypes).forEach((t) => {
             let opt = document.createElement("option");
@@ -240,6 +266,18 @@ get_char_table(false, serverString)
                 case "mini":
                 case "side":
                     namefunc = (k) => storyReview[k].name;
+                    break;
+                case "module":
+                    namefunc = (n) => {
+                        let name =
+                            operatorData[charCodeMap[n.split("_").slice(-1)[0]]]
+                                .name ||
+                            operatorData[charCodeMap[n.split("_").slice(-1)[0]]]
+                                .appellation;
+                        let modulenum = parseInt(/uniequip_(\d+)/i.exec(n)[1]);
+                        name += " [" + (modulenum - 1) + "]";
+                        return name;
+                    };
                     break;
             }
             storyTypes[cat].forEach((k) => {
@@ -387,12 +425,27 @@ async function genStory(storyName, key) {
     predicateQueue = [];
     activeReferences = [];
     lastPredicate = { 1: [], 2: [], 3: [] }; // prevents catastrophic failure in an edge case
-    return await fetch(
-        "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-            serverString +
-            "/gamedata/story/" +
-            key +
-            ".txt"
+    async function getModuleStory(key) {
+        return {
+            //bg_corridor is a good alternate
+            text: () =>
+                `[background(image="bg_room_2")]\n[ShowItem(image="${
+                    moduleStory.equipDict[key].uniEquipIcon
+                }",is_module=1)]\n${moduleStory.equipDict[
+                    key
+                ].uniEquipDesc.replace(/\n(?!\n)/g, " ")}`,
+        };
+    }
+
+    return await (key.startsWith("uniequip")
+        ? getModuleStory(key)
+        : fetch(
+              "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+                  serverString +
+                  "/gamedata/story/" +
+                  key +
+                  ".txt"
+          )
     )
         .then((r) => r.text())
         .then((txt) => {
@@ -572,7 +625,9 @@ async function genStory(storyName, key) {
                             getdim.src.split(".").slice(0, -1).join(".") +
                             "_2." +
                             getdim.src.split(".").slice(-1);
-                        return multipart(left, right).bind({ div: this.div })();
+                        return multipart(left, right).bind({
+                            div: this.div,
+                        })();
                     }.bind({ div: scene });
                     getdim.src = imgurl;
                 }
@@ -739,14 +794,18 @@ async function genStory(storyName, key) {
                             imgbtn.classList.add("fa-image");
                             imgbtn.classList.add("itemBtn");
                             wrap.appendChild(imgbtn);
-                            const itemsrc =
-                                IMG_SOURCE + "avg/items/" + args.image + ".png";
+                            const itemsrc = args.is_module
+                                ? `${IMG_SOURCE}equip/icon/${args.image}.png`
+                                : IMG_SOURCE +
+                                  "avg/items/" +
+                                  args.image +
+                                  ".png";
                             imgbtn.onclick = () => {
                                 enlargeAvatar(itemsrc, true);
                             };
                             getWorkingScene().appendChild(wrap);
                             break;
-
+                        case "moduleimage":
                         case "background":
                             if (
                                 cmd.toLowerCase() == "background" &&
@@ -814,6 +873,9 @@ async function genStory(storyName, key) {
                                                 ".png"
                                         );
                                     lastBackgroundImage = imgurl;
+                                    break;
+                                case "moduleimage":
+                                    imgurl = `${IMG_SOURCE}equip/icon/${args.image}.png`;
                                     break;
                             }
 
