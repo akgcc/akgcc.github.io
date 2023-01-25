@@ -326,6 +326,9 @@ get_char_table(false, serverString)
                 e.onclick = () => {
                     let currentCategory =
                         document.getElementById("thirdCatSelect");
+                    if (currentCategory.options.length == 1)
+                        currentCategory =
+                            document.getElementById("subCatSelect");
                     currentCategory.options[
                         ++currentCategory.selectedIndex %
                             currentCategory.options.length
@@ -340,6 +343,9 @@ get_char_table(false, serverString)
                 e.onclick = () => {
                     let currentCategory =
                         document.getElementById("thirdCatSelect");
+                    if (currentCategory.options.length == 1)
+                        currentCategory =
+                            document.getElementById("subCatSelect");
                     currentCategory.options[
                         (--currentCategory.selectedIndex +
                             currentCategory.options.length) %
@@ -453,16 +459,7 @@ async function genStory(storyName, key) {
                     moduleStory.equipDict[key].uniEquipIcon
                 }",is_module=1)]\n${moduleStory.equipDict[
                     key
-                ].uniEquipDesc.replace(/(?<!\n)\n/g, "\\n")}`,
-        };
-        return {
-            //bg_corridor is a good alternate
-            text: () =>
-                `[background(image="bg_room_2")]\n[ShowItem(image="${
-                    moduleStory.equipDict[key].uniEquipIcon
-                }",is_module=1)]\n${moduleStory.equipDict[
-                    key
-                ].uniEquipDesc.replace(/\n(?!\n)/g, " ")}`,
+                ].uniEquipDesc.replace(/\n/g, "\\n")}`,
         };
     }
 
