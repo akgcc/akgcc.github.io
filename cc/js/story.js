@@ -33,6 +33,8 @@ const charPathFixes = {
     // avg_NPC_017_3: "avg_npc_017_3",
     // avg_1012_skadiSP_1: "avg_1012_skadisp_1",
 };
+const CharslotFocusMap = { l: 1, m: 2, r: 3, all: 99, none: 0 };
+const CharslotNameMap = { l: "", m: 2, r: 3 };
 
 get_char_table(false, serverString)
     .then((js) => {
@@ -487,12 +489,13 @@ async function genStory(storyName, key) {
             document.getElementById("storyTitle").innerHTML = storyName;
             storyDiv.appendChild(title);
             let scene,
-                speaker,
+                speaker = 0,
                 chars = {},
                 speakerList = new Set(),
                 preSceneAudios = [],
                 lastBlockerColor = "rgba(0,0,0,0)",
-                hangingBlocker;
+                hangingBlocker,
+                multiLineDialog = "";
             function addSceneBreak(requireBreak) {
                 let scenebreak = document.createElement("div");
                 scenebreak.classList.add("scenebreak");
@@ -654,9 +657,7 @@ async function genStory(storyName, key) {
                             getdim.src.split(".").slice(0, -1).join(".") +
                             "_2." +
                             getdim.src.split(".").slice(-1);
-                        return multipart(left, right).bind({
-                            div: this.div,
-                        })();
+                        return multipart.bind(this)(left, right);
                     }.bind({ div: scene });
                     getdim.src = imgurl;
                 }
@@ -747,17 +748,20 @@ async function genStory(storyName, key) {
                         "--name-color",
                         selectColor(colorIndex)
                     );
-                    Object.keys(chars).forEach((key, i) => {
-                        if (chars[key] != "char_empty") {
-                            let isActive =
-                                (currentSpeaker == 1 && key == "name") ||
-                                key == "name" + currentSpeaker;
-                            let avatar = avatarImg(chars[key]);
-                            if (isActive) avatar.classList.add("active");
-                            if (isActive) left.appendChild(avatar);
-                            else right.appendChild(avatar);
-                        }
-                    });
+                    Object.keys(chars)
+                        .sort()
+                        .forEach((key, i) => {
+                            if (chars[key] != "char_empty") {
+                                let isActive =
+                                    currentSpeaker == 99 ||
+                                    (currentSpeaker == 1 && key == "name") ||
+                                    key == "name" + currentSpeaker;
+                                let avatar = avatarImg(chars[key]);
+                                if (isActive) avatar.classList.add("active");
+                                if (isActive) left.appendChild(avatar);
+                                else right.appendChild(avatar);
+                            }
+                        });
                 }
                 // balance out avatars if too many inactive.
                 if (
@@ -791,7 +795,7 @@ async function genStory(storyName, key) {
                         let tmp = {};
                         Array.from(
                             args.matchAll(
-                                /("?[^=", ]+"?)="?((?<=")[^"]*|[^,]*)/gim
+                                /("?[^=", ]+"?)\s*=\s*"?((?<=")[^"]*|[^,]*)/gim
                             )
                         ).forEach((l) => {
                             tmp[l[1].toLowerCase()] = l[2];
@@ -919,6 +923,39 @@ async function genStory(storyName, key) {
                                     args &&
                                     args.image
                             );
+                            break;
+                        case "charslot": // new format (replaces "character")
+                            if (args) {
+                                if (args.focus)
+                                    speaker = CharslotFocusMap[args.focus] || 0; // ( this may not be correct for this new format, maybe setting to 1 is still correct )
+                                if (args.name)
+                                    chars[`name${CharslotNameMap[args.slot]}`] =
+                                        args.name;
+                            } else {
+                                chars = {};
+                                speaker = 0;
+                            }
+                            break;
+                        case "multiline": // new direction that I'm not sure how to handle just yet until I see it in game.
+                            if (args?.name)
+                                speakerList.add(args.name.toLowerCase());
+                            // sanity check:
+                            if (args && line[2]) {
+                                multiLineDialog += `${line[2]}\\n`;
+                                if (args.end) {
+                                    let dlg = makeDialog(
+                                        args,
+                                        multiLineDialog,
+                                        chars,
+                                        speaker,
+                                        Array.from(speakerList).indexOf(
+                                            args.name.toLowerCase()
+                                        )
+                                    );
+                                    getWorkingScene().appendChild(dlg);
+                                    multiLineDialog = "";
+                                }
+                            }
                             break;
                         case "character":
                             if (args) {
@@ -1143,6 +1180,11 @@ async function genStory(storyName, key) {
                         case "startbattle":
                         case "tutorial":
                         case "theater":
+                        // new after QB:
+                        case "effect":
+                        case "bgeffect":
+                        case "curtain":
+                        case "stickerclear":
                             break;
                         default:
                             // console.log("line not parsed:", line);
