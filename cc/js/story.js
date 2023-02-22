@@ -715,11 +715,13 @@ async function genStory(storyName, key) {
                 dialogLine,
                 chars,
                 currentSpeaker,
-                colorIndex = 0
+                colorIndex = 0,
+                type = null
             ) {
                 let wrap = document.createElement("div");
                 wrap.classList.add("dialog");
                 wrap.classList.add("forceShow");
+                if (type) wrap.classList.add(type);
                 wrap.style.backgroundColor = lastBlockerColor.split(" ")[0];
                 let left = document.createElement("div");
                 left.classList.add("dialog-left");
@@ -970,10 +972,17 @@ async function genStory(storyName, key) {
                             }
                             break;
                         case "subtitle":
-                            chars = {};
-                            speaker = 0;
+                            // chars = {};
+                            // speaker = 0;
                             if (args && args.text) {
-                                let dlg = makeDialog(null, args.text, {}, 0);
+                                let dlg = makeDialog(
+                                    null,
+                                    args.text,
+                                    {},
+                                    0,
+                                    0,
+                                    "subtitle"
+                                );
                                 getWorkingScene().appendChild(dlg);
                             }
                             break;
