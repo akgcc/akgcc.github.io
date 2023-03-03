@@ -5,10 +5,13 @@ const rarityMap = {
 	RARE: "r",
 	SUPER_RARE: "sr",
 };
+const buttonMap = {};
 if (!window.location.hash || !ISLIST.includes(window.location.hash))
 	window.location.hash = ISLIST.slice(-1)[0];
+window.onhashchange = () => loadItems(window.location.hash.substring(1));
 ISLIST.reverse().forEach((is) => {
 	const a = document.createElement("a");
+	buttonMap[is.substring(1)] = a;
 	a.classList.add("rightButton");
 	a.classList.add("button");
 	a.classList.add("isb");
@@ -16,12 +19,7 @@ ISLIST.reverse().forEach((is) => {
 	a.innerHTML = is;
 	document.getElementById("topNav").querySelector(".nav-right").prepend(a);
 	a.addEventListener("click", () => {
-		loadItems(is.substring(1));
-		document
-			.querySelectorAll("#topNav .nav-right > .isb")
-			.forEach((e) => e.classList.remove("checked"));
-		a.classList.add("checked");
-		window.location.hash = a.innerHTML;
+		window.location.hash = is; // will trigger loadItems()
 	});
 });
 loadItems(window.location.hash.substring(1));
@@ -67,6 +65,10 @@ function loadItems(is) {
 				if (value.description && value.description.trim())
 					addItem(value);
 			}
+			document
+				.querySelectorAll("#topNav .nav-right > .isb")
+				.forEach((e) => e.classList.remove("checked"));
+			buttonMap[is].classList.add("checked");
 		});
 }
 function addItem(data) {
