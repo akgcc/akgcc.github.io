@@ -278,6 +278,7 @@ get_char_table()
       },
       plugins: POLL_INCLUDES_MASTERIES ? [ChartDataLabels] : [],
       options: {
+        layout: { padding: 8 },
         scales: {
           x: {
             display: !POLL_INCLUDES_MASTERIES,
@@ -335,9 +336,7 @@ get_char_table()
             // xAlign: 'left'
           },
           legend: {
-            labels: {
-              filter: (item) => ["Ownership", "E2"].includes(item.text),
-            },
+            display: !POLL_INCLUDES_MASTERIES,
           },
         },
       },
