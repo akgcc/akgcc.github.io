@@ -136,7 +136,9 @@ get_char_table()
     spacer.style.flexGrow = "1";
     btns.appendChild(spacer);
     let samples = document.createElement("div");
-    samples.innerHTML = `Sample Size: ${bar_total}`;
+    samples.style =
+      "text-align:right;position:absolute;right:0;padding:8px;margin:0;";
+    samples.innerHTML = `<a style="color: #FFF;" href="${js.url}">${js.date}</a><br/>Sample Size: ${bar_total}`;
     btns.appendChild(samples);
 
     Chart.defaults.color = "#dddddd";
