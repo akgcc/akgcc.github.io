@@ -144,7 +144,7 @@ async function fixedJson(res) {
     );
 }
 
-function thumbnail_tooltip(chart_canvas) {
+function thumbnail_tooltip(chart_canvas, even_rows_only = false) {
   // Works only with this specific custom tooltip CSS.
   return function f(context) {
     let tooltip = context.tooltip;
@@ -172,14 +172,15 @@ function thumbnail_tooltip(chart_canvas) {
       title +
       "</b></span>";
     for (const [i, b] of tooltip.body.entries()) {
-      innerHtml +=
-        '<span><i class="fas fa-square-full" style="color: ' +
-        tooltip.labelColors[i].backgroundColor +
-        "; font-size:" +
-        (parseInt(tooltip.bodyFontSize) - 2) +
-        '"></i>' +
-        b.lines[0] +
-        "</span>";
+      if (!even_rows_only || !(i % 2))
+        innerHtml +=
+          '<span><i class="fas fa-square-full" style="color: ' +
+          tooltip.labelColors[i].backgroundColor +
+          "; font-size:" +
+          (parseInt(tooltip.bodyFontSize) - 2) +
+          '"></i>' +
+          b.lines[0] +
+          "</span>";
     }
     innerHtml += "</div>";
     tooltipEl.innerHTML = innerHtml;

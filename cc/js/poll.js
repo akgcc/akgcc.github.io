@@ -1,7 +1,9 @@
 if (!window.location.hash) window.location.hash = "#1";
 window.onhashchange = () => window.location.reload();
 var PTAG = window.location.hash.substr(1);
-const POLLS = ["#1", "#2"];
+const POLLS = ["#1", "#2", "#3"];
+const MASTERY_POLLS = ["#3"];
+const POLL_INCLUDES_MASTERIES = MASTERY_POLLS.includes(window.location.hash);
 POLLS.forEach((poll) => {
   let a = document.createElement("a");
   a.classList.add("rightButton");
@@ -150,7 +152,6 @@ get_char_table()
       i.src = IMG_SOURCE + "avatars/" + charIdMap[x] + ".png";
       return i;
     });
-
     window.onresize = () => {
       imgSize = window.innerWidth / 30;
       scatterImages.forEach((i) => {
@@ -170,12 +171,83 @@ get_char_table()
     let sorted_bar_data = Object.values(bar_data).sort(
       (a, b) => b[barDefaultSort] - a[barDefaultSort]
     );
-
-    let barGraph = new Chart(document.getElementById("opChart"), {
-      type: "bar",
-      data: {
-        labels: sorted_bar_data.map((x) => x.name),
-        datasets: [
+    // different options for mastery chart:
+    _datasets = POLL_INCLUDES_MASTERIES
+      ? [
+          {
+            label: barMetrics[0],
+            categoryPercentage: 0.8,
+            barPercentage: 1,
+            data: sorted_bar_data.map((x) => 100 * x[barMetrics[0]]),
+            backgroundColor: "#ffb629",
+            stack: "1",
+          },
+          {
+            label: "filler",
+            categoryPercentage: 0.8,
+            barPercentage: 1,
+            data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[0]]),
+            backgroundColor: "#0000",
+            stack: "1",
+          },
+          {
+            label: barMetrics[1],
+            categoryPercentage: 0.8,
+            barPercentage: 1,
+            data: sorted_bar_data.map((x) => 100 * x[barMetrics[1]]),
+            backgroundColor: "#63c384",
+            stack: "1",
+          },
+          {
+            label: "filler",
+            categoryPercentage: 0.8,
+            barPercentage: 1,
+            data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[1]]),
+            backgroundColor: "#0000",
+            stack: "1",
+          },
+          {
+            label: barMetrics[2],
+            categoryPercentage: 0.8,
+            barPercentage: 1,
+            data: sorted_bar_data.map((x) => 100 * x[barMetrics[2]]),
+            backgroundColor: "#ff545a",
+            stack: "1",
+          },
+          {
+            label: "filler",
+            categoryPercentage: 0.8,
+            barPercentage: 1,
+            data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[2]]),
+            backgroundColor: "#0000",
+            stack: "1",
+          },
+          {
+            label: barMetrics[3],
+            categoryPercentage: 0.8,
+            barPercentage: 1,
+            data: sorted_bar_data.map((x) => 100 * x[barMetrics[3]]),
+            backgroundColor: "#ff545a",
+            stack: "1",
+          },
+          {
+            label: "filler",
+            categoryPercentage: 0.8,
+            barPercentage: 1,
+            data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[3]]),
+            backgroundColor: "#0000",
+            stack: "1",
+          },
+          {
+            label: barMetrics[4],
+            categoryPercentage: 0.8,
+            barPercentage: 1,
+            data: sorted_bar_data.map((x) => 100 * x[barMetrics[4]]),
+            backgroundColor: "#ff545a",
+            stack: "1",
+          },
+        ]
+      : [
           {
             label: barMetrics[0],
             categoryPercentage: 0.8,
@@ -190,10 +262,27 @@ get_char_table()
             data: sorted_bar_data.map((x) => 100 * x[barMetrics[1]]),
             backgroundColor: "#948d52",
           },
-        ],
+        ];
+    function outsideBar(context) {
+      return (
+        context.dataset.data[context.dataIndex] * context.chart.canvas.width <
+        123000 * 0.17
+      );
+      return context.dataset.data[context.dataIndex] < 30;
+    }
+    let barGraph = new Chart(document.getElementById("opChart"), {
+      type: "bar",
+      data: {
+        labels: sorted_bar_data.map((x) => x.name),
+        datasets: _datasets,
       },
-      // plugins: [ChartDataLabels],
+      plugins: POLL_INCLUDES_MASTERIES ? [ChartDataLabels] : [],
       options: {
+        scales: {
+          x: {
+            display: !POLL_INCLUDES_MASTERIES,
+          },
+        },
         indexAxis: "y",
         interaction: {
           mode: "index",
@@ -204,10 +293,19 @@ get_char_table()
           datalabels: {
             color: "#000",
             formatter: (v, ctx) => v.toFixed(2) + "%",
+            display: function (context) {
+              return !(context.datasetIndex % 2); // display labels with an even index
+            },
+
+            color: (ctx) => (outsideBar(ctx) ? "#dddddd" : "#000"),
+            anchor: (ctx) => (outsideBar(ctx) ? "end" : "center"),
+            // clamp: true,
+            align: (ctx) => (outsideBar(ctx) ? "right" : "center"),
           },
           tooltip: {
             callbacks: {
               label: function (context) {
+                if (context.dataset.label == "filler") return;
                 if (context.dataset.label.includes("E2"))
                   return (
                     context.dataset.label +
@@ -216,8 +314,9 @@ get_char_table()
                     "% (" +
                     (
                       (context.raw /
-                        context.chart.data.datasets[context.datasetIndex ^ 1]
-                          .data[context.dataIndex]) *
+                        context.chart.data.datasets[0].data[ // assume 'Ownership' is col 0
+                          context.dataIndex
+                        ]) *
                       100
                     ).toFixed(1) +
                     "%)"
@@ -229,8 +328,16 @@ get_char_table()
             },
             enabled: false,
             // position: 'nearest',
-            external: thumbnail_tooltip(document.getElementById("opChart")),
+            external: thumbnail_tooltip(
+              document.getElementById("opChart"),
+              POLL_INCLUDES_MASTERIES
+            ),
             // xAlign: 'left'
+          },
+          legend: {
+            labels: {
+              filter: (item) => ["Ownership", "E2"].includes(item.text),
+            },
           },
         },
       },
@@ -329,10 +436,23 @@ get_char_table()
       scatterPlot.update();
 
       barGraph.data.labels = sorted_bar_data.map((x) => x.name);
-      for (i = 0; i < barGraph.data.datasets.length; i++)
-        barGraph.data.datasets[i].data = sorted_bar_data.map(
-          (x) => 100 * x[barMetrics[i]]
-        );
+
+      if (POLL_INCLUDES_MASTERIES)
+        for (i = 0; i < barGraph.data.datasets.length; i++) {
+          if (i % 2)
+            barGraph.data.datasets[i].data = sorted_bar_data.map(
+              (x) => 100 - 100 * x[barMetrics[Math.floor(i / 2)]]
+            );
+          else
+            barGraph.data.datasets[i].data = sorted_bar_data.map(
+              (x) => 100 * x[barMetrics[Math.floor(i / 2)]]
+            );
+        }
+      else
+        for (i = 0; i < barGraph.data.datasets.length; i++)
+          barGraph.data.datasets[i].data = sorted_bar_data.map(
+            (x) => 100 * x[barMetrics[i]]
+          );
       barGraph.update();
     }
   });
