@@ -37,7 +37,9 @@ function createDiagonalPattern(fillcolor) {
 get_char_table(false, "zh_CN")
 	.then((js) => {
 		operatorData = js;
-		return fetch("./json/banner_history.json");
+		return fetch(
+			"https://raw.githubusercontent.com/akgcc/cc-card-parser/master/json/banner_history.json"
+		);
 	})
 	.then((res) => fixedJson(res))
 	.then((js) => {
