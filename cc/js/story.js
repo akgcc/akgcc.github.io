@@ -1064,7 +1064,7 @@ async function genStory(storyName, key) {
                                     audio.volume =
                                         (volSlider.value / 100) *
                                         audio.getAttribute("data-defvol");
-                                    if (audio.volume == 0) audio.volume = 0.5;
+                                    // if (audio.volume == 0) audio.volume = 0.5;
                                     if (audio.readyState == 0) {
                                         audio.nextSibling.classList.add(
                                             "stalled"
@@ -1393,7 +1393,7 @@ function alignBackground(s) {
     }
 }
 document.getElementById("playPauseBtn").onclick = () => playPauseMusic(true);
-const musicState = { paused: false };
+const musicState = { paused: true };
 function playPauseMusic(toggle = false) {
     let targetMusic = allMusic[0];
     allMusic.forEach((a) => {
