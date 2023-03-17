@@ -4,6 +4,8 @@ var PTAG = window.location.hash.substr(1);
 const POLLS = ["#1", "#2", "#3"];
 const MASTERY_POLLS = ["#3"];
 const POLL_INCLUDES_MASTERIES = MASTERY_POLLS.includes(window.location.hash);
+const OWNERSHIP_E2_NAME = "E2";
+const OVERALL_E2_NAME = "E2 (Overall)";
 POLLS.forEach((poll) => {
   let a = document.createElement("a");
   a.classList.add("rightButton");
@@ -26,12 +28,16 @@ get_char_table()
     let bar_data = js["bar"]["data"];
     let bar_total = js["bar"]["total"];
     let barMetrics = Object.keys(Object.values(bar_data)[0]);
-    barMetrics.push("E2 Among Owners");
     let barDefaultSort = "Ownership";
+    // barMetrics.push(barMetrics.splice(1, 1)[0]); // move E2 to end of list
+    barMetrics.splice(1, 1); // move E2 to end of list
+    barMetrics.push(OVERALL_E2_NAME);
+    barMetrics.splice(1, 0, OWNERSHIP_E2_NAME);
     Object.keys(bar_data).forEach((k) => {
       bar_data[k]["name"] = k;
-      bar_data[k]["E2 Among Owners"] =
-        bar_data[k]["E2"] / bar_data[k]["Ownership"];
+      bar_data[k][OVERALL_E2_NAME] = bar_data[k]["E2"];
+      bar_data[k][OWNERSHIP_E2_NAME] =
+        bar_data[k][OVERALL_E2_NAME] / bar_data[k]["Ownership"];
     });
     let sortMetrics = Object.keys(Object.values(scatter_data)[0]);
     let axesMetrics = js["scatter"]["default_axes"];
@@ -248,6 +254,24 @@ get_char_table()
             backgroundColor: "#ff545a",
             stack: "1",
           },
+          {
+            label: "filler",
+            categoryPercentage: 0.8,
+            barPercentage: 1,
+            data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[4]]),
+            backgroundColor: "#0000",
+            stack: "1",
+            hidden: true,
+          },
+          {
+            label: barMetrics[5],
+            categoryPercentage: 0.8,
+            barPercentage: 1,
+            data: sorted_bar_data.map((x) => 100 * x[barMetrics[5]]),
+            backgroundColor: "#ff545a",
+            stack: "1",
+            hidden: true,
+          },
         ]
       : [
           {
@@ -262,6 +286,14 @@ get_char_table()
             categoryPercentage: 0.8,
             barPercentage: 1,
             data: sorted_bar_data.map((x) => 100 * x[barMetrics[1]]),
+            backgroundColor: "green",
+            hidden: true,
+          },
+          {
+            label: barMetrics[2],
+            categoryPercentage: 0.8,
+            barPercentage: 1,
+            data: sorted_bar_data.map((x) => 100 * x[barMetrics[2]]),
             backgroundColor: "#948d52",
           },
         ];
@@ -285,6 +317,13 @@ get_char_table()
           x: {
             display: !POLL_INCLUDES_MASTERIES,
           },
+          y: {
+            grid: {
+              color: POLL_INCLUDES_MASTERIES
+                ? "#ddd4"
+                : Chart.defaults.borderColor,
+            },
+          },
         },
         indexAxis: "y",
         interaction: {
@@ -294,7 +333,6 @@ get_char_table()
         responsive: true,
         plugins: {
           datalabels: {
-            color: "#000",
             formatter: (v, ctx) => v.toFixed(2) + "%",
             display: function (context) {
               return !(context.datasetIndex % 2); // display labels with an even index
@@ -309,19 +347,23 @@ get_char_table()
             callbacks: {
               label: function (context) {
                 if (context.dataset.label == "filler") return;
-                if (context.dataset.label.includes("E2"))
+                if (
+                  [OWNERSHIP_E2_NAME, OVERALL_E2_NAME].includes(
+                    context.dataset.label
+                  )
+                )
                   return (
-                    context.dataset.label +
+                    OWNERSHIP_E2_NAME +
                     ": " +
-                    context.raw.toFixed(1) +
+                    context.chart.data.datasets[
+                      barMetrics.indexOf(OWNERSHIP_E2_NAME) *
+                        (POLL_INCLUDES_MASTERIES ? 2 : 1)
+                    ].data[context.dataIndex].toFixed(1) +
                     "% (" +
-                    (
-                      (context.raw /
-                        context.chart.data.datasets[0].data[ // assume 'Ownership' is col 0
-                          context.dataIndex
-                        ]) *
-                      100
-                    ).toFixed(1) +
+                    context.chart.data.datasets[
+                      barMetrics.indexOf(OVERALL_E2_NAME) *
+                        (POLL_INCLUDES_MASTERIES ? 2 : 1)
+                    ].data[context.dataIndex].toFixed(1) +
                     "%)"
                   );
                 return (
@@ -338,7 +380,7 @@ get_char_table()
             // xAlign: 'left'
           },
           legend: {
-            display: !POLL_INCLUDES_MASTERIES,
+            display: false, //!POLL_INCLUDES_MASTERIES,
           },
         },
       },
