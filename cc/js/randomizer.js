@@ -22,7 +22,7 @@ var filters = {
     },
     Challenges: {
       disp: "Challenges",
-      max: 1,
+      max: 0,
     },
     draftSize: {
       disp: "Pack Size (Draft)",
@@ -730,7 +730,7 @@ fetch(
         row.appendChild(left);
         section.appendChild(row);
 
-        if (!subvalue.max) continue;
+        if (subvalue.max === undefined) continue;
         label.innerHTML += ":";
 
         let min = document.createElement("input");
