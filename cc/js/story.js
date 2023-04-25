@@ -185,33 +185,33 @@ get_char_table(false, serverString)
         function buildThirdSelector(uppercat, cat, trigger = true) {
             document.getElementById("thirdCatSelect").innerHTML = "";
             let stories = storyReview[cat].infoUnlockDatas;
-
+            stories.sort((a, b) => a.storySort - b.storySort);
             // sort if needed:
-            switch (uppercat) {
-                case "side":
-                case "mini":
-                case "main":
-                    // if main sort by story code:
-                    stories.sort((a, b) => {
-                        let code_a =
-                            /\d+-\d+(_.)?/.exec(a.storyDependence) &&
-                            /\d+-\d+(_.)?/.exec(a.storyDependence)[0];
-                        let code_b =
-                            /\d+-\d+(_.)?/.exec(b.storyDependence) &&
-                            /\d+-\d+(_.)?/.exec(b.storyDependence)[0];
-                        if (
-                            /_spst_/.exec(b.storyId) ||
-                            /_spst_/.exec(a.storyId)
-                        ) {
-                            if (code_b >= code_a) {
-                                return -1;
-                            }
-                            return 1;
-                        }
-                        return 0;
-                    });
-                    break;
-            }
+            // switch (uppercat) {
+            //     case "side":
+            //     case "mini":
+            //     case "main":
+            //         // if main sort by story code:
+            //         stories.sort((a, b) => {
+            //             let code_a =
+            //                 /\d+-\d+(_.)?/.exec(a.storyDependence) &&
+            //                 /\d+-\d+(_.)?/.exec(a.storyDependence)[0];
+            //             let code_b =
+            //                 /\d+-\d+(_.)?/.exec(b.storyDependence) &&
+            //                 /\d+-\d+(_.)?/.exec(b.storyDependence)[0];
+            //             if (
+            //                 /_spst_/.exec(b.storyId) ||
+            //                 /_spst_/.exec(a.storyId)
+            //             ) {
+            //                 if (code_b >= code_a) {
+            //                     return -1;
+            //                 }
+            //                 return 1;
+            //             }
+            //             return 0;
+            //         });
+            //         break;
+            // }
             stories.forEach((d, i) => {
                 let name = d.storyName;
 
