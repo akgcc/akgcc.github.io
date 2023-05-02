@@ -27,6 +27,14 @@ const CLASS_MAPPING = {
   SPECIAL: "Specialist",
   MEDIC: "Medic",
 };
+const RARITY_MAP = {
+  TIER_1: 0,
+  TIER_2: 1,
+  TIER_3: 2,
+  TIER_4: 3,
+  TIER_5: 4,
+  TIER_6: 5,
+};
 const SHORT_NAMES = {};
 //   "Skadi the Corrupting Heart": "Skadiva",
 //   "Ch'en the Holungday": "Ch'oom",
@@ -122,6 +130,7 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
       charIdMap[json[key].name] = key;
       if (json[key].appellation) charIdMap[json[key].appellation] = key;
       json[key].charId = key;
+      json[key].rarity = RARITY_MAP[json[key].rarity] ?? json[key].rarity;
     }
   }
   for (const [k, v] of Object.entries(CN_ID_MAP)) {
