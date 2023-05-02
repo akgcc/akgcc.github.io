@@ -39,10 +39,6 @@ const CharslotNameMap = { l: "", m: 2, r: 3 };
 get_char_table(false, serverString)
     .then((js) => {
         operatorData = js;
-        operatorData.char_4027_heyak = { name: "Ho'olheyak" };
-        charCodeMap.heyak = "char_4027_heyak";
-        operatorData.char_4006_melnte = { name: "Melanite" };
-        charCodeMap.melnte = "char_4006_melnte";
         for (var key in operatorData) {
             charCodeMap[key.split("_")[2]] = key;
         }
