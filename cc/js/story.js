@@ -989,6 +989,8 @@ async function genStory(storyName, key) {
                         case "dialog":
                             // chars = {};
                             // speaker = 0;
+                            activeReferences.length = 0;
+                            predicateQueue.pop();
                             break;
                         case "decision":
                             getWorkingScene().appendChild(
@@ -1012,8 +1014,9 @@ async function genStory(storyName, key) {
                                     Object.keys(predicate).length
                                 ) {
                                     // contains all predicates, indicating end of decision tree.
-                                    lastPredicate = predicateQueue.pop();
-                                    activeReferences.length = 0;
+                                    // do NOT pop predicateQueue here as this will break nested decisions, instead assume that [Dialog] or [Decision] marks the end of any decision tree
+                                    // lastPredicate = predicateQueue.pop();
+                                    // activeReferences.length = 0;
                                 }
                             }
                             break;
