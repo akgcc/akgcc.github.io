@@ -118,12 +118,6 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
   );
   let patch = await fixedJson(raw);
   updateJSON(json, patch.patchChars);
-  // revert AK 2.0 structure change
-  if (json.characters) {
-    json.characters.forEach((c) => {
-      json[c.key] = c.value;
-    });
-  }
 
   // change guardmiya name
   json["char_1001_amiya2"].name = "Guardmiya";
@@ -137,6 +131,7 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
       charIdMap[json[key].name] = key;
       if (json[key].appellation) charIdMap[json[key].appellation] = key;
       json[key].charId = key;
+      // remap "rarity" field (AK 2.0)
       json[key].rarity = RARITY_MAP[json[key].rarity] ?? json[key].rarity;
     }
   }

@@ -698,13 +698,21 @@ async function genStory(storyName, key) {
                         );
                         opt.classList.add("selected");
                         let thispredicate = opt.getAttribute("data-predicate");
-                        Object.keys(predicate).forEach((p) => {
-                            predicate[p].forEach((el) => {
-                                p == thispredicate
-                                    ? el.classList.remove("hidden")
-                                    : el.classList.add("hidden");
+                        Object.keys(predicate)
+                            .sort((a, b) =>
+                                a == thispredicate
+                                    ? 1
+                                    : b == thispredicate
+                                    ? -1
+                                    : 0
+                            )
+                            .forEach((p) => {
+                                predicate[p].forEach((el) => {
+                                    p == thispredicate
+                                        ? el.classList.remove("hidden")
+                                        : el.classList.add("hidden");
+                                });
                             });
-                        });
                         scrollFunction();
                     };
                 });
