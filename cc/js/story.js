@@ -452,6 +452,7 @@ async function genStory(storyName, key) {
     lastBackgroundImage = undefined;
     predicateQueue = [];
     activeReferences = [];
+    referenceQueue = [];
     lastPredicate = { 1: [], 2: [], 3: [] }; // prevents catastrophic failure in an edge case
     async function getModuleStory(key) {
         return {
@@ -997,35 +998,39 @@ async function genStory(storyName, key) {
                         case "dialog":
                             // chars = {};
                             // speaker = 0;
-                            activeReferences.length = 0;
                             predicateQueue.pop();
+                            referenceQueue.pop();
+                            activeReferences = referenceQueue.at(-1) ?? [];
                             break;
                         case "decision":
                             getWorkingScene().appendChild(
                                 makeDecisionDialog(args)
                             );
+                            // activeReferences = []; // should be no need for this
                             break;
                         case "predicate":
                             if (!args) {
                                 predicateQueue.pop();
-                                activeReferences.length = 0;
+                                referenceQueue.pop();
+                                activeReferences = referenceQueue.at(-1) ?? [];
                             } else {
                                 activeReferences = args.references.split(";");
+                                referenceQueue.push(activeReferences);
                                 if (!predicateQueue.length) {
                                     // if there is an error in the script, predicate (below) will be undefined.
                                     // in this case we assign these predicates to the previous decision
                                     predicateQueue.push(lastPredicate);
                                 }
                                 let predicate = predicateQueue.slice(-1)[0];
-                                if (
-                                    activeReferences.length >=
-                                    Object.keys(predicate).length
-                                ) {
-                                    // contains all predicates, indicating end of decision tree.
-                                    // do NOT pop predicateQueue here as this will break nested decisions, instead assume that [Dialog] or [Decision] marks the end of any decision tree
-                                    // lastPredicate = predicateQueue.pop();
-                                    // activeReferences.length = 0;
-                                }
+                                // if (
+                                //     activeReferences.length >=
+                                //     Object.keys(predicate).length
+                                // ) {
+                                // contains all predicates, indicating end of decision tree.
+                                // do NOT pop predicateQueue here as this will break nested decisions, instead assume that [Dialog] or [Decision] marks the end of any decision tree
+                                // lastPredicate = predicateQueue.pop();
+                                // activeReferences.length = 0;
+                                // }
                             }
                             break;
                         case "playmusic":
