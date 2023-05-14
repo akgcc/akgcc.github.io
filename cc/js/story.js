@@ -796,7 +796,9 @@ async function genStory(storyName, key) {
                 return wrap;
             }
             for (const line of lines) {
-                // console.log(line);
+                // console.log(line, predicateQueue, referenceQueue);
+                // console.log(line[0], activeReferences, referenceQueue);
+                // console.log(predicateQueue.length, "==", referenceQueue.length);
                 if (line[1]) {
                     [_, cmd, args] =
                         /\[\s*?(?:([^=\(\]]+)(?=[\(\]])\(?)?([^\]]*?)\)?\s*?\]/.exec(
@@ -998,9 +1000,9 @@ async function genStory(storyName, key) {
                         case "dialog":
                             // chars = {};
                             // speaker = 0;
-                            predicateQueue.pop();
-                            referenceQueue.pop();
-                            activeReferences = referenceQueue.at(-1) ?? [];
+                            // predicateQueue.pop();
+                            // referenceQueue.pop();
+                            // activeReferences = referenceQueue.at(-1) ?? [];
                             break;
                         case "decision":
                             getWorkingScene().appendChild(
@@ -1015,13 +1017,18 @@ async function genStory(storyName, key) {
                                 activeReferences = referenceQueue.at(-1) ?? [];
                             } else {
                                 activeReferences = args.references.split(";");
+                                if (
+                                    referenceQueue.length ==
+                                    predicateQueue.length
+                                )
+                                    referenceQueue.pop();
                                 referenceQueue.push(activeReferences);
                                 if (!predicateQueue.length) {
                                     // if there is an error in the script, predicate (below) will be undefined.
                                     // in this case we assign these predicates to the previous decision
                                     predicateQueue.push(lastPredicate);
                                 }
-                                let predicate = predicateQueue.slice(-1)[0];
+                                // let predicate = predicateQueue.slice(-1)[0];
                                 // if (
                                 //     activeReferences.length >=
                                 //     Object.keys(predicate).length
