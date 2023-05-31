@@ -2,13 +2,21 @@ var operatorData,
     charCodeMap = {},
     currentCategory,
     storyReview,
-    storyTypes = { record: [], main: [], side: [], mini: [], module: [] },
+    storyTypes = {
+        record: [],
+        main: [],
+        side: [],
+        mini: [],
+        module: [],
+        rogue: [],
+    },
     storyTypeNames = {
         record: "Operator Record",
         main: "Main Story",
         side: "Side Story",
         mini: "Vignette",
         module: "Operator Module",
+        rogue: "Integrated Strategies",
     },
     soundMap,
     avatarCoords,
@@ -24,7 +32,8 @@ var operatorData,
     soundQueue = [],
     longSoundQueue = [],
     enableSoundAutoplay = false,
-    moduleStory;
+    moduleStory,
+    rogueStory;
 soundQueue.max_size = 5;
 longSoundQueue.max_size = 2;
 const shortAudioMaxLen = 3.5;
@@ -74,6 +83,15 @@ get_char_table(false, serverString)
     .then((res) => fixedJson(res))
     .then((js) => {
         storyReviewMeta = js;
+        return fetch(
+            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+                serverString +
+                "/gamedata/excel/roguelike_topic_table.json"
+        );
+    })
+    .then((res) => fixedJson(res))
+    .then((js) => {
+        rogueStory = js;
         return fetch(
             "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
                 serverString +
@@ -133,6 +151,81 @@ get_char_table(false, serverString)
                     ],
                 })
         );
+
+        // for each roguelike:
+        for (const [rogue_key, rogue_topic] of Object.entries(
+            rogueStory.topics
+        )) {
+            storyTypes.rogue.push(rogue_key);
+            storyReview[rogue_key] = {
+                name: rogue_topic.name,
+                infoUnlockDatas: [],
+            };
+            is_num = /_(\d)/.exec(rogue_key)[1];
+            is_name = `IS${parseInt(is_num) + 1}`;
+            // for each ending cutscene:
+            for (const [k, v] of Object.entries(
+                rogueStory.details[rogue_key].endings
+            )) {
+                ending_num = /_(\d)/.exec(k)[1];
+                storyReview[rogue_key].infoUnlockDatas.push({
+                    storyName: v.name,
+                    storyTxt: `obt/roguelike/ro${is_num}/level_rogue${is_num}_ending_${ending_num}`,
+                });
+            }
+            // for each endbook:
+            for (const [k, v] of Object.entries(
+                rogueStory.details[rogue_key].archiveComp.endbook.endbook
+            )) {
+                // for each part
+                for (const [k2, v2] of Object.entries(
+                    v.clientEndbookItemDatas
+                )) {
+                    // insert story in the correct position (assume each story has 3 parts or this fails.)
+                    storyReview[rogue_key].infoUnlockDatas.splice(
+                        1 + (v.sortId - 1) * 4,
+                        0,
+                        {
+                            storyName: `${v.title} - ${v2.endbookName}`,
+                            storyTxt: v2.textId.toLowerCase(),
+                            storyBackground: v.cgId,
+                        }
+                    );
+                }
+            }
+
+            // for each monthly squad:
+            for (const [k, v] of Object.entries(
+                rogueStory.details[rogue_key].monthSquad
+            )) {
+                let month_num = /_(\d)$/.exec(k)[1];
+                let month_key = `${rogue_key}_${k}`;
+                storyTypes.rogue.push(month_key);
+                storyReview[month_key] = {
+                    name: `M${month_num} - ${v.teamName}`,
+                    infoUnlockDatas: [],
+                };
+            }
+            for (const [k, v] of Object.entries(
+                rogueStory.details[rogue_key].archiveComp.chat.chat
+            )) {
+                let month_num = /_(\d)$/.exec(k)[1];
+                let month_key = `${rogue_key}_month_team_${month_num}`;
+                // for each floor
+                for (const [k2, v2] of Object.entries(v.clientChatItemData)) {
+                    if (storyReview[month_key] === undefined) {
+                        // delete not yet added stories
+                        delete storyReview[month_key];
+                        break;
+                    }
+                    storyReview[month_key].infoUnlockDatas.push({
+                        storyName: `Floor ${v2.chatFloor}`,
+                        storyTxt: `${v2.chatStoryId.toLowerCase()}`,
+                        storyBackground: "pic_rogue_1_2",
+                    });
+                }
+            }
+        }
 
         storyTypes.record.sort((a, b) => {
             let na = (
@@ -285,10 +378,6 @@ get_char_table(false, serverString)
                         return name;
                     };
                     break;
-                case "mini":
-                case "side":
-                    namefunc = (k) => storyReview[k].name;
-                    break;
                 case "module":
                     namefunc = (n) => {
                         let name =
@@ -300,6 +389,12 @@ get_char_table(false, serverString)
                         name += " [" + (modulenum - 1) + "]";
                         return name;
                     };
+                    break;
+                case "mini":
+                case "side":
+                case "rogue":
+                default:
+                    namefunc = (k) => storyReview[k].name;
                     break;
             }
             storyTypes[cat].forEach((k) => {
@@ -395,7 +490,7 @@ get_char_table(false, serverString)
                 storyReview[cat].infoUnlockDatas[
                     document.getElementById("thirdCatSelect").value
                 ];
-            genStory(data.storyName, data.storyTxt).then(() => {
+            genStory(data).then(() => {
                 scrollFunction();
                 sessionStorage.setItem("userChange", false);
             });
@@ -443,7 +538,9 @@ get_char_table(false, serverString)
         }
     });
 
-async function genStory(storyName, key) {
+async function genStory(data) {
+    let storyName = data.storyName;
+    let key = data.storyTxt;
     soundQueue.length = 0;
     longSoundQueue.length = 0;
     allScenes.length = 0;
@@ -478,6 +575,10 @@ async function genStory(storyName, key) {
     )
         .then((r) => r.text())
         .then((txt) => {
+            if (data.storyBackground) {
+                // use special bg, currently used for is endbooks
+                txt = `[roguebackground(image="${data.storyBackground}")]\n${txt}`;
+            }
             const lines = txt.matchAll(/^(\[[^\]]+])?(.*)?$/gim);
             let storyDiv = document.getElementById("storyDisp");
             key.startsWith("uniequip")
@@ -858,6 +959,7 @@ async function genStory(storyName, key) {
                             break;
                         case "moduleimage":
                         case "background":
+                        case "roguebackground":
                             if (
                                 cmd.toLowerCase() == "background" &&
                                 (!args || !args.image)
@@ -927,6 +1029,9 @@ async function genStory(storyName, key) {
                                     break;
                                 case "moduleimage":
                                     imgurl = `${IMG_SOURCE}equip/icon/${args.image}.png`;
+                                    break;
+                                case "roguebackground":
+                                    imgurl = `${IMG_SOURCE}avg/images/${args.image}.png`;
                                     break;
                             }
 
@@ -1003,6 +1108,30 @@ async function genStory(storyName, key) {
                             // predicateQueue.pop();
                             // referenceQueue.pop();
                             // activeReferences = referenceQueue.at(-1) ?? [];
+
+                            // this is specific to IS#2 monthly records:
+                            if (args && args.head) {
+                                speaker = parseInt(args.focus) || 1; // set to 1 if focus key doesnt exist.
+                                chars = {
+                                    name: args.head,
+                                };
+                                speakerList.add(chars.name.toLowerCase());
+                                let dlg = makeDialog(
+                                    {
+                                        name:
+                                            operatorData[chars.name].name ||
+                                            operatorData[chars.name]
+                                                .appellation,
+                                    },
+                                    line[2],
+                                    chars,
+                                    speaker,
+                                    Array.from(speakerList).indexOf(
+                                        chars.name.toLowerCase()
+                                    )
+                                );
+                                getWorkingScene().appendChild(dlg);
+                            }
                             break;
                         case "decision":
                             getWorkingScene().appendChild(
