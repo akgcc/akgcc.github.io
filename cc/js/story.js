@@ -151,6 +151,25 @@ get_char_table(false, serverString)
                     ],
                 })
         );
+        // this is available in roguelike_table, but were never translated (because they weren't used)
+        storyTypes.rogue.push("rogue_0");
+        storyReview["rogue_0"] = {
+            name: "Ceobe's Fungimist",
+            infoUnlockDatas: [
+                {
+                    storyName: "迷尘幻梦",
+                    storyTxt: "activities/act12d6/level_act12d6_ending_1",
+                },
+                {
+                    storyName: "茫然行者",
+                    storyTxt: "activities/act12d6/level_act12d6_ending_2",
+                },
+                {
+                    storyName: "归于荒野",
+                    storyTxt: "activities/act12d6/level_act12d6_ending_3",
+                },
+            ],
+        };
 
         // for each roguelike:
         for (const [rogue_key, rogue_topic] of Object.entries(
@@ -221,7 +240,7 @@ get_char_table(false, serverString)
                     storyReview[month_key].infoUnlockDatas.push({
                         storyName: `Floor ${v2.chatFloor}`,
                         storyTxt: `${v2.chatStoryId.toLowerCase()}`,
-                        storyBackground: "pic_rogue_1_2",
+                        storyBackground: `pic_${rogue_key}_1`,
                     });
                 }
             }
