@@ -131,17 +131,16 @@ fetch(
             : ELITE_SOUL_SCALE[
                 Math.max(
                   ELITE_SOUL_EXEMPTIONS.includes(c.name) ? 2 : 0,
-                  3 + c.elite - (operatorData[c.name]?.phases?.length ?? 3)
+                  3 + c.elite - operatorData[c.name].phases.length
                 )
               ];
-
         let total = v.squad.reduce(
           (p, c) =>
             p +
             uniqueness[c.name] *
               weights[c.name] *
               elite_soul_scale(c) *
-              RARITY_WEIGHTS[operatorData[c.name]?.rarity ?? 3],
+              RARITY_WEIGHTS[operatorData[c.name].rarity],
           0
         );
         let weight_total = Math.max(
@@ -151,7 +150,7 @@ fetch(
               p +
               weights[c.name] *
                 elite_soul_scale(c) *
-                RARITY_WEIGHTS[operatorData[c.name]?.rarity ?? 3],
+                RARITY_WEIGHTS[operatorData[c.name].rarity],
             0
           )
         );
