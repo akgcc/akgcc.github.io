@@ -1,0 +1,109 @@
+#recruitResults .operatorCheckbox {
+	display: inline-block;
+}
+
+.operatorCheckbox[data-rarity="5"] .name {
+	background-color: rgba(255, 102, 0, 0.1);
+}
+.operatorCheckbox[data-rarity="4"] .name {
+	background-color: rgba(255, 174, 0, 0.1);
+}
+.operatorCheckbox[data-rarity="3"] .name {
+	background-color: rgba(219, 177, 219, 0.1);
+}
+.operatorCheckbox[data-rarity="2"] .name {
+	background-color: rgba(0, 178, 246, 0.1);
+}
+.operatorCheckbox[data-rarity="1"] .name {
+	background-color: rgba(220, 229, 55, 0.1);
+}
+.operatorCheckbox[data-rarity="0"] .name {
+	background-color: rgba(159, 159, 159, 0.1);
+}
+
+.operatorCheckbox[data-rarity="5"] {
+	background-color: rgba(255, 102, 0, 0.4);
+}
+.operatorCheckbox[data-rarity="4"] {
+	background-color: rgba(255, 174, 0, 0.4);
+}
+.operatorCheckbox[data-rarity="3"] {
+	background-color: rgba(219, 177, 219, 0.4);
+}
+.operatorCheckbox[data-rarity="2"] {
+	background-color: rgba(0, 178, 246, 0.4);
+}
+.operatorCheckbox[data-rarity="1"] {
+	background-color: rgba(220, 229, 55, 0.4);
+}
+.operatorCheckbox[data-rarity="0"] {
+	background-color: rgba(159, 159, 159, 0.4);
+}
+
+.operatorCheckbox[data-recruit-only="true"] {
+	outline: 1px solid limegreen;
+}
+
+table .button {
+	margin: 0.1em;
+	padding: 0.5em;
+}
+
+table,
+#reset {
+	border-collapse: collapse;
+	/*	border-spacing: 1em 0.5em;*/
+	margin: 1em auto;
+	width: 80vw;
+	max-width: 1600px;
+}
+
+td {
+	padding: 1em;
+	vertical-align: middle;
+}
+
+tr:nth-child(even) {
+	background-color: #00000080; /* Set the background color for even rows */
+}
+
+tr:nth-child(odd) {
+	background-color: #00000050; /* Set the background color for odd rows */
+}
+
+.tag {
+	padding: 0.5em;
+	background: #ffffff20;
+	margin: 0.25em;
+	display: inline-block;
+}
+
+#recruitResults td:first-child {
+	width: 15%;
+	min-width: 100px;
+}
+
+#legend {
+	flex-grow: 0;
+}
+#reset {
+	background-color: #c62828;
+	color: white;
+	text-align: center;
+	padding: 0.5em 0;
+	cursor: pointer;
+	font-size: 1.5em;
+}
+
+#reset span {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+#reset:hover {
+	background-color: #8e1c1c;
+}
+
+#reset:active {
+	background-color: #611414;
+}
