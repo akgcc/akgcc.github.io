@@ -44,12 +44,10 @@ fetch(
 				RECRUIT_POOL[op.charId] = op;
 			}
 		});
-		console.log(TAGS);
 
 		TAGS.forEach((tag) => {
 			TAG_MAP[tag.tagId] = tag;
 		});
-		console.log(RECRUIT_POOL);
 		const table = document.querySelector("#tagList tbody");
 		Object.keys(TAG_CATEGORIES).forEach((category) => {
 			let tr = document.createElement("tr");
@@ -190,7 +188,6 @@ function calculateResults() {
 		});
 	});
 	if (!noobMode) {
-		console.log("filter");
 		groups = groups.filter((g) => g.lowestNonBotRarity > 2);
 	}
 	groups.sort((a, b) => {
