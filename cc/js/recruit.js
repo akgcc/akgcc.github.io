@@ -3,13 +3,16 @@ let RECRUIT_POOL = {};
 let TAGS = {};
 let TAG_MAP = {};
 let TAG_CATEGORIES = {
-	Qualification: [17, 14, 11],
+	Rarity: [28, 17, 14, 11],
 	Position: [9, 10],
-	Class: [1, 4, 8, 6, 2, 3, 5, 7],
-	Affix: [15, 16, 19, 21, 23, 20, 22, 24, 26, 12, 13, 27, 25, 18, 28],
+	// Class: [1, 4, 8, 6, 2, 3, 5, 7], // aceship order
+	Class: [8, 1, 3, 2, 6, 4, 5, 7], // in-game order
+	Affix: [15, 16, 19, 21, 23, 20, 22, 24, 26, 12, 13, 27, 25, 18],
 };
 let noobMode = localStorage.getItem("noobMode") === "true";
 let selectedTags = new Set();
+const opTagList = document.createElement("div");
+let selectedOp;
 const params = new URLSearchParams(window.location.search);
 params.get("tags") &&
 	params
@@ -54,6 +57,10 @@ fetch(
 			let label = document.createElement("td");
 			label.innerHTML = category;
 			let btns = document.createElement("td");
+			if (["Affix"].includes(category))
+				TAG_CATEGORIES[category].sort((a, b) =>
+					TAG_MAP[a].tagName.localeCompare(TAG_MAP[b].tagName)
+				);
 			TAG_CATEGORIES[category].forEach((tagid) => {
 				TAG_MAP[tagid].tagCat = category;
 				let btn = document.createElement("div");
@@ -73,7 +80,7 @@ fetch(
 						// set is full don't do anything.
 						return;
 					}
-
+					table.dataset.tooMany = selectedTags.size > 5;
 					e.currentTarget.classList.toggle("checked");
 					calculateResults();
 				};
@@ -87,7 +94,7 @@ fetch(
 		selectedTags.forEach((tag) => {
 			if (TAG_MAP[tag] === undefined) selectedTags.delete(tag);
 		});
-
+		table.dataset.tooMany = selectedTags.size > 5;
 		calculateResults();
 	});
 const resultsTable = document.querySelector("#recruitResults tbody");
@@ -126,7 +133,7 @@ function calculateResults() {
 									case 10:
 										return op.position === "RANGED";
 								}
-							case "Qualification":
+							case "Rarity":
 								switch (tag.tagId) {
 									case 17:
 										return op.rarity === 1;
@@ -134,6 +141,8 @@ function calculateResults() {
 										return op.rarity === 4;
 									case 11:
 										return op.rarity === 5;
+									case 28:
+										return op.rarity === 0;
 								}
 							case "Class":
 								// return op.profession === tag.tagName.toUpperCase();
@@ -157,9 +166,9 @@ function calculateResults() {
 								}
 							case "Affix": // case "Affix"
 								switch (tag.tagId) {
-									//aceship puts robot in the affix list:
-									case 28:
-										return op.rarity === 0;
+									//aceship puts robot in the affix list, but I WONT
+									// case 28:
+									// 	return op.rarity === 0;
 									default:
 										return op.tagList.includes(tag.tagName);
 								}
@@ -177,23 +186,40 @@ function calculateResults() {
 			// If rarity is the same, sort by name (alphabetical order)
 			return a.name.localeCompare(b.name);
 		});
-		groups.push({
+		let newGroup = {
 			tags: tags,
 			matches: matches,
-			lowestNonBotRarity: matches.reduce(
+			lowest9hrRarity: matches.reduce(
 				(minr, op) =>
-					op.rarity == 0 ? minr : Math.min(minr, op.rarity),
-				6
+					op.rarity < 2 ? minr : Math.min(minr, op.rarity),
+				99
 			),
-		});
+			lowestRarity: matches.reduce(
+				(minr, op) => Math.min(minr, op.rarity),
+				99
+			),
+			nineHourOpCount: matches.reduce(
+				(count, op) => (op.rarity > 1 ? count + 1 : count),
+				0
+			),
+		};
+		// handle special cases involving "Starter" and "Robot" tag
+		// use 2.5 rarity for robots, placing them above 3* but below 4* (this also shows them even when show 2/3* is unchecked)
+		if (newGroup.lowest9hrRarity == 99) {
+			newGroup.lowest9hrRarity =
+				newGroup.lowestRarity == 0 ? 2.5 : newGroup.lowestRarity;
+			newGroup.nineHourOpCount = newGroup.matches.size;
+		}
+		groups.push(newGroup);
 	});
+	let fullResultSize = groups.length;
 	if (!noobMode) {
-		groups = groups.filter((g) => g.lowestNonBotRarity > 2);
+		groups = groups.filter((g) => g.lowest9hrRarity > 2);
 	}
 	groups.sort((a, b) => {
-		if (b.lowestNonBotRarity !== a.lowestNonBotRarity)
-			return b.lowestNonBotRarity - a.lowestNonBotRarity;
-		return b.matches.length - a.matches.length;
+		if (b.lowest9hrRarity !== a.lowest9hrRarity)
+			return b.lowest9hrRarity - a.lowest9hrRarity;
+		return b.nineHourOpCount - a.nineHourOpCount;
 	});
 	groups.forEach((group) => {
 		if (group.matches.length === 0) return;
@@ -209,11 +235,67 @@ function calculateResults() {
 		group.matches.forEach((op) => {
 			let el = CreateOpCheckbox(op, null, null, null, null, ops);
 			el.dataset.recruitOnly = op.recruitOnly;
+			el.onclick = (e) => {
+				if (selectedOp) selectedOp.classList.toggle("checked");
+				if (e.currentTarget.isEqualNode(selectedOp)) {
+					opTagList.parentElement.removeChild(opTagList);
+					selectedOp = null;
+					return;
+				}
+				selectedOp = e.currentTarget;
+				selectedOp.classList.toggle("checked");
+				opTagList.innerHTML = "";
+				let tags = [];
+				switch (op.rarity) {
+					case 0:
+						tags.push(TAG_MAP[28].tagName);
+						break;
+					case 1:
+						tags.push(TAG_MAP[17].tagName);
+						break;
+					case 4:
+						tags.push(TAG_MAP[14].tagName);
+						break;
+					case 5:
+						tags.push(TAG_MAP[11].tagName);
+						break;
+				}
+				switch (op.position) {
+					case "MELEE":
+						tags.push(TAG_MAP[9].tagName);
+						break;
+					case "RANGED":
+						tags.push(TAG_MAP[10].tagName);
+						break;
+				}
+				tags = tags.concat(op.tagList);
+				tags.forEach((tag) => {
+					let el = document.createElement("div");
+					el.innerHTML = tag;
+					el.classList.add("tag");
+					opTagList.appendChild(el);
+				});
+				e.currentTarget.parentElement.appendChild(opTagList);
+			};
 		});
 		tr.appendChild(label);
 		tr.appendChild(ops);
 		resultsTable.appendChild(tr);
 	});
+	if (!noobMode) {
+		let omitted = fullResultSize - groups.length;
+		if (omitted > 0) {
+			let tr = document.createElement("tr");
+			let td = document.createElement("td");
+			tr.appendChild(td);
+			td.colSpan = 2;
+			td.style.textAlign = "center";
+			td.innerHTML = `(${omitted} ${
+				omitted === 1 ? "row" : "rows"
+			} omitted)`;
+			resultsTable.appendChild(tr);
+		}
+	}
 }
 
 function getCombinations(set) {

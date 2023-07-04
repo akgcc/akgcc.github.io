@@ -1,6 +1,12 @@
 #recruitResults .operatorCheckbox {
 	display: inline-block;
 }
+#recruitResults .operatorCheckbox.checked {
+	outline: 1px solid lightgrey;
+}
+#recruitResults .operatorCheckbox {
+	transition: none;
+}
 
 .operatorCheckbox[data-rarity="5"] .name {
 	background-color: rgba(255, 102, 0, 0.1);
@@ -44,11 +50,6 @@
 	outline: 1px solid limegreen;
 }
 
-table .button {
-	margin: 0.1em;
-	padding: 0.5em;
-}
-
 table,
 #reset {
 	border-collapse: collapse;
@@ -73,14 +74,14 @@ tr:nth-child(odd) {
 
 .tag {
 	padding: 0.5em;
-	background: #ffffff20;
+	background: #ffffff30;
 	margin: 0.25em;
 	display: inline-block;
 }
 
 #recruitResults td:first-child {
 	width: 15%;
-	min-width: 100px;
+	min-width: 140px;
 }
 
 #legend {
@@ -106,4 +107,32 @@ tr:nth-child(odd) {
 
 #reset:active {
 	background-color: #611414;
+}
+
+table .button {
+	margin: 0.2em;
+	padding: 0.6em;
+	background: #000;
+	border-radius: 0px;
+	border: 1px solid grey;
+}
+
+@media (hover: hover) {
+	table .button:not(.disabled):hover {
+		color: black;
+		background-color: #696969;
+		text-shadow: none;
+	}
+}
+table .button:not(.disabled).checked {
+	background: #0098dc;
+	border: 1px solid #f1f1f1;
+	color: #f1f1f1;
+}
+tbody[data-too-many="true"] .button.checked {
+	color: #ff7f7f;
+	border-color: #ff7f7f;
+}
+.operatorCheckbox {
+	cursor: pointer;
 }
