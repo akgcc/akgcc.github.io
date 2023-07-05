@@ -454,3 +454,5 @@ function isSuperset(set, subset) {
 	}
 	return true;
 }
+
+{"squad": [{"name": "char_225_haak", "skill": 3, "elite": 2}, {"name": "char_497_ctable", "skill": 2, "elite": 2}, {"name": "char_179_cgbird", "skill": 3, "elite": 2}, {"name": "char_358_lisa", "skill": 3, "elite": 2}, {"name": "char_4064_mlynar", "skill": 3, "elite": 2}, {"name": "char_1014_nearl2", "skill": 2, "elite": 2}, {"name": "char_172_svrash", "skill": 3, "elite": 2}, {"name": "char_479_sleach", "skill": 3, "elite": 2}, {"name": "char_102_texas", "skill": 2, "elite": 2}, {"name": "char_151_myrtle", "skill": 1, "elite": 2}, {"name": "char_1028_texas2", "skill": 3, "elite": 2}, {"name": "char_222_bpipe", "skill": 3, "elite": 2}, {"name": "char_401_elysm", "skill": 2, "elite": 2}], "group": 2, "support": {"name": "char_225_haak", "skill": 3, "elite": 2}, "risk": 3, "dupe_group": "56-cc11clear", "avgRarity": 5.615, "opcount": 13}
