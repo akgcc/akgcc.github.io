@@ -149,3 +149,28 @@ table tbody tr td .button[data-tag-id="11"]:not(.disabled).checked {
 	color: black;
 	border: 1px solid #f1f1f1;
 }
+
+table .button.highlight {
+	color: black;
+	background-color: #ccc;
+	border: 1px solid black;
+	outline: 2px solid white;
+	text-shadow: none;
+}
+#tagInput {
+	width: 100%;
+	padding: 0.25em;
+	box-sizing: border-box;
+	color: #fff;
+	background-color: #333;
+	border: 1px solid #666;
+}
+
+#tagInput::placeholder {
+	color: #aaa;
+}
+
+#tagInput:focus {
+	outline: none;
+	box-shadow: 0 0 2px 2px #999;
+}

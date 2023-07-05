@@ -2,6 +2,7 @@ let recruitDetail;
 let RECRUIT_POOL = {};
 let TAGS = {};
 let TAG_MAP = {};
+let TAG_NAME_MAP = {};
 let TAG_CATEGORIES = {
 	Rarity: [28, 17, 14, 11],
 	Position: [9, 10],
@@ -9,8 +10,11 @@ let TAG_CATEGORIES = {
 	Class: [8, 1, 3, 2, 6, 4, 5, 7], // in-game order
 	Affix: [15, 16, 19, 21, 23, 20, 22, 24, 26, 12, 13, 27, 25, 18],
 };
+let TAG_STACK = [];
+let highlightedTag;
 let noobMode = localStorage.getItem("noobMode") === "true";
 let selectedTags = new Set();
+let currentAutocomplete;
 const opTagList = document.createElement("div");
 let selectedOp;
 const params = new URLSearchParams(window.location.search);
@@ -46,6 +50,7 @@ fetch(
 		}
 		TAGS.forEach((tag) => {
 			TAG_MAP[tag.tagId] = tag;
+			TAG_NAME_MAP[tag.tagName] = tag;
 		});
 
 		Object.keys(TAG_CATEGORIES).forEach((category) => {
@@ -65,21 +70,12 @@ fetch(
 				btn.innerHTML = TAG_MAP[tagid].tagName;
 				if (selectedTags.has(TAG_MAP[tagid].tagName)) {
 					selectedTags.add(String(TAG_MAP[tagid].tagGroup));
+					TAG_STACK.push(tagid);
 					btn.classList.add("checked");
 				}
 				btn.dataset.tagGroup = TAG_MAP[tagid].tagGroup;
 				btn.onclick = (e) => {
-					if (btn.classList.contains("checked")) {
-						selectedTags.delete(e.currentTarget.dataset.tagGroup);
-					} else if (selectedTags.size < 7) {
-						selectedTags.add(e.currentTarget.dataset.tagGroup);
-					} else {
-						// set is full don't do anything.
-						return;
-					}
-					tagTable.dataset.tooMany = selectedTags.size > 5;
-					e.currentTarget.classList.toggle("checked");
-					calculateResults();
+					selectTag(e.currentTarget);
 				};
 				btns.appendChild(btn);
 			});
@@ -88,12 +84,89 @@ fetch(
 			tr.appendChild(btns);
 			tagTable.appendChild(tr);
 		});
+		function selectTag(el) {
+			if (el.classList.contains("checked")) {
+				selectedTags.delete(el.dataset.tagGroup);
+				const index = TAG_STACK.indexOf(el.dataset.tagId);
+				if (index > -1) {
+					TAG_STACK.splice(index, 1);
+				}
+			} else if (selectedTags.size < 7) {
+				selectedTags.add(el.dataset.tagGroup);
+				TAG_STACK.push(el.dataset.tagId);
+			} else {
+				// set is full don't do anything.
+				return;
+			}
+			tagTable.dataset.tooMany = selectedTags.size > 5;
+			el.classList.toggle("checked");
+			calculateResults();
+		}
 		selectedTags.forEach((tag) => {
 			if (TAG_MAP[tag] === undefined) selectedTags.delete(tag);
 		});
 		tagTable.dataset.tooMany = selectedTags.size > 5;
 		calculateResults();
+
+		TAG_NAMES = Object.values(TAG_MAP)
+			.filter((v) => v.tagCat !== undefined)
+			.map((v) => v.tagName);
+		// Add event listener for input event
+		tagInput.addEventListener("input", function (e) {
+			const inputValue = this.value.toLowerCase();
+			let filteredOptions = [];
+			if (inputValue.length)
+				filteredOptions = TAG_NAMES.filter(
+					(option) =>
+						option.toLowerCase().startsWith(inputValue) &&
+						!selectedTags.has(String(TAG_NAME_MAP[option].tagId))
+				);
+			showAutocompleteOptions(filteredOptions);
+		});
+		tagInput.addEventListener("keydown", function (event) {
+			if (event.key === "Enter") {
+				if (currentAutocomplete) {
+					// TAG_MAP[currentAutocomplete];
+					if (highlightedTag)
+						highlightedTag.classList.remove("highlight");
+					selectTag(
+						document.querySelector(
+							`#tagList .button[data-tag-id="${currentAutocomplete}"]`
+						)
+					);
+					TAG_STACK.push(currentAutocomplete);
+					// this.value += currentAutocomplete.slice(this.value.length);
+					this.value = "";
+					event.preventDefault();
+				}
+			} else if (
+				event.key === "Backspace" &&
+				!this.value &&
+				TAG_STACK.length
+			) {
+				selectTag(
+					document.querySelector(
+						`#tagList .button[data-tag-id="${TAG_STACK.pop()}"]`
+					)
+				);
+			} else if (event.key == "Escape") {
+				resetAll();
+			}
+		});
+
+		// Function to show the autocomplete options
+		function showAutocompleteOptions(options) {
+			if (highlightedTag) highlightedTag.classList.remove("highlight");
+			currentAutocomplete = null;
+			if (options.length < 1) return;
+			currentAutocomplete = TAG_NAME_MAP[options[0]].tagId;
+			highlightedTag = document.querySelector(
+				`#tagList .button[data-tag-id="${currentAutocomplete}"]`
+			);
+			highlightedTag.classList.add("highlight");
+		}
 	});
+const tagInput = document.getElementById("tagInput");
 const tagTable = document.querySelector("#tagList tbody");
 const resultsTable = document.querySelector("#recruitResults tbody");
 function calculateResults() {
@@ -321,13 +394,16 @@ noobToggle.onclick = (e) => {
 	localStorage.setItem("noobMode", noobMode);
 	calculateResults();
 };
-
-document.getElementById("reset").onclick = () => {
+function resetAll() {
 	selectedTags.clear();
+	TAG_STACK = [];
 	document
 		.querySelectorAll("#tagList .button")
 		.forEach((el) => el.classList.remove("checked"));
 	calculateResults();
+}
+document.getElementById("reset").onclick = () => {
+	resetAll();
 };
 function getRecruitList(char_table) {
 	let name_map = {};
