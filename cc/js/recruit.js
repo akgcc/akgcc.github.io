@@ -208,7 +208,7 @@ function calculateResults() {
 		if (newGroup.lowest9hrRarity == 99) {
 			newGroup.lowest9hrRarity =
 				newGroup.lowestRarity == 0 ? 2.5 : newGroup.lowestRarity;
-			newGroup.nineHourOpCount = newGroup.matches.size;
+			newGroup.nineHourOpCount = newGroup.matches.length;
 		}
 		groups.push(newGroup);
 	});
@@ -219,7 +219,7 @@ function calculateResults() {
 	groups.sort((a, b) => {
 		if (b.lowest9hrRarity !== a.lowest9hrRarity)
 			return b.lowest9hrRarity - a.lowest9hrRarity;
-		return b.nineHourOpCount - a.nineHourOpCount;
+		return a.nineHourOpCount - b.nineHourOpCount;
 	});
 	groups.forEach((group) => {
 		if (group.matches.length === 0) return;
