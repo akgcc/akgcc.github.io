@@ -31,26 +31,23 @@ fetch(
 		return get_char_table(false, serverString);
 	})
 	.then((json) => {
-		let name_map = {};
-		Object.values(json).forEach((v) => (name_map[v.name] = v));
-		[
-			...recruitDetail.matchAll(
-				/<@rc\.eml>(.*?)<\/>|(?:\/\s*|\\n)([^\/]+?)(?=\s\/|$|\\)/gim
-			),
-		].forEach((m) => {
-			let opname = m[1] ?? m[2];
-			opname = opname.trim();
-			if (Object.keys(name_map).includes(opname)) {
-				let op = name_map[opname];
-				op.recruitOnly = !!m[1];
-				RECRUIT_POOL[op.charId] = op;
-			}
-		});
-
+		if (!getRecruitList(json)) {
+			// there was an error parsing recruit list, display an error instead of functioning
+			TAGS = [];
+			RECRUIT_POOL = {};
+			let tr = document.createElement("tr");
+			let td = document.createElement("td");
+			tr.appendChild(td);
+			td.colSpan = 2;
+			td.style.textAlign = "center";
+			td.innerHTML = "Error fetching recruitment data";
+			tagTable.appendChild(tr);
+			return;
+		}
 		TAGS.forEach((tag) => {
 			TAG_MAP[tag.tagId] = tag;
 		});
-		const table = document.querySelector("#tagList tbody");
+
 		Object.keys(TAG_CATEGORIES).forEach((category) => {
 			let tr = document.createElement("tr");
 			let label = document.createElement("td");
@@ -80,7 +77,7 @@ fetch(
 						// set is full don't do anything.
 						return;
 					}
-					table.dataset.tooMany = selectedTags.size > 5;
+					tagTable.dataset.tooMany = selectedTags.size > 5;
 					e.currentTarget.classList.toggle("checked");
 					calculateResults();
 				};
@@ -89,14 +86,15 @@ fetch(
 
 			tr.appendChild(label);
 			tr.appendChild(btns);
-			table.appendChild(tr);
+			tagTable.appendChild(tr);
 		});
 		selectedTags.forEach((tag) => {
 			if (TAG_MAP[tag] === undefined) selectedTags.delete(tag);
 		});
-		table.dataset.tooMany = selectedTags.size > 5;
+		tagTable.dataset.tooMany = selectedTags.size > 5;
 		calculateResults();
 	});
+const tagTable = document.querySelector("#tagList tbody");
 const resultsTable = document.querySelector("#recruitResults tbody");
 function calculateResults() {
 	// use selectedTags to determine which ops are available then populate the results table.
@@ -331,3 +329,48 @@ document.getElementById("reset").onclick = () => {
 		.forEach((el) => el.classList.remove("checked"));
 	calculateResults();
 };
+function getRecruitList(char_table) {
+	let name_map = {};
+	let recruit_names = new Set();
+	let all_ops = new Set(
+		Object.values(char_table).map((x) => x.name.toLowerCase())
+	);
+	Object.values(char_table).forEach(
+		(v) => (name_map[v.name.toLowerCase()] = v)
+	);
+	[
+		...recruitDetail.matchAll(
+			/<@rc\.eml>(.*?)<\/>|(?:\/\s*|\s|\\n)([^\/]+?)(?=\s\/|$|\\)/gim
+		),
+	].forEach((m) => {
+		let opname = m[1] ?? m[2];
+		opname = opname.trim().toLowerCase();
+		if (Object.keys(name_map).includes(opname)) {
+			let op = name_map[opname];
+			op.recruitOnly = !!m[1];
+			RECRUIT_POOL[op.charId] = op;
+			recruit_names.add(opname);
+		}
+	});
+	// now do a sanity check:
+	// match every string in recruitDetail for valid operator names
+	// check if the resulting set is a subset of recruit_names
+	let op_matches = new Set();
+	all_word_matches = new Set([...recruitDetail.matchAll(/[^\s\\><]+/gim)]);
+	all_word_matches.forEach((m) => {
+		let name = m[0].toLowerCase();
+		if (all_ops.has(name)) {
+			op_matches.add(name);
+		}
+	});
+	if (!isSuperset(recruit_names, op_matches)) return false;
+	return true;
+}
+function isSuperset(set, subset) {
+	for (const elem of subset) {
+		if (!set.has(elem)) {
+			return false;
+		}
+	}
+	return true;
+}
