@@ -9,41 +9,43 @@
 }
 
 .operatorCheckbox[data-rarity="5"] .name {
-	background-color: rgba(255, 102, 0, 0.1);
+	background-color: rgba(255, 102, 0, 1);
 }
 .operatorCheckbox[data-rarity="4"] .name {
-	background-color: rgba(255, 174, 0, 0.1);
+	background-color: rgba(255, 174, 0, 1);
 }
 .operatorCheckbox[data-rarity="3"] .name {
-	background-color: rgba(219, 177, 219, 0.1);
+	background-color: rgba(219, 177, 219, 1);
 }
 .operatorCheckbox[data-rarity="2"] .name {
-	background-color: rgba(0, 178, 246, 0.1);
+	background-color: rgba(0, 178, 246, 1);
 }
 .operatorCheckbox[data-rarity="1"] .name {
-	background-color: rgba(220, 229, 55, 0.1);
+	background-color: rgba(220, 229, 55, 1);
 }
 .operatorCheckbox[data-rarity="0"] .name {
-	background-color: rgba(159, 159, 159, 0.1);
+	background-color: rgba(159, 159, 159, 1);
 }
-
+.operatorCheckbox .name svg {
+	fill: #222;
+}
 .operatorCheckbox[data-rarity="5"] {
-	background-color: rgba(255, 102, 0, 0.4);
+	background-color: rgba(255, 102, 0, 0.7);
 }
 .operatorCheckbox[data-rarity="4"] {
-	background-color: rgba(255, 174, 0, 0.4);
+	background-color: rgba(255, 174, 0, 0.7);
 }
 .operatorCheckbox[data-rarity="3"] {
-	background-color: rgba(219, 177, 219, 0.4);
+	background-color: rgba(219, 177, 219, 0.7);
 }
 .operatorCheckbox[data-rarity="2"] {
-	background-color: rgba(0, 178, 246, 0.4);
+	background-color: rgba(0, 178, 246, 0.7);
 }
 .operatorCheckbox[data-rarity="1"] {
-	background-color: rgba(220, 229, 55, 0.4);
+	background-color: rgba(220, 229, 55, 0.7);
 }
 .operatorCheckbox[data-rarity="0"] {
-	background-color: rgba(159, 159, 159, 0.4);
+	background-color: rgba(159, 159, 159, 0.7);
 }
 
 .operatorCheckbox[data-recruit-only="true"] {
@@ -153,7 +155,6 @@ table tbody tr td .button[data-tag-id="11"]:not(.disabled).checked {
 table .button.highlight {
 	color: black;
 	background-color: #ccc;
-	border: 1px solid black;
 	outline: 2px solid white;
 	text-shadow: none;
 }

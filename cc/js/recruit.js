@@ -91,7 +91,7 @@ fetch(
 				if (index > -1) {
 					TAG_STACK.splice(index, 1);
 				}
-			} else if (selectedTags.size < 7) {
+			} else if (selectedTags.size < 10) {
 				selectedTags.add(el.dataset.tagGroup);
 				TAG_STACK.push(el.dataset.tagId);
 			} else {
@@ -150,6 +150,7 @@ fetch(
 					)
 				);
 			} else if (event.key == "Escape") {
+				this.value = "";
 				resetAll();
 			}
 		});
