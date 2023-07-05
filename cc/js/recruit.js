@@ -33,7 +33,6 @@ fetch(
 	.then((json) => {
 		let name_map = {};
 		Object.values(json).forEach((v) => (name_map[v.name] = v));
-
 		[
 			...recruitDetail.matchAll(
 				/<@rc\.eml>(.*?)<\/>|(?:\/\s*|\\n)([^\/]+?)(?=\s\/|$|\\)/gim
@@ -65,6 +64,7 @@ fetch(
 				TAG_MAP[tagid].tagCat = category;
 				let btn = document.createElement("div");
 				btn.classList.add("button");
+				btn.dataset.tagId = tagid;
 				btn.innerHTML = TAG_MAP[tagid].tagName;
 				if (selectedTags.has(TAG_MAP[tagid].tagName)) {
 					selectedTags.add(String(TAG_MAP[tagid].tagGroup));
@@ -117,10 +117,11 @@ function calculateResults() {
 	let groups = [];
 	getCombinations(selectedTags).forEach((combo) => {
 		if (combo.length === 0) return;
-		tags = combo.map((i) => TAG_MAP[i]);
-		matches = [];
+		let tags = combo.map((i) => TAG_MAP[i]);
+		let matches = [];
+		let hasTopOp = combo.includes("11");
 		Object.values(RECRUIT_POOL)
-			.filter((op) => op.rarity !== 5 || selectedTags.has("11"))
+			.filter((op) => hasTopOp || op.rarity < 5)
 			.forEach((op) => {
 				if (
 					tags.every((tag) => {
@@ -194,10 +195,6 @@ function calculateResults() {
 					op.rarity < 2 ? minr : Math.min(minr, op.rarity),
 				99
 			),
-			lowestRarity: matches.reduce(
-				(minr, op) => Math.min(minr, op.rarity),
-				99
-			),
 			nineHourOpCount: matches.reduce(
 				(count, op) => (op.rarity > 1 ? count + 1 : count),
 				0
@@ -206,8 +203,11 @@ function calculateResults() {
 		// handle special cases involving "Starter" and "Robot" tag
 		// use 2.5 rarity for robots, placing them above 3* but below 4* (this also shows them even when show 2/3* is unchecked)
 		if (newGroup.lowest9hrRarity == 99) {
-			newGroup.lowest9hrRarity =
-				newGroup.lowestRarity == 0 ? 2.5 : newGroup.lowestRarity;
+			lowestRarity = newGroup.matches.reduce(
+				(minr, op) => Math.min(minr, op.rarity),
+				99
+			);
+			newGroup.lowest9hrRarity = lowestRarity == 0 ? 2.5 : lowestRarity;
 			newGroup.nineHourOpCount = newGroup.matches.length;
 		}
 		groups.push(newGroup);

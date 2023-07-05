@@ -50,6 +50,10 @@
 	outline: 1px solid limegreen;
 }
 
+.operatorCheckbox {
+	cursor: pointer;
+}
+
 table,
 #reset {
 	border-collapse: collapse;
@@ -129,10 +133,19 @@ table .button:not(.disabled).checked {
 	border: 1px solid #f1f1f1;
 	color: #f1f1f1;
 }
-tbody[data-too-many="true"] .button.checked {
+
+tbody[data-too-many="true"] tr td .button[data-tag-id].checked:not(.disabled) {
 	color: #ff7f7f;
 	border-color: #ff7f7f;
 }
-.operatorCheckbox {
-	cursor: pointer;
+table tbody tr td .button[data-tag-id="14"]:not(.disabled),
+table tbody tr td .button[data-tag-id="11"]:not(.disabled) {
+	/*	color: #e7e723;*/
+}
+table tbody tr td .button[data-tag-id="14"]:not(.disabled).checked,
+table tbody tr td .button[data-tag-id="11"]:not(.disabled).checked {
+	/*	color: yellow;*/
+	background: #f6e30b;
+	color: black;
+	border: 1px solid #f1f1f1;
 }
