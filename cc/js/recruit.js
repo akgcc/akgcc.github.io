@@ -340,7 +340,7 @@ function getRecruitList(char_table) {
 	);
 	[
 		...recruitDetail.matchAll(
-			/<@rc\.eml>(.*?)<\/>|(?:\/\s*|\s|\\n)([^\/]+?)(?=\s\/|$|\\)/gim
+			/(?<!>\s)<@rc\.eml>(.*?)<\/>|(?:\/\s*|\n\s*|\\n\s*)((?!-)[^\/>★]+?(?<!-))(?=\/|$)/gim
 		),
 	].forEach((m) => {
 		let opname = m[1] ?? m[2];
@@ -350,6 +350,9 @@ function getRecruitList(char_table) {
 			op.recruitOnly = !!m[1];
 			RECRUIT_POOL[op.charId] = op;
 			recruit_names.add(opname);
+		} else {
+			//sanity check: we expect EVERY match to be a valid op
+			return false;
 		}
 	});
 	// now do a sanity check:
