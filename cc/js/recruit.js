@@ -267,6 +267,10 @@ function calculateResults() {
 					op.rarity < 2 ? minr : Math.min(minr, op.rarity),
 				99
 			),
+			highestRarity: matches.reduce(
+				(maxr, op) => Math.max(maxr, op.rarity),
+				0
+			),
 			nineHourOpCount: matches.reduce(
 				(count, op) => (op.rarity > 1 ? count + 1 : count),
 				0
@@ -291,6 +295,8 @@ function calculateResults() {
 	groups.sort((a, b) => {
 		if (b.lowest9hrRarity !== a.lowest9hrRarity)
 			return b.lowest9hrRarity - a.lowest9hrRarity;
+		if (b.highestRarity !== a.highestRarity)
+			return b.highestRarity - a.highestRarity;
 		return a.nineHourOpCount - b.nineHourOpCount;
 	});
 	groups.forEach((group) => {
