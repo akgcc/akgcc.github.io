@@ -1,5 +1,6 @@
 const ISLIST = ["#1", "#2", "#3", "#4"];
 const itemList = document.getElementById("itemList");
+const BANNED_TYPES = ["TOTEM", "TOTEM_EFFECT", "FEATURE", "VISION"];
 const rarityMap = {
 	NORMAL: "n",
 	RARE: "r",
@@ -59,8 +60,13 @@ function loadItems(is) {
 					break;
 			}
 			for (const [key, value] of Object.entries(table)) {
-				if (value.description && value.description.trim())
+				if (
+					!BANNED_TYPES.includes(value.type) &&
+					value.description &&
+					value.description.trim()
+				) {
 					addItem(value);
+				}
 			}
 			document
 				.querySelectorAll("#topNav .nav-right > .isb")
