@@ -10,9 +10,13 @@ let TAG_CATEGORIES = {
 	Class: [8, 1, 3, 2, 6, 4, 5, 7], // in-game order
 	Affix: [15, 16, 19, 21, 23, 20, 22, 24, 26, 12, 13, 27, 25, 18],
 };
+const OP_NAME_SUBSTITUTIONS = {
+	"justice knight": "'justice knight'",
+};
 let TAG_STACK = [];
 let highlightedTag;
 let noobMode = localStorage.getItem("noobMode") === "true";
+let showRobots = ["true", null].includes(localStorage.getItem("showRobots"));
 let selectedTags = new Set();
 let currentAutocomplete;
 const opTagList = document.createElement("div");
@@ -277,13 +281,14 @@ function calculateResults() {
 			),
 		};
 		// handle special cases involving "Starter" and "Robot" tag
-		// use 2.5 rarity for robots, placing them above 3* but below 4* (this also shows them even when show 2/3* is unchecked)
+		// use 3.5 rarity for robots, placing them above 4* but below 5* (this also shows them even when show 2/3* is unchecked)
 		if (newGroup.lowest9hrRarity == 99) {
 			lowestRarity = newGroup.matches.reduce(
 				(minr, op) => Math.min(minr, op.rarity),
 				99
 			);
-			newGroup.lowest9hrRarity = lowestRarity == 0 ? 2.5 : lowestRarity;
+			newGroup.lowest9hrRarity =
+				lowestRarity == 0 && showRobots ? 3.5 : lowestRarity;
 			newGroup.nineHourOpCount = newGroup.matches.length;
 		}
 		groups.push(newGroup);
@@ -291,7 +296,8 @@ function calculateResults() {
 	let fullResultSize = groups.length;
 	if (!noobMode) {
 		groups = groups.filter((g) => g.lowest9hrRarity > 2);
-	}
+	} else if (!showRobots)
+		groups = groups.filter((g) => g.lowest9hrRarity > 0);
 	groups.sort((a, b) => {
 		if (b.lowest9hrRarity !== a.lowest9hrRarity)
 			return b.lowest9hrRarity - a.lowest9hrRarity;
@@ -360,7 +366,7 @@ function calculateResults() {
 		tr.appendChild(ops);
 		resultsTable.appendChild(tr);
 	});
-	if (!noobMode) {
+	if (!noobMode || !showRobots) {
 		let omitted = fullResultSize - groups.length;
 		if (omitted > 0) {
 			let tr = document.createElement("tr");
@@ -392,7 +398,14 @@ function getCombinations(set) {
 
 	return combinations;
 }
-
+const robotToggle = document.getElementById("showRobots");
+if (showRobots) robotToggle.classList.add("checked");
+robotToggle.onclick = (e) => {
+	showRobots = !showRobots;
+	e.currentTarget.classList.toggle("checked");
+	localStorage.setItem("showRobots", showRobots);
+	calculateResults();
+};
 const noobToggle = document.getElementById("noobMode");
 if (noobMode) noobToggle.classList.add("checked");
 noobToggle.onclick = (e) => {
@@ -421,23 +434,29 @@ function getRecruitList(char_table) {
 	Object.values(char_table).forEach(
 		(v) => (name_map[v.name.toLowerCase()] = v)
 	);
-	[
-		...recruitDetail.matchAll(
-			/(?<!>\s)<@rc\.eml>(.*?)<\/>|(?:\/\s*|\n\s*|\\n\s*)((?!-)[^\/>★]+?(?<!-))(?=\/|$)/gim
-		),
-	].forEach((m) => {
-		let opname = m[1] ?? m[2];
-		opname = opname.trim().toLowerCase();
-		if (Object.keys(name_map).includes(opname)) {
-			let op = name_map[opname];
-			op.recruitOnly = !!m[1];
-			RECRUIT_POOL[op.charId] = op;
-			recruit_names.add(opname);
-		} else {
-			//sanity check: we expect EVERY match to be a valid op
-			return false;
-		}
-	});
+	if (
+		![
+			...recruitDetail.matchAll(
+				/(?<!>\s)<@rc\.eml>(.*?)<\/>|(?:\/\s*|\n\s*|\\n\s*)((?!-)[^\/>★]+?(?<!-))(?=\/|$)/gim
+			),
+		].every((m) => {
+			let opname = m[1] ?? m[2];
+			opname = opname.trim().toLowerCase();
+			opname = OP_NAME_SUBSTITUTIONS[opname] || opname;
+			if (Object.keys(name_map).includes(opname)) {
+				let op = name_map[opname];
+				op.recruitOnly = !!m[1];
+				RECRUIT_POOL[op.charId] = op;
+				recruit_names.add(opname);
+				return true;
+			} else {
+				//sanity check: we expect EVERY match to be a valid op
+				return false;
+			}
+		})
+	) {
+		return false;
+	}
 	// now do a sanity check:
 	// match every string in recruitDetail for valid operator names
 	// check if the resulting set is a subset of recruit_names
