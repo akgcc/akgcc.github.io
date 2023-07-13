@@ -1,4 +1,4 @@
-const ISLIST = ["#1", "#2", "#3"];
+const ISLIST = ["#1", "#2", "#3", "#4"];
 const itemList = document.getElementById("itemList");
 const rarityMap = {
 	NORMAL: "n",
