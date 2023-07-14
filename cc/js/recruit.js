@@ -164,6 +164,7 @@ fetch(
 			if (highlightedTag) highlightedTag.classList.remove("highlight");
 			currentAutocomplete = null;
 			if (options.length < 1) return;
+			options.sort((a, b) => a.length - b.length);
 			currentAutocomplete = TAG_NAME_MAP[options[0]].tagId;
 			highlightedTag = document.querySelector(
 				`#tagList .button[data-tag-id="${currentAutocomplete}"]`
