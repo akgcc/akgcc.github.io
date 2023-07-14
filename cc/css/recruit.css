@@ -52,7 +52,8 @@
 	outline: 1px solid limegreen;
 }
 
-.operatorCheckbox {
+.operatorCheckbox,
+.operatorCheckbox .name {
 	cursor: pointer;
 }
 
@@ -83,6 +84,7 @@ tr:nth-child(odd) {
 	background: #ffffff30;
 	margin: 0.25em;
 	display: inline-block;
+	user-select: none;
 }
 
 #recruitResults td:first-child {

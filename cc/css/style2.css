@@ -19,7 +19,9 @@
 .operatorCheckbox,
 .operatorCheckbox .name {
   cursor: default;
+  user-select: none;
 }
+
 .btnPanel,
 #info {
   padding: 8px 8px 0 8px;
