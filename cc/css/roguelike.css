@@ -149,6 +149,7 @@ html.translated-rtl .rl_title .mtl_title {
 	background-repeat: no-repeat;
 	background-size: cover;
 	flex: 1;
+	position: relative;
 }
 .rl_inner_spacer {
 	flex: 1;
@@ -167,4 +168,38 @@ html.translated-rtl .rl_title .mtl_title {
 	min-height: 3px;
 	width: 100%;
 	flex: 0;
+}
+
+.variant_selectors {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	top: 2.7em; /*below titlebar which is 2.7em */
+	right: 0;
+	padding-top: 10px;
+	z-index: 1;
+}
+
+.variantBtn {
+	margin-bottom: 8px;
+	padding: 8px 12px;
+	background-color: rgba(0, 0, 0, 0.4);
+	color: #ddd;
+	border: 1px solid #ddd;
+	border-right: none;
+	border-radius: 4px 0 0 4px;
+	cursor: pointer;
+	position: relative;
+	user-select: none;
+}
+
+.variantBtn:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+	border-color: #fff;
+}
+
+.variantBtn:active,
+.variantBtn.checked {
+	background-color: rgba(255, 255, 255, 0.4);
+	border-color: #fff;
 }

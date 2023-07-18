@@ -59,14 +59,28 @@ function loadItems(is) {
 					table = js.details[`rogue_${is - 1}`].items;
 					break;
 			}
-			for (const [key, value] of Object.entries(table)) {
-				if (
-					!BANNED_TYPES.includes(value.type) &&
-					value.description &&
-					value.description.trim()
-				) {
-					addItem(value);
-				}
+			const variants_table = {};
+			const IS_VARIANT = /_[abcd]$/;
+			Object.values(table)
+				.filter((r) => r.id.match(IS_VARIANT))
+				.forEach((v) => {
+					base = v.id.replace(IS_VARIANT, "");
+					variants_table[base] = variants_table[base] || [];
+					variants_table[base].push(v);
+				});
+			const filtered_keys = Object.keys(table).filter(
+				(key) =>
+					!BANNED_TYPES.includes(table[key].type) &&
+					table[key].description &&
+					table[key].description.trim() &&
+					!key.match(IS_VARIANT)
+			);
+			const filtered_table = filtered_keys.reduce((acc, key) => {
+				acc[key] = table[key];
+				return acc;
+			}, {});
+			for (const [key, value] of Object.entries(filtered_table)) {
+				addItem(value, variants_table[key]);
 			}
 			document
 				.querySelectorAll("#topNav .nav-right > .isb")
@@ -74,7 +88,7 @@ function loadItems(is) {
 			buttonMap[is].classList.add("checked");
 		});
 }
-function addItem(data) {
+function addItem(data, variants = undefined) {
 	let item = document.createElement("div");
 	item.classList.add("rl_item");
 	let item_rarity = rarityMap[data.rarity] || "n";
@@ -135,13 +149,41 @@ function addItem(data) {
 	let unlock = document.createElement("div");
 	unlock.classList.add("rl_unlock");
 	unlock.innerHTML = data.unlockCondDesc;
-	let effect = document.createElement("div");
+	const effect = document.createElement("div");
 	effect.classList.add("rl_effect");
 	effect.innerHTML = data.usage;
 	let spacer = document.createElement("div");
 	spacer.classList.add("rl_inner_spacer");
 	let bot_border = document.createElement("div");
 	bot_border.classList.add("rl_bottom_trim");
+
+	if (variants) {
+		let btn_container = document.createElement("div");
+		btn_container.classList.add("variant_selectors");
+		inner.appendChild(btn_container);
+		variants.forEach((v) => {
+			let btn = document.createElement("div");
+			btn.classList.add("variantBtn");
+			btn.innerHTML = v.name[v.name.length - 1];
+			btn_container.appendChild(btn);
+			btn.addEventListener("click", (e) => {
+				let wasChecked = btn.classList.contains("checked");
+				if (wasChecked) {
+					//revert to normal data
+					effect.innerHTML = data.usage;
+				} else {
+					btn.parentElement
+						.querySelectorAll(".variantBtn")
+						.forEach((e) => e.classList.remove("checked"));
+					// show data for this one
+					effect.innerHTML = v.usage;
+				}
+
+				btn.classList.toggle("checked");
+			});
+		});
+	}
+
 	inner.appendChild(title);
 	inner.appendChild(img_wrapper);
 	inner.appendChild(desc);
