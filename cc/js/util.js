@@ -8,6 +8,8 @@ const CC_DATA_SOURCE = DATA_SOURCE;
 // const IMG_SOURCE = "https://aceship.github.io/AN-EN-Tags/img/";
 const IMG_SOURCE =
   "https://raw.githubusercontent.com/Aceship/Arknight-Images/main/";
+const ALT_IMG_SOURCE =
+  "https://arkwaifu.cc/api/v1/arts/REPLACEME/variants/origin/content";
 const ROGUELIKE_LOCAL_IMAGE_SOURCE =
   "../images/assets/torappu/dynamicassets/arts/ui/rogueliketopic/itempic/";
 const SERVERS = {

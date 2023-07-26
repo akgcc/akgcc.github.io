@@ -693,16 +693,17 @@ async function genStory(data) {
                 if (!scene) {
                     scene = createScene(
                         IMG_SOURCE + "avg/backgrounds/bg_black.png",
+                        ALT_IMG_SOURCE.replace(/REPLACEME/, "bg_black"),
                         imageScene
                     );
                 }
                 return scene;
             }
-            function createScene(imgurl, isImage) {
+            function createScene(imgurl, altimgurl, isImage) {
                 chars = {};
                 speaker = 0;
                 // imgurl may be an array for largebg, note that only the first 2 images will be used.
-                scene = document.createElement("div");
+                const scene = document.createElement("div");
                 scene.classList.add("scene");
                 if (isImage) scene.classList.add("image");
                 if (hangingBlocker) {
@@ -713,77 +714,101 @@ async function genStory(data) {
                     for (a of preSceneAudios) scene.appendChild(a);
                     preSceneAudios.length = 0;
                 }
+                scene.setAttribute("data-bgheight", 0);
+                scene.setAttribute("data-bgwidth", 0);
+                if (!Array.isArray(imgurl)) {
+                    let imgLoader = new Image();
+                    imgLoader.onload = (e) => {
+                        setSceneSize(e),
+                            scene.style.setProperty(
+                                "--background-image-url",
+                                'url("' + e.currentTarget.src + '")'
+                            );
+                    };
+                    imgLoader.src = imgurl;
 
-                let setDims = function () {
-                    let h = this.im.height;
+                    imgLoader.onerror = () => {
+                        // try the altimgurl now
+                        imgLoader = new Image();
+                        imgLoader.onload = (e) => {
+                            setSceneSize(e),
+                                scene.style.setProperty(
+                                    "--background-image-url",
+                                    'url("' + e.currentTarget.src + '")'
+                                );
+                        };
+                        imgLoader.onerror = (e) => {
+                            // last ditch effort, treat this as multipart
+                            let left =
+                                imgurl.split(".").slice(0, -1).join(".") +
+                                "_1." +
+                                imgurl.split(".").slice(-1);
+                            let right =
+                                imgurl.split(".").slice(0, -1).join(".") +
+                                "_2." +
+                                imgurl.split(".").slice(-1);
+                            multipartImage(left, right);
+                        };
+                        imgLoader.src = altimgurl;
+                    };
+                } else {
+                    multipartImage(imgurl[0], imgurl[1]).catch(() => {
+                        multipartImage(altimgurl[0], altimgurl[1]);
+                    });
+                }
+                allScenes.push(scene);
+                imgLoader = null;
+                return scene;
+
+                function setSceneSize(e) {
+                    const img = e.currentTarget;
+                    let h = img.height;
                     let w =
-                        parseInt(this.div.getAttribute("data-bgwidth")) +
-                        this.im.width;
-                    this.div.setAttribute("data-bgheight", h);
-                    this.div.setAttribute("data-bgwidth", w);
-                    if (this.div.classList.contains("multipart"))
-                        this.div.style.minHeight =
+                        parseInt(scene.getAttribute("data-bgwidth")) +
+                        img.width;
+                    scene.setAttribute("data-bgheight", h);
+                    scene.setAttribute("data-bgwidth", w);
+                    if (scene.classList.contains("multipart"))
+                        scene.style.minHeight =
                             "calc(1.5 * var(--story-width) / " +
                             w +
                             " * " +
                             h +
                             ")";
                     else
-                        this.div.style.minHeight =
+                        scene.style.minHeight =
                             "calc(var(--story-width) / " + w + " * " + h + ")";
-                    alignBackground(this.div);
-                    this.im.remove();
-                };
-                function multipart(left, right) {
-                    this.div.classList.add("multipart");
-                    this.div.style.setProperty(
-                        "--background-image-url",
-                        'url("' + left + '"), url("' + right + '")'
-                    );
-                    let dimleft = new Image();
-                    let dimright = new Image();
-                    dimleft.src = left;
-                    dimright.src = right;
-                    dimleft.onload = setDims.bind({
-                        div: this.div,
-                        im: dimleft,
-                    });
-                    dimright.onload = setDims.bind({
-                        div: this.div,
-                        im: dimright,
-                    });
+                    alignBackground(scene);
+                    // img.remove();
                 }
-                scene.style.setProperty(
-                    "--background-image-url",
-                    'url("' + imgurl + '")'
-                );
-                scene.setAttribute("data-bgheight", 0);
-                scene.setAttribute("data-bgwidth", 0);
-                if (Array.isArray(imgurl)) {
-                    multipart.bind({ div: scene })(imgurl[0], imgurl[1]);
-                } else {
-                    let getdim = new Image();
-                    getdim.onload = setDims.bind({
-                        div: scene,
-                        im: getdim,
-                    });
+                function multipartImage(left, right) {
+                    return new Promise((resolve, reject) => {
+                        scene.classList.add("multipart");
 
-                    // may be a multi-part image, try using first 2 parts to form a bg.
-                    getdim.onerror = function () {
-                        let left =
-                            getdim.src.split(".").slice(0, -1).join(".") +
-                            "_1." +
-                            getdim.src.split(".").slice(-1);
-                        let right =
-                            getdim.src.split(".").slice(0, -1).join(".") +
-                            "_2." +
-                            getdim.src.split(".").slice(-1);
-                        return multipart.bind(this)(left, right);
-                    }.bind({ div: scene });
-                    getdim.src = imgurl;
+                        let dimleft = new Image();
+                        let dimright = new Image();
+
+                        dimleft.onload = setSceneSize;
+                        dimright.onload = (e) => {
+                            setSceneSize(e),
+                                scene.style.setProperty(
+                                    "--background-image-url",
+                                    'url("' + left + '"), url("' + right + '")'
+                                );
+                        };
+                        dimleft.onerror = () => {
+                            // Image failed to load
+                            reject(new Error("Failed to load image."));
+                        };
+                        dimright.onerror = () => {
+                            // Image failed to load
+                            reject(new Error("Failed to load image."));
+                        };
+
+                        dimleft.src = left;
+                        dimright.src = right;
+                    });
                 }
-                allScenes.push(scene);
-                return scene;
             }
             function makeDecisionDialog(args) {
                 let choices = args.options.split(";");
@@ -1006,7 +1031,10 @@ async function genStory(data) {
                             }
                             let imgurl =
                                 IMG_SOURCE + "avg/backgrounds/bg_black.png";
-
+                            let altimgurl = ALT_IMG_SOURCE.replace(
+                                /REPLACEME/,
+                                "bg_black"
+                            );
                             switch (cmd.toLowerCase()) {
                                 case "image":
                                     if (!args || !args.image) {
@@ -1024,6 +1052,10 @@ async function genStory(data) {
                                         "avg/images/" +
                                         args.image +
                                         ".png";
+                                    altimgurl = ALT_IMG_SOURCE.replace(
+                                        /REPLACEME/,
+                                        args.image
+                                    );
                                     break;
                                 case "background":
                                     imgurl =
@@ -1031,6 +1063,10 @@ async function genStory(data) {
                                         "avg/backgrounds/" +
                                         args.image +
                                         ".png";
+                                    altimgurl = ALT_IMG_SOURCE.replace(
+                                        /REPLACEME/,
+                                        args.image
+                                    );
                                     lastBackgroundImage = imgurl;
                                     break;
                                 case "largebg":
@@ -1044,6 +1080,15 @@ async function genStory(data) {
                                                 x +
                                                 ".png"
                                         );
+                                    altimgurl = args.imagegroup
+                                        .split("/")
+                                        .slice(0, 2)
+                                        .map((x) =>
+                                            ALT_IMG_SOURCE.replace(
+                                                /REPLACEME/,
+                                                x
+                                            )
+                                        );
                                     lastBackgroundImage = imgurl;
                                     break;
                                 case "moduleimage":
@@ -1051,11 +1096,16 @@ async function genStory(data) {
                                     break;
                                 case "roguebackground":
                                     imgurl = `${IMG_SOURCE}avg/images/${args.image}.png`;
+                                    altimgurl = ALT_IMG_SOURCE.replace(
+                                        /REPLACEME/,
+                                        args.image
+                                    );
                                     break;
                             }
 
                             scene = createScene(
                                 imgurl,
+                                altimgurl,
                                 cmd.toLowerCase() == "image" &&
                                     args &&
                                     args.image
@@ -1402,6 +1452,20 @@ function playWhenReady(audio) {
     }
 }
 
+function completeCharPath(path) {
+    let hasHash = /#(\d+)(\$\d+)?$/.test(path);
+    let hasDollar = /\$(\d+)$/.exec(path); // [1] is the num
+    if (!hasDollar) {
+        if (!hasHash) {
+            path += "#1$1";
+        } else {
+            path += "$1";
+        }
+    } else if (!hasHash) {
+        path = path.replace(/\$\d+$/, "#1$" + hasDollar[1]);
+    }
+    return path;
+}
 function avatarImg(path) {
     // return image element with many, many fallbacks.
     path = path.trim(); //.toLowerCase();
@@ -1450,7 +1514,6 @@ function avatarImg(path) {
     src_array.push(
         `${base}_${num}${variant ? variant.split("0").join("") : ""}`
     );
-
     const img = document.createElement("img");
     var i = 1;
     img.onerror = function () {
@@ -1460,10 +1523,15 @@ function avatarImg(path) {
                 "avg/characters/" +
                 encodeURIComponent(src_array[i]) +
                 ".png";
+            // this.src = ALT_IMG_SOURCE.replace(
+            //     /REPLACEME/,
+            //     encodeURIComponent(src_array[i])
+            // );
             i++;
         } else {
             this.onerror = null;
             this.src = `${IMG_SOURCE}avatars/avg_npc_012.png`;
+            // this.src = ALT_IMG_SOURCE.replace(/REPLACEME/, "avg_npc_012");
             this.parentElement.classList.remove("npc");
             this.parentElement.classList.add("unknown");
             console.log("ALL ERROR (serve mystery npc)", src_array);
@@ -1484,11 +1552,15 @@ function avatarImg(path) {
     img.style.left = coords.x;
     img.style.top = coords.y;
     img.style.transform = `scale(${coords.s})`;
-    img.src =
-        IMG_SOURCE +
-        "avg/characters/" +
-        encodeURIComponent(src_array[0]) +
-        ".png";
+    // img.src =
+    //     IMG_SOURCE +
+    //     "avg/characters/" +
+    //     encodeURIComponent(src_array[0]) +
+    //     ".png";
+    img.src = ALT_IMG_SOURCE.replace(
+        /REPLACEME/,
+        encodeURIComponent(completeCharPath(path))
+    );
     let wrap = document.createElement("div");
     wrap.classList.add("avatar");
     wrap.classList.add("npc");
