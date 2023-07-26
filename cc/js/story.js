@@ -1481,7 +1481,7 @@ function avatarImg(path) {
         .exec(path)[1]
         .toLowerCase();
     if (base in charPathFixes) base = charPathFixes[base];
-    var src_array = [path];
+    let src_array = [path];
     for (const base_n of [
         base,
         base.toLowerCase(),
@@ -1514,15 +1514,28 @@ function avatarImg(path) {
     src_array.push(
         `${base}_${num}${variant ? variant.split("0").join("") : ""}`
     );
+    src_array = src_array.map(
+        (item) =>
+            IMG_SOURCE + "avg/characters/" + encodeURIComponent(item) + ".png"
+    );
+    src_array.splice(
+        1,
+        0,
+        ALT_IMG_SOURCE.replace(
+            /REPLACEME/,
+            encodeURIComponent(completeCharPath(path))
+        )
+    );
     const img = document.createElement("img");
     var i = 1;
     img.onerror = function () {
         if (i < src_array.length) {
-            this.src =
-                IMG_SOURCE +
-                "avg/characters/" +
-                encodeURIComponent(src_array[i]) +
-                ".png";
+            this.src = src_array[i];
+            // this.src =
+            //     IMG_SOURCE +
+            //     "avg/characters/" +
+            //     encodeURIComponent(src_array[i]) +
+            //     ".png";
             // this.src = ALT_IMG_SOURCE.replace(
             //     /REPLACEME/,
             //     encodeURIComponent(src_array[i])
@@ -1557,10 +1570,11 @@ function avatarImg(path) {
     //     "avg/characters/" +
     //     encodeURIComponent(src_array[0]) +
     //     ".png";
-    img.src = ALT_IMG_SOURCE.replace(
-        /REPLACEME/,
-        encodeURIComponent(completeCharPath(path))
-    );
+    img.src = src_array[0];
+    // img.src = ALT_IMG_SOURCE.replace(
+    //     /REPLACEME/,
+    //     encodeURIComponent(completeCharPath(path))
+    // );
     let wrap = document.createElement("div");
     wrap.classList.add("avatar");
     wrap.classList.add("npc");
