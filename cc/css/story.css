@@ -436,3 +436,15 @@ strong {
   text-align: left;
   flex-basis: 31.45em;
 }
+
+.storySelect option,
+.storySelect {
+  background-color: var(--main-background-color);
+  color: var(--main-text-color);
+}
+.storySelect {
+  outline: none;
+  padding: 0.15em;
+  border: 1px solid #555;
+  border-radius: 0.2em;
+}
