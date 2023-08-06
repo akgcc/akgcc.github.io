@@ -42,8 +42,24 @@ const charPathFixes = {
     // avg_NPC_017_3: "avg_npc_017_3",
     // avg_1012_skadiSP_1: "avg_1012_skadisp_1",
 };
-const CharslotFocusMap = { l: 1, m: 2, r: 3, all: 99, none: 0 };
-const CharslotNameMap = { l: "", m: 2, r: 3 };
+const CharslotFocusMap = {
+    l: 1,
+    left: 1,
+    m: 2,
+    middle: 2,
+    r: 3,
+    right: 3,
+    all: 99,
+    none: 0,
+};
+const CharslotNameMap = {
+    l: "",
+    left: "",
+    m: 2,
+    middle: 2,
+    r: 3,
+    right: 3,
+};
 
 get_char_table(false, serverString)
     .then((js) => {
