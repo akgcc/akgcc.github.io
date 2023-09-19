@@ -1,4 +1,3 @@
-const ISLIST = ["#1", "#2", "#3", "#4"];
 const itemList = document.getElementById("itemList");
 const BANNED_TYPES = ["TOTEM", "TOTEM_EFFECT", "FEATURE", "VISION"];
 const rarityMap = {
@@ -7,58 +6,80 @@ const rarityMap = {
 	SUPER_RARE: "sr",
 };
 const buttonMap = {};
-if (!window.location.hash || !ISLIST.includes(window.location.hash))
-	window.location.hash = ISLIST.slice(-1)[0];
-window.onhashchange = () => loadItems(window.location.hash.substring(1));
-ISLIST.reverse().forEach((is) => {
-	const a = document.createElement("a");
-	buttonMap[is.substring(1)] = a;
-	a.classList.add("rightButton");
-	a.classList.add("button");
-	a.classList.add("isb");
-	if (is == window.location.hash) a.classList.add("checked");
-	a.innerHTML = is;
-	document.getElementById("topNav").querySelector(".nav-right").prepend(a);
-	a.addEventListener("click", () => {
-		window.location.hash = is; // will trigger loadItems()
+let ISLIST = ["#1"];
+fetch(
+	"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/zone_table.json",
+)
+	.then((res) => fixedJson(res))
+	.then((zonedata) => {
+		Object.values(zonedata.zones)
+			.filter((x) => x.type == "ROGUELIKE")
+			.forEach((element, index) => {
+				ISLIST.push(`#${index + 2}`);
+			});
+		return ISLIST;
+	})
+	.then((ISLIST) => {
+		ISLIST.reverse().forEach((is) => {
+			const a = document.createElement("a");
+			buttonMap[is.substring(1)] = a;
+			a.classList.add("rightButton");
+			a.classList.add("button");
+			a.classList.add("isb");
+			if (is == window.location.hash) a.classList.add("checked");
+			a.innerHTML = is;
+			document
+				.getElementById("topNav")
+				.querySelector(".nav-right")
+				.prepend(a);
+			a.addEventListener("click", () => {
+				window.location.hash = is; // will trigger loadItems()
+			});
+		});
+		if (!window.location.hash || !ISLIST.includes(window.location.hash))
+			window.location.hash = ISLIST.slice(-1)[0];
+		window.onhashchange = () =>
+			loadItems(window.location.hash.substring(1));
+		loadItems(window.location.hash.substring(1));
 	});
-});
-loadItems(window.location.hash.substring(1));
-function loadItems(is) {
-	itemList.innerHTML = "";
-	let source;
+
+async function fetchItemTable(is) {
+	let resp, js;
 	switch (parseInt(is)) {
 		case 1:
-			source = fetch("./json/" + serverString + "/roguelike_table.json");
-			break;
-		case 4:
-			// CN exclusive
-			source = fetch(
-				"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-					"zh_CN" +
-					"/gamedata/excel/roguelike_topic_table.json"
+			resp = await fetch(
+				"./json/" + serverString + "/roguelike_table.json",
 			);
+			js = await fixedJson(resp);
+			table = js.itemTable.items;
 			break;
 		default:
-			source = fetch(
+			resp = await fetch(
 				"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
 					serverString +
-					"/gamedata/excel/roguelike_topic_table.json"
+					"/gamedata/excel/roguelike_topic_table.json",
 			);
+			js = await fixedJson(resp);
+			table = js.details?.[`rogue_${is - 1}`]?.items;
 			break;
 	}
-	source
-		.then((res) => fixedJson(res))
-		.then((js) => {
-			let table;
-			switch (parseInt(is)) {
-				case 1:
-					table = js.itemTable.items;
-					break;
-				default:
-					table = js.details[`rogue_${is - 1}`].items;
-					break;
-			}
+	if (!table) {
+		// fallback to CN data
+		resp = await fetch(
+			"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
+				"zh_CN" +
+				"/gamedata/excel/roguelike_topic_table.json",
+		);
+		js = await fixedJson(resp);
+		table = js.details[`rogue_${is - 1}`].items;
+	}
+	return table;
+}
+function loadItems(is) {
+	itemList.innerHTML = "";
+	fetchItemTable(is)
+		// .then((res) => fixedJson(res))
+		.then((table) => {
 			const variants_table = {};
 			const IS_VARIANT = /_[abcd]$/;
 			Object.values(table)
@@ -73,7 +94,7 @@ function loadItems(is) {
 					!BANNED_TYPES.includes(table[key].type) &&
 					table[key].description &&
 					table[key].description.trim() &&
-					!key.match(IS_VARIANT)
+					!key.match(IS_VARIANT),
 			);
 			const filtered_table = filtered_keys.reduce((acc, key) => {
 				acc[key] = table[key];
@@ -96,7 +117,7 @@ function addItem(data, variants = undefined) {
 	["bg", "top", "bot", "btn"].forEach((n) => {
 		item.style.setProperty(
 			`--${n}-url`,
-			`url(/../images/rl_${item_rarity}_${n}.png)`
+			`url(/../images/rl_${item_rarity}_${n}.png)`,
 		);
 	});
 	let title = document.createElement("div");
