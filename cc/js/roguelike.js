@@ -77,37 +77,35 @@ async function fetchItemTable(is) {
 }
 function loadItems(is) {
 	itemList.innerHTML = "";
-	fetchItemTable(is)
-		// .then((res) => fixedJson(res))
-		.then((table) => {
-			const variants_table = {};
-			const IS_VARIANT = /_[abcd]$/;
-			Object.values(table)
-				.filter((r) => r.id.match(IS_VARIANT))
-				.forEach((v) => {
-					base = v.id.replace(IS_VARIANT, "");
-					variants_table[base] = variants_table[base] || [];
-					variants_table[base].push(v);
-				});
-			const filtered_keys = Object.keys(table).filter(
-				(key) =>
-					!BANNED_TYPES.includes(table[key].type) &&
-					table[key].description &&
-					table[key].description.trim() &&
-					!key.match(IS_VARIANT),
-			);
-			const filtered_table = filtered_keys.reduce((acc, key) => {
-				acc[key] = table[key];
-				return acc;
-			}, {});
-			for (const [key, value] of Object.entries(filtered_table)) {
-				addItem(value, variants_table[key]);
-			}
-			document
-				.querySelectorAll("#topNav .nav-right > .isb")
-				.forEach((e) => e.classList.remove("checked"));
-			buttonMap[is].classList.add("checked");
-		});
+	fetchItemTable(is).then((table) => {
+		const variants_table = {};
+		const IS_VARIANT = /_[abcd]$/;
+		Object.values(table)
+			.filter((r) => r.id.match(IS_VARIANT))
+			.forEach((v) => {
+				base = v.id.replace(IS_VARIANT, "");
+				variants_table[base] = variants_table[base] || [];
+				variants_table[base].push(v);
+			});
+		const filtered_keys = Object.keys(table).filter(
+			(key) =>
+				!BANNED_TYPES.includes(table[key].type) &&
+				table[key].description &&
+				table[key].description.trim() &&
+				!key.match(IS_VARIANT),
+		);
+		const filtered_table = filtered_keys.reduce((acc, key) => {
+			acc[key] = table[key];
+			return acc;
+		}, {});
+		for (const [key, value] of Object.entries(filtered_table)) {
+			addItem(value, variants_table[key]);
+		}
+		document
+			.querySelectorAll("#topNav .nav-right > .isb")
+			.forEach((e) => e.classList.remove("checked"));
+		buttonMap[is].classList.add("checked");
+	});
 }
 function addItem(data, variants = undefined) {
 	let item = document.createElement("div");
