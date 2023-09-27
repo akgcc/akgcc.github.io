@@ -37,7 +37,7 @@ fetch(
 			});
 		});
 		if (!window.location.hash || !ISLIST.includes(window.location.hash))
-			window.location.hash = ISLIST.slice(-1)[0];
+			window.location.hash = ISLIST[0];
 		window.onhashchange = () =>
 			loadItems(window.location.hash.substring(1));
 		loadItems(window.location.hash.substring(1));
