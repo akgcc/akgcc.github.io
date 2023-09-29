@@ -445,18 +445,20 @@ fetch(
         updateLightbox();
       };
     });
-    const red_filter = document.createElement("span");
-    red_filter.id = "red-filter";
-    const red_btn = document.createElement("div");
-    red_btn.id = "red-btn";
-    red_btn.onclick = () => {
-      red_btn.classList.toggle("_selected");
-      red_filter_enabled = red_btn.classList.contains("_selected");
-      applyAllFilters();
-      updateLightbox();
-    };
-    red_filter.appendChild(red_btn);
-    filtercontainer.appendChild(red_filter);
+    if (CCTAG === "-cc12clear") {
+      const red_filter = document.createElement("span");
+      red_filter.id = "red-filter";
+      const red_btn = document.createElement("div");
+      red_btn.id = "red-btn";
+      red_btn.onclick = () => {
+        red_btn.classList.toggle("_selected");
+        red_filter_enabled = red_btn.classList.contains("_selected");
+        applyAllFilters();
+        updateLightbox();
+      };
+      red_filter.appendChild(red_btn);
+      filtercontainer.appendChild(red_filter);
+    }
     // let stylesheet = document.createElement('style')
     // document.head.appendChild(stylesheet)
     // new ResizeObserver(()=>{
