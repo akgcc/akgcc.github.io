@@ -7,7 +7,7 @@ const lightbox = GLightbox({
   zoomable: false,
 });
 get_cc_list();
-if (!window.location.hash) window.location.hash = "#4";
+if (!window.location.hash) window.location.hash = "#12";
 document.getElementById("usageLink").href =
   "./cc-usage.html" + window.location.hash;
 window.onhashchange = () => window.location.reload();
@@ -44,10 +44,11 @@ var lightboxSoulOrder = {};
 var dupeChain = {};
 var CCTAG;
 var skill_table;
+var red_filter_enabled = false;
 fetch(
   "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
     "en_US" +
-    "/gamedata/excel/skill_table.json"
+    "/gamedata/excel/skill_table.json",
 )
   .then((res) => fixedJson(res))
   .then((json) => {
@@ -131,7 +132,7 @@ fetch(
             : ELITE_SOUL_SCALE[
                 Math.max(
                   ELITE_SOUL_EXEMPTIONS.includes(c.name) ? 2 : 0,
-                  3 + c.elite - operatorData[c.name].phases.length
+                  3 + c.elite - operatorData[c.name].phases.length,
                 )
               ];
         let total = v.squad.reduce(
@@ -141,7 +142,7 @@ fetch(
               weights[c.name] *
               elite_soul_scale(c) *
               RARITY_WEIGHTS[operatorData[c.name].rarity],
-          0
+          0,
         );
         let weight_total = Math.max(
           1,
@@ -151,8 +152,8 @@ fetch(
               weights[c.name] *
                 elite_soul_scale(c) *
                 RARITY_WEIGHTS[operatorData[c.name].rarity],
-            0
-          )
+            0,
+          ),
         );
         v.soul = Math.round((10000 * total) / weight_total) / 100;
       }
@@ -182,11 +183,11 @@ fetch(
     // create op sets for filtering:
     Object.keys(cardData).forEach((k) => {
       cardData[k].filterSquad = new Set(
-        cardData[k].squad.map((x) => x.name + "$" + x.skill)
+        cardData[k].squad.map((x) => x.name + "$" + x.skill),
       );
     });
     s = Array.from(new Set(Object.values(cardData).map((x) => x.risk))).sort(
-      (a, b) => b - a
+      (a, b) => b - a,
     );
     let container = document.getElementById("cards");
     s.forEach((risk) => {
@@ -252,7 +253,7 @@ fetch(
       riskMap[k].setAttribute("cardCount", headerCount[k]);
       riskMap[k].firstChild.setAttribute(
         "title",
-        headerCount[k] + (headerCount[k] == 1 ? " clear" : " clears")
+        headerCount[k] + (headerCount[k] == 1 ? " clear" : " clears"),
       );
       riskMap[k].firstChild.setAttribute("data-count", headerCount[k]);
       riskMap[k].firstChild.setAttribute("data-risk", k);
@@ -307,7 +308,7 @@ fetch(
           changeSetting("sortBy", "soul");
           document.body.classList.toggle("soul-mode");
           lightboxElementsOriginal.sort(
-            (a, b) => lightboxSoulOrder[a.href] - lightboxSoulOrder[b.href]
+            (a, b) => lightboxSoulOrder[a.href] - lightboxSoulOrder[b.href],
           );
 
           break;
@@ -326,7 +327,7 @@ fetch(
           changeSetting("sortBy", "date");
           document.body.classList.toggle("soul-mode");
           lightboxElementsOriginal.sort(
-            (a, b) => lightboxDateOrder[a.href] - lightboxDateOrder[b.href]
+            (a, b) => lightboxDateOrder[a.href] - lightboxDateOrder[b.href],
           );
           break;
       }
@@ -427,8 +428,8 @@ fetch(
         checkboxes,
         null,
         operatorData[x].skills.map(
-          (x) => skill_table[x.skillId]?.iconId || x.skillId
-        )
+          (x) => skill_table[x.skillId]?.iconId || x.skillId,
+        ),
       );
     });
     Object.values(operatorData)
@@ -444,6 +445,18 @@ fetch(
         updateLightbox();
       };
     });
+    const red_filter = document.createElement("span");
+    red_filter.id = "red-filter";
+    const red_btn = document.createElement("div");
+    red_btn.id = "red-btn";
+    red_btn.onclick = () => {
+      red_btn.classList.toggle("_selected");
+      red_filter_enabled = red_btn.classList.contains("_selected");
+      applyAllFilters();
+      updateLightbox();
+    };
+    red_filter.appendChild(red_btn);
+    filtercontainer.appendChild(red_filter);
     // let stylesheet = document.createElement('style')
     // document.head.appendChild(stylesheet)
     // new ResizeObserver(()=>{
@@ -526,7 +539,7 @@ fetch(
                 : -1
               : a.rarity < b.rarity
               ? 1
-              : -1
+              : -1,
           )
           .forEach((x, i) => (divMap[x.name].style.order = i));
     };
@@ -556,7 +569,7 @@ fetch(
       document.getElementById("clearCount").classList.toggle("checked");
       changeSetting(
         "clearCount",
-        document.body.classList.contains("clear-mode")
+        document.body.classList.contains("clear-mode"),
       );
     };
 
@@ -618,7 +631,7 @@ fetch(
             if (parseInt(lightbox.elements[i].original_idx) < max_idx) {
               lightbox.insertSlide(
                 lightboxElementsOriginal[lightboxOriginalIndexMapping[dupe]],
-                i + 1
+                i + 1,
               );
               lightbox.goToSlide(i + 1);
               return;
@@ -626,7 +639,7 @@ fetch(
           }
           lightbox.insertSlide(
             lightboxElementsOriginal[lightboxOriginalIndexMapping[dupe]],
-            0
+            0,
           );
           lightbox.goToSlide(0);
           return;
@@ -687,16 +700,16 @@ function resetFilters() {
     (x) => {
       x.classList.remove("_selected");
       x.removeAttribute("data-selsk");
-    }
+    },
   );
   Array.from(document.getElementsByClassName("opskillCheckbox")).forEach((x) =>
-    x.classList.remove("_selected")
+    x.classList.remove("_selected"),
   );
   Array.from(document.getElementsByClassName("riskContainer")).forEach((x) =>
-    x.classList.remove("hidden")
+    x.classList.remove("hidden"),
   );
   Array.from(document.getElementsByClassName("weekFilter")).forEach((x) =>
-    x.classList.remove("toggled")
+    x.classList.remove("toggled"),
   );
   document.getElementById("opcountSlider").value = 13;
   document.getElementById("opcountDisp").innerHTML = 13;
@@ -713,14 +726,17 @@ function updateLightbox() {
   // you can directly assign to lightbox.elements and its a bit quicker, we avoid it as it might break something unknown (for one thing, the .index property won't be correct ** actually .index is never correct after resorting, so don't rely on it.)
   lightbox.setElements(
     lightboxElementsOriginal.filter((x) =>
-      _filterShouldShow(decodeURI(x.href.split("/").slice(-1)[0]))
-    )
+      _filterShouldShow(decodeURI(x.href.split("/").slice(-1)[0])),
+    ),
   );
 }
 
 function _filterShouldShow(key) {
   let shouldShow =
     (2 ** document.getElementById(key).getAttribute("data-group")) & weekFilter;
+  if (CCTAG == "-cc12clear" && red_filter_enabled) {
+    shouldShow = shouldShow && cardData[key].red;
+  }
   shouldShow = shouldShow && cardData[key].opcount <= maxOpCount;
   shouldShow = shouldShow && cardData[key].avgRarity <= maxAvgRarity;
   if (totalChecked.size == 0)
@@ -754,7 +770,7 @@ function showCard(key, show = true) {
   else riskMap[cardData[key].risk].classList.remove("hidden");
   riskMap[cardData[key].risk].firstChild.setAttribute(
     "data-count",
-    headerCount[cardData[key].risk]
+    headerCount[cardData[key].risk],
   );
 }
 

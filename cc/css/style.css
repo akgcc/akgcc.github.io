@@ -836,3 +836,32 @@ body.icon-mode .riskContainer {
   text-rendering: auto;
   line-height: 1;
 }
+
+#red-filter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(var(--operator-image-size) * var(--operator-selected-scale));
+}
+#red-btn {
+  width: calc(var(--operator-image-size) * var(--operator-selected-scale));
+  height: calc(var(--operator-image-size) * var(--operator-selected-scale));
+  transform: scale(calc(1 / var(--operator-selected-scale)));
+  background-image: url("../images/red.png");
+  background-size: cover;
+  background-color: rgb(45, 45, 45);
+  border-radius: 0.15em;
+}
+@media (hover: hover) {
+  #red-btn:hover {
+    background-color: rgb(25, 25, 25);
+    transform: none;
+    z-index: 1;
+    box-shadow: 1px 1px 3px 1px var(--operator-shadow-color);
+  }
+}
+#red-btn._selected {
+  box-shadow: 0 0 2pt 1pt #dd0000, 1px 1px 2px var(--operator-shadow-color);
+  background-color: rgb(35, 35, 35);
+  transform: none;
+}
