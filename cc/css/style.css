@@ -843,6 +843,8 @@ body.icon-mode .riskContainer {
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: auto;
+  padding-bottom: 4px;
   height: calc(var(--operator-image-size) * var(--operator-selected-scale));
 }
 #red-btn {
