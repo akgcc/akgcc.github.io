@@ -54,7 +54,7 @@ get_cc_list()
 						...new Set(
 							(
 								usedata[usedata[k].dupe_group] ?? { squad: [] }
-							).squad.concat(usedata[k].squad)
+							).squad.concat(usedata[k].squad),
 						),
 					],
 				};
@@ -88,7 +88,7 @@ get_cc_list()
 		UPPER_BOUNDS =
 			LOWER_BOUNDS +
 			getStandardDeviation(
-				Object.values(useCountMap).filter((x) => x != 0)
+				Object.values(useCountMap).filter((x) => x != 0),
 			);
 		MAX_VALUE = Math.max.apply(Math, Object.values(useCountMap));
 		percentColors = [
@@ -114,7 +114,7 @@ get_cc_list()
 				operatorData[x],
 				useCountMap,
 				maxRiskMap,
-				MAX_VALUE
+				MAX_VALUE,
 			);
 		});
 		var sortedData = [];
@@ -139,8 +139,8 @@ get_cc_list()
 						: -1
 					: useCountMap[a.name] < useCountMap[b.name]
 					? 1
-					: -1
-			)
+					: -1,
+			),
 		);
 		function getBarLabels(data) {
 			// remember to add any exceptions to charIdMap as well, or else thumbnails will be missing.
@@ -202,7 +202,7 @@ get_cc_list()
 						enabled: false,
 						position: "nearest",
 						external: thumbnail_tooltip(
-							document.getElementById("opChart")
+							document.getElementById("opChart"),
 						),
 					},
 					legend: {
@@ -215,11 +215,11 @@ get_cc_list()
 		Chart.defaults.scales.logarithmic.ticks.callback = function (
 			tick,
 			index,
-			ticks
+			ticks,
 		) {
 			return tick.toLocaleString();
 		};
-		let imgSize = window.innerWidth / 30;
+		let imgSize = window.innerWidth / 25;
 		let scatterData = sortedData.map((d) => {
 			return { x: d[1], y: d[2], r: imgSize / 2 };
 		});
@@ -231,7 +231,7 @@ get_cc_list()
 		});
 
 		window.onresize = () => {
-			imgSize = window.innerWidth / 30;
+			imgSize = window.innerWidth / 25;
 			scatterImages.forEach((i) => {
 				i.width = imgSize;
 				i.height = imgSize;
@@ -258,7 +258,7 @@ get_cc_list()
 					chart.options.layout.padding.top = imgSize / 2;
 					chart.options.layout.padding.right = imgSize / 2;
 					chart.data.datasets.forEach((d) =>
-						d.data.forEach((x) => (x.r = imgSize / 2))
+						d.data.forEach((x) => (x.r = imgSize / 2)),
 					);
 				},
 				maintainAspectRatio: true,
@@ -343,7 +343,7 @@ get_cc_list()
 			scatterPlot.options.scales.y.ticks.callback = (
 				value,
 				index,
-				values
+				values,
 			) => value;
 			switch (sortName) {
 				case "Rarity":
@@ -354,7 +354,7 @@ get_cc_list()
 					scatterPlot.options.scales.y.ticks.callback = (
 						value,
 						index,
-						values
+						values,
 					) => "★".repeat(value + 1);
 					break;
 				case "Class":
@@ -362,7 +362,7 @@ get_cc_list()
 						return {
 							x: d[1],
 							y: Object.keys(classList).indexOf(
-								classMap[d[0].name]
+								classMap[d[0].name],
 							),
 							r: imgSize / 2,
 						};
@@ -370,7 +370,7 @@ get_cc_list()
 					scatterPlot.options.scales.y.ticks.callback = (
 						value,
 						index,
-						values
+						values,
 					) => Object.keys(classList)[value];
 					break;
 				case "NOT!Uses":
@@ -394,7 +394,7 @@ get_cc_list()
 			// scatterData = scatterData.filter(d=> d.x>0)
 			// sort images by sortedData
 			scatterImages.sort(
-				(a, b) => labels.indexOf(a.opname) - labels.indexOf(b.opname)
+				(a, b) => labels.indexOf(a.opname) - labels.indexOf(b.opname),
 			);
 
 			scatterPlot.data.labels = labels;
@@ -406,7 +406,7 @@ get_cc_list()
 
 		function clickFunc(e, sorter) {
 			Array.from(
-				document.getElementById("sort").querySelectorAll(".checked")
+				document.getElementById("sort").querySelectorAll(".checked"),
 			).forEach((x) => x.classList.remove("checked"));
 			buildSortedData(Object.values(operatorData).sort(sorter));
 			redrawCharts(e.currentTarget.innerText);
@@ -422,7 +422,7 @@ get_cc_list()
 						: -1
 					: a.rarity < b.rarity
 					? 1
-					: -1
+					: -1,
 			);
 		document.getElementById("s_uses").onclick = (e) =>
 			clickFunc(e, (a, b) =>
@@ -432,7 +432,7 @@ get_cc_list()
 						: -1
 					: useCountMap[a.name] < useCountMap[b.name]
 					? 1
-					: -1
+					: -1,
 			);
 		document.getElementById("s_maxrisk").onclick = (e) =>
 			clickFunc(e, (a, b) =>
@@ -442,7 +442,7 @@ get_cc_list()
 						: -1
 					: maxRiskMap[a.name] < maxRiskMap[b.name]
 					? 1
-					: -1
+					: -1,
 			);
 		document.getElementById("s_class").onclick = (e) =>
 			clickFunc(e, (a, b) =>
@@ -452,7 +452,7 @@ get_cc_list()
 						: -1
 					: classMap[a.name] < classMap[b.name]
 					? 1
-					: -1
+					: -1,
 			);
 		var viewType = (usageSettings.view + 2) % 3;
 		document.getElementById("viewType").onclick = () => {
@@ -460,10 +460,10 @@ get_cc_list()
 			Array.from(
 				document
 					.getElementById("chartDiv")
-					.querySelectorAll(".chartOption")
+					.querySelectorAll(".chartOption"),
 			).forEach((n) => n.classList.add("hidden"));
 			Array.from(
-				document.getElementById("sort").querySelectorAll(".button")
+				document.getElementById("sort").querySelectorAll(".button"),
 			).forEach((e) => e.classList.remove("disabled"));
 			changeSetting("view", viewType);
 			switch (viewType) {
@@ -508,6 +508,6 @@ function getStandardDeviation(array) {
 	const n = array.length;
 	const mean = array.reduce((a, b) => a + b) / n;
 	return Math.sqrt(
-		array.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n
+		array.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n,
 	);
 }
