@@ -62,11 +62,23 @@
   background-size: contain;
   z-index: -1;
 }
-h1 {
+h2 {
   font-weight: 300;
   font-size: 2em;
-  padding-left: 8px;
-  margin-top: 1em;
+  padding: 8px;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin-top: 8px;
+  display: inline-block;
+  border-top-right-radius: 6px; /* Adjust the radius as needed */
+  border-bottom-right-radius: 6px;
+  background: var(--main-background-color);
+  overflow: hidden;
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
 }
 .bigbtn:after {
   content: attr(data-label);
