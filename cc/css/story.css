@@ -136,6 +136,13 @@
 .avatar.active {
   opacity: 1;
 }
+.avatar.initial img {
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  transform: scale(1) !important;
+}
 .avatar.unknown img {
   left: -265px !important;
   top: -41px !important;
@@ -389,14 +396,16 @@ audio {
   object-fit: cover;
 }
 
-.avatar {
+.avatar:not(.unknown) {
   cursor: pointer;
 }
-.avatar:hover {
+
+.avatar:not(.unknown):hover {
   transition: transform 0.1s;
   transform: scale(1.05);
 }
-.avatar:hover:after {
+
+.avatar:not(.unknown):hover:after {
   content: "\f00e";
   font-weight: 900;
   position: absolute;

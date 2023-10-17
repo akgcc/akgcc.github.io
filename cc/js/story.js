@@ -19,7 +19,6 @@ var operatorData,
         rogue: "Integrated Strategies",
     },
     soundMap,
-    avatarCoords,
     lastBackgroundImage,
     storyReviewMeta,
     allScenes = [],
@@ -70,21 +69,17 @@ get_char_table(false, serverString)
         return fetch(
             "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
                 serverString +
-                "/gamedata/story/story_variables.json"
+                "/gamedata/story/story_variables.json",
         );
     })
     .then((res) => fixedJson(res))
     .then((js) => {
         soundMap = js;
-        return fetch("./json/avatar_coords.json");
-    })
-    .then((res) => fixedJson(res))
-    .then((js) => {
-        avatarCoords = js;
+        soundMap["$ill_amiya_normal"] = "char_002_amiya_1";
         return fetch(
             "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
                 serverString +
-                "/gamedata/excel/uniequip_table.json"
+                "/gamedata/excel/uniequip_table.json",
         );
     })
     .then((res) => fixedJson(res))
@@ -93,7 +88,7 @@ get_char_table(false, serverString)
         return fetch(
             "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
                 serverString +
-                "/gamedata/excel/story_review_meta_table.json"
+                "/gamedata/excel/story_review_meta_table.json",
         );
     })
     .then((res) => fixedJson(res))
@@ -102,7 +97,7 @@ get_char_table(false, serverString)
         return fetch(
             "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
                 serverString +
-                "/gamedata/excel/roguelike_topic_table.json"
+                "/gamedata/excel/roguelike_topic_table.json",
         );
     })
     .then((res) => fixedJson(res))
@@ -111,7 +106,7 @@ get_char_table(false, serverString)
         return fetch(
             "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
                 serverString +
-                "/gamedata/excel/story_review_table.json"
+                "/gamedata/excel/story_review_table.json",
         );
     })
     .then((res) => fixedJson(res))
@@ -122,7 +117,7 @@ get_char_table(false, serverString)
             if (x.id in storyReviewMeta?.actArchiveData?.components) {
                 Object.values(
                     storyReviewMeta?.actArchiveData?.components[x.id]?.avg
-                        ?.avgs || {}
+                        ?.avgs || {},
                 )
                     .sort((a, b) => (a?.avgSortId || 0) - (b?.avgSortId || 0))
                     .map((x) => x?.avgId)
@@ -154,7 +149,7 @@ get_char_table(false, serverString)
         });
 
         storyTypes.module = [].concat(
-            ...Object.values(moduleStory.charEquip).map((x) => x.slice(1))
+            ...Object.values(moduleStory.charEquip).map((x) => x.slice(1)),
         );
         storyTypes.module.forEach(
             (x) =>
@@ -165,7 +160,7 @@ get_char_table(false, serverString)
                             storyTxt: x,
                         },
                     ],
-                })
+                }),
         );
         // this is available in roguelike_table, but were never translated (because they weren't used)
         storyTypes.rogue.push("rogue_0");
@@ -189,7 +184,7 @@ get_char_table(false, serverString)
 
         // for each roguelike:
         for (const [rogue_key, rogue_topic] of Object.entries(
-            rogueStory.topics
+            rogueStory.topics,
         )) {
             storyTypes.rogue.push(rogue_key);
             storyReview[rogue_key] = {
@@ -200,7 +195,7 @@ get_char_table(false, serverString)
             is_name = `IS${parseInt(is_num) + 1}`;
             // for each ending cutscene:
             for (const [k, v] of Object.entries(
-                rogueStory.details[rogue_key].endings
+                rogueStory.details[rogue_key].endings,
             )) {
                 ending_num = /_(\d)/.exec(k)[1];
                 storyReview[rogue_key].infoUnlockDatas.push({
@@ -210,11 +205,11 @@ get_char_table(false, serverString)
             }
             // for each endbook:
             for (const [k, v] of Object.entries(
-                rogueStory.details[rogue_key].archiveComp.endbook.endbook
+                rogueStory.details[rogue_key].archiveComp.endbook.endbook,
             )) {
                 // for each part
                 for (const [k2, v2] of Object.entries(
-                    v.clientEndbookItemDatas
+                    v.clientEndbookItemDatas,
                 )) {
                     // insert story in the correct position (assume each story has 3 parts or this fails.)
                     storyReview[rogue_key].infoUnlockDatas.splice(
@@ -224,14 +219,14 @@ get_char_table(false, serverString)
                             storyName: `${v.title} - ${v2.endbookName}`,
                             storyTxt: v2.textId.toLowerCase(),
                             storyBackground: v.cgId,
-                        }
+                        },
                     );
                 }
             }
 
             // for each monthly squad:
             for (const [k, v] of Object.entries(
-                rogueStory.details[rogue_key].monthSquad
+                rogueStory.details[rogue_key].monthSquad,
             )) {
                 let month_num = /_(\d)$/.exec(k)[1];
                 let month_key = `${rogue_key}_${k}`;
@@ -242,7 +237,7 @@ get_char_table(false, serverString)
                 };
             }
             for (const [k, v] of Object.entries(
-                rogueStory.details[rogue_key].archiveComp.chat.chat
+                rogueStory.details[rogue_key].archiveComp.chat.chat,
             )) {
                 let month_num = /_(\d)$/.exec(k)[1];
                 let month_key = `${rogue_key}_month_team_${month_num}`;
@@ -443,7 +438,7 @@ get_char_table(false, serverString)
             document.getElementById("subCatSelect").onchange = () => {
                 buildThirdSelector(
                     cat,
-                    document.getElementById("subCatSelect").value
+                    document.getElementById("subCatSelect").value,
                 );
             };
             if (trigger) document.getElementById("subCatSelect").onchange();
@@ -468,7 +463,7 @@ get_char_table(false, serverString)
                     currentCategory.onchange();
                     topFunction();
                 };
-            }
+            },
         );
         Array.from(document.getElementsByClassName("story_prev")).forEach(
             (e) => {
@@ -486,7 +481,7 @@ get_char_table(false, serverString)
                     currentCategory.onchange();
                     topFunction();
                 };
-            }
+            },
         );
         function loadFromHash() {
             [uppercat, cat, idx] = window.location.hash.slice(1).split("&");
@@ -494,7 +489,7 @@ get_char_table(false, serverString)
             Array.from(document.getElementById("catSelect").options).forEach(
                 (o) => {
                     if (o.value == uppercat) o.selected = true;
-                }
+                },
             );
             buildSecondSelector(uppercat, false);
 
@@ -513,11 +508,11 @@ get_char_table(false, serverString)
             Array.from(document.getElementById("subCatSelect").options).forEach(
                 (o) => {
                     if (o.value == cat) o.selected = true;
-                }
+                },
             );
             buildThirdSelector(uppercat, cat, false);
             Array.from(
-                document.getElementById("thirdCatSelect").options
+                document.getElementById("thirdCatSelect").options,
             ).forEach((o) => {
                 if (o.value == idx) o.selected = true;
             });
@@ -544,7 +539,7 @@ get_char_table(false, serverString)
                             : storyReview[k].startTime > 0
                             ? storyReview[k].startTime
                             : storyReview[k].startShowTime) <
-                            Date.now() / 1000 - 60 * 60 * 12
+                            Date.now() / 1000 - 60 * 60 * 12,
                 )
                 .sort(
                     (a, b) =>
@@ -557,7 +552,7 @@ get_char_table(false, serverString)
                             ? storyReview[b].remakeStartTime
                             : storyReview[b].startTime > 0
                             ? storyReview[b].startTime
-                            : storyReview[b].startShowTime)
+                            : storyReview[b].startShowTime),
                 )
                 .slice(-1)[0];
             let newHash = "#";
@@ -605,7 +600,7 @@ async function genStory(data) {
                   serverString +
                   "/gamedata/story/" +
                   key +
-                  ".txt"
+                  ".txt",
           )
     )
         .then((r) => r.text())
@@ -647,9 +642,9 @@ async function genStory(data) {
                             if (el.classList.contains("fadein")) {
                                 //color scenebreak based on last blocker
                                 scenebreak.style.background = `linear-gradient(${el.style.getPropertyValue(
-                                    "--end-color"
+                                    "--end-color",
                                 )},${el.style.getPropertyValue(
-                                    "--end-color"
+                                    "--end-color",
                                 )}), linear-gradient(#000,#000)`;
                                 let spacer = document.createElement("div");
                                 spacer.classList.add("blocker");
@@ -661,7 +656,7 @@ async function genStory(data) {
                                 if (
                                     !requireBreak &&
                                     scene.querySelector(
-                                        ".soundPlayer:last-child"
+                                        ".soundPlayer:last-child",
                                     )
                                 )
                                     scenebreak.remove();
@@ -673,14 +668,14 @@ async function genStory(data) {
 
                 if (
                     parseFloat(
-                        /(?:[\.\d]+,){3}([\.\d]+)/.exec(lastBlockerColor)[1]
+                        /(?:[\.\d]+,){3}([\.\d]+)/.exec(lastBlockerColor)[1],
                     ) &&
                     (!lastBlocker || lastBlocker.classList.contains("fadein"))
                 ) {
                     // apply opaque blocker color to rest of scene.
                     scene.style.setProperty(
                         "--fill-blocker",
-                        lastBlockerColor.split(" ")[0]
+                        lastBlockerColor.split(" ")[0],
                     );
                     scene.classList.add("blockerPadded");
                 }
@@ -692,14 +687,14 @@ async function genStory(data) {
                     if (!scene.childElementCount) return;
                     if (
                         Array.from(scene.childNodes).every((n) =>
-                            n.classList.contains("blocker")
+                            n.classList.contains("blocker"),
                         )
                     )
                         return;
                 }
                 // remove stray blocker (add it to the next scene later)
                 hangingBlocker = scene.querySelector(
-                    ".blocker.fadeout:last-child"
+                    ".blocker.fadeout:last-child",
                 );
                 if (hangingBlocker) hangingBlocker.remove();
                 storyDiv.appendChild(scene);
@@ -710,7 +705,7 @@ async function genStory(data) {
                     scene = createScene(
                         IMG_SOURCE + "avg/backgrounds/bg_black.png",
                         ALT_IMG_SOURCE.replace(/REPLACEME/, "bg_black"),
-                        imageScene
+                        imageScene,
                     );
                 }
                 return scene;
@@ -738,7 +733,7 @@ async function genStory(data) {
                         setSceneSize(e),
                             scene.style.setProperty(
                                 "--background-image-url",
-                                'url("' + e.currentTarget.src + '")'
+                                'url("' + e.currentTarget.src + '")',
                             );
                     };
                     imgLoader.src = imgurl;
@@ -750,7 +745,7 @@ async function genStory(data) {
                             setSceneSize(e),
                                 scene.style.setProperty(
                                     "--background-image-url",
-                                    'url("' + e.currentTarget.src + '")'
+                                    'url("' + e.currentTarget.src + '")',
                                 );
                         };
                         imgLoader.onerror = (e) => {
@@ -809,7 +804,7 @@ async function genStory(data) {
                             setSceneSize(e),
                                 scene.style.setProperty(
                                     "--background-image-url",
-                                    'url("' + left + '"), url("' + right + '")'
+                                    'url("' + left + '"), url("' + right + '")',
                                 );
                         };
                         dimleft.onerror = () => {
@@ -836,7 +831,7 @@ async function genStory(data) {
                     { name: "Dr {@nickname}" },
                     choices[0],
                     { name: "avg_npc_048" },
-                    1
+                    1,
                 );
                 // create predicate after making dialog or the dialog will be hidden.
                 const predicate = {};
@@ -856,7 +851,7 @@ async function genStory(data) {
                         Array.from(txt.querySelectorAll(".decision")).forEach(
                             (el) => {
                                 el.classList.remove("selected");
-                            }
+                            },
                         );
                         opt.classList.add("selected");
                         let thispredicate = opt.getAttribute("data-predicate");
@@ -866,7 +861,7 @@ async function genStory(data) {
                                     ? 1
                                     : b == thispredicate
                                     ? -1
-                                    : 0
+                                    : 0,
                             )
                             .forEach((p) => {
                                 predicate[p].forEach((el) => {
@@ -886,7 +881,7 @@ async function genStory(data) {
                 chars,
                 currentSpeaker,
                 colorIndex = 0,
-                type = null
+                type = null,
             ) {
                 let wrap = document.createElement("div");
                 wrap.classList.add("dialog");
@@ -906,7 +901,7 @@ async function genStory(data) {
                 let blocktxt = document.createElement("div");
                 blocktxt.innerHTML = dialogLine.replace(
                     /\\r\\n|\\r|\\n/g,
-                    "<br />"
+                    "<br />",
                 );
                 txt.appendChild(blocktxt);
                 wrap.appendChild(left);
@@ -918,7 +913,7 @@ async function genStory(data) {
                     nameplate.innerHTML = args.name;
                     txt.style.setProperty(
                         "--name-color",
-                        selectColor(colorIndex)
+                        selectColor(colorIndex),
                     );
                     Object.keys(chars)
                         .sort()
@@ -963,14 +958,14 @@ async function genStory(data) {
                 if (line[1]) {
                     [_, cmd, args] =
                         /\[\s*?(?:([^=\(\]]+)(?=[\(\]])\(?)?([^\]]*?)\)?\s*?\]/.exec(
-                            line[1]
+                            line[1],
                         );
                     if (args) {
                         let tmp = {};
                         Array.from(
                             args.matchAll(
-                                /("?[^=", ]+"?)\s*=\s*"?((?<=")[^"]*|[^,]*)/gim
-                            )
+                                /("?[^=", ]+"?)\s*=\s*"?((?<=")[^"]*|[^,]*)/gim,
+                            ),
                         ).forEach((l) => {
                             tmp[l[1].toLowerCase()] = l[2];
                         });
@@ -992,7 +987,9 @@ async function genStory(data) {
                         line[2],
                         chars,
                         speaker,
-                        Array.from(speakerList).indexOf(args.name.toLowerCase())
+                        Array.from(speakerList).indexOf(
+                            args.name.toLowerCase(),
+                        ),
                     );
                     getWorkingScene().appendChild(dlg);
                 } else if (line[1] && cmd) {
@@ -1049,7 +1046,7 @@ async function genStory(data) {
                                 IMG_SOURCE + "avg/backgrounds/bg_black.png";
                             let altimgurl = ALT_IMG_SOURCE.replace(
                                 /REPLACEME/,
-                                "bg_black"
+                                "bg_black",
                             );
                             switch (cmd.toLowerCase()) {
                                 case "image":
@@ -1070,7 +1067,7 @@ async function genStory(data) {
                                         ".png";
                                     altimgurl = ALT_IMG_SOURCE.replace(
                                         /REPLACEME/,
-                                        args.image
+                                        args.image,
                                     );
                                     break;
                                 case "background":
@@ -1081,7 +1078,7 @@ async function genStory(data) {
                                         ".png";
                                     altimgurl = ALT_IMG_SOURCE.replace(
                                         /REPLACEME/,
-                                        args.image
+                                        args.image,
                                     );
                                     lastBackgroundImage = imgurl;
                                     break;
@@ -1094,7 +1091,7 @@ async function genStory(data) {
                                                 IMG_SOURCE +
                                                 "avg/backgrounds/" +
                                                 x +
-                                                ".png"
+                                                ".png",
                                         );
                                     altimgurl = args.imagegroup
                                         .split("/")
@@ -1102,8 +1099,8 @@ async function genStory(data) {
                                         .map((x) =>
                                             ALT_IMG_SOURCE.replace(
                                                 /REPLACEME/,
-                                                x
-                                            )
+                                                x,
+                                            ),
                                         );
                                     lastBackgroundImage = imgurl;
                                     break;
@@ -1114,7 +1111,7 @@ async function genStory(data) {
                                     imgurl = `${IMG_SOURCE}avg/images/${args.image}.png`;
                                     altimgurl = ALT_IMG_SOURCE.replace(
                                         /REPLACEME/,
-                                        args.image
+                                        args.image,
                                     );
                                     break;
                             }
@@ -1124,7 +1121,7 @@ async function genStory(data) {
                                 altimgurl,
                                 cmd.toLowerCase() == "image" &&
                                     args &&
-                                    args.image
+                                    args.image,
                             );
                             break;
                         case "charslot": // new format (replaces "character")
@@ -1152,8 +1149,8 @@ async function genStory(data) {
                                         chars,
                                         speaker,
                                         Array.from(speakerList).indexOf(
-                                            args.name.toLowerCase()
-                                        )
+                                            args.name.toLowerCase(),
+                                        ),
                                     );
                                     getWorkingScene().appendChild(dlg);
                                     multiLineDialog = "";
@@ -1182,7 +1179,7 @@ async function genStory(data) {
                                     {},
                                     0,
                                     0,
-                                    "subtitle"
+                                    "subtitle",
                                 );
                                 getWorkingScene().appendChild(dlg);
                             }
@@ -1212,15 +1209,15 @@ async function genStory(data) {
                                     chars,
                                     speaker,
                                     Array.from(speakerList).indexOf(
-                                        chars.name.toLowerCase()
-                                    )
+                                        chars.name.toLowerCase(),
+                                    ),
                                 );
                                 getWorkingScene().appendChild(dlg);
                             }
                             break;
                         case "decision":
                             getWorkingScene().appendChild(
-                                makeDecisionDialog(args)
+                                makeDecisionDialog(args),
                             );
                             // activeReferences = []; // should be no need for this
                             break;
@@ -1268,7 +1265,7 @@ async function genStory(data) {
                             }
                             audio.setAttribute(
                                 "data-defvol",
-                                Math.min(args.volume, 1) || 0.8
+                                Math.min(args.volume, 1) || 0.8,
                             );
 
                             let sound = document.createElement("source");
@@ -1304,15 +1301,15 @@ async function genStory(data) {
                                     // if (audio.volume == 0) audio.volume = 0.5;
                                     if (audio.readyState == 0) {
                                         audio.nextSibling.classList.add(
-                                            "stalled"
+                                            "stalled",
                                         );
                                         audio.oncanplaythrough = () =>
                                             audio.nextSibling.classList.remove(
-                                                "stalled"
+                                                "stalled",
                                             );
                                         audio.oncanplay = () =>
                                             audio.nextSibling.classList.remove(
-                                                "stalled"
+                                                "stalled",
                                             );
                                     }
                                 }
@@ -1321,11 +1318,11 @@ async function genStory(data) {
                                     audio.nextSibling.classList.add("playing");
                                 audio.onended = () =>
                                     audio.nextSibling.classList.remove(
-                                        "playing"
+                                        "playing",
                                     );
                                 audio.onpause = () =>
                                     audio.nextSibling.classList.remove(
-                                        "playing"
+                                        "playing",
                                     );
                                 btn.addEventListener("click", () => {
                                     if (audio.paused) {
@@ -1372,8 +1369,8 @@ async function genStory(data) {
                                         1,
                                         Math.min(
                                             4,
-                                            parseFloat(args.fadetime) * 2
-                                        )
+                                            parseFloat(args.fadetime) * 2,
+                                        ),
                                     ) + "em";
                                 let color = "rgba(0,0,0,1)";
                                 const blockerOpacity = 1;
@@ -1394,7 +1391,7 @@ async function genStory(data) {
                                 }
                                 blocker.style.setProperty(
                                     "--start-color",
-                                    lastBlockerColor
+                                    lastBlockerColor,
                                 );
                                 blocker.style.setProperty("--end-color", color);
                                 if ("a" in args && parseFloat(args.a)) {
@@ -1489,73 +1486,40 @@ function avatarImg(path) {
     if (varkey in soundMap) {
         path = soundMap[varkey];
     }
-    let [base, num, variant] =
-        /^\$?([^_$#]+_[^_$#]+(?:_[^_$#]+)?(?:_[^\d_$#]+)?)(?:_(\d+))?([_#$].+)?$/
-            .exec(path)
-            .splice(1);
-    let coords_name = /^(.+?_\d+[^_#\$]+(?:_[^\d][^_#\$]+)?)/
-        .exec(path)[1]
-        .toLowerCase();
-    if (base in charPathFixes) base = charPathFixes[base];
-    let src_array = [path];
-    for (const base_n of [
-        base,
-        base.toLowerCase(),
-        base.replace(/(?<=\d_)(\w)(?=[^$])/, (x) => x.toUpperCase()),
-    ]) {
-        src_array.push(`${base_n}${variant || num || ""}`.replace("#", "_"));
-        src_array.push(`${base_n}_1${num ? "_" : ""}${num || ""}`);
-        src_array.push(
-            `${base_n}_1${num ? "#" : ""}${num || ""}${variant || ""}`
-        );
-        src_array.push(
-            `${base_n}#1${num ? "_" : ""}${num || ""}${variant || ""}`
-        );
-        src_array.push(
-            `${base_n}_na${num ? "_" : ""}${num || ""}${
-                variant ? variant.replace("#", "_") : ""
-            }`
-        );
-        src_array.push(base_n);
-        src_array.push(`${base_n}_2`);
-    }
-    src_array.push(path.toLowerCase());
-    src_array.push(
-        path.replace(/(?<=\d_)(\w)(?=[^$])/, (x) => x.toUpperCase())
-    );
+    let [id, iface, ibody] = /^(.*?)(?:#(\d+))?(?:\$(\d+))?$/
+        .exec(path)
+        .splice(1);
+    face = (iface || "1").replace(/^0+/, "");
+    body = (ibody || "1").replace(/^0+/, "");
+    const full_name = `${id}#${face}$${body}`;
+    let src_array = [
+        full_name, // ID, Face, and Body
+        `${id}#${face}`, // ID and Face
+        `${id}$${body}`, // ID and Body
+        `${id}_${face}`, // ID and Face (with underscore)
+        `${id}`, // Only ID
+    ];
 
-    src_array.push(`${base}_na_1`);
-    src_array.push(`${base}_1#1`);
-    src_array.push(`${base}#2`);
-    src_array.push(
-        `${base}_${num}${variant ? variant.split("0").join("") : ""}`
-    );
+    // set first element to given path
+    src_array = src_array.filter((item) => item !== path);
+    src_array.unshift(path);
+
     src_array = src_array.map(
         (item) =>
-            IMG_SOURCE + "avg/characters/" + encodeURIComponent(item) + ".png"
+            IMG_SOURCE + "avg/characters/" + encodeURIComponent(item) + ".png",
     );
     src_array.splice(
         1,
         0,
-        ALT_IMG_SOURCE.replace(
-            /REPLACEME/,
-            encodeURIComponent(completeCharPath(path))
-        )
+        ALT_IMG_SOURCE.replace(/REPLACEME/, encodeURIComponent(full_name)),
     );
+    src_array.unshift(`./thumbs/${encodeURIComponent(full_name)}.webp`); // put thumb path first
     const img = document.createElement("img");
     var i = 1;
     img.onerror = function () {
         if (i < src_array.length) {
             this.src = src_array[i];
-            // this.src =
-            //     IMG_SOURCE +
-            //     "avg/characters/" +
-            //     encodeURIComponent(src_array[i]) +
-            //     ".png";
-            // this.src = ALT_IMG_SOURCE.replace(
-            //     /REPLACEME/,
-            //     encodeURIComponent(src_array[i])
-            // );
+            this.parentElement.classList.remove("initial");
             i++;
         } else {
             this.onerror = null;
@@ -1567,37 +1531,30 @@ function avatarImg(path) {
         }
     };
     img.setAttribute("loading", "lazy");
-    let coords = avatarCoords[path] ?? avatarCoords[coords_name];
-    if (avatarCoords.SHARED_CHAR_IDS.includes(coords_name)) {
-        if (path != coords_name) coords = coords.e;
-    }
-    if (!coords)
-        coords = {
-            x: -205,
-            y: 0,
-            s: 0.5,
-            a: 0,
-        };
+    let coords = {
+        x: -205,
+        y: 0,
+        s: 0.5,
+        a: 0,
+    };
     img.style.left = coords.x;
     img.style.top = coords.y;
     img.style.transform = `scale(${coords.s})`;
-    // img.src =
-    //     IMG_SOURCE +
-    //     "avg/characters/" +
-    //     encodeURIComponent(src_array[0]) +
-    //     ".png";
     img.src = src_array[0];
-    // img.src = ALT_IMG_SOURCE.replace(
-    //     /REPLACEME/,
-    //     encodeURIComponent(completeCharPath(path))
-    // );
     let wrap = document.createElement("div");
     wrap.classList.add("avatar");
     wrap.classList.add("npc");
+    wrap.classList.add("initial");
     wrap.appendChild(img);
     wrap.onclick = (e) => {
         // e.stopPropagation();
-        enlargeAvatar(img.src);
+        if (!wrap.classList.contains("unknown")) {
+            if (wrap.classList.contains("initial")) {
+                enlargeAvatar(src_array.slice(1));
+            } else {
+                enlargeAvatar([img.src]);
+            }
+        }
     };
     return wrap;
 }
@@ -1606,12 +1563,22 @@ const avatarModal = document.getElementById("avatarModal");
 window.addEventListener("click", (e) => {
     if (e.target == avatarModal) avatarModal.classList.remove("show");
 });
-function enlargeAvatar(src, cover = false) {
+function enlargeAvatar(src_array, cover = false) {
     avatarModal.classList.add("show");
     let content = avatarModal.querySelector(".modal-content");
     content.innerHTML = "";
     let im = document.createElement("img");
-    im.src = src;
+    im.src = src_array[0];
+    let i = 1;
+    im.onerror = function () {
+        if (i < src_array.length) {
+            this.src = src_array[i];
+            i++;
+        } else {
+            this.onerror = null;
+            this.src = `${IMG_SOURCE}avatars/avg_npc_012.png`;
+        }
+    };
     if (cover) im.classList.add("item");
     content.appendChild(im);
 }
@@ -1620,13 +1587,13 @@ function enlargeAvatar(src, cover = false) {
 mybutton = document.getElementById("topBtn");
 mybutton.onclick = topFunction;
 titlediv = document.getElementById("storyTitle");
+topNav = document.querySelector("#topNav");
 
 // When the user scrolls down 20px from the top of the document, show the button
 window.onscroll = scrollFunction;
 window.onresize = scrollFunction;
 function adjustedMidpoint() {
-    topNavHeight =
-        topNavHeight || document.querySelector("#topNav").offsetHeight;
+    topNavHeight = topNavHeight || topNav.offsetHeight;
     return window.innerHeight / 2 + topNavHeight / 2;
 }
 function autoPlayMidPoint() {
@@ -1649,19 +1616,19 @@ function alignBackground(s) {
             "calc(var(--story-width) * -.25) " +
             Math.min(
                 pos.height - imheight,
-                Math.max(0, realMidpoint - pos.top - imheight / 2)
+                Math.max(0, realMidpoint - pos.top - imheight / 2),
             ) +
             ", calc(var(--story-width) / 2) " +
             Math.min(
                 pos.height - imheight,
-                Math.max(0, realMidpoint - pos.top - imheight / 2)
+                Math.max(0, realMidpoint - pos.top - imheight / 2),
             );
     } else {
         s.style.backgroundPosition =
             "center " +
             Math.min(
                 pos.height - imheight,
-                Math.max(0, realMidpoint - pos.top - imheight / 2)
+                Math.max(0, realMidpoint - pos.top - imheight / 2),
             );
     }
 }
@@ -1724,7 +1691,7 @@ function autoPlaySounds() {
                 },
                 {
                     once: true,
-                }
+                },
             );
             return true;
         }
@@ -1776,8 +1743,10 @@ function scrollFunction() {
         document.documentElement.scrollTop > titleBottomPos - topNavHeight
     ) {
         titlediv.classList.remove("hidden");
+        topNav.classList.add("showStoryTitle");
     } else {
         titlediv.classList.add("hidden");
+        topNav.classList.remove("showStoryTitle");
     }
     allScenes.forEach((s) => {
         alignBackground(s);
@@ -1805,7 +1774,7 @@ var tempHideAll = null;
 toggleVisBtn.onmouseover = () => {
     tempHideAll = setTimeout(
         () => document.getElementById("storyDisp").classList.add("bg_only"),
-        250
+        250,
     );
 };
 toggleVisBtn.onmouseout = () => {

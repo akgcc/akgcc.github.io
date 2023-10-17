@@ -575,6 +575,19 @@ div:not(.chartjs-size-monitor).hidden:not(.forceShow) {
   line-height: var(--topNav-height);
   overflow: hidden;
   flex-shrink: 999;
+  white-space: nowrap;
+}
+#storyTitle {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+@media (max-width: 720px) {
+  #topNav.showStoryTitle div.nav-left {
+    display: none; /* Hide nav-left on smaller screens */
+  }
+  #topNav.showStoryTitle #storyTitle {
+    padding-left: 0;
+  }
 }
 
 body {
