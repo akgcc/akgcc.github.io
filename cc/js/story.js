@@ -1005,12 +1005,9 @@ async function genStory(data) {
                             wrap.appendChild(imgbtn);
                             const itemsrc = args.is_module
                                 ? `${IMG_SOURCE}equip/icon/${args.image}.png`
-                                : IMG_SOURCE +
-                                  "avg/items/" +
-                                  args.image +
-                                  ".png";
+                                : `${IMG_SOURCE}avg/items/${args.image}.png`;
                             imgbtn.onclick = () => {
-                                enlargeAvatar(itemsrc, true);
+                                enlargeAvatar([itemsrc], true);
                             };
                             getWorkingScene().appendChild(wrap);
                             break;
@@ -1564,6 +1561,7 @@ window.addEventListener("click", (e) => {
     if (e.target == avatarModal) avatarModal.classList.remove("show");
 });
 function enlargeAvatar(src_array, cover = false) {
+    avatarModal.classList.remove("unknown");
     avatarModal.classList.add("show");
     let content = avatarModal.querySelector(".modal-content");
     content.innerHTML = "";
@@ -1576,7 +1574,10 @@ function enlargeAvatar(src_array, cover = false) {
             i++;
         } else {
             this.onerror = null;
-            this.src = `${IMG_SOURCE}avatars/avg_npc_012.png`;
+            im.classList.contains("item")
+                ? (this.src = `${IMG_SOURCE}items/MTL_SL_G2.png`)
+                : (this.src = `${IMG_SOURCE}avg/characters/avg_npc_012.png`);
+            this.parentElement.classList.add("unknown");
         }
     };
     if (cover) im.classList.add("item");

@@ -400,6 +400,10 @@ audio {
   object-fit: cover;
 }
 
+.modal-content.unknown img {
+  filter: brightness(0);
+}
+
 .avatar:not(.unknown) {
   cursor: pointer;
 }
