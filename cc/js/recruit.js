@@ -30,7 +30,7 @@ params.get("tags") &&
 fetch(
 	"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
 		serverString +
-		"/gamedata/excel/gacha_table.json"
+		"/gamedata/excel/gacha_table.json",
 )
 	.then((res) => fixedJson(res))
 	.then((js) => {
@@ -64,7 +64,7 @@ fetch(
 			let btns = document.createElement("td");
 			if (["Affix"].includes(category))
 				TAG_CATEGORIES[category].sort((a, b) =>
-					TAG_MAP[a].tagName.localeCompare(TAG_MAP[b].tagName)
+					TAG_MAP[a].tagName.localeCompare(TAG_MAP[b].tagName),
 				);
 			TAG_CATEGORIES[category].forEach((tagid) => {
 				TAG_MAP[tagid].tagCat = category;
@@ -123,7 +123,7 @@ fetch(
 				filteredOptions = TAG_NAMES.filter(
 					(option) =>
 						option.toLowerCase().startsWith(inputValue) &&
-						!selectedTags.has(String(TAG_NAME_MAP[option].tagId))
+						!selectedTags.has(String(TAG_NAME_MAP[option].tagId)),
 				);
 			showAutocompleteOptions(filteredOptions);
 		});
@@ -135,8 +135,8 @@ fetch(
 						highlightedTag.classList.remove("highlight");
 					selectTag(
 						document.querySelector(
-							`#tagList .button[data-tag-id="${currentAutocomplete}"]`
-						)
+							`#tagList .button[data-tag-id="${currentAutocomplete}"]`,
+						),
 					);
 					TAG_STACK.push(currentAutocomplete);
 					// this.value += currentAutocomplete.slice(this.value.length);
@@ -150,8 +150,8 @@ fetch(
 			) {
 				selectTag(
 					document.querySelector(
-						`#tagList .button[data-tag-id="${TAG_STACK.pop()}"]`
-					)
+						`#tagList .button[data-tag-id="${TAG_STACK.pop()}"]`,
+					),
 				);
 			} else if (event.key == "Escape") {
 				this.value = "";
@@ -167,7 +167,7 @@ fetch(
 			options.sort((a, b) => a.length - b.length);
 			currentAutocomplete = TAG_NAME_MAP[options[0]].tagId;
 			highlightedTag = document.querySelector(
-				`#tagList .button[data-tag-id="${currentAutocomplete}"]`
+				`#tagList .button[data-tag-id="${currentAutocomplete}"]`,
 			);
 			highlightedTag.classList.add("highlight");
 		}
@@ -182,13 +182,13 @@ function calculateResults() {
 		"tags",
 		Array.from(selectedTags)
 			.map((i) => TAG_MAP[i].tagName)
-			.join(",")
+			.join(","),
 	);
 	if (selectedTags.size === 0) params.delete("tags");
 	window.history.replaceState(
 		null,
 		"",
-		window.location.pathname + "?" + decodeURIComponent(params.toString())
+		window.location.pathname + "?" + decodeURIComponent(params.toString()),
 	);
 	resultsTable.innerHTML = "";
 	let groups = [];
@@ -270,15 +270,15 @@ function calculateResults() {
 			lowest9hrRarity: matches.reduce(
 				(minr, op) =>
 					op.rarity < 2 ? minr : Math.min(minr, op.rarity),
-				99
+				99,
 			),
 			highestRarity: matches.reduce(
 				(maxr, op) => Math.max(maxr, op.rarity),
-				0
+				0,
 			),
 			nineHourOpCount: matches.reduce(
 				(count, op) => (op.rarity > 1 ? count + 1 : count),
-				0
+				0,
 			),
 		};
 		// handle special cases involving "Starter" and "Robot" tag
@@ -286,7 +286,7 @@ function calculateResults() {
 		if (newGroup.lowest9hrRarity == 99) {
 			lowestRarity = newGroup.matches.reduce(
 				(minr, op) => Math.min(minr, op.rarity),
-				99
+				99,
 			);
 			newGroup.lowest9hrRarity =
 				lowestRarity == 0 && showRobots ? 3.5 : lowestRarity;
@@ -309,6 +309,17 @@ function calculateResults() {
 	groups.forEach((group) => {
 		if (group.matches.length === 0) return;
 		let tr = document.createElement("tr");
+		switch (group.lowest9hrRarity) {
+			case 5:
+				tr.classList.add("six");
+				break;
+			case 4:
+				tr.classList.add("five");
+				break;
+			case 3:
+				tr.classList.add("four");
+				break;
+		}
 		let label = document.createElement("td");
 		group.tags.forEach((tag) => {
 			let el = document.createElement("div");
@@ -430,15 +441,15 @@ function getRecruitList(char_table) {
 	let name_map = {};
 	let recruit_names = new Set();
 	let all_ops = new Set(
-		Object.values(char_table).map((x) => x.name.toLowerCase())
+		Object.values(char_table).map((x) => x.name.toLowerCase()),
 	);
 	Object.values(char_table).forEach(
-		(v) => (name_map[v.name.toLowerCase()] = v)
+		(v) => (name_map[v.name.toLowerCase()] = v),
 	);
 	if (
 		![
 			...recruitDetail.matchAll(
-				/(?<!>\s)<@rc\.eml>(.*?)<\/>|(?:\/\s*|\n\s*|\\n\s*)((?!-)[^\/>★]+?(?<!-))(?=\/|$)/gim
+				/(?<!>\s)<@rc\.eml>(.*?)<\/>|(?:\/\s*|\n\s*|\\n\s*)((?!-)[^\/>★]+?(?<!-))(?=\/|$)/gim,
 			),
 		].every((m) => {
 			let opname = m[1] ?? m[2];

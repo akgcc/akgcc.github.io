@@ -72,16 +72,47 @@ td {
 }
 
 tr:nth-child(even) {
-	background-color: #00000080; /* Set the background color for even rows */
+	--row-bg: #00000080;
 }
 
 tr:nth-child(odd) {
-	background-color: #00000050; /* Set the background color for odd rows */
+	--row-bg: #00000050;
+}
+tr {
+	background-color: var(--row-bg);
+}
+tr.six {
+	background-image: linear-gradient(
+		to right,
+		rgba(255, 102, 0, 0.25) 0%,
+		rgba(0, 0, 0, 0) 15%,
+		rgba(0, 0, 0, 0) 70%,
+		rgba(255, 102, 0, 0.08) 100%
+	);
+}
+tr.five {
+	background-image: linear-gradient(
+		to right,
+		rgba(255, 174, 0, 0.25) 0%,
+		rgba(0, 0, 0, 0) 15%,
+		rgba(0, 0, 0, 0) 70%,
+		rgba(255, 174, 0, 0.08) 100%
+	);
+}
+tr.four {
+	background-image: linear-gradient(
+		to right,
+		rgba(219, 177, 219, 0.2) 0%,
+		rgba(0, 0, 0, 0) 15%,
+		rgba(0, 0, 0, 0) 70%,
+		rgba(219, 177, 219, 0.08) 100%
+	);
 }
 
 .tag {
 	padding: 0.5em;
-	background: #ffffff30;
+	/*	background: #ffffff30;*/
+	background: #555;
 	margin: 0.25em;
 	display: inline-block;
 	user-select: none;
