@@ -1496,7 +1496,7 @@ function avatarImg(path) {
         full_name, // ID, Face, and Body
         `${id}#${face}`, // ID and Face
         `${id}$${body}`, // ID and Body
-        `${id}_${face}`, // ID and Face (with underscore)
+        // `${id}_${face}`, // ID and Face (with underscore)
         `${id}`, // Only ID
     ];
 
