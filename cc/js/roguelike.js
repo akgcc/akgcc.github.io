@@ -36,8 +36,9 @@ fetch(
 				window.location.hash = is; // will trigger loadItems()
 			});
 		});
-		if (!window.location.hash || !ISLIST.includes(window.location.hash))
-			window.location.hash = ISLIST[0];
+		if (!window.location.hash || !ISLIST.includes(window.location.hash)) {
+			history.replaceState(null, "", ISLIST[0]);
+		}
 		window.onhashchange = () =>
 			loadItems(window.location.hash.substring(1));
 		loadItems(window.location.hash.substring(1));
