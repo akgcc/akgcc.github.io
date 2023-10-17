@@ -1611,25 +1611,16 @@ function alignBackground(s) {
         // adjust for zoom in
         imheight = ((1.5 * pos.width) / imwidth) * imheight;
     else imheight = (pos.width / imwidth) * imheight;
-    if (s.classList.contains("multipart")) {
-        s.style.backgroundPosition =
-            "calc(var(--story-width) * -.25) " +
-            Math.min(
-                pos.height - imheight,
-                Math.max(0, realMidpoint - pos.top - imheight / 2),
-            ) +
-            ", calc(var(--story-width) / 2) " +
-            Math.min(
-                pos.height - imheight,
-                Math.max(0, realMidpoint - pos.top - imheight / 2),
-            );
+
+    if (pos.top > realMidpoint - imheight / 2) {
+        s.style.backgroundPositionY = "top";
+        s.style.backgroundAttachment = "scroll";
+    } else if (pos.bottom < imheight / 2 + realMidpoint) {
+        s.style.backgroundPositionY = "bottom";
+        s.style.backgroundAttachment = "scroll";
     } else {
-        s.style.backgroundPosition =
-            "center " +
-            Math.min(
-                pos.height - imheight,
-                Math.max(0, realMidpoint - pos.top - imheight / 2),
-            );
+        s.style.backgroundPositionY = "";
+        s.style.backgroundAttachment = "fixed";
     }
 }
 document.getElementById("playPauseBtn").onclick = () => playPauseMusic(true);
