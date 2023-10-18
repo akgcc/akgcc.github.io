@@ -1510,7 +1510,9 @@ function avatarImg(path) {
         0,
         ALT_IMG_SOURCE.replace(/REPLACEME/, encodeURIComponent(full_name)),
     );
-    src_array.unshift(`./thumbs/${encodeURIComponent(full_name)}.webp`); // put thumb path first
+    src_array.unshift(
+        `./thumbs/${encodeURIComponent(full_name).toLowerCase()}.webp`,
+    ); // put thumb path first
     const img = document.createElement("img");
     var i = 1;
     img.onerror = function () {
