@@ -256,14 +256,7 @@ function calculateResults() {
 					matches.push(op);
 				}
 			});
-		matches.sort((a, b) => {
-			// Sort by rarity (descending order)
-			if (b.rarity !== a.rarity) {
-				return b.rarity - a.rarity;
-			}
-			// If rarity is the same, sort by name (alphabetical order)
-			return a.name.localeCompare(b.name);
-		});
+
 		let newGroup = {
 			tags: tags,
 			matches: matches,
@@ -292,6 +285,25 @@ function calculateResults() {
 				lowestRarity == 0 && showRobots ? 3.5 : lowestRarity;
 			newGroup.nineHourOpCount = newGroup.matches.length;
 		}
+		newGroup.matches.sort((a, b) => {
+			// Sort by rarity (ascending order), with non 740 at the end
+			if (a.rarity !== b.rarity) {
+				// put robots at the front if show 1* is checked
+				if (showRobots && newGroup.lowest9hrRarity === 3) {
+					if (a.rarity === 0) return -1;
+					if (b.rarity === 0) return 1;
+				}
+				if (a.rarity < 2) {
+					return b.rarity < 2 ? b.rarity - a.rarity : 1;
+				} else if (b.rarity < 2) {
+					return -1;
+				} else {
+					return a.rarity - b.rarity;
+				}
+			}
+			// If rarity is the same, sort by name (alphabetical order)
+			return a.name.localeCompare(b.name);
+		});
 		groups.push(newGroup);
 	});
 	let fullResultSize = groups.length;
@@ -309,17 +321,6 @@ function calculateResults() {
 	groups.forEach((group) => {
 		if (group.matches.length === 0) return;
 		let tr = document.createElement("tr");
-		switch (group.lowest9hrRarity) {
-			case 5:
-				tr.classList.add("six");
-				break;
-			case 4:
-				tr.classList.add("five");
-				break;
-			case 3:
-				tr.classList.add("four");
-				break;
-		}
 		let label = document.createElement("td");
 		group.tags.forEach((tag) => {
 			let el = document.createElement("div");

@@ -81,33 +81,6 @@ tr:nth-child(odd) {
 tr {
 	background-color: var(--row-bg);
 }
-tr.six {
-	background-image: linear-gradient(
-		to right,
-		rgba(255, 102, 0, 0.25) 0%,
-		rgba(0, 0, 0, 0) 15%,
-		rgba(0, 0, 0, 0) 70%,
-		rgba(255, 102, 0, 0.08) 100%
-	);
-}
-tr.five {
-	background-image: linear-gradient(
-		to right,
-		rgba(255, 174, 0, 0.25) 0%,
-		rgba(0, 0, 0, 0) 15%,
-		rgba(0, 0, 0, 0) 70%,
-		rgba(255, 174, 0, 0.08) 100%
-	);
-}
-tr.four {
-	background-image: linear-gradient(
-		to right,
-		rgba(219, 177, 219, 0.2) 0%,
-		rgba(0, 0, 0, 0) 15%,
-		rgba(0, 0, 0, 0) 70%,
-		rgba(219, 177, 219, 0.08) 100%
-	);
-}
 
 .tag {
 	padding: 0.5em;
