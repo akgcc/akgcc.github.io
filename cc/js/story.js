@@ -193,34 +193,38 @@ get_char_table(false, serverString)
             };
             is_num = /_(\d)/.exec(rogue_key)[1];
             is_name = `IS${parseInt(is_num) + 1}`;
-            // for each ending cutscene:
-            for (const [k, v] of Object.entries(
-                rogueStory.details[rogue_key].endings,
-            )) {
-                ending_num = /_(\d)/.exec(k)[1];
-                storyReview[rogue_key].infoUnlockDatas.push({
-                    storyName: v.name,
-                    storyTxt: `obt/roguelike/ro${is_num}/level_rogue${is_num}_ending_${ending_num}`,
-                });
-            }
-            // for each endbook:
-            for (const [k, v] of Object.entries(
-                rogueStory.details[rogue_key].archiveComp.endbook.endbook,
-            )) {
-                // for each part
-                for (const [k2, v2] of Object.entries(
-                    v.clientEndbookItemDatas,
+
+            const endbook =
+                rogueStory.details[rogue_key].archiveComp.endbook.endbook;
+            if (!Object.keys(endbook).length) {
+                // ro1 has no endbook, parse endings from "endings" instead:
+                for (const [k, v] of Object.entries(
+                    rogueStory.details[rogue_key].endings,
                 )) {
-                    // insert story in the correct position (assume each story has 3 parts or this fails.)
-                    storyReview[rogue_key].infoUnlockDatas.splice(
-                        1 + (v.sortId - 1) * 4,
-                        0,
-                        {
+                    ending_num = /_([^_]+)$/.exec(k)[1];
+                    storyReview[rogue_key].infoUnlockDatas.push({
+                        storyName: v.name,
+                        storyTxt: `obt/roguelike/ro${is_num}/level_rogue${is_num}_ending_${ending_num}`,
+                    });
+                }
+            } else {
+                // for each endbook:
+                for (const [k, v] of Object.entries(endbook)) {
+                    // base story:
+                    storyReview[rogue_key].infoUnlockDatas.push({
+                        storyName: v.title,
+                        storyTxt: v.avgId.toLowerCase(),
+                    });
+                    // for each part...
+                    for (const [k2, v2] of Object.entries(
+                        v.clientEndbookItemDatas,
+                    )) {
+                        storyReview[rogue_key].infoUnlockDatas.push({
                             storyName: `${v.title} - ${v2.endbookName}`,
                             storyTxt: v2.textId.toLowerCase(),
                             storyBackground: v.cgId,
-                        },
-                    );
+                        });
+                    }
                 }
             }
 
