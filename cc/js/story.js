@@ -52,7 +52,7 @@ const CharslotFocusMap = {
     none: 0,
 };
 const CharslotNameMap = {
-    l: "",
+    l: "", // these 2 *should* be able to be set to 1, but leaving it like this for safety
     left: "",
     m: 2,
     middle: 2,
@@ -1130,8 +1130,9 @@ async function genStory(data) {
                             break;
                         case "charslot": // new format (replaces "character")
                             if (args) {
-                                if (args.focus)
-                                    speaker = CharslotFocusMap[args.focus] || 0; // ( this may not be correct for this new format, maybe setting to 1 is still correct )
+                                speaker =
+                                    CharslotFocusMap[args.focus] ||
+                                    CharslotNameMap[args.slot]; // ( this may not be correct for this new format, maybe setting to 1 is still correct )
                                 if (args.name)
                                     chars[`name${CharslotNameMap[args.slot]}`] =
                                         args.name;
