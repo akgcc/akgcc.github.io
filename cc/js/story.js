@@ -927,7 +927,10 @@ async function genStory(data) {
                                     currentSpeaker == 99 ||
                                     (currentSpeaker == 1 && key == "name") ||
                                     key == "name" + currentSpeaker;
-                                let avatar = avatarImg(chars[key]);
+                                let avatar = avatarImg(
+                                    chars[key],
+                                    key === "avg",
+                                );
                                 if (isActive) avatar.classList.add("active");
                                 if (isActive) left.appendChild(avatar);
                                 else right.appendChild(avatar);
@@ -1194,23 +1197,22 @@ async function genStory(data) {
 
                             // this is specific to IS#2 monthly records:
                             if (args && args.head) {
-                                speaker = parseInt(args.focus) || 1; // set to 1 if focus key doesnt exist.
+                                speaker = 99; // need to set to 99 instead of 1 to bypass isActive check in makeDialog
                                 chars = {
-                                    name: args.head,
+                                    avg: args.head,
                                 };
-                                speakerList.add(chars.name.toLowerCase());
+                                speakerList.add(chars.avg.toLowerCase());
                                 let dlg = makeDialog(
                                     {
                                         name:
-                                            operatorData[chars.name].name ||
-                                            operatorData[chars.name]
-                                                .appellation,
+                                            operatorData[chars.avg].name ||
+                                            operatorData[chars.avg].appellation,
                                     },
                                     line[2],
                                     chars,
                                     speaker,
                                     Array.from(speakerList).indexOf(
-                                        chars.name.toLowerCase(),
+                                        chars.avg.toLowerCase(),
                                     ),
                                 );
                                 getWorkingScene().appendChild(dlg);
@@ -1480,7 +1482,7 @@ function completeCharPath(path) {
     }
     return path;
 }
-function avatarImg(path) {
+function avatarImg(path, isAvatar = false) {
     // return image element with many, many fallbacks.
     path = path.trim(); //.toLowerCase();
     let varkey = /\$?(.+)/i.exec(path)[1];
@@ -1517,6 +1519,13 @@ function avatarImg(path) {
     src_array.unshift(
         `./thumbs/${encodeURIComponent(full_name).toLowerCase()}.webp`,
     ); // put thumb path first
+
+    if (isAvatar) {
+        // only used in is#2 stories
+        src_array = [
+            IMG_SOURCE + "avatars/" + encodeURIComponent(path) + ".png",
+        ];
+    }
     const img = document.createElement("img");
     var i = 1;
     img.onerror = function () {
