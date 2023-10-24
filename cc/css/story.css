@@ -251,12 +251,32 @@
 .storyNav .spacer {
   flex-basis: 1em;
 }
+#storyTitle,
 .storyName {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#storyTitle.hidden {
+  display: none;
+}
+.storyName {
   font-size: 2em;
   background: var(--main-background-color);
   padding: 0.25em;
 }
+img.storyAvatar {
+  height: 1em;
+  width: 1em;
+  border: 1px solid var(--main-text-color);
+  border-radius: 0.1em;
+}
+#storyTitle > *,
+.storyName > * {
+  margin-left: 0.15em;
+  margin-right: 0.15em;
+}
+
 .storySelect {
   font-size: 1.2em;
   padding-right: 0.3em;

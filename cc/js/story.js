@@ -227,38 +227,29 @@ get_char_table(false, serverString)
                     }
                 }
             }
-
-            // for each monthly squad:
-            for (const [k, v] of Object.entries(
-                rogueStory.details[rogue_key].monthSquad,
-            )) {
-                let month_num = /_(\d)$/.exec(k)[1];
-                let month_key = `${rogue_key}_${k}`;
-                storyTypes.rogue.push(month_key);
-                storyReview[month_key] = {
-                    name: `M${month_num} - ${v.teamName}`,
-                    infoUnlockDatas: [],
-                };
-            }
-            for (const [k, v] of Object.entries(
-                rogueStory.details[rogue_key].archiveComp.chat.chat,
-            )) {
-                let month_num = /_(\d)$/.exec(k)[1];
-                let month_key = `${rogue_key}_month_team_${month_num}`;
-                // for each floor
-                for (const [k2, v2] of Object.entries(v.clientChatItemData)) {
-                    if (storyReview[month_key] === undefined) {
-                        // delete not yet added stories
-                        delete storyReview[month_key];
-                        break;
+            Object.keys(rogueStory.details[rogue_key].monthSquad).forEach(
+                (k, month_num) => {
+                    let v = rogueStory.details[rogue_key].monthSquad[k];
+                    let month_key = `${rogue_key}_${k}`;
+                    storyTypes.rogue.push(month_key);
+                    storyReview[month_key] = {
+                        name: `M${month_num + 1} - ${v.teamName}`,
+                        infoUnlockDatas: [],
+                        chars: v.teamChars,
+                    };
+                    for (const [k2, v2] of Object.entries(
+                        rogueStory.details[rogue_key].archiveComp.chat.chat[
+                            v.chatId
+                        ].clientChatItemData,
+                    )) {
+                        storyReview[month_key].infoUnlockDatas.push({
+                            storyName: `Floor ${v2.chatFloor}`,
+                            storyTxt: `${v2.chatStoryId.toLowerCase()}`,
+                            storyBackground: `pic_${rogue_key}_1`,
+                        });
                     }
-                    storyReview[month_key].infoUnlockDatas.push({
-                        storyName: `Floor ${v2.chatFloor}`,
-                        storyTxt: `${v2.chatStoryId.toLowerCase()}`,
-                        storyBackground: `pic_${rogue_key}_1`,
-                    });
-                }
-            }
+                },
+            );
         }
 
         storyTypes.record.sort((a, b) => {
@@ -524,7 +515,7 @@ get_char_table(false, serverString)
                 storyReview[cat].infoUnlockDatas[
                     document.getElementById("thirdCatSelect").value
                 ];
-            genStory(data).then(() => {
+            genStory(data, storyReview[cat].chars).then(() => {
                 scrollFunction();
                 sessionStorage.setItem("userChange", false);
             });
@@ -572,7 +563,7 @@ get_char_table(false, serverString)
         }
     });
 
-async function genStory(data) {
+async function genStory(data, avatars = []) {
     let storyName = data.storyName;
     let key = data.storyTxt;
     soundQueue.length = 0;
@@ -610,7 +601,7 @@ async function genStory(data) {
         .then((r) => r.text())
         .then((txt) => {
             if (data.storyBackground) {
-                // use special bg, currently used for is endbooks
+                // use special bg, currently used for IS endbooks
                 txt = `[roguebackground(image="${data.storyBackground}")]\n${txt}`;
             }
             const lines = txt.matchAll(/^(\[[^\]]+])?(.*)?$/gim);
@@ -621,8 +612,17 @@ async function genStory(data) {
             storyDiv.innerHTML = "";
             let title = document.createElement("div");
             title.classList.add("storyName");
-            title.innerHTML = storyName;
-            document.getElementById("storyTitle").innerHTML = storyName;
+            (avatars || []).forEach((char) => {
+                let img = document.createElement("img");
+                img.src =
+                    IMG_SOURCE + "avatars/" + encodeURIComponent(char) + ".png";
+                img.classList.add("storyAvatar");
+                title.appendChild(img);
+            });
+            let titletxt = document.createElement("span");
+            titletxt.innerHTML = storyName;
+            title.appendChild(titletxt);
+            document.getElementById("storyTitle").innerHTML = title.innerHTML;
             storyDiv.appendChild(title);
             let scene,
                 speaker = 0,
