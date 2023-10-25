@@ -179,12 +179,24 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
 
     const now = Math.floor(Date.now() / 1000);
     var stage_types = {};
+    // console.log(story_table);
+    // console.log(activity_table.basicInfo);
     for (const [key, value] of Object.entries(story_table)) {
+      // if (
+      //   value.replicateActionId ||
+      //   activity_table.basicInfo[key]?.type === "DEFAULT" ||
+      //   (activity_table.basicInfo[key]?.displayOnHome &&
+      //     !(value.entryType === "MINI_ACTIVITY")) ||
+      //   activity_table.basicInfo[key]?.displayType == "SIDESTORY" ||
+      //   activity_table.basicInfo[key]?.displayType == "BRANCHLINE" ||
+      //   (activity_table.basicInfo[key]?.endTime > Date.now() / 1000 &&
+      //     activity_table.basicInfo[key]?.startTime < Date.now() / 1000)
+      // )
       if (
-        value.replicateActionId ||
-        activity_table.basicInfo[key]?.displayType == "BRANCHLINE" ||
-        (activity_table.basicInfo[key]?.endTime > Date.now() / 1000 &&
-          activity_table.basicInfo[key]?.startTime < Date.now() / 1000)
+        ((activity_table.basicInfo[key]?.displayOnHome &&
+          !(value.entryType === "MINI_ACTIVITY")) ||
+          activity_table.basicInfo[key]?.displayType == "SIDESTORY") &&
+        !(value?.replicateActionId === "")
       ) {
         let code = value.infoUnlockDatas.slice(-1)[0].storyCode.split("-")[0];
         if (!code)

@@ -23,12 +23,14 @@
   background-position: center;
 }
 /* data-deploy = 0,1,3 */
-.stageMap td[data-height="0"] {
+.stageMap td[data-height="0"],
+.stageMap td[data-height="LOWLAND"] {
   background-color: var(--color_floor);
   /* background-color: transparent; */
 }
 /* data-deploy = 2 */
-.stageMap td[data-height="1"] {
+.stageMap td[data-height="1"],
+.stageMap td[data-height="HIGHLAND"] {
   background-color: var(--color_roof);
   /* background-color: transparent; */
 }
