@@ -45,11 +45,7 @@ var dupeChain = {};
 var CCTAG;
 var skill_table;
 var red_filter_enabled = false;
-fetch(
-  "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-    "en_US" +
-    "/gamedata/excel/skill_table.json",
-)
+fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
   .then((res) => fixedJson(res))
   .then((json) => {
     skill_table = json;

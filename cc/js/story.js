@@ -67,9 +67,7 @@ get_char_table(false, serverString)
             charCodeMap[key.split("_")[2]] = key;
         }
         return fetch(
-            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-                serverString +
-                "/gamedata/story/story_variables.json",
+            `${DATA_BASE[serverString]}/gamedata/story/story_variables.json`,
         );
     })
     .then((res) => fixedJson(res))
@@ -77,36 +75,28 @@ get_char_table(false, serverString)
         soundMap = js;
         soundMap["$ill_amiya_normal"] = "char_002_amiya_1";
         return fetch(
-            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-                serverString +
-                "/gamedata/excel/uniequip_table.json",
+            `${DATA_BASE[serverString]}/gamedata/excel/uniequip_table.json`,
         );
     })
     .then((res) => fixedJson(res))
     .then((js) => {
         moduleStory = js;
         return fetch(
-            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-                serverString +
-                "/gamedata/excel/story_review_meta_table.json",
+            `${DATA_BASE[serverString]}/gamedata/excel/story_review_meta_table.json`,
         );
     })
     .then((res) => fixedJson(res))
     .then((js) => {
         storyReviewMeta = js;
         return fetch(
-            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-                serverString +
-                "/gamedata/excel/roguelike_topic_table.json",
+            `${DATA_BASE[serverString]}/gamedata/excel/roguelike_topic_table.json`,
         );
     })
     .then((res) => fixedJson(res))
     .then((js) => {
         rogueStory = js;
         return fetch(
-            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-                serverString +
-                "/gamedata/excel/story_review_table.json",
+            `${DATA_BASE[serverString]}/gamedata/excel/story_review_table.json`,
         );
     })
     .then((res) => fixedJson(res))
@@ -590,13 +580,7 @@ async function genStory(data, avatars = []) {
 
     return await (key.startsWith("uniequip")
         ? getModuleStory(key)
-        : fetch(
-              "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-                  serverString +
-                  "/gamedata/story/" +
-                  key +
-                  ".txt",
-          )
+        : fetch(`${DATA_BASE[serverString]}/gamedata/story/${key}.txt`)
     )
         .then((r) => r.text())
         .then((txt) => {

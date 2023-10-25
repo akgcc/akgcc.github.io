@@ -7,9 +7,7 @@ const rarityMap = {
 };
 const buttonMap = {};
 let ISLIST = ["#1"];
-fetch(
-	"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/zh_CN/gamedata/excel/zone_table.json",
-)
+fetch(`${DATA_BASE[SERVERS.CN]}/gamedata/excel/zone_table.json`)
 	.then((res) => fixedJson(res))
 	.then((zonedata) => {
 		Object.values(zonedata.zones)
@@ -56,9 +54,7 @@ async function fetchItemTable(is) {
 			break;
 		default:
 			resp = await fetch(
-				"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-					serverString +
-					"/gamedata/excel/roguelike_topic_table.json",
+				`${DATA_BASE[serverString]}/gamedata/excel/roguelike_topic_table.json`,
 			);
 			js = await fixedJson(resp);
 			table = js.details?.[`rogue_${is - 1}`]?.items;
@@ -67,9 +63,9 @@ async function fetchItemTable(is) {
 	if (!table) {
 		// fallback to CN data
 		resp = await fetch(
-			"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-				"zh_CN" +
-				"/gamedata/excel/roguelike_topic_table.json",
+			`${
+				DATA_BASE[SERVERS.CN]
+			}/gamedata/excel/roguelike_topic_table.json`,
 		);
 		js = await fixedJson(resp);
 		table = js.details[`rogue_${is - 1}`].items;

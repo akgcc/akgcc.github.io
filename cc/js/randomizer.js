@@ -132,11 +132,7 @@ var filters = {
 };
 
 // fetch('https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/'+serverString+'/gamedata/excel/zone_table.json')
-fetch(
-  "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-    serverString +
-    "/gamedata/excel/skill_table.json"
-)
+fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
   .then((res) => fixedJson(res))
   .then((json) => {
     skill_table = json;
@@ -149,29 +145,19 @@ fetch(
   })
   .then((js) => {
     operatorData = js;
-    return fetch(
-      "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-        serverString +
-        "/gamedata/excel/story_review_table.json"
-    );
+    return fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`);
   })
   .then((res) => fixedJson(res))
   .then((js) => {
     story_table = js;
     return fetch(
-      "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-        serverString +
-        "/gamedata/excel/activity_table.json"
+      `${DATA_BASE[serverString]}/gamedata/excel/activity_table.json`,
     );
   })
   .then((res) => fixedJson(res))
   .then((js) => {
     activity_table = js;
-    return fetch(
-      "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-        serverString +
-        "/gamedata/excel/stage_table.json"
-    );
+    return fetch(`${DATA_BASE[serverString]}/gamedata/excel/stage_table.json`);
   })
   .then((res) => fixedJson(res))
   .then((js) => {
@@ -184,7 +170,7 @@ fetch(
         x.apCost &&
         x.dailyStageDifficulty &&
         x.difficulty == "NORMAL" &&
-        x.levelId
+        x.levelId,
     );
     let main_ids = new Set();
     availableStages.map((x) => main_ids.add(x.zoneId));
@@ -237,7 +223,7 @@ fetch(
         .map((x) => x.charId);
       localStorage.setItem(
         "excludedOps",
-        JSON.stringify(exclusions.concat(cn_exclusions))
+        JSON.stringify(exclusions.concat(cn_exclusions)),
       );
     }
     function toggleOp(op, state) {
@@ -286,7 +272,7 @@ fetch(
         }
         let stages_re = new RegExp(
           "^(" + Object.values(localEpisodeList).join("|") + ")",
-          "gi"
+          "gi",
         );
         let availableStages = Object.values(stageData.stages).filter(
           (x) =>
@@ -294,17 +280,14 @@ fetch(
             ["MAIN", "SUB", "ACTIVITY"].includes(x.stageType) &&
             x.apCost &&
             x.difficulty == "NORMAL" &&
-            x.levelId
+            x.levelId,
         );
         let chosen_stage = shuffleArray(availableStages)[0];
         // chosen_stage= availableStages.filter(x=> x.code == "SV-EX-5")[0]
         if (chosen_stage) {
-          let stageurl =
-            "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-            serverString +
-            "/gamedata/levels/" +
-            chosen_stage.levelId.toLowerCase() +
-            ".json";
+          let stageurl = `${
+            DATA_BASE[serverString]
+          }/gamedata/levels/${chosen_stage.levelId.toLowerCase()}.json`;
           fetch(stageurl)
             .then((res) => fixedJson(res))
             .then((js) => {
@@ -321,7 +304,7 @@ fetch(
         // local vars for this draft
         let draftedOps = [];
         let availableOperators = Object.values(operatorData).filter(
-          (x) => x.selected && !draftedOps.includes(x.charId)
+          (x) => x.selected && !draftedOps.includes(x.charId),
         );
         let localFilters = JSON.parse(JSON.stringify(filters));
         let hope = -1;
@@ -366,7 +349,7 @@ fetch(
             team,
             -op.rarity,
             [],
-            filters.Squad.randomizeSkills.enabled ? op.randomizedSkill : null
+            filters.Squad.randomizeSkills.enabled ? op.randomizedSkill : null,
           );
           draftedOps.push(op.charId);
           hope -= hopeMap[op.rarity];
@@ -390,10 +373,10 @@ fetch(
         function draftRound() {
           function assignWeights(oplist, currentSelection = []) {
             let existingClasses = currentSelection.map(
-              (o) => operatorData[o].profession
+              (o) => operatorData[o].profession,
             );
             let existingRarities = currentSelection.map(
-              (o) => operatorData[o].rarity
+              (o) => operatorData[o].rarity,
             );
             Object.keys(oplist).forEach((chrid) => {
               let op = operatorData[chrid];
@@ -434,13 +417,13 @@ fetch(
             let thisDraft = availableOperators.filter(
               (x) =>
                 localFilters.Rarity[parseInt(x.rarity)].enabled &&
-                localFilters.Rarity[parseInt(x.rarity)].max > 0
+                localFilters.Rarity[parseInt(x.rarity)].max > 0,
             );
             // filter by class:
             thisDraft = thisDraft.filter(
               (x) =>
                 localFilters.Class[x.profession].enabled &&
-                localFilters.Class[x.profession].max > 0
+                localFilters.Class[x.profession].max > 0,
             );
             // filter by hope remaining: // is this too powerful?
             if (filters.Squad.pointDraft.enabled)
@@ -457,7 +440,7 @@ fetch(
             delete oplist[chrid];
             currentSelection.push(op.charId);
             availableOperators = availableOperators.filter(
-              (x) => x.charId != op.charId
+              (x) => x.charId != op.charId,
             );
             let skid = null;
             if (filters.Squad.randomizeSkills.enabled && op.skills.length) {
@@ -475,7 +458,7 @@ fetch(
               selection,
               -op.rarity,
               [],
-              skid
+              skid,
             );
             if (filters.Squad.pointDraft.enabled) {
               let hopeamt = document.createElement("div");
@@ -494,7 +477,7 @@ fetch(
                 (x) =>
                   x.selected &&
                   !draftedOps.includes(x.charId) &&
-                  !currentSelection.includes(x.charId)
+                  !currentSelection.includes(x.charId),
               );
               oplist = assignWeights(getOpList(), currentSelection);
               if (!Object.keys(oplist).length) break;
@@ -517,7 +500,7 @@ fetch(
           }
           if (filters.Squad.pointDraft.enabled) {
             let freeops = currentSelection.filter(
-              (x) => hopeMap[operatorData[x].rarity] <= 0
+              (x) => hopeMap[operatorData[x].rarity] <= 0,
             );
             if (freeops.length == 0) {
               // add one free op if none in selection.
@@ -526,11 +509,11 @@ fetch(
                   x.selected &&
                   !draftedOps.includes(x.charId) &&
                   !currentSelection.includes(x.charId) &&
-                  hopeMap[x.rarity] <= 0
+                  hopeMap[x.rarity] <= 0,
               );
               if (zerocost.length)
                 addToSelection(
-                  zerocost[Math.floor(Math.random() * zerocost.length)].charId
+                  zerocost[Math.floor(Math.random() * zerocost.length)].charId,
                 );
             }
           }
@@ -551,32 +534,32 @@ fetch(
         destDiv.innerHTML = "";
         // pick a squad
         let availableOperators = Object.values(operatorData).filter(
-          (x) => x.selected
+          (x) => x.selected,
         );
         let localFilters = JSON.parse(JSON.stringify(filters));
         let real_size_cap = Math.min(
           filters.Squad.Size.max,
           Object.values(localFilters.Rarity).reduce(
             (p, c) => p + (c.enabled ? Math.max(c.max, 0) : 0),
-            0
+            0,
           ),
           Object.values(localFilters.Class).reduce(
             (p, c) => p + (c.enabled ? Math.max(c.max, 0) : 0),
-            0
-          )
+            0,
+          ),
         );
         for (let i = 0; i < real_size_cap; i++) {
           // filter by rarity:
           availableOperators = availableOperators.filter(
             (x) =>
               localFilters.Rarity[parseInt(x.rarity)].enabled &&
-              localFilters.Rarity[parseInt(x.rarity)].max > 0
+              localFilters.Rarity[parseInt(x.rarity)].max > 0,
           );
           // filter by class:
           availableOperators = availableOperators.filter(
             (x) =>
               localFilters.Class[x.profession].enabled &&
-              localFilters.Class[x.profession].max > 0
+              localFilters.Class[x.profession].max > 0,
           );
           let ops_needed = Object.values(localFilters.Rarity)
             .concat(Object.values(localFilters.Class))
@@ -616,7 +599,7 @@ fetch(
             destDiv,
             -randomOne.rarity,
             [],
-            skid
+            skid,
           );
           // reduce min and max
           localFilters.Rarity[parseInt(randomOne.rarity)].min -= 1;
@@ -670,7 +653,7 @@ fetch(
       // if needed (all are checkboxes), add select add/none btn at top:
       if (
         Object.values(value).every(
-          (v) => v.enabled !== undefined && v.min == undefined
+          (v) => v.enabled !== undefined && v.min == undefined,
         )
       ) {
         let row = document.createElement("tr");
@@ -792,7 +775,7 @@ fetch(
         (x) => {
           if (x.classList.contains("_selected"))
             shownClasses.push(x.getAttribute("data-class"));
-        }
+        },
       );
       Object.values(divMap).forEach((x) => {
         if (
@@ -810,7 +793,7 @@ fetch(
           x.classList.toggle("_selected");
           filterByClass();
         };
-      }
+      },
     );
   });
 

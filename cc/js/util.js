@@ -1,8 +1,9 @@
 const DATA_SOURCE =
   "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/";
+const DATA_SOURCE_YOSTAR =
+  "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData_YoStar/main/";
 // const DATA_SOURCE =
 //   "https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/json/gamedata/";
-const CC_DATA_SOURCE = DATA_SOURCE;
 // const CC_DATA_SOURCE =
 //   "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/";
 // const IMG_SOURCE = "https://aceship.github.io/AN-EN-Tags/img/";
@@ -18,6 +19,11 @@ const SERVERS = {
   KR: "ko_KR",
   CN: "zh_CN",
 };
+const DATA_BASE = {};
+DATA_BASE[SERVERS.EN] = DATA_SOURCE_YOSTAR + SERVERS.EN;
+DATA_BASE[SERVERS.JP] = DATA_SOURCE_YOSTAR + SERVERS.JP;
+DATA_BASE[SERVERS.KR] = DATA_SOURCE_YOSTAR + SERVERS.KR;
+DATA_BASE[SERVERS.CN] = DATA_SOURCE + SERVERS.CN;
 const serverString = localStorage.getItem("server") || "en_US";
 const CLASS_MAPPING = {
   WARRIOR: "Guard",
@@ -89,11 +95,11 @@ let tt = document.createElement("div");
 tt.id = "chartjs-tooltip";
 tt.classList.add("hidden");
 document.addEventListener("DOMContentLoaded", () =>
-  document.body.appendChild(tt)
+  document.body.appendChild(tt),
 );
 async function get_cc_list(server = "en_US") {
   let raw = await fetch(
-    CC_DATA_SOURCE + server + "/gamedata/excel/crisis_table.json"
+    `${DATA_BASE[server]}/gamedata/excel/crisis_table.json`,
   );
   let data = await fixedJson(raw);
   data.seasonInfo.forEach((cc) => {
@@ -112,11 +118,11 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
   // also builds charIdMap for use elsewhere
   // converts internal profession names to in-game ones
   let raw = await fetch(
-    DATA_SOURCE + server + "/gamedata/excel/character_table.json"
+    `${DATA_BASE[server]}/gamedata/excel/character_table.json`,
   );
   let json = await fixedJson(raw);
   raw = await fetch(
-    DATA_SOURCE + server + "/gamedata/excel/char_patch_table.json"
+    `${DATA_BASE[server]}/gamedata/excel/char_patch_table.json`,
   );
   let patch = await fixedJson(raw);
   updateJSON(json, patch.patchChars);
@@ -153,7 +159,7 @@ async function fixedJson(res) {
     .clone()
     .json()
     .catch((e) =>
-      res.text().then((txt) => JSON.parse(txt.replace(/,(\W+}\W*$)/, "$1")))
+      res.text().then((txt) => JSON.parse(txt.replace(/,(\W+}\W*$)/, "$1"))),
     );
 }
 
@@ -236,7 +242,7 @@ function thumbnail_tooltip(chart_canvas, even_rows_only = false) {
     tooltipEl.style.top = chart_canvas.offsetTop + tooltip.y + "px";
     tooltipEl.style.height = tooltip.height + "px";
     tooltipEl.style.font = Chart.helpers.toFont(
-      tooltip.options.bodyFont
+      tooltip.options.bodyFont,
     ).string;
 
     // animate movement with FLIP technique
@@ -303,7 +309,7 @@ if (typeof Chart !== "undefined") {
         // below block is modified code.
         let sliceSize = Math.max(
           (1 / 4) * 2,
-          (1 / options.pointStyle.conflictCount) * 2
+          (1 / options.pointStyle.conflictCount) * 2,
         );
         sliceSize = (1 / options.pointStyle.conflictCount) * 2;
         let sliceStart = sliceSize * options.pointStyle.conflict;
@@ -314,7 +320,7 @@ if (typeof Chart !== "undefined") {
           Math.min(style.height / 2, style.width / 2),
           Math.PI / 2 + Math.PI * sliceStart,
           Math.PI / 2 + Math.PI * sliceStart + Math.PI * sliceSize,
-          false
+          false,
         );
         if (options.pointStyle.conflictCount > 1) ctx.lineTo(0, 0);
         ctx.closePath();
@@ -326,7 +332,7 @@ if (typeof Chart !== "undefined") {
           -style.width / 2,
           -style.height / 2,
           style.width,
-          style.height
+          style.height,
         );
         ///////////////////////////////
 
@@ -359,7 +365,7 @@ if (typeof Chart !== "undefined") {
   Chart.defaults.scales.logarithmic.ticks.callback = function (
     tick,
     index,
-    ticks
+    ticks,
   ) {
     return tick.toLocaleString();
   };
@@ -403,13 +409,13 @@ function beforeDatasetDraw(chart, args) {
         const datasetMeta = chart.getDatasetMeta(datasetIndex);
         datasetMeta.data.forEach((el) => {
           const overlap = points.find(
-            (point) => point.x === el._model.x && point.y === el._model.y
+            (point) => point.x === el._model.x && point.y === el._model.y,
           );
           if (overlap) {
             const adjusted = adjustedMap.find(
               (item) =>
                 item.datasetIndex === datasetIndex &&
-                item.dataIndex === dataIndex
+                item.dataIndex === dataIndex,
             );
             if (!adjusted && datasetIndex % 2) {
               el._model.x += 7;
@@ -455,7 +461,7 @@ function divideString(text) {
   let i = 1;
   for (; i < tokens.length; i++) {
     let newdiff = Math.abs(
-      tokens.slice(0, i).join(" ").length - tokens.slice(i).join(" ").length
+      tokens.slice(0, i).join(" ").length - tokens.slice(i).join(" ").length,
     );
     if (newdiff > diff) break;
     diff = newdiff;
@@ -472,7 +478,7 @@ function CreateOpCheckbox(
   destDiv = document.getElementById("checkboxes"),
   order = null,
   skills = [],
-  dispSkillId = null
+  dispSkillId = null,
 ) {
   let operatorName = operator.name;
   var checkboxDiv = document.createElement("div");
@@ -533,18 +539,18 @@ function CreateOpCheckbox(
       if (i.classList.contains("_selected"))
         checkboxDiv.setAttribute(
           "data-selsk",
-          parseInt(checkboxDiv.getAttribute("data-selsk") || 0) | (1 << idx)
+          parseInt(checkboxDiv.getAttribute("data-selsk") || 0) | (1 << idx),
         );
       else
         checkboxDiv.setAttribute(
           "data-selsk",
-          parseInt(checkboxDiv.getAttribute("data-selsk")) ^ (1 << idx)
+          parseInt(checkboxDiv.getAttribute("data-selsk")) ^ (1 << idx),
         );
       if (clickfunc) {
         clickfunc(
           operator,
           checkboxDiv.classList.contains("_selected"),
-          parseInt(checkboxDiv.getAttribute("data-selsk"))
+          parseInt(checkboxDiv.getAttribute("data-selsk")),
         );
       }
     };
@@ -567,7 +573,7 @@ function CreateOpCheckbox(
       clickfunc(
         operator,
         checkboxDiv.classList.contains("_selected"),
-        parseInt(checkboxDiv.getAttribute("data-selsk")) || 0
+        parseInt(checkboxDiv.getAttribute("data-selsk")) || 0,
       );
     };
   }
@@ -585,7 +591,7 @@ function CreateOpCheckbox(
     // need to check width of each line and set textLength
     let firstLine = document.createElementNS(
       "http://www.w3.org/2000/svg",
-      "tspan"
+      "tspan",
     );
     firstLine.setAttribute("dy", "0");
     firstLine.setAttribute("x", "50%");
@@ -594,7 +600,7 @@ function CreateOpCheckbox(
     firstLine.innerHTML = first;
     let secondLine = document.createElementNS(
       "http://www.w3.org/2000/svg",
-      "tspan"
+      "tspan",
     );
     secondLine.setAttribute("dy", "1em");
     secondLine.setAttribute("x", "50%");

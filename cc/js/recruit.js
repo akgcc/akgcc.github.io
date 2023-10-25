@@ -27,11 +27,7 @@ params.get("tags") &&
 		.get("tags")
 		.split(",")
 		.forEach((tag) => selectedTags.add(tag));
-fetch(
-	"https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/" +
-		serverString +
-		"/gamedata/excel/gacha_table.json",
-)
+fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 	.then((res) => fixedJson(res))
 	.then((js) => {
 		recruitDetail = js?.recruitDetail || "";
