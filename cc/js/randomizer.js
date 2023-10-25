@@ -145,7 +145,9 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
   })
   .then((js) => {
     operatorData = js;
-    return fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`);
+    return fetch(
+      `${DATA_BASE[serverString]}/gamedata/excel/story_review_table.json`,
+    );
   })
   .then((res) => fixedJson(res))
   .then((js) => {
