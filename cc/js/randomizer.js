@@ -196,7 +196,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
         ((activity_table.basicInfo[key]?.displayOnHome &&
           !(value.entryType === "MINI_ACTIVITY")) ||
           activity_table.basicInfo[key]?.displayType == "SIDESTORY") &&
-        !(value?.replicateActionId === "")
+        !(value?.replicateActionId === "") // checking replicateActionId doesn't work on CN, need a new solution
       ) {
         let code = value.infoUnlockDatas.slice(-1)[0].storyCode.split("-")[0];
         if (!code)
