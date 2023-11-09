@@ -7,3 +7,4 @@
 -   https://github.com/FortAwesome/Font-Awesome
 -   https://gamepress.gg/arknights/database/banner-list-gacha
 -   https://arkwaifu.cc/
+-   https://github.com/astral4/arkdata

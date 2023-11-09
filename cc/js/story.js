@@ -1502,6 +1502,11 @@ function avatarImg(path, isAvatar = false) {
         ALT_IMG_SOURCE.replace(/REPLACEME/, encodeURIComponent(full_name)),
     );
     src_array.unshift(
+        `${INTERNAL_DATA_SOURCE}avg/characters/${encodeURIComponent(
+            full_name,
+        ).toLowerCase()}.png`,
+    ); // put internal path second
+    src_array.unshift(
         `./thumbs/${encodeURIComponent(full_name).toLowerCase()}.webp`,
     ); // put thumb path first
 
