@@ -1259,6 +1259,12 @@ async function genStory(data, avatars = []) {
                             let sound = document.createElement("source");
                             let soundkey = /\$?(.+)/i.exec(args.key)[1];
                             let soundpath = soundMap[soundkey] || soundkey;
+                            sound.src =
+                                `${INTERNAL_DATA_SOURCE}torappu/dynamicassets/audio/${soundpath}.mp3`.toLowerCase();
+                            sound.setAttribute("type", "audio/mp3");
+                            audio.appendChild(sound);
+
+                            sound = document.createElement("source");
                             sound.src = (
                                 "./sounds/assets/torappu/dynamicassets/audio/" +
                                 soundpath +
@@ -1266,6 +1272,7 @@ async function genStory(data, avatars = []) {
                             ).toLowerCase();
                             sound.setAttribute("type", "audio/mp3");
                             audio.appendChild(sound);
+
                             sound = document.createElement("source");
                             sound.src = (
                                 "https://aceship.github.io/AN-EN-Tags/etc/" +
@@ -1274,6 +1281,7 @@ async function genStory(data, avatars = []) {
                             ).toLowerCase();
                             sound.setAttribute("type", "audio/wav");
                             audio.appendChild(sound);
+
                             if (cmd.toLowerCase() == "playsound") {
                                 let btn = document.createElement("i");
                                 btn.classList.add("fas");
