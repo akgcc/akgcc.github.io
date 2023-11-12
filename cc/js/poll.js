@@ -1,7 +1,7 @@
-if (!window.location.hash) window.location.hash = "#1";
+const POLLS = ["#1", "#2", "#3"];
+if (!window.location.hash) window.location.hash = POLLS.slice(-1);
 window.onhashchange = () => window.location.reload();
 var PTAG = window.location.hash.substr(1);
-const POLLS = ["#1", "#2", "#3"];
 const MASTERY_POLLS = ["#3"];
 const POLL_INCLUDES_MASTERIES = MASTERY_POLLS.includes(window.location.hash);
 const OWNERSHIP_E2_NAME = "E2";
@@ -65,7 +65,7 @@ get_char_table()
           Array.from(
             document
               .getElementById("sort")
-              .querySelectorAll('.checked[data-axes="' + axis + '"]')
+              .querySelectorAll('.checked[data-axes="' + axis + '"]'),
           ).forEach((x) => x.classList.remove("checked"));
           redrawCharts();
           e.currentTarget.classList.toggle("checked");
@@ -94,10 +94,10 @@ get_char_table()
         // let axis = e.currentTarget.getAttribute('data-axes')
         // axesMetrics[axis] = e.currentTarget.innerText
         Array.from(
-          document.getElementById("sort").querySelectorAll("#barSort .checked")
+          document.getElementById("sort").querySelectorAll("#barSort .checked"),
         ).forEach((x) => x.classList.remove("checked"));
         sorted_bar_data = Object.values(bar_data).sort(
-          (a, b) => b[barMetrics[j]] - a[barMetrics[j]]
+          (a, b) => b[barMetrics[j]] - a[barMetrics[j]],
         );
         redrawCharts();
         e.currentTarget.classList.toggle("checked");
@@ -108,10 +108,10 @@ get_char_table()
     function swapCharts(e) {
       if (!e.currentTarget.classList.contains("checked")) {
         Array.from(document.querySelectorAll(".sortdiv")).forEach((e) =>
-          e.classList.toggle("hidden")
+          e.classList.toggle("hidden"),
         );
         Array.from(document.querySelectorAll("#chartPicker .button")).forEach(
-          (e) => e.classList.toggle("checked")
+          (e) => e.classList.toggle("checked"),
         );
         document.getElementById("barChartContainer").classList.toggle("hidden");
         document.getElementById("scatterChart").classList.toggle("hidden");
@@ -177,7 +177,7 @@ get_char_table()
       2;
 
     let sorted_bar_data = Object.values(bar_data).sort(
-      (a, b) => b[barDefaultSort] - a[barDefaultSort]
+      (a, b) => b[barDefaultSort] - a[barDefaultSort],
     );
     // different options for mastery chart:
     _datasets = POLL_INCLUDES_MASTERIES
@@ -349,7 +349,7 @@ get_char_table()
                 if (context.dataset.label == "filler") return;
                 if (
                   [OWNERSHIP_E2_NAME, OVERALL_E2_NAME].includes(
-                    context.dataset.label
+                    context.dataset.label,
                   )
                 )
                   return (
@@ -375,7 +375,7 @@ get_char_table()
             // position: 'nearest',
             external: thumbnail_tooltip(
               document.getElementById("opChart"),
-              POLL_INCLUDES_MASTERIES
+              POLL_INCLUDES_MASTERIES,
             ),
             // xAlign: 'left'
           },
@@ -404,7 +404,7 @@ get_char_table()
           chart.options.layout.padding.top = imgSize / 2;
           chart.options.layout.padding.right = imgSize / 2;
           chart.data.datasets.forEach((d) =>
-            d.data.forEach((x) => (x.r = imgSize / 2))
+            d.data.forEach((x) => (x.r = imgSize / 2)),
           );
         },
         maintainAspectRatio: true,
@@ -484,17 +484,17 @@ get_char_table()
         for (i = 0; i < barGraph.data.datasets.length; i++) {
           if (i % 2)
             barGraph.data.datasets[i].data = sorted_bar_data.map(
-              (x) => 100 - 100 * x[barMetrics[Math.floor(i / 2)]]
+              (x) => 100 - 100 * x[barMetrics[Math.floor(i / 2)]],
             );
           else
             barGraph.data.datasets[i].data = sorted_bar_data.map(
-              (x) => 100 * x[barMetrics[Math.floor(i / 2)]]
+              (x) => 100 * x[barMetrics[Math.floor(i / 2)]],
             );
         }
       else
         for (i = 0; i < barGraph.data.datasets.length; i++)
           barGraph.data.datasets[i].data = sorted_bar_data.map(
-            (x) => 100 * x[barMetrics[i]]
+            (x) => 100 * x[barMetrics[i]],
           );
       barGraph.update();
     }
