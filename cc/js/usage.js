@@ -225,7 +225,7 @@ get_cc_list()
 		});
 		let scatterImages = sortedData.map((x) => {
 			i = new Image(imgSize, imgSize);
-			i.src = IMG_SOURCE + "avatars/" + x[3] + ".png";
+			i.src = uri_avatar(x[3]);
 			i.opname = x[0].name;
 			return i;
 		});

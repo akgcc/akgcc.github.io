@@ -6,21 +6,113 @@ const DATA_SOURCE_YOSTAR =
 //   "https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/json/gamedata/";
 // const CC_DATA_SOURCE =
 //   "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/";
-// const IMG_SOURCE = "https://aceship.github.io/AN-EN-Tags/img/";
-const IMG_SOURCE =
-  "https://raw.githubusercontent.com/Aceship/Arknight-Images/main/";
-const INTERNAL_DATA_SOURCE =
-  "https://raw.githubusercontent.com/akgcc/arkdata/main/assets/";
-const ALT_IMG_SOURCE =
-  "https://arkwaifu.cc/api/v1/arts/REPLACEME/variants/origin/content";
-const ROGUELIKE_LOCAL_IMAGE_SOURCE =
-  "../images/assets/torappu/dynamicassets/arts/ui/rogueliketopic/itempic/";
+const ASSET_SOURCE = {
+  LOCAL: "https://raw.githubusercontent.com/akgcc/arkdata/main/assets/",
+  ACESHIP: "https://raw.githubusercontent.com/Aceship/Arknight-Images/main/",
+  ARKWAIFU: "https://arkwaifu.cc/api/v1/arts/REPLACEME/variants/origin/content",
+};
 const SERVERS = {
   EN: "en_US",
   JP: "ja_JP",
   KR: "ko_KR",
   CN: "zh_CN",
 };
+// data URI gen:
+function uri_sound(soundpath, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    case ASSET_SOURCE.LOCAL:
+      return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/audio/${soundpath}.mp3`.toLowerCase();
+    case ASSET_SOURCE.ACESHIP:
+      return `https://raw.githubusercontent.com/Aceship/Arknight-voices/main/${soundpath.replace(
+        /^sound_beta_2\//,
+        "",
+      )}.wav`.toLowerCase();
+  }
+}
+function uri_avatar(charId, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    case ASSET_SOURCE.LOCAL:
+      return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/arts/charavatars/${charId}.png`.toLowerCase();
+    case ASSET_SOURCE.ACESHIP:
+      return `${ASSET_SOURCE.ACESHIP}avatars/${charId}.png`;
+  }
+}
+function uri_background(imageName, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    case ASSET_SOURCE.LOCAL:
+      return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/avg/backgrounds/${imageName}.png`.toLowerCase();
+    case ASSET_SOURCE.ACESHIP:
+      return `${ASSET_SOURCE.ACESHIP}avg/backgrounds/${imageName}.png`;
+    case ASSET_SOURCE.ARKWAIFU:
+      return ASSET_SOURCE.ARKWAIFU.replace(/REPLACEME/, imageName);
+  }
+}
+function uri_roguelike_item(imageName, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    case ASSET_SOURCE.LOCAL:
+      return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/arts/ui/rogueliketopic/itempic/${imageName}.png`.toLowerCase();
+    case ASSET_SOURCE.ACESHIP:
+      return `${ASSET_SOURCE.ACESHIP}ui/roguelike/item/${imageName}.png`;
+  }
+}
+function uri_rogue_1_capsule(imageName, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    case ASSET_SOURCE.LOCAL:
+      return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/ui/rogueliketopic/topics/rogue_1/capsule/${imageName}.png`.toLowerCase();
+  }
+}
+function uri_uniequip(imageName, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    case ASSET_SOURCE.LOCAL:
+      return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/arts/ui/uniequipimg/${imageName}.png`.toLowerCase();
+    case ASSET_SOURCE.ACESHIP:
+      return `${ASSET_SOURCE.ACESHIP}equip/icon/${imageName}.png`;
+  }
+}
+function uri_item_image(imageName, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    case ASSET_SOURCE.LOCAL:
+      return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/avg/items/${imageName}.png`.toLowerCase();
+    case ASSET_SOURCE.ACESHIP:
+      return `${ASSET_SOURCE.ACESHIP}avg/items/${imageName}.png`;
+  }
+}
+function uri_item(imageName, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    case ASSET_SOURCE.LOCAL:
+      return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/arts/items/icons/${imageName}.png`.toLowerCase();
+    case ASSET_SOURCE.ACESHIP:
+      return `${ASSET_SOURCE.ACESHIP}items/${imageName}.png`;
+  }
+}
+function uri_skill(skillId, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    case ASSET_SOURCE.LOCAL:
+      return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/arts/skills/skill_icon_${skillId}.png`.toLowerCase();
+    case ASSET_SOURCE.ACESHIP:
+      return `${ASSET_SOURCE.ACESHIP}skills/skill_icon_${skillId}.png`;
+  }
+}
+function uri_image(imageName, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    case ASSET_SOURCE.LOCAL:
+      return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/avg/images/${imageName}.png`.toLowerCase();
+    case ASSET_SOURCE.ACESHIP:
+      return `${ASSET_SOURCE.ACESHIP}avg/images/${imageName}.png`;
+    case ASSET_SOURCE.ARKWAIFU:
+      return ASSET_SOURCE.ARKWAIFU.replace(/REPLACEME/, imageName);
+  }
+}
+function uri_character(imageName, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    case ASSET_SOURCE.LOCAL:
+      return `${ASSET_SOURCE.LOCAL}avg/characters/${imageName}.png`.toLowerCase();
+    case ASSET_SOURCE.ACESHIP:
+      return `${ASSET_SOURCE.ACESHIP}avg/characters/${imageName}.png`;
+    case ASSET_SOURCE.ARKWAIFU:
+      return ASSET_SOURCE.ARKWAIFU.replace(/REPLACEME/, imageName);
+  }
+}
 const DATA_BASE = {};
 DATA_BASE[SERVERS.EN] = DATA_SOURCE_YOSTAR + SERVERS.EN;
 DATA_BASE[SERVERS.JP] = DATA_SOURCE_YOSTAR + SERVERS.JP;
@@ -187,9 +279,7 @@ function thumbnail_tooltip(chart_canvas, even_rows_only = false) {
     var innerHtml = "";
     let title = tooltip.title[0] || tooltip.body[0].lines[0].split(":")[0]; // for pie chart legend
     innerHtml =
-      `<img src="${IMG_SOURCE}avatars/` +
-      charIdMap[title] +
-      '.png"> <div> <span><b>' +
+      `<img src="${uri_avatar(charIdMap[title])}"> <div> <span><b>` +
       title +
       "</b></span>";
     for (const [i, b] of tooltip.body.entries()) {
@@ -507,7 +597,7 @@ function CreateOpCheckbox(
 
   let im = document.createElement("img");
   im.setAttribute("loading", "lazy");
-  im.src = IMG_SOURCE + "avatars/" + operator.charId + ".png";
+  im.src = uri_avatar(operator.charId);
   checkboxDiv.appendChild(im);
 
   let name = document.createElement("div");
@@ -530,7 +620,7 @@ function CreateOpCheckbox(
   skilldiv.onclick = (e) => e.stopPropagation();
   skills.forEach((sid, idx) => {
     let i = document.createElement("img");
-    i.src = IMG_SOURCE + "skills/skill_icon_" + sid + ".png";
+    i.src = uri_skill(sid);
     i.setAttribute("loading", "lazy");
     i.classList.add("opskillCheckbox");
     skilldiv.appendChild(i);
@@ -563,7 +653,7 @@ function CreateOpCheckbox(
     let skimg = document.createElement("img");
     skimg.classList.add("skimg");
     skimg.setAttribute("loading", "lazy");
-    skimg.src = IMG_SOURCE + "skills/skill_icon_" + dispSkillId + ".png";
+    skimg.src = uri_skill(dispSkillId);
     checkboxDiv.appendChild(skimg);
   }
 

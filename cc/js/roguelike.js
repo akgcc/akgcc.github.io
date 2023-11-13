@@ -140,18 +140,21 @@ function addItem(data, variants = undefined) {
 	img.setAttribute("loading", "lazy");
 	const src_array = [];
 	if (data.iconId.match(/capsule/)) {
-		src_array.push(`./images/${data.iconId}.png`);
+		src_array.push(uri_rogue_1_capsule(data.iconId));
 		item.classList.add("capsule");
-		item.style.setProperty(`--bg-url`, `url(../images/${data.iconId}.png)`);
-	} else src_array.push(`${IMG_SOURCE}ui/roguelike/item/${data.iconId}.png`);
-	src_array.push(`${ROGUELIKE_LOCAL_IMAGE_SOURCE}${data.iconId}.png`);
+		item.style.setProperty(
+			`--bg-url`,
+			`url(${uri_rogue_1_capsule(data.iconId)})`,
+		);
+	} else src_array.push(uri_roguelike_item(data.iconId));
+	src_array.push(uri_roguelike_item(data.iconId, ASSET_SOURCE.ACESHIP));
 	img.src = src_array[0];
 	var i = 1;
 	img.onerror = function () {
 		if (i < src_array.length) {
 			this.src = src_array[i++];
 		} else {
-			this.src = `${IMG_SOURCE}items/MTL_SL_G2.png`;
+			this.src = uri_item("MTL_SL_G2");
 			this.parentElement.classList.add("unknown");
 			this.onerror = null;
 		}

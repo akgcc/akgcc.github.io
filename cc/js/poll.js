@@ -157,7 +157,7 @@ get_char_table()
     });
     let scatterImages = labels.map((x) => {
       i = new Image(imgSize, imgSize);
-      i.src = IMG_SOURCE + "avatars/" + charIdMap[x] + ".png";
+      i.src = uri_avatar(charIdMap[x]);
       return i;
     });
     window.onresize = () => {

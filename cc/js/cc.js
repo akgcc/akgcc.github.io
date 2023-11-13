@@ -371,7 +371,7 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
           img.setAttribute("loading", "lazy");
           if (op.name == cardData[clearId].support.name)
             img.classList.add("supportOp");
-          img.src = IMG_SOURCE + "avatars/" + op.name + ".png";
+          img.src = uri_avatar(op.name);
           img.setAttribute("title", operatorData[op.name].name);
           if (op.skill > 0) {
             //1&2* have no skills
@@ -380,7 +380,7 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
             let skimg = document.createElement("img");
             skimg.classList.add("skimg");
             skimg.setAttribute("loading", "lazy");
-            skimg.src = IMG_SOURCE + "skills/skill_icon_" + skid + ".png";
+            skimg.src = uri_skill(skid);
             wrap.appendChild(skimg);
           }
           wrap.setAttribute("data-rarity", operatorData[op.name].rarity);

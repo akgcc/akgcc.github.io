@@ -38,7 +38,7 @@ get_char_table(false, "zh_CN")
 	.then((js) => {
 		operatorData = js;
 		return fetch(
-			"https://raw.githubusercontent.com/akgcc/cc-card-parser/master/json/banner_history.json"
+			"https://raw.githubusercontent.com/akgcc/cc-card-parser/master/json/banner_history.json",
 		);
 	})
 	.then((res) => fixedJson(res))
@@ -59,7 +59,7 @@ get_char_table(false, "zh_CN")
 				if (data.charId == undefined) delete servdata[op];
 				else {
 					const img = new Image();
-					img.src = `${IMG_SOURCE}avatars/${data.charId}.png`;
+					img.src = uri_avatar(data.charId);
 					data.img = img;
 					data.first = Math.min(...data.banner.map(Date.parse));
 					data.shop = data.shop.map(Date.parse).sort();
@@ -69,7 +69,7 @@ get_char_table(false, "zh_CN")
 
 		function getDatasets(servdata) {
 			let subset = Object.values(servdata).filter((x) =>
-				shownrarities.has(operatorData[x.charId].rarity)
+				shownrarities.has(operatorData[x.charId].rarity),
 			);
 			var datasets = [
 				{
@@ -105,7 +105,7 @@ get_char_table(false, "zh_CN")
 						].map((x) =>
 							!idx
 								? createDiagonalPattern(selectColor(x, 40, 40))
-								: selectColor(x, 80)
+								: selectColor(x, 80),
 						),
 						parsing: {
 							xAxisKey: idx.toString(),
@@ -155,18 +155,18 @@ get_char_table(false, "zh_CN")
 					let x_pos = x.getPixelForValue(
 						chart.data.datasets[args.index].data[i].shop[
 							parseInt(args.meta._dataset.parsing.xAxisKey)
-						]
+						],
 					);
 					if (first_apperance)
 						x_pos = x.getPixelForValue(
 							chart.data.datasets[args.index].data[i][
 								args.meta._dataset.parsing.xAxisKey
-							]
+							],
 						);
 					let y_pos = y.getPixelForValue(
 						chart.data.datasets[args.index].data[i][
 							args.meta._dataset.parsing.yAxisKey
-						]
+						],
 					);
 					if (!x_pos || !y_pos) {
 						ctx.restore();
@@ -180,7 +180,7 @@ get_char_table(false, "zh_CN")
 						Math.min(imgsize / 2, imgsize / 2),
 						0,
 						Math.PI * 2,
-						false
+						false,
 					);
 					ctx.closePath();
 					if (!first_apperance) ctx.stroke();
@@ -190,7 +190,7 @@ get_char_table(false, "zh_CN")
 						-imgsize / 2,
 						-imgsize / 2,
 						imgsize,
-						imgsize
+						imgsize,
 					);
 					if (first_apperance) {
 						ctx.fillStyle = "#0008";
@@ -239,7 +239,7 @@ get_char_table(false, "zh_CN")
 		//////////////////////////////////////////////////
 		// this is just the contents of redrawCharts()
 		let subset = Object.values(SERVERS[selectedServer]).filter((x) =>
-			shownrarities.has(operatorData[x.charId].rarity)
+			shownrarities.has(operatorData[x.charId].rarity),
 		);
 		var labels = subset.sort(labelSort).map((x) => x.op);
 		var datasets = getDatasets(SERVERS[selectedServer]);
@@ -318,7 +318,7 @@ get_char_table(false, "zh_CN")
 					x.img.onload = resolve;
 					x.img.onerror = reject;
 				});
-			})
+			}),
 		).then((p) => {
 			barGraph.update();
 		});
@@ -341,7 +341,7 @@ get_char_table(false, "zh_CN")
 			btn.onclick = (e) => {
 				labelSort = sorter;
 				Array.from(btns.childNodes).forEach((x) =>
-					x.classList.remove("checked")
+					x.classList.remove("checked"),
 				);
 				e.currentTarget.classList.toggle("checked");
 				redrawCharts();
@@ -387,7 +387,7 @@ get_char_table(false, "zh_CN")
 			serverbtns.appendChild(btn);
 			btn.onclick = (e) => {
 				Array.from(serverbtns.childNodes).forEach((x) =>
-					x.classList.remove("checked")
+					x.classList.remove("checked"),
 				);
 				e.currentTarget.classList.toggle("checked");
 				selectedServer = s;
@@ -400,7 +400,7 @@ get_char_table(false, "zh_CN")
 		});
 		function redrawCharts() {
 			let subset = Object.values(SERVERS[selectedServer]).filter((x) =>
-				shownrarities.has(operatorData[x.charId].rarity)
+				shownrarities.has(operatorData[x.charId].rarity),
 			);
 			barGraph.data.labels = subset.sort(labelSort).map((x) => x.op);
 

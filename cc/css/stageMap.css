@@ -83,16 +83,16 @@
 /* undeployable texture */
 .stageMap td[data-tile="tile_infection"][data-deploy="0"],
 .stageMap td[data-tile="tile_floor"] {
-  background-image: url("https://raw.githubusercontent.com/Aceship/Arknight-Images/main/ui/stage/tile/forb.png");
+  background-image: url("../tiles/forb.png");
 }
 .stageMap td[data-tile="tile_start"]:after,
 .stageMap td[data-tile="tile_end"]:after {
   content: "";
-  background-image: url("https://raw.githubusercontent.com/Aceship/Arknight-Images/main/ui/stage/tile/base.png");
+  background-image: url("../tiles/base.png");
 }
 .stageMap td[data-tile="tile_flystart"]:after {
   content: "";
-  background-image: url("https://raw.githubusercontent.com/Aceship/Arknight-Images/main/ui/stage/tile/drone.png");
+  background-image: url("../tiles/drone.png");
 }
 .stageMap td[data-tile="tile_gazebo"]:after {
   content: "";
@@ -100,7 +100,7 @@
 }
 .stageMap td[data-tile="tile_grass"]:after {
   content: "";
-  background-image: url("https://raw.githubusercontent.com/Aceship/Arknight-Images/main/ui/stage/tile/grass2.png");
+  background-image: url("../tiles/grass2.png");
 }
 
 .stageMap td[data-tile="tile_infection"]:after {
@@ -109,7 +109,7 @@
 }
 .stageMap td[data-tile="tile_volcano"]:after {
   content: "";
-  background-image: url("https://raw.githubusercontent.com/Aceship/Arknight-Images/main/ui/stage/tile/volcano3.png");
+  background-image: url("../tiles/volcano3.png");
 }
 .stageMap td[data-tile="tile_bigforce"]:after {
   content: "";

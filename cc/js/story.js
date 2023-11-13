@@ -598,8 +598,7 @@ async function genStory(data, avatars = []) {
             title.classList.add("storyName");
             (avatars || []).forEach((char) => {
                 let img = document.createElement("img");
-                img.src =
-                    IMG_SOURCE + "avatars/" + encodeURIComponent(char) + ".png";
+                img.src = uri_avatar(encodeURIComponent(char));
                 img.classList.add("storyAvatar");
                 title.appendChild(img);
             });
@@ -691,8 +690,8 @@ async function genStory(data, avatars = []) {
             function getWorkingScene(imageScene = false) {
                 if (!scene) {
                     scene = createScene(
-                        IMG_SOURCE + "avg/backgrounds/bg_black.png",
-                        ALT_IMG_SOURCE.replace(/REPLACEME/, "bg_black"),
+                        uri_background("bg_black"),
+                        uri_background("bg_black", ASSET_SOURCE.ARKWAIFU),
                         imageScene,
                     );
                 }
@@ -995,8 +994,8 @@ async function genStory(data, avatars = []) {
                             imgbtn.classList.add("itemBtn");
                             wrap.appendChild(imgbtn);
                             const itemsrc = args.is_module
-                                ? `${IMG_SOURCE}equip/icon/${args.image}.png`
-                                : `${IMG_SOURCE}avg/items/${args.image}.png`;
+                                ? uri_uniequip(args.image)
+                                : uri_item_image(args.image);
                             imgbtn.onclick = () => {
                                 enlargeAvatar([itemsrc], true);
                             };
@@ -1030,11 +1029,10 @@ async function genStory(data, avatars = []) {
                                     scene.classList.contains("image");
                                 addCurrentScene();
                             }
-                            let imgurl =
-                                IMG_SOURCE + "avg/backgrounds/bg_black.png";
-                            let altimgurl = ALT_IMG_SOURCE.replace(
-                                /REPLACEME/,
+                            let imgurl = uri_background("bg_black");
+                            let altimgurl = uri_background(
                                 "bg_black",
+                                ASSET_SOURCE.ARKWAIFU,
                             );
                             switch (cmd.toLowerCase()) {
                                 case "image":
@@ -1048,25 +1046,17 @@ async function genStory(data, avatars = []) {
                                         }
                                         break;
                                     }
-                                    imgurl =
-                                        IMG_SOURCE +
-                                        "avg/images/" +
-                                        args.image +
-                                        ".png";
-                                    altimgurl = ALT_IMG_SOURCE.replace(
-                                        /REPLACEME/,
+                                    imgurl = uri_image(args.image);
+                                    altimgurl = uri_image(
                                         args.image,
+                                        ASSET_SOURCE.ARKWAIFU,
                                     );
                                     break;
                                 case "background":
-                                    imgurl =
-                                        IMG_SOURCE +
-                                        "avg/backgrounds/" +
-                                        args.image +
-                                        ".png";
-                                    altimgurl = ALT_IMG_SOURCE.replace(
-                                        /REPLACEME/,
+                                    imgurl = uri_background(args.image);
+                                    altimgurl = uri_background(
                                         args.image,
+                                        ASSET_SOURCE.ACESHIP,
                                     );
                                     lastBackgroundImage = imgurl;
                                     break;
@@ -1074,32 +1064,26 @@ async function genStory(data, avatars = []) {
                                     imgurl = args.imagegroup
                                         .split("/")
                                         .slice(0, 2)
-                                        .map(
-                                            (x) =>
-                                                IMG_SOURCE +
-                                                "avg/backgrounds/" +
-                                                x +
-                                                ".png",
-                                        );
+                                        .map((x) => uri_background(x));
                                     altimgurl = args.imagegroup
                                         .split("/")
                                         .slice(0, 2)
                                         .map((x) =>
-                                            ALT_IMG_SOURCE.replace(
-                                                /REPLACEME/,
+                                            uri_background(
                                                 x,
+                                                ASSET_SOURCE.ACESHIP,
                                             ),
                                         );
                                     lastBackgroundImage = imgurl;
                                     break;
                                 case "moduleimage":
-                                    imgurl = `${IMG_SOURCE}equip/icon/${args.image}.png`;
+                                    imgurl = uri_uniequip(args.image);
                                     break;
                                 case "roguebackground":
-                                    imgurl = `${IMG_SOURCE}avg/images/${args.image}.png`;
-                                    altimgurl = ALT_IMG_SOURCE.replace(
-                                        /REPLACEME/,
+                                    imgurl = uri_image(args.image);
+                                    altimgurl = uri_image(
                                         args.image,
+                                        ASSET_SOURCE.ARKWAIFU,
                                     );
                                     break;
                             }
@@ -1259,26 +1243,15 @@ async function genStory(data, avatars = []) {
                             let sound = document.createElement("source");
                             let soundkey = /\$?(.+)/i.exec(args.key)[1];
                             let soundpath = soundMap[soundkey] || soundkey;
-                            sound.src =
-                                `${INTERNAL_DATA_SOURCE}torappu/dynamicassets/audio/${soundpath}.mp3`.toLowerCase();
+                            sound.src = uri_sound(soundpath);
                             sound.setAttribute("type", "audio/mp3");
                             audio.appendChild(sound);
 
                             sound = document.createElement("source");
-                            sound.src = (
-                                "./sounds/assets/torappu/dynamicassets/audio/" +
-                                soundpath +
-                                ".mp3"
-                            ).toLowerCase();
-                            sound.setAttribute("type", "audio/mp3");
-                            audio.appendChild(sound);
-
-                            sound = document.createElement("source");
-                            sound.src = (
-                                "https://aceship.github.io/AN-EN-Tags/etc/" +
-                                soundpath.split("/").slice(1).join("/") +
-                                ".wav"
-                            ).toLowerCase();
+                            sound.src = uri_sound(
+                                soundpath,
+                                ASSET_SOURCE.ACESHIP,
+                            );
                             sound.setAttribute("type", "audio/wav");
                             audio.appendChild(sound);
 
@@ -1500,20 +1473,15 @@ function avatarImg(path, isAvatar = false) {
     src_array = src_array.filter((item) => item !== path);
     src_array.unshift(path);
 
-    src_array = src_array.map(
-        (item) =>
-            IMG_SOURCE + "avg/characters/" + encodeURIComponent(item) + ".png",
+    src_array = src_array.map((item) =>
+        uri_character(encodeURIComponent(item), ASSET_SOURCE.ACESHIP),
     );
     src_array.splice(
         1,
         0,
-        ALT_IMG_SOURCE.replace(/REPLACEME/, encodeURIComponent(full_name)),
+        uri_character(encodeURIComponent(full_name), ASSET_SOURCE.ARKWAIFU),
     );
-    src_array.unshift(
-        `${INTERNAL_DATA_SOURCE}avg/characters/${encodeURIComponent(
-            full_name,
-        ).toLowerCase()}.png`,
-    ); // put internal path second
+    src_array.unshift(uri_character(encodeURIComponent(full_name))); // put internal path second
     src_array.unshift(
         `./thumbs/${encodeURIComponent(full_name).toLowerCase()}.webp`,
     ); // put thumb path first
@@ -1521,7 +1489,15 @@ function avatarImg(path, isAvatar = false) {
     if (isAvatar) {
         // only used in is#2 stories
         src_array = [
-            IMG_SOURCE + "avatars/" + encodeURIComponent(path) + ".png",
+            uri_avatar(encodeURIComponent(path)),
+            uri_character(encodeURIComponent(`${path}#1$1`)),
+            uri_character(encodeURIComponent(`${path}_1#1$1`)),
+            uri_character(
+                encodeURIComponent(`${path.replace(/^char_/, "avg_")}#1$1`),
+            ),
+            uri_character(
+                encodeURIComponent(`${path.replace(/^char_/, "avg_")}_1#1$1`),
+            ),
         ];
     }
     const img = document.createElement("img");
@@ -1533,8 +1509,7 @@ function avatarImg(path, isAvatar = false) {
             i++;
         } else {
             this.onerror = null;
-            this.src = `${IMG_SOURCE}avatars/avg_npc_012.png`;
-            // this.src = ALT_IMG_SOURCE.replace(/REPLACEME/, "avg_npc_012");
+            this.src = uri_avatar("avg_npc_012");
             this.parentElement.classList.remove("npc");
             this.parentElement.classList.add("unknown");
             console.log("ALL ERROR (serve mystery npc)", src_array);
@@ -1588,8 +1563,10 @@ function enlargeAvatar(src_array, cover = false) {
         } else {
             this.onerror = null;
             im.classList.contains("item")
-                ? (this.src = `${IMG_SOURCE}items/MTL_SL_G2.png`)
-                : (this.src = `${IMG_SOURCE}avg/characters/avg_npc_012.png`);
+                ? (this.src = uri_item("MTL_SL_G2"))
+                : (this.src = uri_character(
+                      encodeURIComponent("avg_npc_012#1$1"),
+                  ));
             this.parentElement.classList.add("unknown");
         }
     };
