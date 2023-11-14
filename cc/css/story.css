@@ -409,7 +409,12 @@ audio {
 .modal-content,
 .modal-content img {
   border-radius: 0.5em;
-  pointer-events: none;
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  -ms-user-select: none;
 }
 .modal-content img {
   max-width: 100%;
