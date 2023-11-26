@@ -1142,6 +1142,7 @@ async function genStory(data, avatars = []) {
                                 speaker = 0;
                             }
                             break;
+                        case "sticker":
                         case "subtitle":
                             // chars = {};
                             // speaker = 0;
