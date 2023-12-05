@@ -446,7 +446,7 @@ function getRecruitList(char_table) {
 	if (
 		![
 			...recruitDetail.matchAll(
-				/(?<!>\s)<@rc\.eml>(.*?)<\/>|(?:\/\s*|\n\s*|\\n\s*)((?!-)[^\/>★]+?(?<!-))(?=\/|$)/gim,
+				/(?<!>\s)<@rc\.eml>([^,，]*?)<\/>|(?:\/\s*|\n\s*|\\n\s*)((?!-)[^\r\/>★]+?(?<!-))(?=\/|$)/gim,
 			),
 		].every((m) => {
 			let opname = m[1] ?? m[2];
