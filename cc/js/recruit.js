@@ -361,7 +361,7 @@ function calculateResults() {
 						tags.push(TAG_MAP[10].tagName);
 						break;
 				}
-				tags = tags.concat(op.tagList);
+				tags = [...new Set(tags.concat(op.tagList))];
 				tags.forEach((tag) => {
 					let el = document.createElement("div");
 					el.innerHTML = tag;
