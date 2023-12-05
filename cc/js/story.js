@@ -49,7 +49,7 @@ const CharslotFocusMap = {
     r: 3,
     right: 3,
     all: 99,
-    none: 0,
+    none: -1,
 };
 const CharslotNameMap = {
     l: "", // these 2 *should* be able to be set to 1, but leaving it like this for safety
@@ -902,12 +902,13 @@ async function genStory(data, avatars = []) {
                         "--name-color",
                         selectColor(colorIndex),
                     );
+                    let all_speaking = currentSpeaker == 99;
                     Object.keys(chars)
                         .sort()
                         .forEach((key, i) => {
                             if (chars[key] != "char_empty") {
                                 let isActive =
-                                    currentSpeaker == 99 ||
+                                    all_speaking ||
                                     (currentSpeaker == 1 && key == "name") ||
                                     key == "name" + currentSpeaker;
                                 let avatar = avatarImg(
@@ -915,8 +916,14 @@ async function genStory(data, avatars = []) {
                                     key === "avg",
                                 );
                                 if (isActive) avatar.classList.add("active");
-                                if (isActive) left.appendChild(avatar);
-                                else right.appendChild(avatar);
+                                if (all_speaking) {
+                                    if (left.childElementCount == 0)
+                                        left.appendChild(avatar);
+                                    else right.appendChild(avatar);
+                                } else {
+                                    if (isActive) left.appendChild(avatar);
+                                    else right.appendChild(avatar);
+                                }
                             }
                         });
                 }
