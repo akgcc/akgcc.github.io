@@ -158,7 +158,7 @@ table tbody tr td .button[data-tag-id="11"]:not(.disabled).checked {
 	border: 1px solid #f1f1f1;
 }
 
-table .button.highlight {
+tbody:not([data-typing="false"]) .button.highlight {
 	color: black;
 	background-color: #ccc;
 	outline: 2px solid white;

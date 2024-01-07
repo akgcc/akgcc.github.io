@@ -154,6 +154,12 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 				resetAll();
 			}
 		});
+		tagInput.addEventListener("focusout", function (event) {
+			tagTable.dataset.typing = false;
+		});
+		tagInput.addEventListener("focusin", function (event) {
+			tagTable.dataset.typing = true;
+		});
 
 		// Function to show the autocomplete options
 		function showAutocompleteOptions(options) {
@@ -428,7 +434,7 @@ function resetAll() {
 	TAG_STACK = [];
 	document
 		.querySelectorAll("#tagList .button")
-		.forEach((el) => el.classList.remove("checked"));
+		.forEach((el) => el.classList.remove("checked", "highlight"));
 	calculateResults();
 }
 document.getElementById("reset").onclick = () => {
