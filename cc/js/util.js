@@ -142,7 +142,11 @@ const SHORT_NAMES = {};
 //   "Ch'en the Holungday": "Ch'oom",
 //   "Nearl the Radiant Knight": "NTR",
 // };
-const GAMEPRESS_NAME_MAP = { "Rosa (Poca)": "Rosa" };
+const GAMEPRESS_NAME_MAP = {
+  "Rosa (Poca)": "Rosa",
+  Pozëmka: "Позёмка",
+  "Reed the Flame Shadow": "Reed The Flame Shadow",
+};
 const charIdMap = {};
 // maps some en names to their appellations
 const CN_ID_MAP = {

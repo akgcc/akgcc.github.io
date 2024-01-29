@@ -56,13 +56,23 @@ get_char_table(false, "zh_CN")
 				data.op = SHORT_NAMES[name] || name;
 				data.op = GAMEPRESS_NAME_MAP[data.op] || data.op;
 				data.charId = charIdMap[data.op];
-				if (data.charId == undefined) delete servdata[op];
-				else {
+				if (data.charId == undefined) {
+					if (!data.op.includes("APRIL FOOLS"))
+						console.log("Operator not found:", data.op);
+					delete servdata[op];
+				} else {
 					const img = new Image();
 					img.src = uri_avatar(data.charId);
 					data.img = img;
-					data.first = Math.min(...data.banner.map(Date.parse));
-					data.shop = data.shop.map(Date.parse).sort();
+					data.first = Math.min(
+						...data.banner.map((x) => Date.parse(x.date)),
+					);
+					data.shop = data.shop
+						.map((entry) => ({
+							...entry,
+							date: Date.parse(entry.date),
+						}))
+						.sort((a, b) => a.date - b.date);
 				}
 			}
 		});
@@ -90,10 +100,11 @@ get_char_table(false, "zh_CN")
 			while (cont) {
 				cont = false;
 				for (const [op, data] of Object.entries(servdata)) {
-					if (data.shop.length > idx) {
+					if (Object.keys(data.shop).length > idx) {
 						cont = true;
 						data[idx.toString()] =
-							data.shop[idx] - (data.shop[idx - 1] || data.first);
+							data.shop[idx].date -
+							(data.shop[idx - 1]?.date || data.first);
 					} else data[idx.toString()] = 0;
 				}
 				if (cont) {
@@ -140,14 +151,20 @@ get_char_table(false, "zh_CN")
 					// position is actually the sum of the entire stack
 
 					ctx.save();
-					ctx.strokeStyle = "#999";
+					let is_blue =
+						chart.data.datasets[args.index].data[i].shop[
+							parseInt(args.meta._dataset.parsing.xAxisKey)
+						]?.blue;
+
 					// if NaN this is the "first" index
 					shop_idx = parseInt(args.meta._dataset.parsing.xAxisKey);
 					let first_apperance = isNaN(shop_idx);
 					// if this op appears in the shop later, don't draw the first appearance bubble.
 					if (
 						first_apperance &&
-						chart.data.datasets[args.index].data[i].shop.length
+						Object.keys(
+							chart.data.datasets[args.index].data[i].shop,
+						).length
 					) {
 						ctx.restore();
 						continue;
@@ -155,7 +172,7 @@ get_char_table(false, "zh_CN")
 					let x_pos = x.getPixelForValue(
 						chart.data.datasets[args.index].data[i].shop[
 							parseInt(args.meta._dataset.parsing.xAxisKey)
-						],
+						]?.date,
 					);
 					if (first_apperance)
 						x_pos = x.getPixelForValue(
@@ -183,7 +200,6 @@ get_char_table(false, "zh_CN")
 						false,
 					);
 					ctx.closePath();
-					if (!first_apperance) ctx.stroke();
 					ctx.clip();
 					ctx.drawImage(
 						chart.data.datasets[args.index].data[i].img,
@@ -192,10 +208,23 @@ get_char_table(false, "zh_CN")
 						imgsize,
 						imgsize,
 					);
-					if (first_apperance) {
-						ctx.fillStyle = "#0008";
-						ctx.fill();
-					}
+					ctx.fillStyle = "#0000";
+					if (first_apperance) ctx.fillStyle = "#0008";
+					if (is_blue) ctx.fillStyle = "#0004";
+					ctx.fill();
+					ctx.beginPath();
+					ctx.arc(
+						0,
+						0,
+						Math.min(imgsize / 2, imgsize / 2),
+						0,
+						Math.PI * 2,
+						false,
+					);
+					ctx.closePath();
+					ctx.strokeStyle = is_blue ? "#4784eb" : "#f8d511";
+					ctx.lineWidth = is_blue ? 3 : 2;
+					if (!first_apperance) ctx.stroke();
 					ctx.restore();
 				}
 			},
@@ -223,8 +252,8 @@ get_char_table(false, "zh_CN")
 				return -1;
 			},
 			Shop: (a, b) => {
-				let a_last = a.shop[a.shop.length - 1];
-				let b_last = b.shop[b.shop.length - 1];
+				let a_last = a.shop[Object.keys(a.shop).length - 1]?.date;
+				let b_last = b.shop[Object.keys(b.shop).length - 1]?.date;
 				if (a_last == b_last) {
 					if (a.first > b.first) return 1;
 					return -1;
