@@ -7,6 +7,32 @@ const rarityMap = {
 };
 const buttonMap = {};
 let ISLIST = ["#1"];
+const filterDiv = document.getElementById("rlfilters");
+let ascensionDisp = document.getElementById("ascensionDisp");
+document.getElementById("ascensionSlider").oninput = function () {
+	let asc = parseInt(this.value);
+	ascensionDisp.innerHTML = asc;
+	let variant = null;
+
+	if (asc >= 3) {
+		variant = "a";
+	}
+	if (asc >= 6) {
+		variant = "b";
+	}
+	if (asc >= 9) {
+		variant = "c";
+	}
+	if (variant === null) {
+		document
+			.querySelectorAll(`.variantBtn.checked`)
+			.forEach((btn) => btn.click());
+	} else {
+		document
+			.querySelectorAll(`.variantBtn.${variant}:not(.checked)`)
+			.forEach((btn) => btn.click());
+	}
+};
 fetch(`${DATA_BASE[SERVERS.CN]}/gamedata/excel/zone_table.json`)
 	.then((res) => fixedJson(res))
 	.then((zonedata) => {
@@ -74,6 +100,9 @@ async function fetchItemTable(is) {
 }
 function loadItems(is) {
 	itemList.innerHTML = "";
+	if (is === "4") {
+		filterDiv.classList.remove("hidden");
+	} else filterDiv.classList.add("hidden");
 	fetchItemTable(is).then((table) => {
 		const variants_table = {};
 		const IS_VARIANT = /_[abcd]$/;
@@ -182,8 +211,10 @@ function addItem(data, variants = undefined) {
 		inner.appendChild(btn_container);
 		variants.forEach((v) => {
 			let btn = document.createElement("div");
+			let variantLetter = v.id[v.id.length - 1]; // will be a,b, or c
 			btn.classList.add("variantBtn");
 			btn.innerHTML = v.name[v.name.length - 1];
+			btn.classList.add(variantLetter);
 			btn_container.appendChild(btn);
 			btn.addEventListener("click", (e) => {
 				let wasChecked = btn.classList.contains("checked");
@@ -200,6 +231,9 @@ function addItem(data, variants = undefined) {
 
 				btn.classList.toggle("checked");
 			});
+			if (variantLetter === "c") {
+				btn.click();
+			}
 		});
 	}
 

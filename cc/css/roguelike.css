@@ -203,3 +203,18 @@ html.translated-rtl .rl_title .mtl_title {
 	background-color: rgba(255, 255, 255, 0.4);
 	border-color: #fff;
 }
+#rlfilters {
+	display: inline-block;
+	width: 100%;
+	padding-top: 0.25em;
+	padding-left: 0.25em;
+}
+#rlfilters.hidden {
+	display: none;
+}
+
+#ascensionDisp {
+	width: 1em;
+	display: inline-block;
+	text-align: right;
+}
