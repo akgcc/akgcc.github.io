@@ -318,14 +318,16 @@ audio {
 }
 
 @media (hover: hover) {
+  .itemBtn:hover,
   .soundBtn:hover {
     background: #888;
-    color: black;
+    color: #222;
   }
 }
+.itemBtn:active,
 .soundBtn.playing,
 .soundBtn:active {
-  color: black;
+  color: #222;
   background: #444;
 }
 .soundBtn.stalled {
