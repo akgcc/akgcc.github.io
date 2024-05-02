@@ -47,6 +47,18 @@ function uri_background(imageName, source = ASSET_SOURCE.LOCAL) {
       return ASSET_SOURCE.ARKWAIFU.replace(/REPLACEME/, imageName);
   }
 }
+function uri_video(vidPath, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    // case ASSET_SOURCE.LOCAL:
+    //   return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/avg/backgrounds/${imageName}.png`.toLowerCase();
+    // case ASSET_SOURCE.ACESHIP:
+    //   return `${ASSET_SOURCE.ACESHIP}avg/backgrounds/${imageName}.png`;
+    // case ASSET_SOURCE.ARKWAIFU:
+    //   return ASSET_SOURCE.ARKWAIFU.replace(/REPLACEME/, imageName);
+    default:
+      return `${ASSET_SOURCE.LOCAL}raw/${vidPath}`.toLowerCase();
+  }
+}
 function uri_roguelike_item(imageName, source = ASSET_SOURCE.LOCAL) {
   switch (source) {
     case ASSET_SOURCE.LOCAL:

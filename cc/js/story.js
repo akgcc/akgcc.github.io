@@ -32,7 +32,8 @@ var operatorData,
     longSoundQueue = [],
     enableSoundAutoplay = false,
     moduleStory,
-    rogueStory;
+    rogueStory,
+    storyTable;
 soundQueue.max_size = 5;
 longSoundQueue.max_size = 2;
 const shortAudioMaxLen = 3.5;
@@ -82,6 +83,13 @@ get_char_table(false, serverString)
     .then((js) => {
         moduleStory = js;
         return fetch(
+            `${DATA_BASE[serverString]}/gamedata/excel/story_table.json`,
+        );
+    })
+    .then((res) => fixedJson(res))
+    .then((js) => {
+        storyTable = js;
+        return fetch(
             `${DATA_BASE[serverString]}/gamedata/excel/story_review_meta_table.json`,
         );
     })
@@ -130,14 +138,54 @@ get_char_table(false, serverString)
                         });
                     });
             }
-
+            // append intro video to storyunlockdatas
+            if (x.id.startsWith("main_")) {
+                // check if entry exists first, then add
+                let storytxt = x.infoUnlockDatas[0].storyTxt.replace(
+                    /[^\/]+$/,
+                    `${x.id}_zone_enter`,
+                );
+                if (storyTable[storytxt]) {
+                    x.infoUnlockDatas.unshift({
+                        storyGroup: x.id,
+                        storyInfo: x.infoUnlockDatas[0].storyInfo.replace(
+                            /[^\/]+$/,
+                            `${x.id}_zone_enter`,
+                        ),
+                        storyTxt: storytxt,
+                        storyCode: "Intro",
+                        storyName: "Intro",
+                        avgTag: "",
+                    });
+                }
+            }
+            // Intro story for non-main stories:
+            // commented out for now because the video files are unavailable.
+            // else {
+            //     let storytxt = x.infoUnlockDatas[0].storyTxt.replace(
+            //         /[^\/]+$/,
+            //         `level_${x.id}_entry`,
+            //     );
+            //     if (storyTable[storytxt]) {
+            //         x.infoUnlockDatas.unshift({
+            //             storyGroup: x.id,
+            //             storyInfo: x.infoUnlockDatas[0].storyInfo.replace(
+            //                 /[^\/]+$/,
+            //                 `level_${x.id}_entry`,
+            //             ),
+            //             storyTxt: storytxt,
+            //             storyCode: "Intro",
+            //             storyName: "Intro",
+            //             avgTag: "",
+            //         });
+            //     }
+            // }
             if (x.id.startsWith("main_")) storyTypes.main.push(x.id);
             else if (x.id.startsWith("story_")) storyTypes.record.push(x.id);
             else if (x.entryType.startsWith("MINI_"))
                 storyTypes.mini.push(x.id);
             else storyTypes.side.push(x.id);
         });
-
         storyTypes.module = [].concat(
             ...Object.values(moduleStory.charEquip).map((x) => x.slice(1)),
         );
@@ -171,7 +219,6 @@ get_char_table(false, serverString)
                 },
             ],
         };
-
         // for each roguelike:
         for (const [rogue_key, rogue_topic] of Object.entries(
             rogueStory.topics,
@@ -1094,7 +1141,6 @@ async function genStory(data, avatars = []) {
                                     );
                                     break;
                             }
-
                             scene = createScene(
                                 imgurl,
                                 altimgurl,
@@ -1380,6 +1426,12 @@ async function genStory(data, avatars = []) {
                                 scene.appendChild(blocker);
                             }
                             break;
+                        case "video":
+                            let embed = document.createElement("video");
+                            embed.src = uri_video(args.res);
+                            embed.controls = true;
+                            getWorkingScene().appendChild(embed);
+                            break;
                         case "header":
                         case "delay":
                         case "characteraction":
@@ -1405,6 +1457,7 @@ async function genStory(data, avatars = []) {
                         case "bgeffect":
                         case "curtain":
                         case "stickerclear":
+                        case "skipnode":
                             break;
                         default:
                             // console.log("line not parsed:", line);
