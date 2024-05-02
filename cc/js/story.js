@@ -139,6 +139,7 @@ get_char_table(false, serverString)
                     });
             }
             // append intro video to storyunlockdatas
+            const INTRO_NAME = "Introduction";
             if (x.id.startsWith("main_")) {
                 // check if entry exists first, then add
                 let storytxt = x.infoUnlockDatas[0].storyTxt.replace(
@@ -153,8 +154,8 @@ get_char_table(false, serverString)
                             `${x.id}_zone_enter`,
                         ),
                         storyTxt: storytxt,
-                        storyCode: "Intro",
-                        storyName: "Intro",
+                        storyCode: INTRO_NAME,
+                        storyName: INTRO_NAME,
                         avgTag: "",
                     });
                 }
@@ -174,8 +175,8 @@ get_char_table(false, serverString)
             //                 `level_${x.id}_entry`,
             //             ),
             //             storyTxt: storytxt,
-            //             storyCode: "Intro",
-            //             storyName: "Intro",
+            //             storyCode: INTRO_NAME,
+            //             storyName: INTRO_NAME,
             //             avgTag: "",
             //         });
             //     }
