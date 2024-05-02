@@ -47,10 +47,11 @@
 }
 .scene.multipart {
   background-attachment: fixed, fixed;
-  background-size: calc(0.75 * var(--story-width)) auto,
+  background-size:
+    calc(0.75 * var(--story-width)) auto,
     calc(0.75 * var(--story-width)) auto;
-  background-position: calc(50% - 0.375 * var(--story-width))
-      calc(50% + var(--topNav-height) / 2),
+  background-position:
+    calc(50% - 0.375 * var(--story-width)) calc(50% + var(--topNav-height) / 2),
     calc(50% + 0.375 * var(--story-width)) calc(50% + var(--topNav-height) / 2);
   background-repeat: no-repeat, no-repeat;
 }
@@ -58,7 +59,8 @@
   /* this doesn't work as expected, only one bg will actually show due to cover + fixed (they overlap)*/
   background-attachment: fixed, fixed;
   background-size: cover, cover;
-  background-position: center calc(50% + var(--topNav-height) / 2),
+  background-position:
+    center calc(50% + var(--topNav-height) / 2),
     center calc(50% + var(--topNav-height) / 2);
   background-repeat: no-repeat, no-repeat;
 }
@@ -381,7 +383,9 @@ audio {
   display: block;
   opacity: 0;
   visibility: hidden;
-  transition: visibility 0.2s, opacity 0.2s;
+  transition:
+    visibility 0.2s,
+    opacity 0.2s;
   position: fixed; /* Stay in place */
   z-index: 1; /* Sit on top */
   left: 0;
@@ -491,4 +495,9 @@ strong {
   padding: 0.15em;
   border: 1px solid #555;
   border-radius: 0.2em;
+}
+
+.scene > video {
+  margin-top: auto;
+  margin-bottom: auto;
 }
