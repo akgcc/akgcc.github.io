@@ -630,7 +630,15 @@ async function genStory(data, avatars = []) {
         ? getModuleStory(key)
         : fetch(`${DATA_BASE[serverString]}/gamedata/story/${key}.txt`)
     )
-        .then((r) => r.text())
+        .then((r) => {
+            if (!r.ok) {
+                // story txt is missing (potentially old story that was deleted)
+                return fetch(`../gamedata/story/${key}.txt`).then((t) =>
+                    t.ok ? t.text() : r.text(),
+                );
+            }
+            return r.text();
+        })
         .then((txt) => {
             if (data.storyBackground) {
                 // use special bg, currently used for IS endbooks
