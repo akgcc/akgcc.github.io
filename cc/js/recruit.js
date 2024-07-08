@@ -14,11 +14,11 @@ const OP_NAME_SUBSTITUTIONS = {
 	"justice knight": "'justice knight'",
 };
 let TAG_STACK = [];
-let highlightedTag;
+let highlightedTagIndex;
+let possibleTagMatches = [];
 let noobMode = localStorage.getItem("noobMode") === "true";
 let showRobots = ["true", null].includes(localStorage.getItem("showRobots"));
 let selectedTags = new Set();
-let currentAutocomplete;
 const opTagList = document.createElement("div");
 let selectedOp;
 const params = new URLSearchParams(window.location.search);
@@ -78,6 +78,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 					selectTag(e.currentTarget);
 				};
 				btns.appendChild(btn);
+				TAG_MAP[tagid].el = btn;
 			});
 
 			tr.appendChild(label);
@@ -125,18 +126,17 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 		});
 		tagInput.addEventListener("keydown", function (event) {
 			if (event.key === "Enter") {
-				if (currentAutocomplete) {
-					// TAG_MAP[currentAutocomplete];
-					if (highlightedTag)
-						highlightedTag.classList.remove("highlight");
-					selectTag(
-						document.querySelector(
-							`#tagList .button[data-tag-id="${currentAutocomplete}"]`,
-						),
+				if (highlightedTagIndex !== null) {
+					for (let tag of possibleTagMatches) {
+						tag.el.classList.remove("highlight", "highlight_low");
+					}
+					selectTag(possibleTagMatches[highlightedTagIndex].el);
+					TAG_STACK.push(
+						possibleTagMatches[highlightedTagIndex].tagId,
 					);
-					TAG_STACK.push(currentAutocomplete);
-					// this.value += currentAutocomplete.slice(this.value.length);
 					this.value = "";
+					highlightedTagIndex = null;
+					possibleTagMatches = [];
 					event.preventDefault();
 				}
 			} else if (
@@ -152,6 +152,13 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 			} else if (event.key == "Escape") {
 				this.value = "";
 				resetAll();
+			} else if (event.key == "Tab") {
+				if (possibleTagMatches.length) {
+					highlightedTagIndex =
+						(highlightedTagIndex + 1) % possibleTagMatches.length;
+					applyTagHighlights();
+					event.preventDefault();
+				}
 			}
 		});
 		tagInput.addEventListener("focusout", function (event) {
@@ -163,15 +170,27 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 
 		// Function to show the autocomplete options
 		function showAutocompleteOptions(options) {
-			if (highlightedTag) highlightedTag.classList.remove("highlight");
-			currentAutocomplete = null;
+			for (let tag of possibleTagMatches) {
+				tag.el.classList.remove("highlight", "highlight_low");
+			}
+			highlightedTagIndex = null;
 			if (options.length < 1) return;
 			options.sort((a, b) => a.length - b.length);
-			currentAutocomplete = TAG_NAME_MAP[options[0]].tagId;
-			highlightedTag = document.querySelector(
-				`#tagList .button[data-tag-id="${currentAutocomplete}"]`,
-			);
-			highlightedTag.classList.add("highlight");
+			highlightedTagIndex = 0;
+			possibleTagMatches = options.map((x) => TAG_NAME_MAP[x]);
+			applyTagHighlights();
+		}
+
+		function applyTagHighlights() {
+			for (let i = 0; i < possibleTagMatches.length; i++) {
+				possibleTagMatches[i].el.classList.remove(
+					"highlight",
+					"highlight_low",
+				);
+				if (i == highlightedTagIndex)
+					possibleTagMatches[i].el.classList.add("highlight");
+				else possibleTagMatches[i].el.classList.add("highlight_low");
+			}
 		}
 	});
 const tagInput = document.getElementById("tagInput");

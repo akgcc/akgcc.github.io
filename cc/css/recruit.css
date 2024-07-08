@@ -158,12 +158,20 @@ table tbody tr td .button[data-tag-id="11"]:not(.disabled).checked {
 	border: 1px solid #f1f1f1;
 }
 
+tbody:not([data-typing="false"]) .button.highlight_low {
+	/*	color: #222;*/
+	background-color: #444;
+	outline: 1px solid #ccc;
+	text-shadow: none;
+}
+
 tbody:not([data-typing="false"]) .button.highlight {
 	color: black;
 	background-color: #ccc;
 	outline: 2px solid white;
 	text-shadow: none;
 }
+
 #tagInput {
 	width: 100%;
 	padding: 0.25em;
