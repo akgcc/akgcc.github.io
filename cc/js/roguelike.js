@@ -100,7 +100,7 @@ async function fetchItemTable(is) {
 }
 function loadItems(is) {
 	itemList.innerHTML = "";
-	if (is === "4") {
+	if (parseInt(is) > 3) {
 		filterDiv.classList.remove("hidden");
 	} else filterDiv.classList.add("hidden");
 	fetchItemTable(is).then((table) => {
