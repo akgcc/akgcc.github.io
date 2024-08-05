@@ -12,6 +12,8 @@ let TAG_CATEGORIES = {
 };
 const OP_NAME_SUBSTITUTIONS = {
 	"justice knight": "'justice knight'",
+	"サーマル-ex": "thrm-ex",
+	샤미르: "샤마르",
 };
 let TAG_STACK = [];
 let highlightedTagIndex;
