@@ -500,3 +500,7 @@ strong {
   margin-top: auto;
   margin-bottom: auto;
 }
+
+html {
+  overscroll-behavior: none;
+}
