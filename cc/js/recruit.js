@@ -496,11 +496,12 @@ function getRecruitList(char_table) {
 	// now do a sanity check:
 	// match every string in recruitDetail for valid operator names
 	// check if the resulting set is a subset of recruit_names
+	const NAME_EXCEPTIONS = ["시"]; // exclude dusk in KR as this is a standalone word as well.
 	let op_matches = new Set();
 	all_word_matches = new Set([...recruitDetail.matchAll(/[^\s\\><]+/gim)]);
 	all_word_matches.forEach((m) => {
 		let name = m[0].toLowerCase();
-		if (all_ops.has(name)) {
+		if (all_ops.has(name) && !NAME_EXCEPTIONS.includes(name)) {
 			op_matches.add(name);
 		}
 	});
