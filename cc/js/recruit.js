@@ -8,7 +8,7 @@ let TAG_CATEGORIES = {
 	Position: [9, 10],
 	// Class: [1, 4, 8, 6, 2, 3, 5, 7], // aceship order
 	Class: [8, 1, 3, 2, 6, 4, 5, 7], // in-game order
-	Affix: [15, 16, 19, 21, 23, 20, 22, 24, 26, 12, 13, 27, 25, 18],
+	Affix: [15, 16, 19, 21, 23, 20, 22, 24, 26, 12, 13, 27, 25, 18, 29],
 };
 const OP_NAME_SUBSTITUTIONS = {
 	"justice knight": "'justice knight'",
