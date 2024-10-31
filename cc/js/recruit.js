@@ -10,6 +10,7 @@ let TAG_CATEGORIES = {
 	Class: [8, 1, 3, 2, 6, 4, 5, 7], // in-game order
 	Affix: [15, 16, 19, 21, 23, 20, 22, 24, 26, 12, 13, 27, 25, 18, 29],
 };
+const HIDDEN_TAGS = [1012, 1013]; // Male, Female
 const OP_NAME_SUBSTITUTIONS = {
 	"justice knight": "'justice knight'",
 	"サーマル-ex": "thrm-ex",
@@ -54,18 +55,33 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 			TAG_MAP[tag.tagId] = tag;
 			TAG_NAME_MAP[tag.tagName] = tag;
 		});
+		Object.keys(TAG_CATEGORIES).forEach((category) => {
+			TAG_CATEGORIES[category].forEach((tagid) => {
+				TAG_MAP[tagid].tagCat = category;
+			});
+		});
+		// if tag is not in TAG_CATEGORIES, may be a newly added tag. assign to 'Affix' group
+		Object.keys(TAG_MAP).forEach((tagid) => {
+			if (
+				!TAG_MAP[tagid].tagCat &&
+				!HIDDEN_TAGS.includes(parseInt(tagid))
+			) {
+				TAG_MAP[tagid].tagCat = "Affix";
+				TAG_CATEGORIES["Affix"].push(tagid);
+			}
+		});
 
 		Object.keys(TAG_CATEGORIES).forEach((category) => {
 			let tr = document.createElement("tr");
 			let label = document.createElement("td");
 			label.innerHTML = category;
 			let btns = document.createElement("td");
+			// sort Affix group alphabetically
 			if (["Affix"].includes(category))
 				TAG_CATEGORIES[category].sort((a, b) =>
 					TAG_MAP[a].tagName.localeCompare(TAG_MAP[b].tagName),
 				);
 			TAG_CATEGORIES[category].forEach((tagid) => {
-				TAG_MAP[tagid].tagCat = category;
 				let btn = document.createElement("div");
 				btn.classList.add("button");
 				btn.dataset.tagId = tagid;
