@@ -30,11 +30,13 @@ function uri_sound(soundpath, source = ASSET_SOURCE.LOCAL) {
   }
 }
 function uri_avatar(charId, source = ASSET_SOURCE.LOCAL) {
+  let skinSuffix = "";
+  if (charId.includes("_amiya")) skinSuffix = "_2";
   switch (source) {
     case ASSET_SOURCE.LOCAL:
-      return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/arts/charavatars/${charId}.png`.toLowerCase();
+      return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/arts/charavatars/${charId}${skinSuffix}.png`.toLowerCase();
     case ASSET_SOURCE.ACESHIP:
-      return `${ASSET_SOURCE.ACESHIP}avatars/${charId}.png`;
+      return `${ASSET_SOURCE.ACESHIP}avatars/${charId}${skinSuffix}.png`;
   }
 }
 function uri_background(imageName, source = ASSET_SOURCE.LOCAL) {
@@ -237,11 +239,12 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
   let patch = await fixedJson(raw);
   updateJSON(json, patch.patchChars);
 
-  // change guardmiya name
-  json["char_1001_amiya2"].name = "Guardmiya";
   Object.keys(json).forEach((op) => {
     json[op].profession =
       CLASS_MAPPING[json[op].profession] || json[op].profession;
+    // rename amiya forms to prevent conflict
+    if (op.includes("_amiya"))
+      json[op].name = `${json[op].name} (${json[op].profession})`;
   });
   for (var key in json) {
     if (!keep_non_playable && !json[key].displayNumber) delete json[key];
