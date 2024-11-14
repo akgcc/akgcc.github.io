@@ -270,10 +270,13 @@ get_char_table(false, serverString)
                     let v = rogueStory.details[rogue_key].monthSquad[k];
                     let month_key = `${rogue_key}_${k}`;
                     storyTypes.rogue.push(month_key);
+                    let chars = v.teamChars;
+                    if (chars && typeof chars?.[0] === "object")
+                        chars = chars.map((x) => x.teamCharId);
                     storyReview[month_key] = {
                         name: `M${month_num + 1} - ${v.teamName}`,
                         infoUnlockDatas: [],
-                        chars: v.teamChars,
+                        chars: chars,
                     };
                     for (const [k2, v2] of Object.entries(
                         rogueStory.details[rogue_key].archiveComp.chat.chat[
