@@ -670,7 +670,7 @@ async function genStory(data, avatars = []) {
                 preSceneAudios = [],
                 lastBlockerColor = "rgba(0,0,0,0)",
                 hangingBlocker,
-                multiLineDialog = "";
+                multiLineData = {};
             function addSceneBreak(requireBreak) {
                 let scenebreak = document.createElement("div");
                 scenebreak.classList.add("scenebreak");
@@ -1004,6 +1004,23 @@ async function genStory(data, avatars = []) {
 
                 return wrap;
             }
+            function endMultiLine() {
+                let spkr = multiLineData.args.name.toLowerCase();
+                speakerList.add(spkr);
+                let dlg = makeDialog(
+                    multiLineData.args,
+                    multiLineData.dialog,
+                    multiLineData.chars,
+                    multiLineData.speaker,
+                    Array.from(speakerList).indexOf(spkr),
+                );
+                getWorkingScene().appendChild(dlg);
+                multiLineData = {};
+            }
+            function closeDanglingDirectives() {
+                // call this in places where a dialog/scene/whatever *should* be finished but may not be marked as so in the script
+                if (Object.keys(multiLineData).length !== 0) endMultiLine();
+            }
             for (const line of lines) {
                 // console.log(line, predicateQueue, referenceQueue);
                 // console.log(line[0], activeReferences, referenceQueue);
@@ -1033,6 +1050,7 @@ async function genStory(data, avatars = []) {
                     line[2].trim() &&
                     !cmd
                 ) {
+                    closeDanglingDirectives();
                     // group 1&2 indicates dialog with speaker.
                     speakerList.add(args.name.toLowerCase());
                     let dlg = makeDialog(
@@ -1047,6 +1065,25 @@ async function genStory(data, avatars = []) {
                     getWorkingScene().appendChild(dlg);
                 } else if (line[1] && cmd) {
                     // group 1 alone indicates stage direction
+
+                    // check for dangling multilines (and potentially other dialog features) at the end of the file or otherwise:
+                    // this list is surely missing some directives...
+                    if (
+                        (!args &&
+                            ["dialog", "charslot"].includes(
+                                cmd.toLowerCase(),
+                            )) ||
+                        [
+                            "image",
+                            "background",
+                            "largebg",
+                            "sticker",
+                            "blocker",
+                            "predicate",
+                            "video",
+                        ].includes(cmd.toLowerCase())
+                    )
+                        closeDanglingDirectives();
                     switch (cmd.toLowerCase()) {
                         case "showitem":
                             let wrap = document.createElement("div");
@@ -1171,24 +1208,20 @@ async function genStory(data, avatars = []) {
                                 speaker = 0;
                             }
                             break;
-                        case "multiline": // new direction that I'm not sure how to handle just yet until I see it in game.
-                            if (args?.name)
-                                speakerList.add(args.name.toLowerCase());
-                            // sanity check:
-                            if (args && line[2]) {
-                                multiLineDialog += `${line[2]}\\n`;
+                        case "multiline": // text appears in multiple parts (as the reader taps)
+                            if (args && args?.name !== undefined && line[2]) {
+                                multiLineData.dialog =
+                                    (multiLineData?.dialog || "") + line[2];
+                                multiLineData.args = multiLineData?.args || {
+                                    ...args,
+                                };
+                                multiLineData.chars = multiLineData?.chars || {
+                                    ...chars,
+                                };
+                                multiLineData.speaker =
+                                    multiLineData?.speaker || speaker;
                                 if (args.end) {
-                                    let dlg = makeDialog(
-                                        args,
-                                        multiLineDialog,
-                                        chars,
-                                        speaker,
-                                        Array.from(speakerList).indexOf(
-                                            args.name.toLowerCase(),
-                                        ),
-                                    );
-                                    getWorkingScene().appendChild(dlg);
-                                    multiLineDialog = "";
+                                    endMultiLine();
                                 }
                             }
                             break;
@@ -1473,6 +1506,8 @@ async function genStory(data, avatars = []) {
                             break;
                     }
                 } else if (line[2] && !line[2].trim().startsWith("//")) {
+                    closeDanglingDirectives();
+
                     // group 2 alone indicates speakerless text (narrator)
                     let dlg = makeDialog(null, line[2], {}, 0);
                     dlg.classList.add("narration");
