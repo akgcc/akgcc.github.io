@@ -187,9 +187,11 @@ get_char_table(false, serverString)
                 storyTypes.mini.push(x.id);
             else storyTypes.side.push(x.id);
         });
-        storyTypes.module = [].concat(
-            ...Object.values(moduleStory.charEquip).map((x) => x.slice(1)),
-        );
+        storyTypes.module = []
+            .concat(
+                ...Object.values(moduleStory.charEquip).map((x) => x.slice(1)),
+            )
+            .filter((x) => operatorData[moduleStory.equipDict[x].charId]);
         storyTypes.module.forEach(
             (x) =>
                 (storyReview[x] = {
@@ -314,7 +316,6 @@ get_char_table(false, serverString)
             if (nb < na) return 1;
             return 0;
         });
-
         storyTypes.module.sort((a, b) => {
             let na = (
                 operatorData[charCodeMap[a.split("_").slice(-1)[0]]].name ||
@@ -626,6 +627,7 @@ async function genStory(data, avatars = []) {
                 }",is_module=1)]\n${moduleStory.equipDict[
                     key
                 ].uniEquipDesc.replace(/\n/g, "\\n")}`,
+            ok: true,
         };
     }
 
