@@ -1,4 +1,4 @@
-const POLLS = ["#1", "#2", "#3"];
+const POLLS = ["#1", "#2", "#3", "#4"];
 if (!window.location.hash) window.location.hash = POLLS.slice(-1);
 window.onhashchange = () => window.location.reload();
 var PTAG = window.location.hash.substr(1);
@@ -25,20 +25,23 @@ get_char_table()
   .then((res) => fixedJson(res))
   .then((js) => {
     let scatter_data = js["scatter"]["data"];
-    let bar_data = js["bar"]["data"];
-    let bar_total = js["bar"]["total"];
-    let barMetrics = Object.keys(Object.values(bar_data)[0]);
-    let barDefaultSort = "Ownership";
-    // barMetrics.push(barMetrics.splice(1, 1)[0]); // move E2 to end of list
-    barMetrics.splice(1, 1); // move E2 to end of list
-    barMetrics.push(OVERALL_E2_NAME);
-    barMetrics.splice(1, 0, OWNERSHIP_E2_NAME);
-    Object.keys(bar_data).forEach((k) => {
-      bar_data[k]["name"] = k;
-      bar_data[k][OVERALL_E2_NAME] = bar_data[k]["E2"];
-      bar_data[k][OWNERSHIP_E2_NAME] =
-        bar_data[k][OVERALL_E2_NAME] / bar_data[k]["Ownership"];
-    });
+    let bar_data = js?.["bar"]?.["data"];
+    let bar_total, barMetrics, barDefaultSort;
+    if (bar_data) {
+      bar_total = js["bar"]["total"];
+      barMetrics = Object.keys(Object.values(bar_data)[0]);
+      barDefaultSort = "Ownership";
+      // barMetrics.push(barMetrics.splice(1, 1)[0]); // move E2 to end of list
+      barMetrics.splice(1, 1); // move E2 to end of list
+      barMetrics.push(OVERALL_E2_NAME);
+      barMetrics.splice(1, 0, OWNERSHIP_E2_NAME);
+      Object.keys(bar_data).forEach((k) => {
+        bar_data[k]["name"] = k;
+        bar_data[k][OVERALL_E2_NAME] = bar_data[k]["E2"];
+        bar_data[k][OWNERSHIP_E2_NAME] =
+          bar_data[k][OVERALL_E2_NAME] / bar_data[k]["Ownership"];
+      });
+    } else bar_total = js["scatter"]["total"];
     let sortMetrics = Object.keys(Object.values(scatter_data)[0]);
     let axesMetrics = js["scatter"]["default_axes"];
 
@@ -81,29 +84,32 @@ get_char_table()
     label = document.createElement("label");
     label.innerHTML = "Sort By:";
     btns.appendChild(label);
-    barMetrics.forEach((n, j) => {
-      btn = document.createElement("div");
-      btn.classList = "sorter button";
-      if (n == barDefaultSort) btn.classList.add("checked");
-      btn.setAttribute("data-name", n);
-      // btn.setAttribute('data-axes',i)
-      btn.innerHTML = n;
+    if (bar_data)
+      barMetrics.forEach((n, j) => {
+        btn = document.createElement("div");
+        btn.classList = "sorter button";
+        if (n == barDefaultSort) btn.classList.add("checked");
+        btn.setAttribute("data-name", n);
+        // btn.setAttribute('data-axes',i)
+        btn.innerHTML = n;
 
-      btn.onclick = (e) => {
-        // change axesMetrics
-        // let axis = e.currentTarget.getAttribute('data-axes')
-        // axesMetrics[axis] = e.currentTarget.innerText
-        Array.from(
-          document.getElementById("sort").querySelectorAll("#barSort .checked"),
-        ).forEach((x) => x.classList.remove("checked"));
-        sorted_bar_data = Object.values(bar_data).sort(
-          (a, b) => b[barMetrics[j]] - a[barMetrics[j]],
-        );
-        redrawCharts();
-        e.currentTarget.classList.toggle("checked");
-      };
-      btns.appendChild(btn);
-    });
+        btn.onclick = (e) => {
+          // change axesMetrics
+          // let axis = e.currentTarget.getAttribute('data-axes')
+          // axesMetrics[axis] = e.currentTarget.innerText
+          Array.from(
+            document
+              .getElementById("sort")
+              .querySelectorAll("#barSort .checked"),
+          ).forEach((x) => x.classList.remove("checked"));
+          sorted_bar_data = Object.values(bar_data).sort(
+            (a, b) => b[barMetrics[j]] - a[barMetrics[j]],
+          );
+          redrawCharts();
+          e.currentTarget.classList.toggle("checked");
+        };
+        btns.appendChild(btn);
+      });
 
     function swapCharts(e) {
       if (!e.currentTarget.classList.contains("checked")) {
@@ -132,7 +138,7 @@ get_char_table()
     btn = document.createElement("div");
     btn.classList = "sorter button";
     btn.innerHTML = "Ownership";
-    btns.appendChild(btn);
+    if (bar_data) btns.appendChild(btn);
     btn.onclick = swapCharts;
     document.getElementById("barChartContainer").classList.toggle("hidden");
     document.getElementById("barSort").classList.toggle("hidden");
@@ -155,6 +161,15 @@ get_char_table()
     let scatterData = Object.values(scatter_data).map((d) => {
       return { x: d[axesMetrics[0]], y: d[axesMetrics[1]], r: imgSize / 2 };
     });
+    charIdMap["Ulpianus"] = "char_4145_ulpia";
+    charIdMap["Narantuya"] = "char_4138_narant";
+    charIdMap["Marcille"] = "char_4141_marcil";
+    charIdMap["Vulpisfoglia"] = "char_4026_vulpis";
+    charIdMap["Crownslayer"] = "char_1502_crosly";
+    charIdMap["Nymph"] = "char_4146_nymph";
+    charIdMap["Lappland the Decadenza"] = "char_1038_whitw2";
+    charIdMap["Vina Victoria"] = "char_1019_siege2";
+    charIdMap["Pepe"] = "char_4058_pepe";
     let scatterImages = labels.map((x) => {
       i = new Image(imgSize, imgSize);
       i.src = uri_avatar(charIdMap[x]);
@@ -175,216 +190,218 @@ get_char_table()
         4) /
         5) *
       2;
-
-    let sorted_bar_data = Object.values(bar_data).sort(
-      (a, b) => b[barDefaultSort] - a[barDefaultSort],
-    );
-    // different options for mastery chart:
-    _datasets = POLL_INCLUDES_MASTERIES
-      ? [
-          {
-            label: barMetrics[0],
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 * x[barMetrics[0]]),
-            backgroundColor: "#ffb629",
-            stack: "1",
-          },
-          {
-            label: "filler",
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[0]]),
-            backgroundColor: "#0000",
-            stack: "1",
-          },
-          {
-            label: barMetrics[1],
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 * x[barMetrics[1]]),
-            backgroundColor: "#63c384",
-            stack: "1",
-          },
-          {
-            label: "filler",
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[1]]),
-            backgroundColor: "#0000",
-            stack: "1",
-          },
-          {
-            label: barMetrics[2],
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 * x[barMetrics[2]]),
-            backgroundColor: "#ff545a",
-            stack: "1",
-          },
-          {
-            label: "filler",
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[2]]),
-            backgroundColor: "#0000",
-            stack: "1",
-          },
-          {
-            label: barMetrics[3],
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 * x[barMetrics[3]]),
-            backgroundColor: "#ff545a",
-            stack: "1",
-          },
-          {
-            label: "filler",
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[3]]),
-            backgroundColor: "#0000",
-            stack: "1",
-          },
-          {
-            label: barMetrics[4],
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 * x[barMetrics[4]]),
-            backgroundColor: "#ff545a",
-            stack: "1",
-          },
-          {
-            label: "filler",
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[4]]),
-            backgroundColor: "#0000",
-            stack: "1",
-            hidden: true,
-          },
-          {
-            label: barMetrics[5],
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 * x[barMetrics[5]]),
-            backgroundColor: "#ff545a",
-            stack: "1",
-            hidden: true,
-          },
-        ]
-      : [
-          {
-            label: barMetrics[0],
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 * x[barMetrics[0]]),
-            backgroundColor: "#845994",
-          },
-          {
-            label: barMetrics[1],
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 * x[barMetrics[1]]),
-            backgroundColor: "green",
-            hidden: true,
-          },
-          {
-            label: barMetrics[2],
-            categoryPercentage: 0.8,
-            barPercentage: 1,
-            data: sorted_bar_data.map((x) => 100 * x[barMetrics[2]]),
-            backgroundColor: "#948d52",
-          },
-        ];
-    function outsideBar(context) {
-      return (
-        context.dataset.data[context.dataIndex] * context.chart.canvas.width <
-        123000 * 0.17
+    let barGraph;
+    if (bar_data) {
+      let sorted_bar_data = Object.values(bar_data).sort(
+        (a, b) => b[barDefaultSort] - a[barDefaultSort],
       );
-      return context.dataset.data[context.dataIndex] < 30;
-    }
-    let barGraph = new Chart(document.getElementById("opChart"), {
-      type: "bar",
-      data: {
-        labels: sorted_bar_data.map((x) => x.name),
-        datasets: _datasets,
-      },
-      plugins: POLL_INCLUDES_MASTERIES ? [ChartDataLabels] : [],
-      options: {
-        layout: { padding: 8 },
-        scales: {
-          x: {
-            display: !POLL_INCLUDES_MASTERIES,
-          },
-          y: {
-            grid: {
-              color: POLL_INCLUDES_MASTERIES
-                ? "#ddd4"
-                : Chart.defaults.borderColor,
+      // different options for mastery chart:
+      _datasets = POLL_INCLUDES_MASTERIES
+        ? [
+            {
+              label: barMetrics[0],
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 * x[barMetrics[0]]),
+              backgroundColor: "#ffb629",
+              stack: "1",
             },
-          },
-        },
-        indexAxis: "y",
-        interaction: {
-          mode: "index",
-        },
-        maintainAspectRatio: false,
-        responsive: true,
-        plugins: {
-          datalabels: {
-            formatter: (v, ctx) => v.toFixed(2) + "%",
-            display: function (context) {
-              return !(context.datasetIndex % 2); // display labels with an even index
+            {
+              label: "filler",
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[0]]),
+              backgroundColor: "#0000",
+              stack: "1",
             },
-
-            color: (ctx) => (outsideBar(ctx) ? "#dddddd" : "#000"),
-            anchor: (ctx) => (outsideBar(ctx) ? "end" : "center"),
-            // clamp: true,
-            align: (ctx) => (outsideBar(ctx) ? "right" : "center"),
-          },
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                if (context.dataset.label == "filler") return;
-                if (
-                  [OWNERSHIP_E2_NAME, OVERALL_E2_NAME].includes(
-                    context.dataset.label,
-                  )
-                )
-                  return (
-                    OWNERSHIP_E2_NAME +
-                    ": " +
-                    context.chart.data.datasets[
-                      barMetrics.indexOf(OWNERSHIP_E2_NAME) *
-                        (POLL_INCLUDES_MASTERIES ? 2 : 1)
-                    ].data[context.dataIndex].toFixed(1) +
-                    "% (" +
-                    context.chart.data.datasets[
-                      barMetrics.indexOf(OVERALL_E2_NAME) *
-                        (POLL_INCLUDES_MASTERIES ? 2 : 1)
-                    ].data[context.dataIndex].toFixed(1) +
-                    "%)"
-                  );
-                return (
-                  context.dataset.label + ": " + context.raw.toFixed(1) + "%"
-                );
+            {
+              label: barMetrics[1],
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 * x[barMetrics[1]]),
+              backgroundColor: "#63c384",
+              stack: "1",
+            },
+            {
+              label: "filler",
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[1]]),
+              backgroundColor: "#0000",
+              stack: "1",
+            },
+            {
+              label: barMetrics[2],
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 * x[barMetrics[2]]),
+              backgroundColor: "#ff545a",
+              stack: "1",
+            },
+            {
+              label: "filler",
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[2]]),
+              backgroundColor: "#0000",
+              stack: "1",
+            },
+            {
+              label: barMetrics[3],
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 * x[barMetrics[3]]),
+              backgroundColor: "#ff545a",
+              stack: "1",
+            },
+            {
+              label: "filler",
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[3]]),
+              backgroundColor: "#0000",
+              stack: "1",
+            },
+            {
+              label: barMetrics[4],
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 * x[barMetrics[4]]),
+              backgroundColor: "#ff545a",
+              stack: "1",
+            },
+            {
+              label: "filler",
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 - 100 * x[barMetrics[4]]),
+              backgroundColor: "#0000",
+              stack: "1",
+              hidden: true,
+            },
+            {
+              label: barMetrics[5],
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 * x[barMetrics[5]]),
+              backgroundColor: "#ff545a",
+              stack: "1",
+              hidden: true,
+            },
+          ]
+        : [
+            {
+              label: barMetrics[0],
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 * x[barMetrics[0]]),
+              backgroundColor: "#845994",
+            },
+            {
+              label: barMetrics[1],
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 * x[barMetrics[1]]),
+              backgroundColor: "green",
+              hidden: true,
+            },
+            {
+              label: barMetrics[2],
+              categoryPercentage: 0.8,
+              barPercentage: 1,
+              data: sorted_bar_data.map((x) => 100 * x[barMetrics[2]]),
+              backgroundColor: "#948d52",
+            },
+          ];
+      function outsideBar(context) {
+        return (
+          context.dataset.data[context.dataIndex] * context.chart.canvas.width <
+          123000 * 0.17
+        );
+        return context.dataset.data[context.dataIndex] < 30;
+      }
+      barGraph = new Chart(document.getElementById("opChart"), {
+        type: "bar",
+        data: {
+          labels: sorted_bar_data.map((x) => x.name),
+          datasets: _datasets,
+        },
+        plugins: POLL_INCLUDES_MASTERIES ? [ChartDataLabels] : [],
+        options: {
+          layout: { padding: 8 },
+          scales: {
+            x: {
+              display: !POLL_INCLUDES_MASTERIES,
+            },
+            y: {
+              grid: {
+                color: POLL_INCLUDES_MASTERIES
+                  ? "#ddd4"
+                  : Chart.defaults.borderColor,
               },
             },
-            enabled: false,
-            // position: 'nearest',
-            external: thumbnail_tooltip(
-              document.getElementById("opChart"),
-              POLL_INCLUDES_MASTERIES,
-            ),
-            // xAlign: 'left'
           },
-          legend: {
-            display: false, //!POLL_INCLUDES_MASTERIES,
+          indexAxis: "y",
+          interaction: {
+            mode: "index",
+          },
+          maintainAspectRatio: false,
+          responsive: true,
+          plugins: {
+            datalabels: {
+              formatter: (v, ctx) => v.toFixed(2) + "%",
+              display: function (context) {
+                return !(context.datasetIndex % 2); // display labels with an even index
+              },
+
+              color: (ctx) => (outsideBar(ctx) ? "#dddddd" : "#000"),
+              anchor: (ctx) => (outsideBar(ctx) ? "end" : "center"),
+              // clamp: true,
+              align: (ctx) => (outsideBar(ctx) ? "right" : "center"),
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  if (context.dataset.label == "filler") return;
+                  if (
+                    [OWNERSHIP_E2_NAME, OVERALL_E2_NAME].includes(
+                      context.dataset.label,
+                    )
+                  )
+                    return (
+                      OWNERSHIP_E2_NAME +
+                      ": " +
+                      context.chart.data.datasets[
+                        barMetrics.indexOf(OWNERSHIP_E2_NAME) *
+                          (POLL_INCLUDES_MASTERIES ? 2 : 1)
+                      ].data[context.dataIndex].toFixed(1) +
+                      "% (" +
+                      context.chart.data.datasets[
+                        barMetrics.indexOf(OVERALL_E2_NAME) *
+                          (POLL_INCLUDES_MASTERIES ? 2 : 1)
+                      ].data[context.dataIndex].toFixed(1) +
+                      "%)"
+                    );
+                  return (
+                    context.dataset.label + ": " + context.raw.toFixed(1) + "%"
+                  );
+                },
+              },
+              enabled: false,
+              // position: 'nearest',
+              external: thumbnail_tooltip(
+                document.getElementById("opChart"),
+                POLL_INCLUDES_MASTERIES,
+              ),
+              // xAlign: 'left'
+            },
+            legend: {
+              display: false, //!POLL_INCLUDES_MASTERIES,
+            },
           },
         },
-      },
-    });
+      });
+    }
     let scatterPlot = new Chart(document.getElementById("scatterChart"), {
       type: "bubble",
       data: {
@@ -477,25 +494,26 @@ get_char_table()
       });
       scatterPlot.data.datasets[0].data = scatterData;
       scatterPlot.update();
+      if (bar_data) {
+        barGraph.data.labels = sorted_bar_data.map((x) => x.name);
 
-      barGraph.data.labels = sorted_bar_data.map((x) => x.name);
-
-      if (POLL_INCLUDES_MASTERIES)
-        for (i = 0; i < barGraph.data.datasets.length; i++) {
-          if (i % 2)
+        if (POLL_INCLUDES_MASTERIES)
+          for (i = 0; i < barGraph.data.datasets.length; i++) {
+            if (i % 2)
+              barGraph.data.datasets[i].data = sorted_bar_data.map(
+                (x) => 100 - 100 * x[barMetrics[Math.floor(i / 2)]],
+              );
+            else
+              barGraph.data.datasets[i].data = sorted_bar_data.map(
+                (x) => 100 * x[barMetrics[Math.floor(i / 2)]],
+              );
+          }
+        else
+          for (i = 0; i < barGraph.data.datasets.length; i++)
             barGraph.data.datasets[i].data = sorted_bar_data.map(
-              (x) => 100 - 100 * x[barMetrics[Math.floor(i / 2)]],
+              (x) => 100 * x[barMetrics[i]],
             );
-          else
-            barGraph.data.datasets[i].data = sorted_bar_data.map(
-              (x) => 100 * x[barMetrics[Math.floor(i / 2)]],
-            );
-        }
-      else
-        for (i = 0; i < barGraph.data.datasets.length; i++)
-          barGraph.data.datasets[i].data = sorted_bar_data.map(
-            (x) => 100 * x[barMetrics[i]],
-          );
-      barGraph.update();
+        barGraph.update();
+      }
     }
   });
