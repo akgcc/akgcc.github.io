@@ -8,3 +8,4 @@
 -   https://gamepress.gg/arknights/database/banner-list-gacha
 -   https://arkwaifu.cc/
 -   https://github.com/astral4/arkdata
+-   https://arknights.wiki.gg/wiki/Headhunting/Banners
