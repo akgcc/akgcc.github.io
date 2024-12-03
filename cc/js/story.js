@@ -604,7 +604,25 @@ get_char_table(false, serverString)
             loadFromHash();
         }
     });
+function escapeInvalidTags(text) {
+    // chatGPT function
+    // List of allowed tags
+    const allowedTags = ["b", "i", "u"];
 
+    // Create a regex to match allowed tags
+    const allowedRegex = new RegExp(
+        `&lt;(/?(?:${allowedTags.join("|")})\\b[^&]*?)&gt;`,
+        "gi",
+    );
+
+    // Escape all angle brackets
+    let escapedText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    // Restore allowed tags by unescaping them
+    escapedText = escapedText.replace(allowedRegex, "<$1>");
+
+    return escapedText;
+}
 async function genStory(data, avatars = []) {
     let storyName = data.storyName;
     let key = data.storyTxt;
@@ -624,9 +642,12 @@ async function genStory(data, avatars = []) {
             text: () =>
                 `[background(image="bg_room_2")]\n[ShowItem(image="${
                     moduleStory.equipDict[key].uniEquipIcon
-                }",is_module=1)]\n${moduleStory.equipDict[
-                    key
-                ].uniEquipDesc.replace(/\n/g, "\\n")}`,
+                }",is_module=1)]\n${escapeInvalidTags(
+                    moduleStory.equipDict[key].uniEquipDesc.replace(
+                        /\n/g,
+                        "\\n",
+                    ),
+                )}`,
             ok: true,
         };
     }
