@@ -206,7 +206,14 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
             }
           ).code.split("-")[0];
         let episode_name = code ? value.name + " (" + code + ")" : value.name;
-        episode_list[episode_name] = value.id;
+        let reqs = value.infoUnlockDatas.find((x) => x.requiredStages);
+        if (!reqs.requiredStages[0].stageId.startsWith(value.id)) {
+          // stage id doesnt match actual level ids, using the level id inferred from requiredStages instead:
+          episode_list[episode_name] =
+            reqs.requiredStages[0].stageId.split("_")[0];
+        } else {
+          episode_list[episode_name] = value.id;
+        }
         stage_types[episode_name] =
           activity_table.basicInfo[key]?.displayType || value.entryType;
       }
