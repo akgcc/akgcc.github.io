@@ -229,10 +229,15 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
     });
 
     filters.Stage = filters.Stage || {};
+    filters.Stage.Hard ??= {
+      disp: "Hard Stages Only",
+      enabled: false,
+      opt: true,
+      tooltip: "Stages which have a Challenge Mode",
+    };
     Object.keys(episode_list).forEach((x) => {
       filters.Stage[x] = filters.Stage[x] || { disp: x, enabled: true };
     });
-
     // load local filter data.
     let f = localStorage.getItem("randomizerFilters");
     if (f) updateJSON(filters, JSON.parse(f), true);
@@ -301,7 +306,8 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
             ["MAIN", "SUB", "ACTIVITY"].includes(x.stageType) &&
             x.apCost &&
             x.difficulty == "NORMAL" &&
-            x.levelId,
+            x.levelId &&
+            (!filters.Stage.Hard?.enabled || x.hardStagedId),
         );
         let chosen_stage = shuffleArray(availableStages)[0];
         // chosen_stage= availableStages.filter(x=> x.code == "SV-EX-5")[0]
@@ -688,15 +694,19 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
         btn_all.classList.add("button");
         btn_all.innerHTML = "All";
         btn_all.onclick = () => {
-          section.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
-            if (!cb.checked) cb.click();
-          });
+          section
+            .querySelectorAll('td:not([type="opt"]) input[type="checkbox"]')
+            .forEach((cb) => {
+              if (!cb.checked) cb.click();
+            });
         };
         btn_main.classList.add("button");
         btn_main.innerHTML = "Main";
         btn_main.onclick = () => {
           section
-            .querySelectorAll('td[type="main"] input[type="checkbox"]')
+            .querySelectorAll(
+              'td[type="main"]:not([type="opt"]) input[type="checkbox"]',
+            )
             .forEach((cb) => {
               if (!cb.checked) cb.click();
             });
@@ -705,7 +715,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
         btn_none.innerHTML = "Invert";
         btn_none.onclick = () => {
           section
-            .querySelectorAll('input[type="checkbox"]')
+            .querySelectorAll('td:not([type="opt"]) input[type="checkbox"]')
             .forEach((cb) => cb.click());
         };
         row.appendChild(td);
@@ -714,13 +724,14 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
         td.appendChild(btn_none);
         td.appendChild(btn_main);
         section.appendChild(row);
+        section.appendChild(document.createElement("br"));
       }
       for (const [subkey, subvalue] of Object.entries(value)) {
         let row = document.createElement("tr");
         let left = document.createElement("td");
         let right = document.createElement("td");
         let label = document.createElement("label");
-        let checkbox = document.createElement("input");
+        const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = subvalue.enabled;
         checkbox.onchange = () => {
@@ -728,11 +739,25 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
           updateLocalFilters();
         };
         label.innerHTML = subvalue.disp;
+        if (subvalue.tooltip) {
+          label.setAttribute("title", subvalue.tooltip);
+          checkbox.setAttribute("title", subvalue.tooltip);
+        }
+        label.onclick = () => {
+          checkbox.checked = !checkbox.checked;
+          checkbox.onchange();
+        };
+
         if (stage_types[subkey]) left.setAttribute("type", stage_types[subkey]);
         if (subvalue.enabled !== undefined) left.appendChild(checkbox);
         left.appendChild(label);
         row.appendChild(left);
         section.appendChild(row);
+        if (subvalue.opt) {
+          label.style.color = "red";
+          left.setAttribute("type", "opt");
+          section.appendChild(document.createElement("br"));
+        }
 
         if (subvalue.max === undefined) continue;
         label.innerHTML += ":";
