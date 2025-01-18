@@ -643,10 +643,9 @@ async function genStory(data, avatars = []) {
                 `[background(image="bg_room_2")]\n[ShowItem(image="${
                     moduleStory.equipDict[key].uniEquipIcon
                 }",is_module=1)]\n${escapeInvalidTags(
-                    moduleStory.equipDict[key].uniEquipDesc.replace(
-                        /\n/g,
-                        "\\n",
-                    ),
+                    moduleStory.equipDict[key].uniEquipDesc
+                        .replace(/\n/g, "\\n")
+                        .replace("[", "&#91;"),
                 )}`,
             ok: true,
         };
