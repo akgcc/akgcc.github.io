@@ -280,16 +280,34 @@ get_char_table(false, serverString)
                         infoUnlockDatas: [],
                         chars: chars,
                     };
-                    for (const [k2, v2] of Object.entries(
+                    if (
                         rogueStory.details[rogue_key].archiveComp.chat.chat[
                             v.chatId
-                        ].clientChatItemData,
-                    )) {
-                        storyReview[month_key].infoUnlockDatas.push({
-                            storyName: `Floor ${v2.chatFloor}`,
-                            storyTxt: `${v2.chatStoryId.toLowerCase()}`,
-                            storyBackground: `pic_${rogue_key}_1`,
-                        });
+                        ].clientChatItemData
+                    ) {
+                        for (const [k2, v2] of Object.entries(
+                            rogueStory.details[rogue_key].archiveComp.chat.chat[
+                                v.chatId
+                            ].clientChatItemData,
+                        )) {
+                            storyReview[month_key].infoUnlockDatas.push({
+                                storyName: `Floor ${v2.chatFloor}`,
+                                storyTxt: `${v2.chatStoryId.toLowerCase()}`,
+                                storyBackground: `pic_${rogue_key}_1`,
+                            });
+                        }
+                    } else {
+                        for (const [k2, v2] of Object.entries(
+                            rogueStory.details[rogue_key].archiveComp.chat.chat[
+                                v.chatId
+                            ].chatItemList,
+                        )) {
+                            storyReview[month_key].infoUnlockDatas.push({
+                                storyName: `Floor ${v2.floor}`,
+                                storyTxt: `${v2.chatStoryId.toLowerCase()}`,
+                                storyBackground: `pic_${rogue_key}_1`,
+                            });
+                        }
                     }
                 },
             );
