@@ -551,6 +551,7 @@ div:not(.chartjs-size-monitor).hidden:not(.forceShow) {
 #legend {
   margin: 0 0.25rem;
   flex-grow: 1;
+  flex-shrink: 0;
   align-self: center;
   display: flex;
 }
