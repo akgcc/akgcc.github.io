@@ -504,3 +504,10 @@ strong {
 html {
   overscroll-behavior: none;
 }
+
+.nav-left {
+  min-width: 0;
+}
+.nav-center {
+  overflow: hidden;
+}
