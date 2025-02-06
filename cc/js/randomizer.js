@@ -223,17 +223,39 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
       if (m) {
         let episode_name = "Episode " + m[1].padStart(2, "0");
         episode_list[episode_name] =
-          "(?:main|sub)_" + m[1].padStart(2, "0") + "-";
+          "(?:main|sub|hard)_" + m[1].padStart(2, "0") + "-";
         stage_types[episode_name] = "MAIN";
       }
     });
 
     filters.Stage = filters.Stage || {};
+    filters.Stage.On ??= {
+      disp: "Randomize Stage",
+      enabled: true,
+      opt: true,
+      color: "grey",
+      tooltip: "Uncheck to hide stage randomizer",
+    };
     filters.Stage.Hard ??= {
-      disp: "Hard Stages Only",
+      disp: "Challenge Mode Only",
       enabled: false,
       opt: true,
-      tooltip: "Stages which have a Challenge Mode",
+      color: "red",
+      tooltip: "Only stages which have a Challenge Mode",
+    };
+    filters.Stage.StoryHard ??= {
+      disp: "Red/H Stages Only (Story)",
+      enabled: false,
+      opt: true,
+      color: "red",
+      tooltip: "Stages with red nameplate, includes H stages",
+    };
+    filters.Stage.StoryBoss ??= {
+      disp: "Boss Stages Only (Story)",
+      enabled: false,
+      opt: true,
+      color: "red",
+      tooltip: "Stages with a boss icon",
     };
     Object.keys(episode_list).forEach((x) => {
       filters.Stage[x] = filters.Stage[x] || { disp: x, enabled: true };
@@ -287,6 +309,16 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
 
       function rerollStage() {
         let parentDiv = document.getElementById("stageRoll");
+        let titleDiv = document.getElementById("stageButton");
+        if (!(filters.Stage.On?.enabled ?? true)) {
+          // stage randomizer turned off, hide element
+          parentDiv.classList.add("hidden");
+          titleDiv.classList.add("hidden");
+          return;
+        } else {
+          parentDiv.classList.remove("hidden");
+          titleDiv.classList.remove("hidden");
+        }
         // pick a stage: (depends on stages_re)
         // get non-filtered episodes only:
         let div = document.createElement("div");
@@ -307,7 +339,11 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
             x.apCost &&
             x.difficulty == "NORMAL" &&
             x.levelId &&
-            (!filters.Stage.Hard?.enabled || x.hardStagedId),
+            (!filters.Stage.Hard?.enabled || x.hardStagedId) &&
+            (!filters.Stage.StoryHard?.enabled ||
+              x.hilightMark ||
+              x.appearanceStyle.toUpperCase() === "HIGH_DIFFICULTY") &&
+            (!filters.Stage.StoryBoss?.enabled || x.bossMark),
         );
         let chosen_stage = shuffleArray(availableStages)[0];
         // chosen_stage= availableStages.filter(x=> x.code == "SV-EX-5")[0]
@@ -754,9 +790,8 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
         row.appendChild(left);
         section.appendChild(row);
         if (subvalue.opt) {
-          label.style.color = "red";
+          label.style.color = subvalue.color;
           left.setAttribute("type", "opt");
-          section.appendChild(document.createElement("br"));
         }
 
         if (subvalue.max === undefined) continue;

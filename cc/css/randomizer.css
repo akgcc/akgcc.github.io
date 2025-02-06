@@ -119,7 +119,9 @@ body {
 #challengeTitle.hidden,
 #results.hidden,
 #filterWrapper.hidden,
-#options.hidden {
+#options.hidden,
+#stageButton.hidden,
+#stageRoll.hidden {
   display: none;
 }
 table {
@@ -271,4 +273,8 @@ td.flex .button {
   font-size: 1rem;
   line-height: 1rem;
   padding: 0.05em 0.2em;
+}
+
+td[type="opt"] {
+  padding-bottom: 0.5em;
 }
