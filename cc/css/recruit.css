@@ -33,11 +33,11 @@
 	--name-bgcolor: rgba(159, 159, 159, 1);
 }
 
-.operatorCheckbox {
+.operatorCheckbox[data-rarity] {
 	background-color: var(--bgcolor);
 }
 
-.operatorCheckbox .name {
+.operatorCheckbox[data-rarity] .name {
 	background-color: var(--name-bgcolor);
 }
 
