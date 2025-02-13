@@ -1631,7 +1631,9 @@ function avatarImg(path, isAvatar = false) {
     );
     src_array.unshift(uri_character(encodeURIComponent(full_name))); // put internal path second
     src_array.unshift(
-        `./thumbs/${encodeURIComponent(full_name).toLowerCase()}.webp`,
+        `${DATA_SOURCE_LOCAL}thumbs/${encodeURIComponent(
+            full_name,
+        ).toLowerCase()}.webp`,
     ); // put thumb path first
 
     if (isAvatar) {
