@@ -8,37 +8,12 @@
 	transition: none;
 }
 
-.operatorCheckbox[data-rarity="5"] {
-	--bgcolor: rgba(255, 102, 0, 0.7);
-	--name-bgcolor: rgba(255, 102, 0, 1);
-}
-.operatorCheckbox[data-rarity="4"] {
-	--bgcolor: rgba(255, 174, 0, 0.7);
-	--name-bgcolor: rgba(255, 174, 0, 1);
-}
-.operatorCheckbox[data-rarity="3"] {
-	--bgcolor: rgba(219, 177, 219, 0.7);
-	--name-bgcolor: rgba(219, 177, 219, 1);
-}
-.operatorCheckbox[data-rarity="2"] {
-	--bgcolor: rgba(0, 178, 246, 0.7);
-	--name-bgcolor: rgba(0, 178, 246, 1);
-}
-.operatorCheckbox[data-rarity="1"] {
-	--bgcolor: rgba(220, 229, 55, 0.7);
-	--name-bgcolor: rgba(220, 229, 55, 1);
-}
-.operatorCheckbox[data-rarity="0"] {
-	--bgcolor: rgba(159, 159, 159, 0.7);
-	--name-bgcolor: rgba(159, 159, 159, 1);
-}
-
 .operatorCheckbox[data-rarity] {
-	background-color: var(--bgcolor);
+	background-color: rgba(var(--base-color), 0.7);
 }
 
 .operatorCheckbox[data-rarity] .name {
-	background-color: var(--name-bgcolor);
+	background-color: rgb(var(--base-color));
 }
 
 .operatorCheckbox .name svg {

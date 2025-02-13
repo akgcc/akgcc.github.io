@@ -700,23 +700,8 @@ body.icon-mode .riskContainer {
   border-radius: 0.2em;
   border-bottom: 0.2em solid black;
 }
-.opImgWrapper[data-rarity="5"]:after {
-  border-bottom: 0.2em solid rgba(255, 102, 0, 1);
-}
-.opImgWrapper[data-rarity="4"]:after {
-  border-bottom: 0.2em solid rgba(255, 174, 0, 1);
-}
-.opImgWrapper[data-rarity="3"]:after {
-  border-bottom: 0.2em solid rgba(219, 177, 219, 1);
-}
-.opImgWrapper[data-rarity="2"]:after {
-  border-bottom: 0.2em solid rgba(0, 178, 246, 1);
-}
-.opImgWrapper[data-rarity="1"]:after {
-  border-bottom: 0.2em solid rgba(220, 229, 55, 1);
-}
-.opImgWrapper[data-rarity="0"]:after {
-  border-bottom: 0.2em solid rgba(159, 159, 159, 1);
+.opImgWrapper[data-rarity]:after {
+  border-bottom: 0.2em solid rgb(var(--base-color));
 }
 
 .skimg {
@@ -891,4 +876,29 @@ body.icon-mode .riskContainer {
     1px 1px 2px var(--operator-shadow-color);
   background-color: rgb(35, 35, 35);
   transform: none;
+}
+
+.operatorCheckbox[data-rarity="5"],
+.opImgWrapper[data-rarity="5"] {
+  --base-color: 255, 102, 0;
+}
+.operatorCheckbox[data-rarity="4"],
+.opImgWrapper[data-rarity="4"] {
+  --base-color: 255, 174, 0;
+}
+.operatorCheckbox[data-rarity="3"],
+.opImgWrapper[data-rarity="3"] {
+  --base-color: 219, 177, 219;
+}
+.operatorCheckbox[data-rarity="2"],
+.opImgWrapper[data-rarity="2"] {
+  --base-color: 0, 178, 246;
+}
+.operatorCheckbox[data-rarity="1"],
+.opImgWrapper[data-rarity="1"] {
+  --base-color: 220, 229, 55;
+}
+.operatorCheckbox[data-rarity="0"],
+.opImgWrapper[data-rarity="0"] {
+  --base-color: 159, 159, 159;
 }

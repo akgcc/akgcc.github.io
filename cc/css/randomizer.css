@@ -128,67 +128,26 @@ table {
   display: table;
   table-layout: fixed;
 }
-.operatorCheckbox[data-rarity="5"] .name {
-  background-color: rgba(255, 102, 0, 0.1);
-}
-.operatorCheckbox[data-rarity="4"] .name {
-  background-color: rgba(255, 174, 0, 0.1);
-}
-.operatorCheckbox[data-rarity="3"] .name {
-  background-color: rgba(219, 177, 219, 0.1);
-}
-.operatorCheckbox[data-rarity="2"] .name {
-  background-color: rgba(0, 178, 246, 0.1);
-}
-.operatorCheckbox[data-rarity="1"] .name {
-  background-color: rgba(220, 229, 55, 0.1);
-}
-.operatorCheckbox[data-rarity="0"] .name {
-  background-color: rgba(159, 159, 159, 0.1);
-}
 
-#output .operatorCheckbox[data-rarity="5"] .name,
-.operatorCheckbox[data-rarity="5"]._selected .name {
-  background-color: rgba(255, 102, 0, 0.4);
+.operatorCheckbox[data-rarity] {
+  background: linear-gradient(
+    rgba(0, 0, 0, 0.05) 5%,
+    rgba(var(--base-color), 0.1) 75%
+  );
 }
-#output .operatorCheckbox[data-rarity="4"] .name,
-.operatorCheckbox[data-rarity="4"]._selected .name {
-  background-color: rgba(255, 174, 0, 0.4);
+#output .operatorCheckbox[data-rarity],
+.operatorCheckbox[data-rarity]._selected {
+  background: linear-gradient(
+    rgba(0, 0, 0, 0.05) 5%,
+    rgba(var(--base-color), 0.25) 55%
+  );
 }
-#output .operatorCheckbox[data-rarity="3"] .name,
-.operatorCheckbox[data-rarity="3"]._selected .name {
-  background-color: rgba(219, 177, 219, 0.4);
+.operatorCheckbox[data-rarity] .name {
+  background: rgba(var(--base-color), 0.1);
 }
-#output .operatorCheckbox[data-rarity="2"] .name,
-.operatorCheckbox[data-rarity="2"]._selected .name {
-  background-color: rgba(0, 178, 246, 0.4);
-}
-#output .operatorCheckbox[data-rarity="1"] .name,
-.operatorCheckbox[data-rarity="1"]._selected .name {
-  background-color: rgba(220, 229, 55, 0.4);
-}
-#output .operatorCheckbox[data-rarity="0"] .name,
-.operatorCheckbox[data-rarity="0"]._selected .name {
-  background-color: rgba(159, 159, 159, 0.4);
-}
-
-.operatorCheckbox[data-rarity="5"] {
-  background-color: rgba(255, 102, 0, 0.05);
-}
-.operatorCheckbox[data-rarity="4"] {
-  background-color: rgba(255, 174, 0, 0.05);
-}
-.operatorCheckbox[data-rarity="3"] {
-  background-color: rgba(219, 177, 219, 0.05);
-}
-.operatorCheckbox[data-rarity="2"] {
-  background-color: rgba(0, 178, 246, 0.05);
-}
-.operatorCheckbox[data-rarity="1"] {
-  background-color: rgba(220, 229, 55, 0.05);
-}
-.operatorCheckbox[data-rarity="0"] {
-  background-color: rgba(159, 159, 159, 0.05);
+#output .operatorCheckbox[data-rarity] .name,
+.operatorCheckbox[data-rarity]._selected .name {
+  background: rgba(var(--base-color), 0.25);
 }
 
 #classFilter {
