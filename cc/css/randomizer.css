@@ -6,10 +6,11 @@
 #buttons {
   align-content: center;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   flex-direction: column;
   flex: 1;
+  padding-top: 1em;
 }
 #goBtn {
   margin: 8px;
@@ -63,12 +64,20 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
+  justify-content: flex-end;
+  flex: 1;
 }
 #results > .title {
   text-align: center;
   font-size: 2em;
   padding: 0.1em 0;
-  background: #fff1;
+  background: linear-gradient(
+    90deg,
+    #0000 0%,
+    #fff1 10%,
+    #fff1 90%,
+    #0000 100%
+  );
   display: flex;
   justify-content: center;
   align-items: center;
