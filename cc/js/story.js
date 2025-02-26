@@ -848,6 +848,14 @@ async function genStory(data, avatars = []) {
                         };
                         imgLoader.src = altimgurl;
                     };
+                    let dl_btn = document.createElement("i");
+                    dl_btn.classList.add("fas");
+                    dl_btn.classList.add("fa-external-link-alt");
+                    dl_btn.classList.add("dlBtn");
+                    scene.appendChild(dl_btn);
+                    dl_btn.addEventListener("click", function () {
+                        window.open(imgurl);
+                    });
                 } else {
                     multipartImage(imgurl[0], imgurl[1]).catch(() => {
                         multipartImage(altimgurl[0], altimgurl[1]);
@@ -865,6 +873,8 @@ async function genStory(data, avatars = []) {
                         img.width;
                     scene.setAttribute("data-bgheight", h);
                     scene.setAttribute("data-bgwidth", w);
+                    scene.style.setProperty("--bgheight", h);
+                    scene.style.setProperty("--bgwidth", w);
                     if (scene.classList.contains("multipart"))
                         scene.style.minHeight =
                             "calc(1.5 * var(--story-width) / " +
@@ -1703,7 +1713,7 @@ function enlargeAvatar(src_array, cover = false) {
     avatarModal.classList.add("show");
     let content = avatarModal.querySelector(".modal-content");
     content.innerHTML = "";
-    let im = document.createElement("img");
+    const im = document.createElement("img");
     im.src = src_array[0];
     let i = 1;
     im.onerror = function () {
@@ -1722,6 +1732,14 @@ function enlargeAvatar(src_array, cover = false) {
     };
     if (cover) im.classList.add("item");
     content.appendChild(im);
+    let dl_btn = document.createElement("i");
+    dl_btn.classList.add("fas");
+    dl_btn.classList.add("fa-external-link-alt");
+    dl_btn.classList.add("dlBtn");
+    content.appendChild(dl_btn);
+    dl_btn.addEventListener("click", function () {
+        window.open(im.src);
+    });
 }
 
 //Get the button:
@@ -1752,16 +1770,18 @@ function alignBackground(s) {
         // adjust for zoom in
         imheight = ((1.5 * pos.width) / imwidth) * imheight;
     else imheight = (pos.width / imwidth) * imheight;
-
     if (pos.top > realMidpoint - imheight / 2) {
         s.style.backgroundPositionY = "top";
         s.style.backgroundAttachment = "scroll";
+        s.setAttribute("bgpos", "top");
     } else if (pos.bottom < imheight / 2 + realMidpoint) {
         s.style.backgroundPositionY = "bottom";
         s.style.backgroundAttachment = "scroll";
+        s.setAttribute("bgpos", "bottom");
     } else {
         s.style.backgroundPositionY = "";
         s.style.backgroundAttachment = "fixed";
+        s.setAttribute("bgpos", "fixed");
     }
 }
 document.getElementById("playPauseBtn").onclick = () => playPauseMusic(true);

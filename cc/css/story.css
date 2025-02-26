@@ -300,6 +300,63 @@ audio {
 .vol-spacer {
   /* flex: 1; */
 }
+.dlBtn {
+  --btn-size: 2rem;
+  font-size: var(--btn-size);
+  width: var(--btn-size);
+  height: var(--btn-size);
+  line-height: var(--btn-size);
+  text-align: center;
+  align-self: center;
+  padding: 0.2em;
+  border-radius: 0.25em;
+  color: #777;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: 0.25em;
+  margin-top: 0.25em;
+  opacity: 0.75;
+}
+/* Hide .dlBtn by default */
+.scene .dlBtn {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease-in-out, visibility 0s 0.15s;
+}
+
+/* Show .dlBtn when .scene is hovered */
+.scene:hover .dlBtn {
+  transition-delay: 0.35s;
+  opacity: 0.85;
+  visibility: visible;
+}
+
+/* Hide .dlBtn when any interactable part of .dialog is hovered */
+.scene:hover:has(.dialog i:hover) .dlBtn,
+.scene:hover:has(.dialog .avatar:hover) .dlBtn,
+.scene:hover:has(.dialog .text:hover) .dlBtn {
+  transition-delay: 0s;
+  opacity: 0;
+  visibility: hidden;
+}
+
+#avatarModal .dlBtn {
+  margin: 0.25em;
+}
+.scene[bgpos="fixed"] .dlBtn {
+  top: calc(
+    50% - (var(--story-width) / var(--bgwidth)) * var(--bgheight) / 2 +
+      var(--topNav-height) / 2
+  );
+  right: calc(50% - var(--story-width) / 2);
+  position: fixed;
+}
+.scene[bgpos="bottom"] .dlBtn {
+  top: calc(100% - var(--story-width) / var(--bgwidth) * var(--bgheight));
+}
+
 .itemBtn,
 .soundBtn {
   --btn-size: 2rem;
@@ -320,6 +377,10 @@ audio {
 @media (hover: hover) {
   .itemBtn:hover,
   .soundBtn:hover {
+    background: #888;
+    color: #222;
+  }
+  .dlBtn:hover {
     background: #888;
     color: #222;
   }
@@ -467,6 +528,11 @@ audio {
 #storyDisp[display-mode="2"] .scene > * {
   opacity: 0;
   pointer-events: none;
+}
+#storyDisp.bg_only .scene > .dlBtn,
+#storyDisp[display-mode="2"] .scene > .dlBtn {
+  opacity: 0.85;
+  pointer-events: auto;
 }
 #ccselector {
   justify-content: center;
