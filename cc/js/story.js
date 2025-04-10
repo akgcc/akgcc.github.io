@@ -162,25 +162,25 @@ get_char_table(false, serverString)
             }
             // Intro story for non-main stories:
             // commented out for now because the video files are unavailable.
-            // else {
-            //     let storytxt = x.infoUnlockDatas[0].storyTxt.replace(
-            //         /[^\/]+$/,
-            //         `level_${x.id}_entry`,
-            //     );
-            //     if (storyTable[storytxt]) {
-            //         x.infoUnlockDatas.unshift({
-            //             storyGroup: x.id,
-            //             storyInfo: x.infoUnlockDatas[0].storyInfo.replace(
-            //                 /[^\/]+$/,
-            //                 `level_${x.id}_entry`,
-            //             ),
-            //             storyTxt: storytxt,
-            //             storyCode: INTRO_NAME,
-            //             storyName: INTRO_NAME,
-            //             avgTag: "",
-            //         });
-            //     }
-            // }
+            else {
+                let storytxt = x.infoUnlockDatas[0].storyTxt.replace(
+                    /[^\/]+$/,
+                    `level_${x.id}_entry`,
+                );
+                if (storyTable[storytxt]) {
+                    x.infoUnlockDatas.unshift({
+                        storyGroup: x.id,
+                        storyInfo: x.infoUnlockDatas[0].storyInfo.replace(
+                            /[^\/]+$/,
+                            `level_${x.id}_entry`,
+                        ),
+                        storyTxt: storytxt,
+                        storyCode: INTRO_NAME,
+                        storyName: INTRO_NAME,
+                        avgTag: "",
+                    });
+                }
+            }
             if (x.id.startsWith("main_")) storyTypes.main.push(x.id);
             else if (x.id.startsWith("story_")) storyTypes.record.push(x.id);
             else if (x.entryType.startsWith("MINI_"))
