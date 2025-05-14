@@ -30,6 +30,8 @@ params.get("tags") &&
 		.get("tags")
 		.split(",")
 		.forEach((tag) => selectedTags.add(tag));
+let showCombos = params.has("all");
+if (showCombos) document.body.setAttribute("allCombos", "");
 fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 	.then((res) => fixedJson(res))
 	.then((js) => {
@@ -210,10 +212,185 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 				else possibleTagMatches[i].el.classList.add("highlight_low");
 			}
 		}
+		if (showCombos) showAllCombos();
 	});
+function findTagCombos() {
+	const res = {};
+	function allTags(op) {
+		const pos_map = {
+			MELEE: TAG_MAP[9].tagName,
+			RANGED: TAG_MAP[10].tagName,
+		};
+		const prof_map = {
+			Guard: TAG_MAP[1].tagName,
+			Sniper: TAG_MAP[2].tagName,
+			Defender: TAG_MAP[3].tagName,
+			Medic: TAG_MAP[4].tagName,
+			Supporter: TAG_MAP[5].tagName,
+			Caster: TAG_MAP[6].tagName,
+			Specialist: TAG_MAP[7].tagName,
+			Vanguard: TAG_MAP[8].tagName,
+		};
+		return op.tagList.concat(prof_map[op.profession], pos_map[op.position]);
+	}
+	function get_valid_combos(low_rarity_ops, high_rarity_ops) {
+		for (const [id, op] of Object.entries(high_rarity_ops)) {
+			getCombinations(allTags(op))
+				.sort((a, b) => a.length - b.length)
+				.forEach((subset) => {
+					let invalid = Object.values(low_rarity_ops).some(
+						(lowrarityop) =>
+							isSuperset(
+								new Set(allTags(lowrarityop)),
+								new Set(subset),
+							),
+					);
+
+					if (!invalid) {
+						// redundant combos like healing+dps+slow gives nightmare but so does healing+slow
+						// in this step, check if a smaller subcombo exists and if so don't add the larger one
+						// this is ONLY reliable because getCombinations is sorted from least to most entries
+						let key = subset.sort().join(",");
+						const smallerCombos = getCombinations(subset).slice(
+							0,
+							-1,
+						);
+						// if a smaller combo already exists in the result, skip adding this
+						if (
+							!subset.some((tag) =>
+								smallerCombos.some(
+									(smallerSet) =>
+										res?.[tag]?.[
+											smallerSet.sort().join(",")
+										],
+								),
+							)
+						)
+							subset.forEach((tag) => {
+								if (res[tag]) {
+									if (res[tag][key])
+										res[tag][key][1].push(op.name);
+									else res[tag][key] = [op.rarity, [op.name]];
+								} else
+									res[tag] = {
+										[key]: [op.rarity, [op.name]],
+									};
+							});
+					}
+				});
+		}
+		return res;
+	}
+	three_stars = Object.filter(RECRUIT_POOL, (op) => op.rarity == 2);
+	four_stars = Object.filter(RECRUIT_POOL, (op) => op.rarity == 3);
+	five_stars = Object.filter(RECRUIT_POOL, (op) => op.rarity == 4);
+	three_four_stars = { ...three_stars, ...four_stars };
+	get_valid_combos(three_four_stars, five_stars);
+	get_valid_combos(three_stars, four_stars);
+	return res;
+}
+const combosTable = document.querySelector("#allCombos tbody");
 const tagInput = document.getElementById("tagInput");
 const tagTable = document.querySelector("#tagList tbody");
 const resultsTable = document.querySelector("#recruitResults tbody");
+function showAllCombos() {
+	if (combosTable.classList.contains("pop")) return;
+	const combos = findTagCombos();
+	// sort first by "solo power" aka the rarity of the tag by itself, then sort by # of occurrences of the tag among 4*+ combos
+	// this isn't a perfect heuristic to give the minimum possible number of combos but it should be close enough
+	const preSortedTags = Object.keys(combos).sort((k2, k1) => {
+		return (
+			(combos[k1]?.[k1]?.[0] || 0) * 100 +
+			Object.keys(combos[k1]).length -
+			((combos[k2]?.[k2]?.[0] || 0) * 100 +
+				Object.keys(combos[k2]).length)
+		);
+	});
+	combosTable.innerHTML = "";
+	combosTable.classList.add("pop");
+	// prune duplicate combos, removing the entire base tag if empty
+	const alreadyShown = {};
+	preSortedTags.forEach((tag) => {
+		Object.keys(combos[tag])
+			.filter((c) => c !== tag)
+			.forEach((csv) => {
+				if (alreadyShown?.[csv]) delete combos[tag][csv];
+				alreadyShown[csv] = true;
+			});
+		if (Object.keys(combos[tag]).length == 0) delete combos[tag];
+	});
+	// check all 3* groups to see if they can be merged into other groups, and do so if possible
+	// this removes even more base tags
+	three_stars = Object.keys(combos).filter((c) => !combos[c]?.[c]);
+	three_stars.forEach((tag) => {
+		if (
+			Object.keys(combos[tag]).every(
+				(x) =>
+					combos[
+						x
+							.split(",")
+							.filter((x) => x !== tag)
+							.join(",")
+					],
+			)
+		) {
+			// merge this tag into existing tags:
+			Object.keys(combos[tag]).forEach((x) => {
+				combos[
+					x
+						.split(",")
+						.filter((x) => x !== tag)
+						.join(",")
+				][x] = combos[tag][x];
+			});
+			delete combos[tag];
+		}
+	});
+	// now generate the final list of sorted tags as the order may have shifted
+	const sortedTags = Object.keys(combos).sort((k2, k1) => {
+		return (
+			(combos[k1]?.[k1]?.[0] || 0) * 100 +
+			Object.keys(combos[k1]).length -
+			((combos[k2]?.[k2]?.[0] || 0) * 100 +
+				Object.keys(combos[k2]).length)
+		);
+	});
+	sortedTags.forEach((tag) => {
+		let tr = document.createElement("tr");
+		let rootTag = document.createElement("td");
+		let accTags = document.createElement("td");
+		let el = document.createElement("div");
+		el.innerHTML = tag;
+		el.classList.add("tag");
+		let tag_base_rarity = combos[tag]?.[tag]?.[0] || 2;
+		el.setAttribute("data-rarity", tag_base_rarity);
+		if (tag_base_rarity > 2)
+			el.setAttribute("title", combos[tag][tag][1].join(", "));
+		rootTag.appendChild(el);
+		let plus = document.createElement("span");
+		plus.classList.add("plusIcon");
+		if (Object.keys(combos[tag]).length > 1) plus.innerHTML = "+";
+		let plustd = document.createElement("td");
+		combosTable.appendChild(tr);
+		plustd.appendChild(plus);
+		tr.appendChild(rootTag);
+		tr.appendChild(plustd);
+		tr.appendChild(accTags);
+		Object.keys(combos[tag])
+			.filter((c) => c !== tag)
+			.forEach((csv) => {
+				let el = document.createElement("div");
+				el.innerHTML = csv
+					.split(",")
+					.filter((c) => c !== tag)
+					.join(" + ");
+				el.classList.add("tag");
+				el.setAttribute("data-rarity", combos[tag][csv][0]);
+				el.setAttribute("title", combos[tag][csv][1].join(", "));
+				accTags.appendChild(el);
+			});
+	});
+}
 function calculateResults() {
 	// use selectedTags to determine which ops are available then populate the results table.
 	// naive approach with a ton of nested loops, but should be fast because recruit pool is small
@@ -232,7 +409,6 @@ function calculateResults() {
 	resultsTable.innerHTML = "";
 	let groups = [];
 	getCombinations(selectedTags).forEach((combo) => {
-		if (combo.length === 0) return;
 		let tags = combo.map((i) => TAG_MAP[i]);
 		let matches = [];
 		let hasTopOp = combo.includes("11");
@@ -436,6 +612,7 @@ function calculateResults() {
 
 function getCombinations(set) {
 	//written by chatGPT
+	// don't modify this function as it could impact elsewhere that relies on the order of elements
 	const elements = Array.from(set);
 	const combinations = [[]];
 
@@ -448,8 +625,24 @@ function getCombinations(set) {
 		}
 	}
 
-	return combinations;
+	return combinations.slice(1);
 }
+const showCombosBtn = document.getElementById("allCombosBtn");
+if (showCombos) showCombosBtn.classList.add("checked");
+showCombosBtn.onclick = (e) => {
+	showAllCombos();
+	showCombos = !showCombos;
+	if (showCombos) params.set("all", "x2");
+	else params.delete("all");
+	window.history.replaceState(
+		null,
+		"",
+		window.location.pathname + "?" + decodeURIComponent(params.toString()),
+	);
+
+	document.body.toggleAttribute("allCombos");
+	e.currentTarget.classList.toggle("checked");
+};
 const robotToggle = document.getElementById("showRobots");
 if (showRobots) robotToggle.classList.add("checked");
 robotToggle.onclick = (e) => {
@@ -532,3 +725,7 @@ function isSuperset(set, subset) {
 	}
 	return true;
 }
+Object.filter = (obj, predicate) =>
+	Object.keys(obj)
+		.filter((key) => predicate(obj[key]))
+		.reduce((res, key) => ((res[key] = obj[key]), res), {});

@@ -160,3 +160,25 @@ tbody:not([data-typing="false"]) .button.highlight {
 	outline: none;
 	box-shadow: 0 0 2px 2px #999;
 }
+
+body[allCombos] #reset,
+body[allCombos] #recruitResults,
+body[allCombos] #tagList {
+	display: none;
+}
+body:not([allCombos]) #allCombos {
+	display: none;
+}
+
+#allCombos td:first-child {
+	width: 15%;
+	min-width: 140px;
+}
+.tag[data-rarity] {
+	font-weight: 600;
+	color: #222;
+	background-color: rgba(var(--base-color), 1);
+}
+.plusIcon {
+	font-size: 2em;
+}
