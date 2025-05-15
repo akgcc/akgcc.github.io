@@ -404,7 +404,9 @@ function calculateResults() {
 	window.history.replaceState(
 		null,
 		"",
-		window.location.pathname + "?" + decodeURIComponent(params.toString()),
+		`${window.location.pathname}${
+			params.size ? "?" : ""
+		}${decodeURIComponent(params.toString())}`,
 	);
 	resultsTable.innerHTML = "";
 	let groups = [];
@@ -610,8 +612,8 @@ function calculateResults() {
 	}
 }
 
-function getCombinations(set) {
-	//written by chatGPT
+function getCombinations(set, maxLength = 3) {
+	// written by chatGPT
 	// don't modify this function as it could impact elsewhere that relies on the order of elements
 	const elements = Array.from(set);
 	const combinations = [[]];
@@ -620,8 +622,10 @@ function getCombinations(set) {
 		const currentSubsetLength = combinations.length;
 
 		for (let j = 0; j < currentSubsetLength; j++) {
-			const subset = [...combinations[j], elements[i]];
-			combinations.push(subset);
+			if (combinations[j].length < maxLength) {
+				const subset = [...combinations[j], elements[i]];
+				combinations.push(subset);
+			}
 		}
 	}
 
@@ -637,7 +641,9 @@ showCombosBtn.onclick = (e) => {
 	window.history.replaceState(
 		null,
 		"",
-		window.location.pathname + "?" + decodeURIComponent(params.toString()),
+		`${window.location.pathname}${
+			params.size ? "?" : ""
+		}${decodeURIComponent(params.toString())}`,
 	);
 
 	document.body.toggleAttribute("allCombos");
