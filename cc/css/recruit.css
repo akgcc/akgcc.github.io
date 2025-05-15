@@ -181,4 +181,5 @@ body:not([allCombos]) #allCombos {
 }
 .plusIcon {
 	font-size: 2em;
+	user-select: none;
 }
