@@ -42,8 +42,6 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 	.then((json) => {
 		if (!getRecruitList(json)) {
 			// there was an error parsing recruit list, display an error instead of functioning
-			TAGS = [];
-			RECRUIT_POOL = {};
 			let tr = document.createElement("tr");
 			let td = document.createElement("td");
 			tr.appendChild(td);
@@ -51,6 +49,8 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 			td.style.textAlign = "center";
 			td.innerHTML = "Error fetching recruitment data";
 			tagTable.appendChild(tr);
+			combosTable.appendChild(tr.cloneNode(true));
+			combosTable.classList.add("pop");
 			return;
 		}
 		TAGS.forEach((tag) => {
