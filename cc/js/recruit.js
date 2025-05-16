@@ -551,7 +551,7 @@ function calculateResults() {
 			el.dataset.recruitOnly = op.recruitOnly;
 			el.onclick = (e) => {
 				if (selectedOp) selectedOp.classList.toggle("checked");
-				if (e.currentTarget.isEqualNode(selectedOp)) {
+				if (e.currentTarget == selectedOp) {
 					opTagList.parentElement.removeChild(opTagList);
 					selectedOp = null;
 					return;
