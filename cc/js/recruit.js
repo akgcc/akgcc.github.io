@@ -2,7 +2,6 @@ let recruitDetail;
 let RECRUIT_POOL = {};
 let TAGS = {};
 let TAG_MAP = {};
-let TAG_NAME_MAP = {};
 let TAG_CATEGORIES = {
 	Rarity: [28, 17, 14, 11],
 	Position: [9, 10],
@@ -53,9 +52,10 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 			combosTable.classList.add("pop");
 			return;
 		}
+		const lowercase_tag_name_map = {};
 		TAGS.forEach((tag) => {
 			TAG_MAP[tag.tagId] = tag;
-			TAG_NAME_MAP[tag.tagName] = tag;
+			lowercase_tag_name_map[tag.tagName.toLowerCase()] = tag;
 		});
 		Object.keys(TAG_CATEGORIES).forEach((category) => {
 			TAG_CATEGORIES[category].forEach((tagid) => {
@@ -71,6 +71,50 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 				TAG_MAP[tagid].tagCat = "Affix";
 				TAG_CATEGORIES["Affix"].push(tagid);
 			}
+		});
+		// these hardcoded lookups are a necessary evil as the tag names given in gacha_table don't match
+		// the string used in character_table on any server except EN, otherwise this whole forEach could be 10 lines
+		const POSITION_TO_TAGID = {
+			melee: 9,
+			ranged: 10,
+		};
+		const PROFESSION_TO_TAGID = {
+			guard: 1,
+			sniper: 2,
+			defender: 3,
+			medic: 4,
+			supporter: 5,
+			caster: 6,
+			specialist: 7,
+			vanguard: 8,
+		};
+		const RARITY_TO_TAGID = {
+			0: 28,
+			1: 17,
+			4: 14,
+			5: 11,
+		};
+		Object.values(RECRUIT_POOL).forEach((op) => {
+			op.fullTagList = op.tagList.map(
+				(x) => lowercase_tag_name_map[x.toLowerCase()],
+			);
+			const positionTagId = POSITION_TO_TAGID[op.position.toLowerCase()];
+			if (positionTagId !== undefined) {
+				op.fullTagList.push(TAG_MAP[positionTagId]);
+			}
+			const professionTagId =
+				PROFESSION_TO_TAGID[op.profession.toLowerCase()];
+			if (professionTagId !== undefined) {
+				op.fullTagList.push(TAG_MAP[professionTagId]);
+			}
+			op.fullTagList.tagNamesNoRarity = op.fullTagList.map(
+				(tag) => tag.tagName,
+			);
+			const rarityTagId = RARITY_TO_TAGID[op.rarity];
+			if (rarityTagId !== undefined) {
+				op.fullTagList.push(TAG_MAP[rarityTagId]);
+			}
+			op.fullTagList.tagNames = op.fullTagList.map((tag) => tag.tagName);
 		});
 
 		Object.keys(TAG_CATEGORIES).forEach((category) => {
@@ -89,11 +133,10 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 				btn.dataset.tagId = tagid;
 				btn.innerHTML = TAG_MAP[tagid].tagName;
 				if (selectedTags.has(TAG_MAP[tagid].tagName)) {
-					selectedTags.add(String(TAG_MAP[tagid].tagGroup));
+					selectedTags.add(String(tagid));
 					TAG_STACK.push(tagid);
 					btn.classList.add("checked");
 				}
-				btn.dataset.tagGroup = TAG_MAP[tagid].tagGroup;
 				btn.onclick = (e) => {
 					selectTag(e.currentTarget);
 				};
@@ -107,13 +150,13 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 		});
 		function selectTag(el) {
 			if (el.classList.contains("checked")) {
-				selectedTags.delete(el.dataset.tagGroup);
+				selectedTags.delete(el.dataset.tagId);
 				const index = TAG_STACK.indexOf(el.dataset.tagId);
 				if (index > -1) {
 					TAG_STACK.splice(index, 1);
 				}
 			} else if (selectedTags.size < 10) {
-				selectedTags.add(el.dataset.tagGroup);
+				selectedTags.add(el.dataset.tagId);
 				TAG_STACK.push(el.dataset.tagId);
 			} else {
 				// set is full don't do anything.
@@ -135,14 +178,14 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 		// Add event listener for input event
 		tagInput.addEventListener("input", function (e) {
 			const inputValue = this.value.toLowerCase();
-			let filteredOptions = [];
-			if (inputValue.length)
-				filteredOptions = TAG_NAMES.filter(
-					(option) =>
-						option.toLowerCase().startsWith(inputValue) &&
-						!selectedTags.has(String(TAG_NAME_MAP[option].tagId)),
-				);
-			showAutocompleteOptions(filteredOptions);
+			if (inputValue.length == 0) return showAutocompleteOptions([]);
+			let filteredTagNames = Object.values(TAG_MAP).filter(
+				(tag) =>
+					tag.tagCat !== undefined &&
+					!selectedTags.has(String(tag.tagId)) &&
+					tag.tagName.toLowerCase().startsWith(inputValue),
+			);
+			showAutocompleteOptions(filteredTagNames);
 		});
 		tagInput.addEventListener("keydown", function (event) {
 			if (event.key === "Enter") {
@@ -195,9 +238,9 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 			}
 			highlightedTagIndex = null;
 			if (options.length < 1) return;
-			options.sort((a, b) => a.length - b.length);
+			options.sort((a, b) => a.tagName.length - b.tagName.length);
 			highlightedTagIndex = 0;
-			possibleTagMatches = options.map((x) => TAG_NAME_MAP[x]);
+			possibleTagMatches = options;
 			applyTagHighlights();
 		}
 
@@ -216,34 +259,16 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 	});
 function findTagCombos() {
 	const res = {};
-	function allTags(op) {
-		const pos_map = {
-			MELEE: TAG_MAP[9].tagName,
-			RANGED: TAG_MAP[10].tagName,
-		};
-		const prof_map = {
-			Guard: TAG_MAP[1].tagName,
-			Sniper: TAG_MAP[2].tagName,
-			Defender: TAG_MAP[3].tagName,
-			Medic: TAG_MAP[4].tagName,
-			Supporter: TAG_MAP[5].tagName,
-			Caster: TAG_MAP[6].tagName,
-			Specialist: TAG_MAP[7].tagName,
-			Vanguard: TAG_MAP[8].tagName,
-		};
-		return op.tagList.concat(prof_map[op.profession], pos_map[op.position]);
-	}
 	function get_valid_combos(low_rarity_ops, high_rarity_ops) {
-		for (const [id, op] of Object.entries(high_rarity_ops)) {
-			getCombinations(allTags(op))
+		Object.values(high_rarity_ops).forEach((op) => {
+			getCombinations(op.fullTagList.tagNamesNoRarity)
 				.sort((a, b) => a.length - b.length)
 				.forEach((subset) => {
-					let invalid = Object.values(low_rarity_ops).some(
-						(lowrarityop) =>
-							isSuperset(
-								new Set(allTags(lowrarityop)),
-								new Set(subset),
-							),
+					let invalid = low_rarity_ops.some((lowrarityop) =>
+						isSuperset(
+							new Set(lowrarityop.fullTagList.tagNamesNoRarity),
+							new Set(subset),
+						),
 					);
 
 					if (!invalid) {
@@ -278,13 +303,13 @@ function findTagCombos() {
 							});
 					}
 				});
-		}
+		});
 		return res;
 	}
-	three_stars = Object.filter(RECRUIT_POOL, (op) => op.rarity == 2);
-	four_stars = Object.filter(RECRUIT_POOL, (op) => op.rarity == 3);
-	five_stars = Object.filter(RECRUIT_POOL, (op) => op.rarity == 4);
-	three_four_stars = { ...three_stars, ...four_stars };
+	three_stars = Object.values(RECRUIT_POOL).filter((op) => op.rarity == 2);
+	four_stars = Object.values(RECRUIT_POOL).filter((op) => op.rarity == 3);
+	five_stars = Object.values(RECRUIT_POOL).filter((op) => op.rarity == 4);
+	three_four_stars = [...three_stars, ...four_stars];
 	get_valid_combos(three_four_stars, five_stars);
 	get_valid_combos(three_stars, four_stars);
 	return res;
@@ -418,57 +443,9 @@ function calculateResults() {
 			.filter((op) => hasTopOp || op.rarity < 5)
 			.forEach((op) => {
 				if (
-					tags.every((tag) => {
-						switch (tag.tagCat) {
-							case "Position":
-								// return op.position == tag.tagName.toUpperCase();
-								switch (tag.tagId) {
-									case 9:
-										return op.position === "MELEE";
-									case 10:
-										return op.position === "RANGED";
-								}
-							case "Rarity":
-								switch (tag.tagId) {
-									case 17:
-										return op.rarity === 1;
-									case 14:
-										return op.rarity === 4;
-									case 11:
-										return op.rarity === 5;
-									case 28:
-										return op.rarity === 0;
-								}
-							case "Class":
-								// return op.profession === tag.tagName.toUpperCase();
-								switch (tag.tagId) {
-									case 1:
-										return op.profession === "Guard";
-									case 2:
-										return op.profession === "Sniper";
-									case 3:
-										return op.profession === "Defender";
-									case 4:
-										return op.profession === "Medic";
-									case 5:
-										return op.profession === "Supporter";
-									case 6:
-										return op.profession === "Caster";
-									case 7:
-										return op.profession === "Specialist";
-									case 8:
-										return op.profession === "Vanguard";
-								}
-							case "Affix": // case "Affix"
-								switch (tag.tagId) {
-									//aceship puts robot in the affix list, but I WONT
-									// case 28:
-									// 	return op.rarity === 0;
-									default:
-										return op.tagList.includes(tag.tagName);
-								}
-						}
-					})
+					tags.every((tag) =>
+						op.fullTagList.tagNames.includes(tag.tagName),
+					)
 				) {
 					matches.push(op);
 				}
@@ -559,31 +536,7 @@ function calculateResults() {
 				selectedOp = e.currentTarget;
 				selectedOp.classList.toggle("checked");
 				opTagList.innerHTML = "";
-				let tags = [];
-				switch (op.rarity) {
-					case 0:
-						tags.push(TAG_MAP[28].tagName);
-						break;
-					case 1:
-						tags.push(TAG_MAP[17].tagName);
-						break;
-					case 4:
-						tags.push(TAG_MAP[14].tagName);
-						break;
-					case 5:
-						tags.push(TAG_MAP[11].tagName);
-						break;
-				}
-				switch (op.position) {
-					case "MELEE":
-						tags.push(TAG_MAP[9].tagName);
-						break;
-					case "RANGED":
-						tags.push(TAG_MAP[10].tagName);
-						break;
-				}
-				tags = [...new Set(tags.concat(op.tagList))];
-				tags.forEach((tag) => {
+				op.fullTagList.tagNames.forEach((tag) => {
 					let el = document.createElement("div");
 					el.innerHTML = tag;
 					el.classList.add("tag");
@@ -731,7 +684,3 @@ function isSuperset(set, subset) {
 	}
 	return true;
 }
-Object.filter = (obj, predicate) =>
-	Object.keys(obj)
-		.filter((key) => predicate(obj[key]))
-		.reduce((res, key) => ((res[key] = obj[key]), res), {});
