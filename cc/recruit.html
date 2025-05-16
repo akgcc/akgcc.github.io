@@ -38,13 +38,22 @@
     <table id="tagList">
       <tbody>
         <tr>
-          <td colspan="2" style="text-align: center">
+          <td class="inputRow" colspan="2">
             <input
               type="text"
               id="tagInput"
               autocomplete="off"
               autofocus="true"
             />
+            <div class="hotkeys-icon">
+              <i class="fas fa-keyboard"></i>
+              <div class="tooltip-box">
+                Tab: Cycle through highlighted tags<br />
+                Enter: Confirm tag choice<br />
+                Backspace: Remove last tag<br />
+                Escape: Clear all tags
+              </div>
+            </div>
           </td>
         </tr>
       </tbody>

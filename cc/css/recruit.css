@@ -143,8 +143,14 @@ tbody:not([data-typing="false"]) .button.highlight {
 	text-shadow: none;
 }
 
+.inputRow {
+	text-align: center;
+	position: relative;
+}
+
 #tagInput {
-	width: 100%;
+	margin-right: 2em;
+	width: calc(100% - 2em); /* subtract margin */
 	padding: 0.25em;
 	box-sizing: border-box;
 	color: #fff;
@@ -159,6 +165,42 @@ tbody:not([data-typing="false"]) .button.highlight {
 #tagInput:focus {
 	outline: none;
 	box-shadow: 0 0 2px 2px #999;
+}
+
+.hotkeys-icon {
+	position: absolute;
+	top: 50%;
+	right: 0.9em;
+	transform: translateY(-50%);
+	cursor: help;
+	color: var(--main-text-color);
+	width: 1em;
+	height: 1em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.hotkeys-icon .tooltip-box {
+	visibility: hidden;
+	opacity: 0;
+	background-color: var(--main-background-color);
+	color: var(--main-text-color);
+	padding: 0.4em 0.7em;
+	position: absolute;
+	right: 0;
+	top: 200%;
+	white-space: nowrap;
+	z-index: 99;
+	transition: opacity 0.2s ease-in-out;
+	line-height: 1.4em;
+	text-align: left;
+	outline: 1px solid var(--main-text-color);
+}
+
+.hotkeys-icon:hover .tooltip-box {
+	visibility: visible;
+	opacity: 1;
 }
 
 body[allCombos] #reset,
