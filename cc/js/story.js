@@ -139,7 +139,8 @@ get_char_table(false, serverString)
                     });
             }
             // append intro video to storyunlockdatas
-            const INTRO_NAME = "Introduction";
+            const INTRO_NAME = "PV";
+            const INTRO_CODE = "Introduction";
             if (x.id.startsWith("main_")) {
                 // check if entry exists first, then add
                 let storytxt = x.infoUnlockDatas[0].storyTxt.replace(
@@ -154,7 +155,7 @@ get_char_table(false, serverString)
                             `${x.id}_zone_enter`,
                         ),
                         storyTxt: storytxt,
-                        storyCode: INTRO_NAME,
+                        storyCode: INTRO_CODE,
                         storyName: INTRO_NAME,
                         avgTag: "",
                     });
@@ -175,7 +176,7 @@ get_char_table(false, serverString)
                             `level_${x.id}_entry`,
                         ),
                         storyTxt: storytxt,
-                        storyCode: INTRO_NAME,
+                        storyCode: INTRO_CODE,
                         storyName: INTRO_NAME,
                         avgTag: "",
                     });
