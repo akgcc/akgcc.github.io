@@ -1,0 +1,83 @@
+<html>
+  <head>
+    <title>Arknights Story Reader</title>
+    <link type="text/css" href="/css/reset.css" rel="stylesheet" />
+    <link type="text/css" href="/css/style.css" rel="stylesheet" />
+    <link type="text/css" href="/css/style2.css" rel="stylesheet" />
+    <link type="text/css" href="/css/story.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="/css/all.min.css" />
+    <script type="text/javascript" src="/js/util.js"></script>
+    <meta charset="UTF-8" />
+  </head>
+  <body ontouchstart>
+    <div id="topNav">
+      <div class="nav-left">
+        <span id="pageTitle">Story Reader</span>
+      </div>
+      <div class="nav-center">
+        <div id="storyTitle" class="hidden"></div>
+      </div>
+      <div class="nav-right">
+        <div class="nav-dropdown rightButton" id="serverSelect">
+          <div class="dropbtn button">
+            EN
+            <i class="fa fa-caret-down"></i>
+          </div>
+          <div class="dropdown-content"></div>
+        </div>
+        <div
+          class="button iconButton rightButton"
+          id="sfxButton"
+          title="Autoplay Sounds"
+        >
+          <i class="fas fa-volume-mute"></i>
+        </div>
+        <div
+          class="button iconButton rightButton"
+          id="visButton"
+          title="Display Mode"
+        >
+          <i class="fas fa-eye"></i>
+        </div>
+        <div id="volControl">
+          <div class="iconButton button" id="playPauseBtn" title="Toggle BGM">
+            <i class="fas fa-play"></i>
+          </div>
+          <i class="fa fa-volume-down"></i>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value="50"
+            class="slider"
+            id="volSlider"
+          />
+          <i class="fa fa-volume-up"></i>
+        </div>
+        <div class="vol-spacer"></div>
+        <a class="rightButton button iconButton" href="/" id="homeButton"></a>
+      </div>
+    </div>
+    <div id="avatarModal" class="modal">
+      <div class="modal-content"></div>
+    </div>
+    <div class="btnPanel" id="ccselector">
+      <select class="storySelect" id="catSelect"></select>
+      <select class="storySelect" id="subCatSelect"></select>
+      <select class="storySelect" id="thirdCatSelect"></select>
+    </div>
+    <div class="storyNav top">
+      <i class="fas fa-angle-double-left story_nav story_prev"></i>
+      <div class="spacer"></div>
+      <i class="fas fa-angle-double-right story_nav story_next"></i>
+    </div>
+    <div id="storyDisp" display-mode="0"></div>
+    <div class="storyNav">
+      <i class="fas fa-angle-double-left story_nav story_prev"></i>
+      <div class="spacer"></div>
+      <i class="fas fa-angle-double-right story_nav story_next"></i>
+    </div>
+    <i id="topBtn" class="fas fa-caret-square-up"></i>
+    <script type="text/javascript" src="/js/story.js"></script>
+  </body>
+</html>

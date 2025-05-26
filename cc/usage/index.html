@@ -1,0 +1,60 @@
+<html>
+  <head>
+    <title>CC Usage</title>
+    <link type="text/css" href="/css/reset.css" rel="stylesheet" />
+    <link type="text/css" href="/css/style.css" rel="stylesheet" />
+    <link type="text/css" href="/css/style2.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="/css/all.min.css" />
+    <script type="text/javascript" src="/js/chart.3.5.1.min.js"></script>
+    <script type="text/javascript" src="/js/util.js"></script>
+    <meta charset="UTF-8" />
+  </head>
+  <body ontouchstart>
+    <div id="topNav">
+      <span id="pageTitle"></span>
+      <a class="rightButton" id="infoHover">
+        <div class="button iconButton" id="infoButton">
+          <i class="fas fa-info"></i>
+        </div>
+      </a>
+      <a class="rightButton" id="clearsLink" href="/cc">
+        <div class="button" id="usageButton">Clear Cards</div>
+      </a>
+      <a class="rightButton button iconButton" href="/" id="homeButton"></a>
+    </div>
+    <div id="info" class="hidden">
+      <span>Usage count only includes Risk 18+ clears</span><br />
+      <span
+        >Multiple uses of the same operator by the same doctor are counted only
+        once</span
+      ><br />
+      <span
+        ><b style="font-weight: 600">All</b> clears are counted, including
+        replaced clears from the same doctor (which do not appear in clear
+        cards)</span
+      ><br /><br />
+      <span>Left: Highest risk achieved</span><br />
+      <span>Right: Total appearances</span>
+    </div>
+    <div class="btnPanel" id="sort">
+      <label>Sort By:</label>
+      <div class="sorter button" id="s_name">Name</div>
+      <div class="sorter button" id="s_rarity">Rarity</div>
+      <div class="sorter button" id="s_class">Class</div>
+      <div class="sorter button checked" id="s_uses">Uses</div>
+      <div class="sorter button" id="s_maxrisk">Highest Risk</div>
+      <div class="sorter button" id="viewType">View: Chart</div>
+    </div>
+    <div id="chartDiv">
+      <div class="chartContainer chartOption" id="barChartContainer">
+        <canvas id="opChart"></canvas>
+      </div>
+      <canvas id="scatterChart" class="hidden chartOption"></canvas>
+      <div class="chartContainer chartOption hidden" id="pieChartContainer">
+        <canvas id="pieChart"></canvas>
+      </div>
+      <div id="checkboxes" class="hidden chartOption"></div>
+    </div>
+    <script type="text/javascript" src="/js/usage.js"></script>
+  </body>
+</html>

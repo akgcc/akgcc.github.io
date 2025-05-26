@@ -73,7 +73,7 @@ async function fetchItemTable(is) {
 	switch (parseInt(is)) {
 		case 1:
 			resp = await fetch(
-				"./json/" + serverString + "/roguelike_table.json",
+				"/json/" + serverString + "/roguelike_table.json",
 			);
 			js = await fixedJson(resp);
 			table = js.itemTable.items;
@@ -141,7 +141,7 @@ function addItem(data, variants = undefined) {
 	["bg", "top", "bot", "btn"].forEach((n) => {
 		item.style.setProperty(
 			`--${n}-url`,
-			`url(/../images/rl_${item_rarity}_${n}.png)`,
+			`url(/images/rl_${item_rarity}_${n}.png)`,
 		);
 	});
 	let title = document.createElement("div");

@@ -3,7 +3,7 @@ var UPPER_BOUNDS = 50,
 	LOWER_BOUNDS = 10,
 	MAX_VALUE = UPPER_BOUNDS;
 if (!window.location.hash) window.location.hash = "#4";
-document.getElementById("clearsLink").href = "./cc.html" + window.location.hash;
+document.getElementById("clearsLink").href = "/cc" + window.location.hash;
 window.onhashchange = () => window.location.reload();
 var operatorData,
 	useCount = {},
@@ -32,7 +32,7 @@ get_cc_list()
 	})
 	.then((js) => {
 		operatorData = js;
-		return fetch("./json/data" + CCTAG + ".json");
+		return fetch("/cc/json/data" + CCTAG + ".json");
 	})
 	.then((res) => fixedJson(res))
 	.then((js) => {

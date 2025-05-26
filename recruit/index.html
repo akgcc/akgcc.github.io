@@ -1,0 +1,66 @@
+<html>
+  <head>
+    <title>Arknights Recruitment Calculator</title>
+    <link type="text/css" href="/css/reset.css" rel="stylesheet" />
+    <link type="text/css" href="/css/style.css" rel="stylesheet" />
+    <link type="text/css" href="/css/style2.css" rel="stylesheet" />
+    <link type="text/css" href="/css/recruit.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="/css/all.min.css" />
+    <script type="text/javascript" src="/js/util.js"></script>
+    <meta charset="UTF-8" />
+  </head>
+  <body ontouchstart>
+    <div id="topNav">
+      <div class="nav-left">
+        <span id="pageTitle">Recruitment Calculator</span>
+      </div>
+      <div class="nav-right">
+        <div id="legend">
+          <div class="button" id="allCombosBtn">View ALL Combos</div>
+          <div class="button" id="showRobots">Show 1*</div>
+          <div class="button" id="noobMode">Show 2/3*</div>
+        </div>
+        <div class="nav-dropdown rightButton" id="serverSelect">
+          <div class="dropbtn button">
+            EN
+            <i class="fa fa-caret-down"></i>
+          </div>
+          <div class="dropdown-content"></div>
+        </div>
+        <a class="rightButton button iconButton" href="/" id="homeButton"></a>
+      </div>
+    </div>
+    <br />
+    <table id="tagList">
+      <tbody>
+        <tr>
+          <td class="inputRow" colspan="2">
+            <input
+              type="text"
+              id="tagInput"
+              autocomplete="off"
+              autofocus="true"
+            />
+            <div class="hotkeys-icon">
+              <i class="fas fa-keyboard"></i>
+              <div class="tooltip-box">
+                Tab: Cycle through highlighted tags<br />
+                Enter: Confirm tag choice<br />
+                Backspace: Remove last tag<br />
+                Escape: Clear all tags
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="reset"><span>Reset</span></div>
+    <table id="recruitResults">
+      <tbody></tbody>
+    </table>
+    <table id="allCombos">
+      <tbody></tbody>
+    </table>
+    <script type="text/javascript" src="/js/recruit.js"></script>
+  </body>
+</html>

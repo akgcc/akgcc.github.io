@@ -1,0 +1,123 @@
+<html>
+	<head>
+		<title>Arknights Randomizer</title>
+		<link type="text/css" href="/css/reset.css" rel="stylesheet" />
+		<link type="text/css" href="/css/style.css" rel="stylesheet" />
+		<link type="text/css" href="/css/randomizer.css" rel="stylesheet" />
+		<link type="text/css" rel="stylesheet" href="/css/all.min.css" />
+		<link type="text/css" rel="stylesheet" href="/css/stageMap.css" />
+		<script type="text/javascript" src="/js/chart.3.5.1.min.js"></script>
+		<script
+			type="text/javascript"
+			src="/js/chartjs-plugin-datalabels.min.js"
+		></script>
+		<script type="text/javascript" src="/js/util.js"></script>
+		<script type="text/javascript" src="/js/mapdraw.js"></script>
+		<meta charset="UTF-8" />
+	</head>
+	<body ontouchstart>
+		<div id="topNav">
+			<span id="pageTitle">Arknights Randomizer</span>
+			<div class="nav-spacer"></div>
+			<div id="legend">
+				<div class="button" id="rosterBtn">Roster</div>
+				<div class="button" id="filterBtn">Filters</div>
+				<!-- <div class="button">Challenges</div> -->
+			</div>
+			<div class="nav-dropdown rightButton" id="serverSelect">
+				<div class="dropbtn button">
+					EN
+					<i class="fa fa-caret-down"></i>
+				</div>
+				<div class="dropdown-content"></div>
+			</div>
+			<a
+				class="rightButton button iconButton"
+				href="/"
+				id="homeButton"
+			></a>
+		</div>
+		<div id="roster" class="hidden">
+			<div id="rosterFilter">
+				<div id="classFilter">
+					<div class="class-selector" data-class="Medic">
+						<img
+							src="https://raw.githubusercontent.com/Aceship/Arknight-Images/main/classes/class_medic.png"
+						/>
+					</div>
+					<div class="class-selector" data-class="Supporter">
+						<img
+							src="https://raw.githubusercontent.com/Aceship/Arknight-Images/main/classes/class_supporter.png"
+						/>
+					</div>
+					<div class="class-selector" data-class="Sniper">
+						<img
+							src="https://raw.githubusercontent.com/Aceship/Arknight-Images/main/classes/class_sniper.png"
+						/>
+					</div>
+					<div class="class-selector" data-class="Vanguard">
+						<img
+							src="https://raw.githubusercontent.com/Aceship/Arknight-Images/main/classes/class_vanguard.png"
+						/>
+					</div>
+					<div class="class-selector" data-class="Specialist">
+						<img
+							src="https://raw.githubusercontent.com/Aceship/Arknight-Images/main/classes/class_specialist.png"
+						/>
+					</div>
+					<div class="class-selector" data-class="Defender">
+						<img
+							src="https://raw.githubusercontent.com/Aceship/Arknight-Images/main/classes/class_defender.png"
+						/>
+					</div>
+					<div class="class-selector" data-class="Guard">
+						<img
+							src="https://raw.githubusercontent.com/Aceship/Arknight-Images/main/classes/class_guard.png"
+						/>
+					</div>
+					<div class="class-selector" data-class="Caster">
+						<img
+							src="https://raw.githubusercontent.com/Aceship/Arknight-Images/main/classes/class_caster.png"
+						/>
+					</div>
+				</div>
+				<div class="flex-br"></div>
+				<div class="button" id="selectAllBtn">All</div>
+				<div class="button" id="selectNoneBtn">None</div>
+			</div>
+			<div id="checkboxes"></div>
+		</div>
+		<div id="filterWrapper" class="hidden">
+			<div id="options"></div>
+			<div class="button" id="filterResetBtn">Reset All Filters</div>
+		</div>
+		<div id="results" class="hidden">
+			<div id="stageButton" class="title">
+				Your Stage
+				<div id="rerollStageBtn" class="button iconButton">
+					<i class="fas fa-redo"></i>
+				</div>
+			</div>
+			<div id="stageRoll" class="bigText"><div></div></div>
+			<div class="title">
+				Your Squad
+				<div id="rerollSquadBtn" class="button iconButton">
+					<i class="fas fa-redo"></i>
+				</div>
+				<div id="draftBtn" class="button">Draft</div>
+			</div>
+			<div id="output"></div>
+			<div class="title" id="challengeTitle">
+				Your Challenge
+				<div id="rerollChallengeBtn" class="button iconButton">
+					<i class="fas fa-redo"></i>
+				</div>
+			</div>
+			<div id="challengeRoll" class="smallText"></div>
+		</div>
+		<div id="buttons">
+			<div class="button" id="goBtn">Randomize</div>
+		</div>
+		<script type="text/javascript" src="/js/randomizer.js"></script>
+	</body>
+</html>

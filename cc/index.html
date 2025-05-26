@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+	<head>
+		<title>CC Clears</title>
+		<link type="text/css" href="/css/reset.css" rel="stylesheet" />
+		<link type="text/css" href="/css/style.css" rel="stylesheet" />
+		<link type="text/css" href="/css/glightbox.min.css" rel="stylesheet" />
+		<link type="text/css" rel="stylesheet" href="/css/all.min.css" />
+		<script type="text/javascript" src="/js/util.js"></script>
+		<script type="text/javascript" src="/js/glightbox.min.js"></script>
+		<meta charset="UTF-8" />
+	</head>
+	<body ontouchstart>
+		<div id="deco"></div>
+		<div id="topNav">
+			<span id="pageTitle"></span>
+			<div class="nav-spacer"></div>
+			<div id="legend">
+				<div class="legend day1 button weekFilter" data-group="0">
+					Day 1
+				</div>
+				<div class="legend week1 button weekFilter" data-group="1">
+					Week 1
+				</div>
+				<div class="legend week2 button weekFilter" data-group="2">
+					Week 2
+				</div>
+			</div>
+			<div class="button iconButton rightButton hidden" id="filterToggle">
+				<i class="fas fa-caret-down"></i>
+			</div>
+			<div class="rightButton button" id="clearCount">Clears: 0</div>
+			<a class="rightButton" id="usageLink" href="/cc/usage">
+				<div class="button" id="usageButton">Operator Usage</div>
+			</a>
+			<a
+				class="rightButton button iconButton"
+				href="/"
+				id="homeButton"
+			></a>
+		</div>
+		<!-- <div class="button" id="filterToggle">Hide Filters</div> -->
+		<div id="filters" class="hidden">
+			<div id="filterButtons">
+				<div class="button" id="filterSort">Sort</div>
+				<div class="button" id="filterReset">Reset</div>
+				<div class="button" id="filterInvert">Includes (All)</div>
+				<div class="sliderBox" id="filterRarity">
+					<span>Average Rarity: </span
+					><span id="rarityDisp">6.0</span>
+					<input
+						class="filterSlider"
+						id="raritySlider"
+						type="range"
+						step="0.5"
+						min="1"
+						max="6"
+						value="6"
+					/>
+				</div>
+				<div class="sliderBox" id="filterOpCount">
+					<span>Operators: </span><span id="opcountDisp">13</span>
+					<input
+						class="filterSlider"
+						id="opcountSlider"
+						type="range"
+						min="1"
+						max="13"
+						value="13"
+					/>
+				</div>
+				<div
+					class="button"
+					id="sortOrder"
+					title="TL Note: Soul=Uniqueness"
+				>
+					Order by: Date
+				</div>
+				<div class="button" id="viewType">View: Thumbs</div>
+			</div>
+			<div id="checkboxes"></div>
+		</div>
+
+		<div id="cards"></div>
+		<script type="text/javascript" src="/js/cc.js"></script>
+	</body>
+</html>

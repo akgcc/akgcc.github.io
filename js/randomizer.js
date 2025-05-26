@@ -136,7 +136,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
   .then((res) => fixedJson(res))
   .then((json) => {
     skill_table = json;
-    return fetch("./json/challenges.json");
+    return fetch("/json/challenges.json");
   })
   .then((res) => fixedJson(res))
   .then((js) => {

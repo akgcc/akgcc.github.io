@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <title>Arknights IS Collectibles</title>
+    <link type="text/css" href="/css/reset.css" rel="stylesheet" />
+    <link type="text/css" href="/css/style.css" rel="stylesheet" />
+    <link type="text/css" href="/css/style2.css" rel="stylesheet" />
+    <link type="text/css" href="/css/roguelike.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="/css/all.min.css" />
+    <script type="text/javascript" src="/js/util.js"></script>
+    <meta charset="UTF-8" />
+  </head>
+  <body ontouchstart>
+    <div id="topNav">
+      <div class="nav-left">
+        <span id="pageTitle">Roguelike Items</span>
+      </div>
+      <div class="nav-right">
+        <div class="nav-dropdown rightButton" id="serverSelect">
+          <div class="dropbtn button">
+            EN
+            <i class="fa fa-caret-down"></i>
+          </div>
+          <div class="dropdown-content"></div>
+        </div>
+        <a class="rightButton button iconButton" href="/" id="homeButton"></a>
+      </div>
+    </div>
+    <div id="rlfilters" class="hidden">
+      <div id="filterButtons">
+        <div class="sliderBox" id="filterAscension">
+          <span>Ascension: </span><span id="ascensionDisp">9</span>
+          <input
+            class="filterSlider"
+            id="ascensionSlider"
+            type="range"
+            step="3"
+            min="0"
+            max="9"
+            value="9"
+          />
+        </div>
+      </div>
+    </div>
+    <div id="itemList"></div>
+    <script type="text/javascript" src="/js/roguelike.js"></script>
+  </body>
+</html>

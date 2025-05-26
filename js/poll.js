@@ -10,7 +10,7 @@ POLLS.forEach((poll) => {
   let a = document.createElement("a");
   a.classList.add("rightButton");
   a.classList.add("button");
-  a.href = "./poll.html" + poll;
+  a.href = "/poll" + poll;
   if (poll == window.location.hash) a.classList.add("checked");
   a.innerHTML = poll;
   document
@@ -20,7 +20,7 @@ POLLS.forEach((poll) => {
 get_char_table()
   .then((js) => {
     let operatorData = js;
-    return fetch("./json/poll_results_" + PTAG + ".json");
+    return fetch("/json/poll_results_" + PTAG + ".json");
   })
   .then((res) => fixedJson(res))
   .then((js) => {

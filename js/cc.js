@@ -8,8 +8,7 @@ const lightbox = GLightbox({
 });
 get_cc_list();
 if (!window.location.hash) window.location.hash = "#12";
-document.getElementById("usageLink").href =
-  "./cc-usage.html" + window.location.hash;
+document.getElementById("usageLink").href = "/cc/usage" + window.location.hash;
 window.onhashchange = () => window.location.reload();
 
 const ccSettings = {
@@ -59,7 +58,7 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
   })
   .then((js) => {
     operatorData = js;
-    return fetch("./json/data" + CCTAG + ".json");
+    return fetch("/cc/json/data" + CCTAG + ".json");
   })
   .then((res) => fixedJson(res))
   .then((js) => {
@@ -218,11 +217,11 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
         div.setAttribute("data-soul", cardData[k].soul.toFixed(2));
         a.classList.add("glightbox");
         a.setAttribute("data-gallery", "gallery1");
-        // a.href = './cropped' + (cardData[k].tag || CCTAG) + '/' + (is_dupe ? 'duplicates/' : '') + k
+        // a.href = '/cc/cropped' + (cardData[k].tag || CCTAG) + '/' + (is_dupe ? 'duplicates/' : '') + k
         // no longer use duplicates dir
-        a.href = "./cropped" + (cardData[k].tag || CCTAG) + "/" + k;
+        a.href = "/cc/cropped" + (cardData[k].tag || CCTAG) + "/" + k;
         let img = document.createElement("img");
-        img.src = "./thumbs" + (cardData[k].tag || CCTAG) + "/" + k;
+        img.src = "/cc/thumbs" + (cardData[k].tag || CCTAG) + "/" + k;
         img.setAttribute("loading", "lazy");
         a.appendChild(img);
         div.appendChild(a);
@@ -589,7 +588,7 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
         slideConfig.description += '<div class="dupe-thumbs">';
         while (dupe && dupe != slideConfig.filename) {
           slideConfig.description +=
-            '<img src="./thumbs' +
+            '<img src="/cc/thumbs' +
             (cardData[dupe].tag || CCTAG) +
             "/" +
             dupe +
