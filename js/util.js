@@ -13,6 +13,7 @@ const ASSET_SOURCE = {
   ACESHIP: "https://raw.githubusercontent.com/Aceship/Arknight-Images/main/",
   ARKWAIFU: "https://arkwaifu.cc/api/v1/arts/REPLACEME/variants/origin/content",
 };
+// do not modify SERVERS even if you change data source as this is used locally as well.
 const SERVERS = {
   EN: "en_US",
   JP: "ja_JP",

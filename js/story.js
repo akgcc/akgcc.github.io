@@ -677,9 +677,9 @@ async function genStory(data, avatars = []) {
         .then((r) => {
             if (!r.ok) {
                 // story txt is missing (potentially old story that was deleted)
-                return fetch(`../gamedata/story/${key}.txt`).then((t) =>
-                    t.ok ? t.text() : r.text(),
-                );
+                return fetch(
+                    `../gamedata/${serverString}/story/${key}.txt`,
+                ).then((t) => (t.ok ? t.text() : r.text()));
             }
             return r.text();
         })
