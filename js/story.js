@@ -876,16 +876,6 @@ async function genStory(data, avatars = []) {
                     scene.setAttribute("data-bgwidth", w);
                     scene.style.setProperty("--bgheight", h);
                     scene.style.setProperty("--bgwidth", w);
-                    if (scene.classList.contains("multipart"))
-                        scene.style.minHeight =
-                            "calc(1.5 * var(--story-width) / " +
-                            w +
-                            " * " +
-                            h +
-                            ")";
-                    else
-                        scene.style.minHeight =
-                            "calc(var(--story-width) / " + w + " * " + h + ")";
                     alignBackground(scene);
                     // img.remove();
                 }
@@ -1526,7 +1516,9 @@ async function genStory(data, avatars = []) {
                             let embed = document.createElement("video");
                             embed.src = uri_video(args.res);
                             embed.controls = true;
-                            getWorkingScene().appendChild(embed);
+                            let s = getWorkingScene();
+                            s.appendChild(embed);
+                            s.classList.add("video");
                             break;
                         case "header":
                         case "delay":

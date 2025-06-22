@@ -12,7 +12,6 @@
 .scene {
   width: 100%;
   padding: 0;
-  min-height: calc(var(--story-width) / 16 * 9);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -22,6 +21,19 @@
   background-attachment: fixed;
   background-position: center calc(50% + var(--topNav-height) / 2);
   background-repeat: no-repeat;
+}
+/* set minHeight according to aspect ratio, default to 16:9 */
+.scene {
+  --bgwidth: 16;
+  --bgheight: 9;
+  min-height: calc(var(--story-width) / var(--bgwidth) * var(--bgheight));
+}
+.scene.video {
+  /* wider ratio for videos */
+  min-height: calc(var(--story-width) / 13 * 6);
+}
+.scene.multipart {
+  min-height: calc(1.5 * var(--story-width) / var(--bgwidth) * var(--bgheight));
 }
 .scene:before {
   content: "";
