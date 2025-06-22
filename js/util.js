@@ -598,8 +598,8 @@ function CreateOpCheckbox(
   let operatorName = operator.name;
   var checkboxDiv = document.createElement("div");
   checkboxDiv.classList.add("operatorCheckbox");
-  checkboxDiv.setAttribute("data-class", operator.profession);
-  checkboxDiv.setAttribute("data-rarity", operator.rarity);
+  checkboxDiv.dataset.class = operator.profession;
+  checkboxDiv.dataset.rarity = operator.rarity;
   checkboxDiv.classList.add("show");
   if (order) checkboxDiv.style.order = order;
   if (data1map) {
@@ -652,20 +652,16 @@ function CreateOpCheckbox(
       e.stopPropagation();
       i.classList.toggle("_selected");
       if (i.classList.contains("_selected"))
-        checkboxDiv.setAttribute(
-          "data-selsk",
-          parseInt(checkboxDiv.getAttribute("data-selsk") || 0) | (1 << idx),
-        );
+        checkboxDiv.dataset.selsk =
+          parseInt(checkboxDiv.dataset.selsk || 0) | (1 << idx);
       else
-        checkboxDiv.setAttribute(
-          "data-selsk",
-          parseInt(checkboxDiv.getAttribute("data-selsk")) ^ (1 << idx),
-        );
+        checkboxDiv.dataset.selsk =
+          parseInt(checkboxDiv.dataset.selsk) ^ (1 << idx);
       if (clickfunc) {
         clickfunc(
           operator,
           checkboxDiv.classList.contains("_selected"),
-          parseInt(checkboxDiv.getAttribute("data-selsk")),
+          parseInt(checkboxDiv.dataset.selsk),
         );
       }
     };
@@ -688,7 +684,7 @@ function CreateOpCheckbox(
       clickfunc(
         operator,
         checkboxDiv.classList.contains("_selected"),
-        parseInt(checkboxDiv.getAttribute("data-selsk")) || 0,
+        parseInt(checkboxDiv.dataset.selsk) || 0,
       );
     };
   }
@@ -744,7 +740,7 @@ window.onload = () => {
     const dd_btn = serverSelect.querySelector(".dropbtn");
     Object.keys(SERVERS).forEach((k) => {
       let opt = document.createElement("div");
-      opt.setAttribute("data-value", SERVERS[k]);
+      opt.dataset.value = SERVERS[k];
       opt.innerHTML = k;
       opt.onclick = () => {
         localStorage.setItem("server", SERVERS[k]);

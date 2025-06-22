@@ -388,7 +388,7 @@ function showAllCombos() {
 		el.innerHTML = tag;
 		el.classList.add("tag");
 		let tag_base_rarity = combos[tag]?.[tag]?.[0] || 2;
-		el.setAttribute("data-rarity", tag_base_rarity);
+		el.dataset.rarity = tag_base_rarity;
 		if (tag_base_rarity > 2)
 			el.setAttribute("title", combos[tag][tag][1].join(", "));
 		rootTag.appendChild(el);
@@ -410,7 +410,7 @@ function showAllCombos() {
 					.filter((c) => c !== tag)
 					.join(" + ");
 				el.classList.add("tag");
-				el.setAttribute("data-rarity", combos[tag][csv][0]);
+				el.dataset.rarity = combos[tag][csv][0];
 				el.setAttribute("title", combos[tag][csv][1].join(", "));
 				accTags.appendChild(el);
 			});

@@ -213,10 +213,10 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
         let a = document.createElement("a");
         if (cardData[k].dupe_group in dupe_groups)
           if (Object.keys(dupe_groups[cardData[k].dupe_group]).length > 1)
-            div.setAttribute("data-dupe", cardData[k].dupe_group);
-        div.setAttribute("data-soul", cardData[k].soul.toFixed(2));
+            div.dataset.dupe = cardData[k].dupe_group;
+        div.dataset.soul = cardData[k].soul.toFixed(2);
         a.classList.add("glightbox");
-        a.setAttribute("data-gallery", "gallery1");
+        a.dataset.gallery = "gallery1";
         // a.href = '/cc/cropped' + (cardData[k].tag || CCTAG) + '/' + (is_dupe ? 'duplicates/' : '') + k
         // no longer use duplicates dir
         a.href = "/cc/cropped" + (cardData[k].tag || CCTAG) + "/" + k;
@@ -226,14 +226,11 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
         a.appendChild(img);
         div.appendChild(a);
         div.id = k;
-        div.setAttribute("data-group", cardData[k].group);
+        div.dataset.group = cardData[k].group;
         div.classList.add("cardContainer");
-        // div.setAttribute(
-        //   "data-dateorder",
-        //   headersMap[cardData[k].risk].childElementCount
-        // );
-        // lightboxDateOrder[a.href] = date_index++
-        // div.style.order = headersMap[cardData[k].risk].childElementCount
+        // div.dataset.dateorder = headersMap[cardData[k].risk].childElementCount;
+        // lightboxDateOrder[a.href] = date_index++;
+        // div.style.order = headersMap[cardData[k].risk].childElementCount;
 
         // create icons view only if default
         if (ccSettings.view == "icons") div.appendChild(getIconView(k));
@@ -250,8 +247,8 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
         "title",
         headerCount[k] + (headerCount[k] == 1 ? " clear" : " clears"),
       );
-      riskMap[k].firstChild.setAttribute("data-count", headerCount[k]);
-      riskMap[k].firstChild.setAttribute("data-risk", k);
+      riskMap[k].firstChild.dataset.count = headerCount[k];
+      riskMap[k].firstChild.dataset.risk = k;
     });
     document.getElementById("clearCount").innerHTML =
       "Clears: " + Object.values(headerCount).reduce((a, b) => a + b, 0);
@@ -281,7 +278,7 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
             return cardData[a.id].group - cardData[b.id].group;
           })
           .forEach((clear, i) => {
-            clear.setAttribute("data-dateorder", date_index);
+            clear.dataset.dateorder = date_index;
             lightboxDateOrder[clear.querySelector("a").href] = date_index++;
           });
       });
@@ -382,7 +379,7 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
             skimg.src = uri_skill(skid);
             wrap.appendChild(skimg);
           }
-          wrap.setAttribute("data-rarity", operatorData[op.name].rarity);
+          wrap.dataset.rarity = operatorData[op.name].rarity;
           wrap.appendChild(img);
           line.appendChild(wrap);
         });
@@ -434,7 +431,7 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
     //click listeners
     Array.from(document.getElementsByClassName("weekFilter")).forEach((x) => {
       x.onclick = (e) => {
-        weekFilter ^= 2 ** e.currentTarget.getAttribute("data-group");
+        weekFilter ^= 2 ** e.currentTarget.dataset.group;
         x.classList.toggle("toggled");
         applyAllFilters();
         updateLightbox();
@@ -576,14 +573,12 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
 
     lightbox.on("slide_before_load", (data) => {
       const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-      slideNode.setAttribute("data-group", slideConfig.group);
-      slideNode
-        .querySelector(".gslide-media")
-        .setAttribute("data-soul", slideConfig.soul);
+      slideNode.dataset.group = slideConfig.group;
+      slideNode.querySelector(".gslide-media").dataset.soul = slideConfig.soul;
       let dupe = slideConfig.dupe;
       if (dupe) {
         slideNode.classList.add("center");
-        slideNode.setAttribute("data-dupe", dupe);
+        slideNode.dataset.dupe = dupe;
         slideConfig.description = "More from this doctor:";
         slideConfig.description += '<div class="dupe-thumbs">';
         while (dupe && dupe != slideConfig.filename) {
@@ -609,7 +604,7 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
         slideNode.style.setProperty("--spacer-size", desc.offsetHeight + "px");
       });
       slideNode.querySelectorAll(".dupe-thumbs > img").forEach((dupeDiv) => {
-        let dupe = dupeDiv.getAttribute("data-dupe");
+        let dupe = dupeDiv.dataset.dupe;
         dupeDiv.onclick = () => {
           // check slide at expected index, if its a match just scroll to it.
           // if not a match you need to traverse backwards until you find either the slide or an earlier slide.
@@ -696,7 +691,7 @@ function resetFilters() {
   Array.from(document.getElementsByClassName("operatorCheckbox")).forEach(
     (x) => {
       x.classList.remove("_selected");
-      x.removeAttribute("data-selsk");
+      delete x.dataset.selsk;
     },
   );
   Array.from(document.getElementsByClassName("opskillCheckbox")).forEach((x) =>
@@ -730,7 +725,7 @@ function updateLightbox() {
 
 function _filterShouldShow(key) {
   let shouldShow =
-    (2 ** document.getElementById(key).getAttribute("data-group")) & weekFilter;
+    (2 ** document.getElementById(key).dataset.group) & weekFilter;
   if (CCTAG == "-cc12clear" && red_filter_enabled) {
     shouldShow = shouldShow && cardData[key].red;
   }
@@ -765,10 +760,8 @@ function showCard(key, show = true) {
   if (0 == headerCount[cardData[key].risk])
     riskMap[cardData[key].risk].classList.add("hidden");
   else riskMap[cardData[key].risk].classList.remove("hidden");
-  riskMap[cardData[key].risk].firstChild.setAttribute(
-    "data-count",
-    headerCount[cardData[key].risk],
-  );
+  riskMap[cardData[key].risk].firstChild.dataset.count =
+    headerCount[cardData[key].risk];
 }
 
 function applyAllFilters() {

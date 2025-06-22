@@ -364,7 +364,7 @@ get_char_table(false, "zh_CN")
 			btn = document.createElement("div");
 			btn.classList = "sorter button";
 			if (n == "Shop") btn.classList.add("checked");
-			btn.setAttribute("data-name", n);
+			btn.dataset.name = n;
 			btn.innerHTML = n;
 			btns.appendChild(btn);
 			btn.onclick = (e) => {
@@ -388,7 +388,7 @@ get_char_table(false, "zh_CN")
 			btn = document.createElement("div");
 			btn.classList = "sorter button";
 			if (i == 5) btn.classList.add("checked");
-			btn.setAttribute("data-name", 1 + i + "*");
+			btn.dataset.name = 1 + i + "*";
 			btn.innerHTML = 1 + i + "*";
 			raritybtns.appendChild(btn);
 			btn.onclick = (e) => {
@@ -411,7 +411,7 @@ get_char_table(false, "zh_CN")
 			btn = document.createElement("div");
 			btn.classList = "sorter button";
 			if (s == "EN") btn.classList.add("checked");
-			btn.setAttribute("data-name", s);
+			btn.dataset.name = s;
 			btn.innerHTML = s;
 			serverbtns.appendChild(btn);
 			btn.onclick = (e) => {

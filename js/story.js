@@ -812,8 +812,8 @@ async function genStory(data, avatars = []) {
                     for (a of preSceneAudios) scene.appendChild(a);
                     preSceneAudios.length = 0;
                 }
-                scene.setAttribute("data-bgheight", 0);
-                scene.setAttribute("data-bgwidth", 0);
+                scene.dataset.bgheight = 0;
+                scene.dataset.bgwidth = 0;
                 if (!Array.isArray(imgurl)) {
                     let imgLoader = new Image();
                     imgLoader.onload = (e) => {
@@ -869,11 +869,9 @@ async function genStory(data, avatars = []) {
                 function setSceneSize(e) {
                     const img = e.currentTarget;
                     let h = img.height;
-                    let w =
-                        parseInt(scene.getAttribute("data-bgwidth")) +
-                        img.width;
-                    scene.setAttribute("data-bgheight", h);
-                    scene.setAttribute("data-bgwidth", w);
+                    let w = parseInt(scene.dataset.bgwidth) + img.width;
+                    scene.dataset.bgheight = h;
+                    scene.dataset.bgwidth = w;
                     scene.style.setProperty("--bgheight", h);
                     scene.style.setProperty("--bgwidth", w);
                     alignBackground(scene);
@@ -931,7 +929,7 @@ async function genStory(data, avatars = []) {
                     let opt = document.createElement("div");
                     opt.classList.add("decision");
                     if (i == 0) opt.classList.add("selected");
-                    opt.setAttribute("data-predicate", vals[i]);
+                    opt.dataset.predicate = vals[i];
                     opt.innerHTML = c;
                     txt.append(opt);
                     opt.onclick = () => {
@@ -941,7 +939,7 @@ async function genStory(data, avatars = []) {
                             },
                         );
                         opt.classList.add("selected");
-                        let thispredicate = opt.getAttribute("data-predicate");
+                        let thispredicate = opt.dataset.predicate;
                         Object.keys(predicate)
                             .sort((a, b) =>
                                 a == thispredicate
@@ -983,7 +981,7 @@ async function genStory(data, avatars = []) {
                 nameplate.classList.add("dialog-name");
                 let txt = document.createElement("div");
                 txt.classList.add("text");
-                txt.setAttribute("data-name", "");
+                txt.dataset.name = "";
                 txt.style.setProperty("--name-color", "#777");
                 let blocktxt = document.createElement("div");
                 blocktxt.innerHTML = dialogLine.replace(
@@ -996,7 +994,7 @@ async function genStory(data, avatars = []) {
                 wrap.appendChild(txt);
                 wrap.appendChild(right);
                 if (args && args.name) {
-                    txt.setAttribute("data-name", args.name);
+                    txt.dataset.name = args.name;
                     nameplate.innerHTML = args.name;
                     txt.style.setProperty(
                         "--name-color",
@@ -1375,10 +1373,8 @@ async function genStory(data, avatars = []) {
                             } else {
                                 audio.classList.add("sound");
                             }
-                            audio.setAttribute(
-                                "data-defvol",
-                                Math.min(args.volume, 1) || 0.8,
-                            );
+                            audio.dataset.defvol =
+                                Math.min(args.volume, 1) || 0.8;
 
                             let sound = document.createElement("source");
                             let soundkey = /\$?(.+)/i.exec(args.key)[1];
@@ -1406,7 +1402,7 @@ async function genStory(data, avatars = []) {
                                 function playFunc() {
                                     audio.volume =
                                         (volSlider.value / 100) *
-                                        audio.getAttribute("data-defvol");
+                                        audio.dataset.defvol;
                                     // if (audio.volume == 0) audio.volume = 0.5;
                                     if (audio.readyState == 0) {
                                         audio.nextSibling.classList.add(
@@ -1757,8 +1753,8 @@ function autoPlayMidPoint() {
 }
 function alignBackground(s) {
     let pos = s.getBoundingClientRect();
-    let imheight = s.getAttribute("data-bgheight");
-    let imwidth = s.getAttribute("data-bgwidth");
+    let imheight = s.dataset.bgheight;
+    let imwidth = s.dataset.bgwidth;
     if (s.classList.contains("multipart"))
         // adjust for zoom in
         imheight = ((1.5 * pos.width) / imwidth) * imheight;
@@ -1789,7 +1785,7 @@ function playPauseMusic(toggle = false) {
     });
     if (targetMusic) {
         targetMusic.volume =
-            (volSlider.value / 100) * targetMusic.getAttribute("data-defvol");
+            (volSlider.value / 100) * targetMusic.dataset.defvol;
         if (toggle) {
             if (musicState.paused) playWhenReady(targetMusic);
             else {
@@ -1909,7 +1905,7 @@ function topFunction() {
 const volSlider = document.getElementById("volSlider");
 volSlider.oninput = () => {
     allMusic.forEach((a) => {
-        a.volume = (volSlider.value / 100) * a.getAttribute("data-defvol");
+        a.volume = (volSlider.value / 100) * a.dataset.defvol;
     });
     playPauseMusic();
 };

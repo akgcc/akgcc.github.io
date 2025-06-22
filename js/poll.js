@@ -57,13 +57,13 @@ get_char_table()
         btn = document.createElement("div");
         btn.classList = "sorter button";
         if (axesMetrics[i] == n) btn.classList.add("checked");
-        btn.setAttribute("data-name", n);
-        btn.setAttribute("data-axes", i);
+        btn.dataset.name = n;
+        btn.dataset.axes = i;
         btn.innerHTML = n;
 
         btn.onclick = (e) => {
           // change axesMetrics
-          let axis = e.currentTarget.getAttribute("data-axes");
+          let axis = e.currentTarget.dataset.axes;
           axesMetrics[axis] = e.currentTarget.innerText;
           Array.from(
             document
@@ -89,7 +89,7 @@ get_char_table()
         btn = document.createElement("div");
         btn.classList = "sorter button";
         if (n == barDefaultSort) btn.classList.add("checked");
-        btn.setAttribute("data-name", n);
+        btn.dataset.name = n;
         // btn.setAttribute('data-axes',i)
         btn.innerHTML = n;
 

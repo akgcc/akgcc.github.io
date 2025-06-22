@@ -855,14 +855,11 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/skill_table.json`)
       Array.from(document.getElementsByClassName("class-selector")).forEach(
         (x) => {
           if (x.classList.contains("_selected"))
-            shownClasses.push(x.getAttribute("data-class"));
+            shownClasses.push(x.dataset.class);
         },
       );
       Object.values(divMap).forEach((x) => {
-        if (
-          shownClasses.length == 0 ||
-          shownClasses.includes(x.getAttribute("data-class"))
-        )
+        if (shownClasses.length == 0 || shownClasses.includes(x.dataset.class))
           x.classList.add("show");
         else x.classList.remove("show");
       });

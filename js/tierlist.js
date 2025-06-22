@@ -40,7 +40,7 @@ get_cc_list()
         tldiv.appendChild(tdiv);
         let tlabel = document.createElement("div");
         tlabel.classList.add("tierLabel");
-        tlabel.setAttribute("data-tier", t);
+        tlabel.dataset.tier = t;
         tdiv.appendChild(tlabel);
         let tname = document.createElement("span");
         tname.innerHTML = t;
