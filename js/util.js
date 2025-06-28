@@ -159,6 +159,23 @@ const SHORT_NAMES = {};
 //   "Ch'en the Holungday": "Ch'oom",
 //   "Nearl the Radiant Knight": "NTR",
 // };
+const LINKAGE_LIMITEDS = [
+  // R6 1
+  "char_456_ash",
+  "char_457_blitz",
+  "char_458_rfrost",
+  // MH
+  "char_1029_yato2",
+  "char_1030_noirc2",
+  // R6 2
+  "char_4125_rdoc",
+  "char_4123_ela",
+  "char_4124_iana",
+  // DM
+  "char_4144_chilc",
+  "char_4142_laios",
+  "char_4141_marcil",
+];
 const GAMEPRESS_NAME_MAP = {
   "Rosa (Poca)": "Rosa",
   Pozëmka: "Позёмка",
@@ -226,13 +243,18 @@ async function get_cc_list(server = "en_US") {
     };
   });
 }
-async function get_char_table(keep_non_playable = false, server = "en_US") {
+async function get_char_table(
+  keep_non_playable = false,
+  server = "en_US",
+  extra_data = false,
+) {
   // gets a modified character table:
   // non-playable characters removed
   // add charId key for each character
   // patch characters added and renamed (only guardmiya for now)
   // also builds charIdMap for use elsewhere
   // converts internal profession names to in-game ones
+  // if "extra_data" is true, adds "isLimited" and "onlineTime" (not yet implemented) at the cost of extra fetch()s
   let raw = await fetch(
     `${DATA_BASE[server]}/gamedata/excel/character_table.json`,
   );
@@ -242,6 +264,20 @@ async function get_char_table(keep_non_playable = false, server = "en_US") {
   );
   let patch = await fixedJson(raw);
   updateJSON(json, patch.patchChars);
+  if (extra_data) {
+    // add isLimited data
+    let banners_raw = await fetch(
+      `${DATA_BASE[server]}/gamedata/excel/gacha_table.json`,
+    );
+    let banners = await fixedJson(banners_raw);
+    banners.gachaPoolClient.forEach((b) => {
+      if (b.limitParam?.limitedCharId)
+        json[b.limitParam.limitedCharId].isLimited = true;
+    });
+    LINKAGE_LIMITEDS.forEach((charid) => {
+      json[charid].isLimited = true;
+    });
+  }
 
   Object.keys(json).forEach((op) => {
     json[op].profession =

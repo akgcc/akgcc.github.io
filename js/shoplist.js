@@ -1,4 +1,9 @@
 var operatorData;
+const showntypes = {
+	Limited: false,
+	Normal: true,
+	Kernel: true,
+};
 function createDiagonalPattern(fillcolor) {
 	//https://stackoverflow.com/questions/28569667/fill-chart-js-bar-chart-with-diagonal-stripes-or-other-patterns
 	// create a 10x10 px canvas for the pattern's base shape
@@ -34,7 +39,7 @@ function createDiagonalPattern(fillcolor) {
 	// create the pattern from the shape
 	return c.createPattern(shape, "repeat");
 }
-get_char_table(false, "zh_CN")
+get_char_table(false, "zh_CN", true)
 	.then((js) => {
 		operatorData = js;
 		return fetch(
@@ -61,12 +66,14 @@ get_char_table(false, "zh_CN")
 						console.log("Operator not found:", data.op);
 					delete servdata[op];
 				} else {
+					data.banner.sort(
+						(a, b) => Date.parse(a.date) - Date.parse(b.date),
+					);
+					data.isKernel = !!data.banner.slice(-1)[0].blue;
 					const img = new Image();
 					img.src = uri_avatar(data.charId);
 					data.img = img;
-					data.first = Math.min(
-						...data.banner.map((x) => Date.parse(x.date)),
-					);
+					data.first = Date.parse(data.banner[0].date);
 					data.shop = data.shop
 						.map((entry) => ({
 							...entry,
@@ -76,11 +83,21 @@ get_char_table(false, "zh_CN")
 				}
 			}
 		});
-
-		function getDatasets(servdata) {
-			let subset = Object.values(servdata).filter((x) =>
-				shownrarities.has(operatorData[x.charId].rarity),
+		function filterOperators(servdata) {
+			// return a subset of servdata according to active filters
+			return Object.values(servdata).filter(
+				(x) =>
+					shownrarities.has(operatorData[x.charId].rarity) &&
+					(showntypes["Limited"] ||
+						!operatorData[x.charId]?.isLimited) &&
+					(showntypes["Kernel"] || !x.isKernel) &&
+					(showntypes["Normal"] ||
+						x.isKernel ||
+						operatorData[x.charId]?.isLimited),
 			);
+		}
+		function getDatasets(servdata) {
+			let subset = filterOperators(servdata);
 			var datasets = [
 				{
 					data: subset,
@@ -267,9 +284,7 @@ get_char_table(false, "zh_CN")
 		var labelSort = sorters.Shop;
 		//////////////////////////////////////////////////
 		// this is just the contents of redrawCharts()
-		let subset = Object.values(SERVERS[selectedServer]).filter((x) =>
-			shownrarities.has(operatorData[x.charId].rarity),
-		);
+		let subset = filterOperators(SERVERS[selectedServer]);
 		var labels = subset.sort(labelSort).map((x) => x.op);
 		var datasets = getDatasets(SERVERS[selectedServer]);
 		for (i = 0; i < datasets.length; i++)
@@ -399,6 +414,22 @@ get_char_table(false, "zh_CN")
 				redrawCharts();
 			};
 		}
+		spacer = document.createElement("span");
+		spacer.innerHTML = "/";
+		raritybtns.appendChild(spacer);
+		for (const i of Object.keys(showntypes)) {
+			btn = document.createElement("div");
+			btn.classList = "sorter button checked";
+			if (!showntypes[i]) btn.classList.remove("checked");
+			btn.dataset.name = i;
+			btn.innerHTML = i;
+			raritybtns.appendChild(btn);
+			btn.onclick = (e) => {
+				e.currentTarget.classList.toggle("checked");
+				showntypes[i] = e.currentTarget.classList.contains("checked");
+				redrawCharts();
+			};
+		}
 
 		const serverbtns = document.createElement("div");
 		serverbtns.id = "barServers";
@@ -428,9 +459,7 @@ get_char_table(false, "zh_CN")
 			};
 		});
 		function redrawCharts() {
-			let subset = Object.values(SERVERS[selectedServer]).filter((x) =>
-				shownrarities.has(operatorData[x.charId].rarity),
-			);
+			let subset = filterOperators(SERVERS[selectedServer]);
 			barGraph.data.labels = subset.sort(labelSort).map((x) => x.op);
 
 			for (i = 0; i < barGraph.data.datasets.length; i++)
