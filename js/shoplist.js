@@ -1,4 +1,6 @@
 var operatorData;
+const SHOP_DATA = {};
+const OP_DATA = {};
 const showntypes = {
 	Limited: false,
 	Normal: true,
@@ -39,23 +41,29 @@ function createDiagonalPattern(fillcolor) {
 	// create the pattern from the shape
 	return c.createPattern(shape, "repeat");
 }
-get_char_table(false, "zh_CN", true)
-	.then((js) => {
-		operatorData = js;
-		return fetch(
-			"https://raw.githubusercontent.com/akgcc/cc-card-parser/master/json/banner_history.json",
-		);
-	})
+fetch(
+	"https://raw.githubusercontent.com/akgcc/cc-card-parser/master/json/banner_history.json",
+)
 	.then((res) => fixedJson(res))
 	.then((js) => {
-		const SERVERS = { EN: js.NA, CN: js.CN };
+		SHOP_DATA.EN = js.NA;
+		SHOP_DATA.CN = js.CN;
+		return get_char_table(false, SERVERS.CN, true);
+	})
+	.then((js) => {
+		operatorData = js;
+		OP_DATA.CN = js;
+		return get_char_table(false, SERVERS.EN, true);
+	})
+	.then((js) => {
+		OP_DATA.EN = js;
 		const SERVER_STARTS = {
 			EN: Date.parse("2020-01-16"),
 			CN: 1556582400000,
 		};
 		let selectedServer = "EN";
 		var shownrarities = new Set([5]);
-		Object.values(SERVERS).forEach((servdata) => {
+		for (const [serv, servdata] of Object.entries(SHOP_DATA)) {
 			for (const [op, data] of Object.entries(servdata)) {
 				let name = htmlDecode(op);
 				data.op = SHORT_NAMES[name] || name;
@@ -69,7 +77,9 @@ get_char_table(false, "zh_CN", true)
 					data.banner.sort(
 						(a, b) => Date.parse(a.date) - Date.parse(b.date),
 					);
-					data.isKernel = !!data.banner.slice(-1)[0].blue;
+					data.isKernel =
+						OP_DATA[serv][data.charId]?.classicPotentialItemId !=
+						null;
 					const img = new Image();
 					img.src = uri_avatar(data.charId);
 					data.img = img;
@@ -82,7 +92,7 @@ get_char_table(false, "zh_CN", true)
 						.sort((a, b) => a.date - b.date);
 				}
 			}
-		});
+		}
 		function filterOperators(servdata) {
 			// return a subset of servdata according to active filters
 			return Object.values(servdata).filter(
@@ -284,9 +294,9 @@ get_char_table(false, "zh_CN", true)
 		var labelSort = sorters.Shop;
 		//////////////////////////////////////////////////
 		// this is just the contents of redrawCharts()
-		let subset = filterOperators(SERVERS[selectedServer]);
+		let subset = filterOperators(SHOP_DATA[selectedServer]);
 		var labels = subset.sort(labelSort).map((x) => x.op);
-		var datasets = getDatasets(SERVERS[selectedServer]);
+		var datasets = getDatasets(SHOP_DATA[selectedServer]);
 		for (i = 0; i < datasets.length; i++)
 			// remove elements not in labels
 			datasets[i].data = subset;
@@ -357,7 +367,7 @@ get_char_table(false, "zh_CN", true)
 			},
 		});
 		Promise.all(
-			Object.values(SERVERS[selectedServer]).map((x) => {
+			Object.values(SHOP_DATA[selectedServer]).map((x) => {
 				return new Promise((resolve, reject) => {
 					x.img.onload = resolve;
 					x.img.onerror = reject;
@@ -438,7 +448,7 @@ get_char_table(false, "zh_CN", true)
 		label = document.createElement("label");
 		label.innerHTML = "Server:";
 		serverbtns.appendChild(label);
-		Object.keys(SERVERS).forEach((s) => {
+		Object.keys(SHOP_DATA).forEach((s) => {
 			btn = document.createElement("div");
 			btn.classList = "sorter button";
 			if (s == "EN") btn.classList.add("checked");
@@ -451,7 +461,7 @@ get_char_table(false, "zh_CN", true)
 				);
 				e.currentTarget.classList.toggle("checked");
 				selectedServer = s;
-				barGraph.data.datasets = getDatasets(SERVERS[selectedServer]);
+				barGraph.data.datasets = getDatasets(SHOP_DATA[selectedServer]);
 				barGraph.options.scales.x.min = SERVER_STARTS[selectedServer];
 				barGraph.options.scales.x1.min = SERVER_STARTS[selectedServer];
 
@@ -459,7 +469,7 @@ get_char_table(false, "zh_CN", true)
 			};
 		});
 		function redrawCharts() {
-			let subset = filterOperators(SERVERS[selectedServer]);
+			let subset = filterOperators(SHOP_DATA[selectedServer]);
 			barGraph.data.labels = subset.sort(labelSort).map((x) => x.op);
 
 			for (i = 0; i < barGraph.data.datasets.length; i++)
