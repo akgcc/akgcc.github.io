@@ -1512,10 +1512,19 @@ async function genStory(data, avatars = []) {
                             let embed = document.createElement("video");
                             embed.src = uri_video(args.res);
                             embed.controls = true;
+                            embed.preload = "none";
+
+                            // Replace file extension with '_poster.jpg'
+                            embed.poster = embed.src.replace(
+                                /\.[^/.]+$/,
+                                "_poster.jpg",
+                            );
+
                             let s = getWorkingScene();
                             s.appendChild(embed);
                             s.classList.add("video");
                             break;
+
                         case "header":
                         case "delay":
                         case "characteraction":
