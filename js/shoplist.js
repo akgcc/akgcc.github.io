@@ -256,13 +256,29 @@ fetch(
 				}
 			},
 		};
+		function estimateAxesPaddingForSlantedDates(
+			fontSizePx = 12,
+			charCount = 8,
+			rotationDeg = 45,
+		) {
+			const radians = (rotationDeg * Math.PI) / 180;
+			const labelHeight =
+				Math.sin(radians) * charCount * (fontSizePx * 0.65);
+			const padding = fontSizePx * 1.25;
+			return Math.ceil((labelHeight + padding) * 2);
+		}
+
 		function adjustChartHeight(size) {
+			let axesPadding = estimateAxesPaddingForSlantedDates(
+				parseFloat(getComputedStyle(document.body).fontSize),
+			);
 			document.getElementById("barChartContainer").style.height =
 				((size *
 					parseFloat(getComputedStyle(document.body).fontSize) *
 					5) /
 					5) *
-				2;
+					2 +
+				axesPadding;
 		}
 
 		const sorters = {
