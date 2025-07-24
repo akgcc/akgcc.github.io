@@ -60,7 +60,8 @@ const CharslotNameMap = {
     r: 3,
     right: 3,
 };
-
+const DecisionNotDoctor = ["mini&act13d0&3"]; // stories where the "reader" isn't doctor when making choices
+var CURRENT_STORY;
 get_char_table(false, serverString)
     .then((js) => {
         operatorData = js;
@@ -432,12 +433,11 @@ get_char_table(false, serverString)
             });
             document.getElementById("thirdCatSelect").onchange = () => {
                 // change hash, this will trigger the listener to load the story.
-                window.location.hash =
-                    uppercat +
-                    "&" +
-                    cat +
-                    "&" +
-                    document.getElementById("thirdCatSelect").value;
+                window.location.hash = [
+                    uppercat,
+                    cat,
+                    document.getElementById("thirdCatSelect").value,
+                ].join("&");
             };
             if (trigger) document.getElementById("thirdCatSelect").onchange();
         }
@@ -580,6 +580,7 @@ get_char_table(false, serverString)
                 scrollFunction();
                 sessionStorage.setItem("userChange", false);
             });
+            CURRENT_STORY = [uppercat, cat, idx].join("&");
         }
         window.onhashchange = loadFromHash;
         if (window.location.hash) {
@@ -911,11 +912,12 @@ async function genStory(data, avatars = []) {
                 let vals = args.values.split(";");
 
                 vals = vals.slice(0, choices.length); // fixes some broken script files.
+                let doctorSpeaking = !DecisionNotDoctor.includes(CURRENT_STORY);
                 // keys.forEach((key, i) => result[key] = values[i]);
                 let dialog = makeDialog(
-                    { name: "Dr {@nickname}" },
+                    doctorSpeaking ? { name: "Dr {@nickname}" } : {},
                     choices[0],
-                    { name: "avg_npc_048" },
+                    doctorSpeaking ? { name: "avg_npc_048" } : {},
                     1,
                 );
                 // create predicate after making dialog or the dialog will be hidden.
