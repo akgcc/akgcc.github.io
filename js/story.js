@@ -60,7 +60,7 @@ const CharslotNameMap = {
     r: 3,
     right: 3,
 };
-const DecisionNotDoctor = ["mini&act13d0&3"]; // stories where the "reader" isn't doctor when making choices
+const DecisionNotDoctor = ["mini&act13d0&3", "side&act19side&0"]; // stories where the "reader" isn't doctor when making choices
 var CURRENT_STORY;
 get_char_table(false, serverString)
     .then((js) => {
