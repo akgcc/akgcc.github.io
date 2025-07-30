@@ -60,7 +60,11 @@ const CharslotNameMap = {
     r: 3,
     right: 3,
 };
-const DecisionNotDoctor = ["mini&act13d0&3", "side&act19side&0"]; // stories where the "reader" isn't doctor when making choices
+const DecisionNotDoctor = {
+    "mini&act13d0&3": "avg_4133_logos_1#1$1",
+    "side&act19side&0": "avg_128_plosis_1#1$1",
+    "side&act9d0&8": "avg_npc_026#1$1", //scout
+}; // stories where the "reader" isn't doctor when making choices
 var CURRENT_STORY;
 get_char_table(false, serverString)
     .then((js) => {
@@ -912,18 +916,24 @@ async function genStory(data, avatars = []) {
                 let vals = args.values.split(";");
 
                 vals = vals.slice(0, choices.length); // fixes some broken script files.
-                let doctorSpeaking = !DecisionNotDoctor.includes(CURRENT_STORY);
+                let doctorSpeaking = !(CURRENT_STORY in DecisionNotDoctor);
                 // keys.forEach((key, i) => result[key] = values[i]);
                 let dialog = makeDialog(
-                    doctorSpeaking ? { name: "Dr {@nickname}" } : {},
+                    doctorSpeaking
+                        ? { name: "Dr {@nickname}" }
+                        : { name: "speaker" },
                     choices[0],
-                    doctorSpeaking ? { name: "avg_npc_048" } : {},
+                    doctorSpeaking
+                        ? { name: "avg_npc_048" }
+                        : { name: DecisionNotDoctor[CURRENT_STORY] },
                     1,
                 );
                 // create predicate after making dialog or the dialog will be hidden.
                 const predicate = {};
                 vals.forEach((v) => (predicate[v] = []));
                 predicateQueue.push(predicate);
+                if (!doctorSpeaking)
+                    dialog.querySelector(".avatar").classList.add("mystery");
                 let txt = dialog.querySelector(".text");
                 txt.innerHTML = "";
                 txt.classList.add("doctor");
