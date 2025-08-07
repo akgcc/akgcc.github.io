@@ -996,10 +996,9 @@ async function genStory(data, avatars = []) {
                 txt.dataset.name = "";
                 txt.style.setProperty("--name-color", "#777");
                 let blocktxt = document.createElement("div");
-                blocktxt.innerHTML = dialogLine.replace(
-                    /\\r\\n|\\r|\\n/g,
-                    "<br />",
-                );
+                blocktxt.innerHTML = dialogLine
+                    .replace(/^(?:\\r\\n|\\r|\\n)+/, "")
+                    .replace(/\\r\\n|\\r|\\n/g, "<br />");
                 txt.appendChild(blocktxt);
                 wrap.appendChild(left);
                 txt.prepend(nameplate);

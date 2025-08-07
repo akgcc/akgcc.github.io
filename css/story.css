@@ -207,7 +207,7 @@
 .text:not([data-name=""]) {
   min-height: calc(var(--dialog-size) / 1.3);
 }
-.dialog-name {
+.text:not([data-name=""]) .dialog-name {
   /*.text:before {
   content: attr(data-name);*/
   color: var(--name-color);
