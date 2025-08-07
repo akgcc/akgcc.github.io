@@ -998,6 +998,7 @@ async function genStory(data, avatars = []) {
                 let blocktxt = document.createElement("div");
                 blocktxt.innerHTML = dialogLine
                     .replace(/^(?:\\r\\n|\\r|\\n)+/, "")
+                    .replace(/^(?:\\r\\n|\\r|\\n)+$/, "")
                     .replace(/\\r\\n|\\r|\\n/g, "<br />");
                 txt.appendChild(blocktxt);
                 wrap.appendChild(left);
