@@ -1704,7 +1704,7 @@ function avatarImg(data, isAvatar = false) {
 
     // add effects:
     if (data.ato) img.style.opacity = data.ato;
-    if (data.bend) img.style.filter = "brightness(0)";
+    if (data.bend ?? 0 > 0) img.style.filter = "brightness(0)";
     let wrap = document.createElement("div");
     wrap.classList.add("avatar");
     wrap.classList.add("npc");
