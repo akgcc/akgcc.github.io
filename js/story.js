@@ -926,8 +926,8 @@ async function genStory(data, avatars = []) {
                         : { name: "speaker" },
                     choices[0],
                     doctorSpeaking
-                        ? { name: "avg_npc_048" }
-                        : { name: DecisionNotDoctor[CURRENT_STORY] },
+                        ? { name: { name: "avg_npc_048" } }
+                        : { name: { name: DecisionNotDoctor[CURRENT_STORY] } },
                     1,
                 );
                 // create predicate after making dialog or the dialog will be hidden.
