@@ -280,7 +280,9 @@ get_char_table(false, serverString)
                     storyTypes.rogue.push(month_key);
                     let chars = v.teamChars;
                     if (chars && typeof chars?.[0] === "object")
-                        chars = chars.map((x) => x.teamCharId);
+                        chars = chars.map((x) => {
+                            return { name: x.teamCharId };
+                        });
                     storyReview[month_key] = {
                         name: `M${month_num + 1} - ${v.teamName}`,
                         infoUnlockDatas: [],
@@ -703,7 +705,7 @@ async function genStory(data, avatars = []) {
             title.classList.add("storyName");
             (avatars || []).forEach((char) => {
                 let img = document.createElement("img");
-                img.src = uri_avatar(encodeURIComponent(char));
+                img.src = uri_avatar(encodeURIComponent(char.name));
                 img.classList.add("storyAvatar");
                 title.appendChild(img);
             });
@@ -1016,7 +1018,7 @@ async function genStory(data, avatars = []) {
                     Object.keys(chars)
                         .sort()
                         .forEach((key, i) => {
-                            if (chars[key] != "char_empty") {
+                            if (chars[key].name != "char_empty") {
                                 let isActive =
                                     all_speaking ||
                                     (currentSpeaker == 1 && key == "name") ||
@@ -1256,7 +1258,7 @@ async function genStory(data, avatars = []) {
                                     CharslotNameMap[args.slot]; // ( this may not be correct for this new format, maybe setting to 1 is still correct )
                                 if (args.name)
                                     chars[`name${CharslotNameMap[args.slot]}`] =
-                                        args.name;
+                                        args;
                             } else {
                                 chars = {};
                                 speaker = 0;
@@ -1282,9 +1284,10 @@ async function genStory(data, avatars = []) {
                         case "character":
                             if (args) {
                                 speaker = parseInt(args.focus) || 1; // set to 1 if focus key doesnt exist.
-                                chars = args;
-                                Object.keys(chars).forEach((k) => {
-                                    if (!k.startsWith("name")) delete chars[k];
+                                chars = {};
+                                Object.keys(args).forEach((k) => {
+                                    if (k.startsWith("name"))
+                                        chars[k] = { name: args[k] };
                                 });
                             } else {
                                 chars = {};
@@ -1318,20 +1321,21 @@ async function genStory(data, avatars = []) {
                             if (args && args.head) {
                                 speaker = 99; // need to set to 99 instead of 1 to bypass isActive check in makeDialog
                                 chars = {
-                                    avg: args.head,
+                                    avg: { name: args.head },
                                 };
-                                speakerList.add(chars.avg.toLowerCase());
+                                speakerList.add(chars.avg.name.toLowerCase());
                                 let dlg = makeDialog(
                                     {
                                         name:
-                                            operatorData[chars.avg].name ||
-                                            operatorData[chars.avg].appellation,
+                                            operatorData[chars.avg.name].name ||
+                                            operatorData[chars.avg.name]
+                                                .appellation,
                                     },
                                     line[2],
                                     chars,
                                     speaker,
                                     Array.from(speakerList).indexOf(
-                                        chars.avg.toLowerCase(),
+                                        chars.avg.name.toLowerCase(),
                                     ),
                                 );
                                 getWorkingScene().appendChild(dlg);
@@ -1616,8 +1620,9 @@ function completeCharPath(path) {
     }
     return path;
 }
-function avatarImg(path, isAvatar = false) {
+function avatarImg(data, isAvatar = false) {
     // return image element with many, many fallbacks.
+    path = data.name;
     path = path.trim(); //.toLowerCase();
     let varkey = /\$?(.+)/i.exec(path)[1];
     if (varkey in soundMap) {
@@ -1696,6 +1701,10 @@ function avatarImg(path, isAvatar = false) {
     img.style.top = coords.y;
     img.style.transform = `scale(${coords.s})`;
     img.src = src_array[0];
+
+    // add effects:
+    if (data.ato) img.style.opacity = data.ato;
+    if (data.bend ?? 0 > 0) img.style.filter = "brightness(0)";
     let wrap = document.createElement("div");
     wrap.classList.add("avatar");
     wrap.classList.add("npc");
