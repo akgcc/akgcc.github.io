@@ -1704,7 +1704,9 @@ function avatarImg(data, isAvatar = false) {
 
     // add effects:
     if (data.ato) img.style.opacity = data.ato;
-    if (data.bend ?? 0 > 0) img.style.filter = "brightness(0)";
+    const bstart = data.bstart ?? 0;
+    const bend = data.bend ?? 0;
+    if (bend > 0) img.style.filter = "brightness(0)";
     let wrap = document.createElement("div");
     wrap.classList.add("avatar");
     wrap.classList.add("npc");
@@ -1714,9 +1716,9 @@ function avatarImg(data, isAvatar = false) {
         // e.stopPropagation();
         if (!wrap.classList.contains("unknown")) {
             if (wrap.classList.contains("initial")) {
-                enlargeAvatar(src_array.slice(1));
+                enlargeAvatar(src_array.slice(1), false, bstart, bend);
             } else {
-                enlargeAvatar([img.src]);
+                enlargeAvatar([img.src], false, bstart, bend);
             }
         }
     };
@@ -1727,7 +1729,7 @@ const avatarModal = document.getElementById("avatarModal");
 window.addEventListener("click", (e) => {
     if (e.target == avatarModal) avatarModal.classList.remove("show");
 });
-function enlargeAvatar(src_array, cover = false) {
+function enlargeAvatar(src_array, cover = false, bstart = 0, bend = 0) {
     avatarModal.classList.remove("unknown");
     avatarModal.classList.add("show");
     let content = avatarModal.querySelector(".modal-content");
@@ -1750,6 +1752,13 @@ function enlargeAvatar(src_array, cover = false) {
         }
     };
     if (cover) im.classList.add("item");
+    if (bend > 0) {
+        const black = im.cloneNode();
+        black.classList.add("black");
+        content.appendChild(black);
+        content.style.setProperty("--bstart", bstart);
+        content.style.setProperty("--bend", bend);
+    }
     content.appendChild(im);
     let dl_btn = document.createElement("i");
     dl_btn.classList.add("fas");

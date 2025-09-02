@@ -486,6 +486,8 @@ audio {
   display: flex;
   justify-content: center;
   align-items: center;
+  --bstart: 0;
+  --bend: 0;
 }
 .modal-content,
 .modal-content img {
@@ -508,6 +510,29 @@ audio {
 
 .modal-content.unknown img {
   filter: brightness(0);
+}
+
+.modal-content .black {
+  position: absolute;
+  inset: 0;
+  filter: brightness(0);
+  pointer-events: none;
+
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #fff calc(var(--bstart, 0) * 100%),
+    transparent calc(var(--bend, 0) * 100%)
+  );
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+
+  mask-image: linear-gradient(
+    to bottom,
+    #fff calc(var(--bstart, 0) * 100%),
+    transparent calc(var(--bend, 0) * 100%)
+  );
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
 }
 
 .avatar:not(.unknown) {
