@@ -132,14 +132,8 @@ function uri_character(imageName, source = ASSET_SOURCE.LOCAL) {
 }
 const DATA_BASE = {};
 DATA_BASE[SERVERS.EN] = DATA_SOURCE_YOSTAR + SERVERS.EN;
-DATA_BASE[SERVERS.EN] =
-  "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/master/en";
 DATA_BASE[SERVERS.JP] = DATA_SOURCE_YOSTAR + SERVERS.JP;
-DATA_BASE[SERVERS.JP] =
-  "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/master/jp";
 DATA_BASE[SERVERS.KR] = DATA_SOURCE_YOSTAR + SERVERS.KR;
-DATA_BASE[SERVERS.KR] =
-  "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/master/kr";
 DATA_BASE[SERVERS.CN] = DATA_SOURCE + SERVERS.CN;
 const serverString = localStorage.getItem("server") || "en_US";
 const CLASS_MAPPING = {
