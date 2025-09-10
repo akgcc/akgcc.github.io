@@ -42,7 +42,7 @@ function createDiagonalPattern(fillcolor) {
 	return c.createPattern(shape, "repeat");
 }
 fetch(
-	"https://raw.githubusercontent.com/akgcc/cc-card-parser/master/json/banner_history.json",
+	"https://raw.githubusercontent.com/akgcc/akgcc-extra-data/master/json/banner_history.json",
 )
 	.then((res) => fixedJson(res))
 	.then((js) => {
