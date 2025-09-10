@@ -275,18 +275,13 @@ async function get_char_table(
   let patch = await fixedJson(raw);
   updateJSON(json, patch.patchChars);
   if (extra_data) {
-    // add isLimited data
-    let banners_raw = await fetch(
-      `${DATA_BASE[server]}/gamedata/excel/gacha_table.json`,
+    let extra_raw = await fetch(
+      "https://raw.githubusercontent.com/akgcc/akgcc-extra-data/main/json/operator_release_dates.json",
     );
-    let banners = await fixedJson(banners_raw);
-    banners.gachaPoolClient.forEach((b) => {
-      if (b.limitParam?.limitedCharId)
-        json[b.limitParam.limitedCharId].isLimited = true;
-    });
-    LINKAGE_LIMITEDS.forEach((charid) => {
-      json[charid].isLimited = true;
-    });
+    let extra_chardata = await extra_raw.json();
+    for (const [charId, data] of Object.entries(extra_chardata)) {
+      if (json[charId]) json[charId].isLimited = data.isLimited ?? false;
+    }
   }
 
   Object.keys(json).forEach((op) => {
