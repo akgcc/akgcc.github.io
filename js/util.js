@@ -250,8 +250,15 @@ async function get_cc_list(server = "en_US") {
     CCMAP["#" + cc_num] = {
       tag: "-cc" + cc_num + "clear",
       title: cc.name + " (CC#" + cc_num + ")",
+      start: cc.startTs,
+      end: cc.endTs,
     };
   });
+  CCMAP["#all"].start = CCMAP["#12"].start;
+  CCMAP["#all"].end = CCMAP["#12"].end;
+  server == SERVERS.CN
+    ? (CCMAP["#b"].start = 1574139600)
+    : (CCMAP["#b"].start = 1591934400);
 }
 async function get_char_table(
   keep_non_playable = false,

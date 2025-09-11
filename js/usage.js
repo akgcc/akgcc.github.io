@@ -28,10 +28,17 @@ get_cc_list()
 			CCMAP[window.location.hash].title;
 		if (window.location.hash == "#all")
 			document.getElementById("clearsLink").style.display = "none";
-		return get_char_table();
+		return get_char_table(false, SERVERS.EN, true);
 	})
 	.then((js) => {
 		operatorData = js;
+		// remove operators released after the current CC.
+		Object.keys(operatorData).forEach((charId) => {
+			online = Date.parse(operatorData[charId].onlineTime) || Infinity;
+			// compare to start date + 2 weeks (1209600000)
+			if (online > CCMAP[window.location.hash].start * 1000 + 1209600000)
+				delete operatorData[charId];
+		});
 		return fetch("/cc/json/data" + CCTAG + ".json");
 	})
 	.then((res) => fixedJson(res))
