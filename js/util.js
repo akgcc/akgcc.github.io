@@ -264,7 +264,7 @@ async function get_char_table(
   // patch characters added and renamed (only guardmiya for now)
   // also builds charIdMap for use elsewhere
   // converts internal profession names to in-game ones
-  // if "extra_data" is true, adds "isLimited" and "onlineTime" (not yet implemented) at the cost of extra fetch()s
+  // if "extra_data" is true, adds "isLimited", "onlineTime", "cnOnlineTime" at the cost of 1 extra github fetch
   let raw = await fetch(
     `${DATA_BASE[server]}/gamedata/excel/character_table.json`,
   );
@@ -280,7 +280,12 @@ async function get_char_table(
     );
     let extra_chardata = await extra_raw.json();
     for (const [charId, data] of Object.entries(extra_chardata)) {
-      if (json[charId]) json[charId].isLimited = data.isLimited ?? false;
+      if (json[charId]) {
+        json[charId].isLimited = data.isLimited ?? false;
+        if (data.onlineTime != null) json[charId].onlineTime = data.onlineTime;
+        if (data.cnOnlineTime != null)
+          json[charId].cnOnlineTime = data.cnOnlineTime;
+      }
     }
   }
 
