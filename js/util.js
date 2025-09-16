@@ -3,7 +3,7 @@ const DATA_SOURCE =
 const DATA_SOURCE_YOSTAR =
   "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData_YoStar/main/";
 // use ArknightsAssets instead of ArknightsGameData for Yostar servers
-const USE_ALTERNATE_YOSTAR_DATA = false;
+const USE_ALTERNATE_YOSTAR_DATA = true;
 const DATA_SOURCE_LOCAL =
   "https://raw.githubusercontent.com/akgcc/arkdata/main/";
 // const DATA_SOURCE =
