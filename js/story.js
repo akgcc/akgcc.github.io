@@ -65,6 +65,16 @@ const DecisionNotDoctor = {
     "side&act19side&0": "avg_128_plosis_1#1$1",
     "side&act9d0&8": "avg_npc_026#1$1", //scout
 }; // stories where the "reader" isn't doctor when making choices
+const customStoryNames = {
+    "main_15_level_main_15-15_end_variation01": {
+        name: "15-17 After",
+        style: { color: "grey" },
+    },
+    "main_15_level_main_15-15_end_variation02": {
+        name: "15-17 After",
+        style: { color: "lightblue" },
+    },
+};
 var CURRENT_STORY;
 get_char_table(false, serverString)
     .then((js) => {
@@ -361,7 +371,6 @@ get_char_table(false, serverString)
             if (nb < na) return 1;
             return 0;
         });
-
         Object.keys(storyTypes).forEach((t) => {
             let opt = document.createElement("option");
             opt.value = t;
@@ -433,6 +442,10 @@ get_char_table(false, serverString)
                         break;
                 }
                 let opt = document.createElement("option");
+                if (d.storyId in customStoryNames) {
+                    name = customStoryNames[d.storyId].name;
+                    Object.assign(opt.style, customStoryNames[d.storyId].style);
+                }
                 opt.value = i;
                 opt.innerHTML = name;
                 document.getElementById("thirdCatSelect").appendChild(opt);
