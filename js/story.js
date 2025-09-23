@@ -1602,10 +1602,9 @@ async function genStory(data, avatars = []) {
                 }
             }
             addCurrentScene(true);
-            if (wordCount)
-                readTime.innerHTML = `${Math.ceil(
-                    wordCount / 250 + imgCount * 12,
-                )} min read`;
+            let readTimeMinutes = Math.round(wordCount / 250 + imgCount * 12);
+            if (readTimeMinutes)
+                readTime.innerHTML = `${readTimeMinutes} min read`;
         });
 }
 function playWhenReady(audio) {
