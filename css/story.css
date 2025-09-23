@@ -291,7 +291,20 @@ img.storyAvatar {
   margin-left: 0.15em;
   margin-right: 0.15em;
 }
-
+.storyName {
+  position: relative;
+}
+.readtime {
+  position: absolute;
+  right: 0;
+  margin-right: 0.4em;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-size: 0.6em;
+  color: var(--light-text-color);
+  overflow: hidden;
+}
 .storySelect {
   font-size: 1.2em;
   padding-right: 0.3em;

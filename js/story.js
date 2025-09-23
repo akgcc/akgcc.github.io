@@ -675,6 +675,8 @@ async function genStory(data, avatars = []) {
     activeReferences = [];
     referenceQueue = [];
     lastPredicate = { 1: [], 2: [], 3: [] }; // prevents catastrophic failure in an edge case
+    wordCount = 0;
+    imgCount = 0;
     async function getModuleStory(key) {
         return {
             //bg_corridor is a good alternate
@@ -725,6 +727,9 @@ async function genStory(data, avatars = []) {
             let titletxt = document.createElement("span");
             titletxt.innerHTML = storyName;
             title.appendChild(titletxt);
+            let readTime = document.createElement("span");
+            readTime.classList.add("readtime");
+            title.appendChild(readTime);
             document.getElementById("storyTitle").innerHTML = title.innerHTML;
             storyDiv.appendChild(title);
             let scene,
@@ -1015,6 +1020,7 @@ async function genStory(data, avatars = []) {
                     .replace(/^(?:\\r\\n|\\r|\\n)+/, "")
                     .replace(/^(?:\\r\\n|\\r|\\n)+$/, "")
                     .replace(/\\r\\n|\\r|\\n/g, "<br />");
+                wordCount += countWords(blocktxt.innerHTML);
                 txt.appendChild(blocktxt);
                 wrap.appendChild(left);
                 txt.prepend(nameplate);
@@ -1155,6 +1161,7 @@ async function genStory(data, avatars = []) {
                         closeDanglingDirectives();
                     switch (cmd.toLowerCase()) {
                         case "showitem":
+                            imgCount += 1;
                             let wrap = document.createElement("div");
                             wrap.classList.add("dialog");
                             let imgbtn = document.createElement("i");
@@ -1595,6 +1602,10 @@ async function genStory(data, avatars = []) {
                 }
             }
             addCurrentScene(true);
+            if (wordCount)
+                readTime.innerHTML = `${Math.ceil(
+                    wordCount / 250 + imgCount * 12,
+                )} min read`;
         });
 }
 function playWhenReady(audio) {

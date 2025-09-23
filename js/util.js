@@ -786,6 +786,9 @@ function selectColor(number, saturation = 15, lightness = 60) {
   const hue = number * 137.508; // use golden angle approximation
   return `hsl(${hue},${saturation}%,${lightness}%)`;
 }
+function countWords(str) {
+  return str.trim().split(/\s+/).length;
+}
 window.onload = () => {
   const serverSelect = document.getElementById("serverSelect");
   if (serverSelect) {
