@@ -34,7 +34,10 @@ get_cc_list()
 		operatorData = js;
 		// remove operators released after the current CC.
 		Object.keys(operatorData).forEach((charId) => {
-			online = Date.parse(operatorData[charId].onlineTime) || Infinity;
+			online =
+				Date.parse(operatorData[charId].onlineTime) ||
+				Date.parse(operatorData[charId].cnOnlineTime) - 15778476000 ||
+				0; // if undefined try cn time - 6 months, otherwise default to 0 (0=false positives, Infinity=false negatives)
 			// compare to start date + 2 weeks (1209600000)
 			if (online > CCMAP[window.location.hash].start * 1000 + 1209600000)
 				delete operatorData[charId];
