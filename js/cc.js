@@ -419,7 +419,7 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
         (op, state, skills) => applyFilters(op, state, skills),
         checkboxes,
         null,
-        operatorData[x].skills.map(
+        Object.values(operatorData[x].skills).map(
           (x) => skill_table[x.skillId]?.iconId || x.skillId,
         ),
       );
