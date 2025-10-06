@@ -1,7 +1,13 @@
 :root {
-  --story-width: min(65vh / 9 * 16, 95vw);
+  --story-width: min(calc((100vmin - var(--topNav-height)) * 16 / 9), 95vw);
   --dialog-size: 6em;
 }
+@media (orientation: landscape) and (max-width: 1200px) {
+  :root {
+    --story-width: 100vw;
+  }
+}
+
 @font-face {
   font-family: "vn";
   src: url("../../webfonts/vn.woff2") format("woff2");
