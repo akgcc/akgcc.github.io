@@ -181,7 +181,7 @@
   background: #000b;
   flex: 0;
   flex-basis: 35em;
-  padding: 0.2em 0.5em;
+  padding: 0.3em 0.5em 0.4em 0.5em;
   display: flex;
   font-size: 1.3em;
   flex-direction: column;
@@ -461,7 +461,7 @@ audio {
     visibility 0.2s,
     opacity 0.2s;
   position: fixed; /* Stay in place */
-  z-index: 4; /* Sit on top */
+  z-index: 1; /* Sit on top */
   left: 0;
   top: var(--topNav-height);
   width: 100%; /* Full width */
