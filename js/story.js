@@ -670,7 +670,7 @@ async function genStory(data, avatars = []) {
     allScenes.length = 0;
     allMusic.length = 0;
     allSoundButtons.length = 0;
-    lastBackgroundImage = undefined;
+    lastBackgroundImage = [];
     predicateQueue = [];
     activeReferences = [];
     referenceQueue = [];
@@ -815,19 +815,24 @@ async function genStory(data, avatars = []) {
             function getWorkingScene(imageScene = false) {
                 if (!scene) {
                     scene = createScene(
-                        uri_background("bg_black"),
-                        uri_background("bg_black", ASSET_SOURCE.ARKWAIFU),
+                        [uri_background("bg_black")],
+                        {},
                         imageScene,
                     );
                 }
                 return scene;
             }
-            function createScene(imgurl, altimgurl, isImage) {
+            function createScene(imgurls, options, isImage) {
+                const isMultipart = imgurls.length !== 1;
                 chars = {};
                 speaker = 0;
-                // imgurl may be an array for largebg, note that only the first 2 images will be used.
                 const scene = document.createElement("div");
                 scene.classList.add("scene");
+                const bg = document.createElement("div");
+                bg.classList.add("scene-background");
+                bg.classList.add("uninitialized");
+                scene.appendChild(bg);
+                scene.bg = bg;
                 if (isImage) scene.classList.add("image");
                 if (hangingBlocker) {
                     scene.appendChild(hangingBlocker);
@@ -839,96 +844,157 @@ async function genStory(data, avatars = []) {
                 }
                 scene.dataset.bgheight = 0;
                 scene.dataset.bgwidth = 0;
-                if (!Array.isArray(imgurl)) {
-                    let imgLoader = new Image();
-                    imgLoader.onload = (e) => {
-                        setSceneSize(e),
-                            scene.style.setProperty(
-                                "--background-image-url",
-                                'url("' + e.currentTarget.src + '")',
-                            );
-                    };
-                    imgLoader.src = imgurl;
-
-                    imgLoader.onerror = () => {
-                        // try the altimgurl now
-                        imgLoader = new Image();
-                        imgLoader.onload = (e) => {
-                            setSceneSize(e),
-                                scene.style.setProperty(
-                                    "--background-image-url",
-                                    'url("' + e.currentTarget.src + '")',
-                                );
-                        };
-                        imgLoader.onerror = (e) => {
-                            // last ditch effort, treat this as multipart
-                            let left =
-                                imgurl.split(".").slice(0, -1).join(".") +
-                                "_1." +
-                                imgurl.split(".").slice(-1);
-                            let right =
-                                imgurl.split(".").slice(0, -1).join(".") +
-                                "_2." +
-                                imgurl.split(".").slice(-1);
-                            multipartImage(left, right);
-                        };
-                        imgLoader.src = altimgurl;
-                    };
-                    let dl_btn = document.createElement("i");
-                    dl_btn.classList.add("fas");
-                    dl_btn.classList.add("fa-external-link-alt");
-                    dl_btn.classList.add("dlBtn");
-                    scene.appendChild(dl_btn);
-                    dl_btn.addEventListener("click", function () {
-                        window.open(imgurl);
-                    });
-                } else {
-                    multipartImage(imgurl[0], imgurl[1]).catch(() => {
-                        multipartImage(altimgurl[0], altimgurl[1]);
-                    });
-                }
+                prepareBackground(imgurls, options).then(
+                    ({ url: _img_url, naturalWidth, naturalHeight }) => {
+                        setSceneSize(naturalWidth, naturalHeight);
+                        let dl_btn = document.createElement("i");
+                        dl_btn.classList.add("fas");
+                        dl_btn.classList.add("fa-external-link-alt");
+                        dl_btn.classList.add("dlBtn");
+                        scene.appendChild(dl_btn);
+                        dl_btn.addEventListener("click", function () {
+                            window.open(_img_url, "_blank");
+                        });
+                        scene.style.setProperty(
+                            "--background-image-url",
+                            `url("${_img_url}")`,
+                        );
+                    },
+                );
                 allScenes.push(scene);
-                imgLoader = null;
                 return scene;
 
-                function setSceneSize(e) {
-                    const img = e.currentTarget;
-                    let h = img.height;
-                    let w = parseInt(scene.dataset.bgwidth) + img.width;
+                async function prepareBackground(imgUrls, options) {
+                    let finalUrl, naturalWidth, naturalHeight;
+                    const xscalefrom =
+                        options.xscale ?? options.xscalefrom ?? 1;
+                    const yscalefrom =
+                        options.yscale ?? options.yscalefrom ?? 1;
+                    const x = options.x ?? 0;
+                    const y = options.y ?? 0;
+                    if (!isMultipart) {
+                        // single image: use it directly
+                        finalUrl = imgUrls[0];
+
+                        // get natural size without creating extra <img> in DOM
+                        const dims = await new Promise((resolve) => {
+                            const img = new Image();
+                            img.src = finalUrl;
+                            img.onload = () =>
+                                resolve({
+                                    width: img.naturalWidth,
+                                    height: img.naturalHeight,
+                                });
+                        });
+                        naturalWidth = dims.width;
+                        naturalHeight = dims.height;
+                    } else {
+                        // multiple images: stitch on canvas
+                        // only use the first 2 images if more are given.
+                        const images = await Promise.all(
+                            imgUrls.slice(0, 2).map(
+                                (url) =>
+                                    new Promise((resolve) => {
+                                        const img = new Image();
+                                        img.src = url;
+                                        img.crossOrigin = "anonymous";
+                                        img.onload = () => resolve(img);
+                                    }),
+                            ),
+                        );
+
+                        naturalWidth = images.reduce(
+                            (sum, img) => sum + img.naturalWidth,
+                            0,
+                        );
+                        naturalHeight = Math.max(
+                            ...images.map((img) => img.naturalHeight),
+                        );
+
+                        const canvas = document.createElement("canvas");
+                        canvas.width = naturalWidth;
+                        canvas.height = naturalHeight;
+                        const ctx = canvas.getContext("2d");
+
+                        let x = 0;
+                        for (const img of images) {
+                            ctx.drawImage(img, x, 0);
+                            x += img.naturalWidth;
+                        }
+
+                        // finalUrl = canvas.toDataURL();
+                        finalUrl = await new Promise((resolve) => {
+                            canvas.toBlob((blob) => {
+                                resolve(URL.createObjectURL(blob));
+                            });
+                        });
+                    }
+                    // scaling done by the game, 1.2x for normal (up to 1920x1080) 1.5x for multipart (up to 2760x1080) (factor depends on img size)
+                    const internal_scale =
+                        (isMultipart ? 2760 : 1920) / naturalWidth;
+                    const scaled_height =
+                        internal_scale * yscalefrom * naturalHeight;
+                    // scaling I am doing locally, scaled to fit the story reader/browser
+                    scene.style.setProperty(
+                        "--bscale",
+                        `calc(var(--story-width) / ${naturalWidth}px)`,
+                    );
+                    // the height difference between the fully scaled image and the "browser scaled" image:
+                    // equiv to (full/final height) - (naturalheight*bscale)
+                    // scene.style.setProperty(
+                    //     "--hdiff",
+                    //     `calc(${naturalHeight}px * var(--story-width) / ${naturalWidth}px * (${internal_scale} * ${yscalefrom} - 1) / 2 )`,
+                    // );
+                    scene.style.setProperty(
+                        "--hdiff",
+                        `calc(${
+                            (naturalHeight *
+                                (internal_scale * yscalefrom - 1)) /
+                            2 /
+                            naturalWidth
+                        } * var(--story-width))`,
+                    );
+                    scene.style.setProperty(
+                        "--adjustedX",
+                        `calc(${x}px * ${internal_scale} * var(--bscale))`,
+                    );
+                    scene.style.setProperty(
+                        "--adjustedY",
+                        `calc(${-y}px * ${internal_scale} * var(--bscale))`,
+                    );
+                    scene.style.setProperty(
+                        "--half",
+                        `calc(var(--story-width) / ${
+                            naturalWidth / naturalHeight
+                        } / 2)`,
+                    );
+                    scene.style.setProperty(
+                        "--aspectratio",
+                        `${naturalWidth} / ${naturalHeight}`,
+                    );
+
+                    Object.assign(bg.style, {
+                        backgroundImage: `url(${finalUrl})`,
+                        backgroundSize: `calc(var(--story-width) * ${
+                            xscalefrom * internal_scale
+                        }) auto`,
+                        backgroundPositionX: "calc(50% + var(--adjustedX))",
+                        backgroundPositionY: "calc(50% + var(--adjustedY))",
+                    });
+                    // requestAnimationFrame(() => (scene.style.opacity = 1));
+
+                    return {
+                        naturalWidth,
+                        naturalHeight,
+                        url: finalUrl,
+                    };
+                }
+                function setSceneSize(w, h) {
                     scene.dataset.bgheight = h;
                     scene.dataset.bgwidth = w;
                     scene.style.setProperty("--bgheight", h);
                     scene.style.setProperty("--bgwidth", w);
                     alignBackground(scene);
-                    // img.remove();
-                }
-                function multipartImage(left, right) {
-                    return new Promise((resolve, reject) => {
-                        scene.classList.add("multipart");
-
-                        let dimleft = new Image();
-                        let dimright = new Image();
-
-                        dimleft.onload = setSceneSize;
-                        dimright.onload = (e) => {
-                            setSceneSize(e),
-                                scene.style.setProperty(
-                                    "--background-image-url",
-                                    'url("' + left + '"), url("' + right + '")',
-                                );
-                        };
-                        dimleft.onerror = () => {
-                            // Image failed to load
-                            reject(new Error("Failed to load image."));
-                        };
-                        dimright.onerror = () => {
-                            // Image failed to load
-                            reject(new Error("Failed to load image."));
-                        };
-
-                        dimleft.src = left;
-                        dimright.src = right;
-                    });
                 }
             }
             function makeDecisionDialog(args) {
@@ -1205,67 +1271,42 @@ async function genStory(data, avatars = []) {
                                     scene.classList.contains("image");
                                 addCurrentScene();
                             }
-                            let imgurl = uri_background("bg_black");
-                            let altimgurl = uri_background(
-                                "bg_black",
-                                ASSET_SOURCE.ARKWAIFU,
-                            );
+                            let imgurls = [uri_background("bg_black")];
                             switch (cmd.toLowerCase()) {
                                 case "image":
                                     if (!args || !args.image) {
                                         if (
                                             wasDisplayingImage &&
-                                            lastBackgroundImage
+                                            lastBackgroundImage.length
                                         ) {
                                             // remove image, revert to prev background
-                                            imgurl = lastBackgroundImage;
+                                            imgurls = lastBackgroundImage;
                                         }
                                         break;
                                     }
-                                    imgurl = uri_image(args.image);
-                                    altimgurl = uri_image(
-                                        args.image,
-                                        ASSET_SOURCE.ARKWAIFU,
-                                    );
+                                    imgurls = [uri_image(args.image)];
                                     break;
                                 case "background":
-                                    imgurl = uri_background(args.image);
-                                    altimgurl = uri_background(
-                                        args.image,
-                                        ASSET_SOURCE.ACESHIP,
-                                    );
-                                    lastBackgroundImage = imgurl;
+                                    imgurls = [uri_background(args.image)];
+                                    lastBackgroundImage = imgurls;
                                     break;
                                 case "largebg":
-                                    imgurl = args.imagegroup
+                                    imgurls = args.imagegroup
                                         .split("/")
                                         .slice(0, 2)
                                         .map((x) => uri_background(x));
-                                    altimgurl = args.imagegroup
-                                        .split("/")
-                                        .slice(0, 2)
-                                        .map((x) =>
-                                            uri_background(
-                                                x,
-                                                ASSET_SOURCE.ACESHIP,
-                                            ),
-                                        );
-                                    lastBackgroundImage = imgurl;
+                                    lastBackgroundImage = imgurls;
                                     break;
                                 case "moduleimage":
-                                    imgurl = uri_uniequip(args.image);
+                                    imgurls = [uri_uniequip(args.image)];
                                     break;
                                 case "roguebackground":
-                                    imgurl = uri_image(args.image);
-                                    altimgurl = uri_image(
-                                        args.image,
-                                        ASSET_SOURCE.ARKWAIFU,
-                                    );
+                                    imgurls = [uri_image(args.image)];
                                     break;
                             }
                             scene = createScene(
-                                imgurl,
-                                altimgurl,
+                                imgurls,
+                                args,
                                 cmd.toLowerCase() == "image" &&
                                     args &&
                                     args.image,
@@ -1819,21 +1860,22 @@ function alignBackground(s) {
     let pos = s.getBoundingClientRect();
     let imheight = s.dataset.bgheight;
     let imwidth = s.dataset.bgwidth;
-    if (s.classList.contains("multipart"))
-        // adjust for zoom in
-        imheight = ((1.5 * pos.width) / imwidth) * imheight;
-    else imheight = (pos.width / imwidth) * imheight;
-    if (pos.top > realMidpoint - imheight / 2) {
-        s.style.backgroundPositionY = "top";
-        s.style.backgroundAttachment = "scroll";
+    const realimheight = (pos.width / imwidth) * imheight;
+    const viewportMiddle = window.innerHeight / 2; // middle of viewport, not realMidpoint
+    s.bg.classList.remove("uninitialized");
+    if (pos.top > realMidpoint - realimheight / 2) {
+        s.bg.style.top = "0";
+        s.bg.style.removeProperty("bottom");
         s.setAttribute("bgpos", "top");
-    } else if (pos.bottom < imheight / 2 + realMidpoint) {
-        s.style.backgroundPositionY = "bottom";
-        s.style.backgroundAttachment = "scroll";
+    } else if (pos.bottom < realimheight / 2 + realMidpoint) {
+        s.bg.style.removeProperty("top");
+        s.bg.style.bottom = "0";
         s.setAttribute("bgpos", "bottom");
     } else {
-        s.style.backgroundPositionY = "";
-        s.style.backgroundAttachment = "fixed";
+        s.bg.style.removeProperty("bottom");
+        s.bg.style.top = `calc(${
+            window.scrollY + viewportMiddle - s.offsetTop - realimheight / 2
+        }px + var(--topNav-height) / 2)`;
         s.setAttribute("bgpos", "fixed");
     }
 }

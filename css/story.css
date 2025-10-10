@@ -1,5 +1,9 @@
 :root {
-  --story-width: min(calc((100vmin - var(--topNav-height)) * 16 / 9), 95vw);
+  --story-width: min(
+    calc((100vmin - var(--topNav-height)) * 16 / 9),
+    calc(100vw - 60px),
+    1920px
+  ); /* 60px to leave space for scrollbar */
   --dialog-size: 6em;
 }
 @media (orientation: landscape) and (max-width: 1200px) {
@@ -7,7 +11,6 @@
     --story-width: 100vw;
   }
 }
-
 @font-face {
   font-family: "vn";
   src: url("../../webfonts/vn.woff2") format("woff2");
@@ -22,11 +25,6 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  background-image: var(--background-image-url);
-  background-size: var(--story-width) auto;
-  background-attachment: fixed;
-  background-position: center calc(50% + var(--topNav-height) / 2);
-  background-repeat: no-repeat;
 }
 /* set minHeight according to aspect ratio, default to 16:9 */
 .scene {
@@ -37,9 +35,6 @@
 .scene.video {
   /* wider ratio for videos */
   min-height: calc(var(--story-width) / 13 * 6);
-}
-.scene.multipart {
-  min-height: calc(1.5 * var(--story-width) / var(--bgwidth) * var(--bgheight));
 }
 .scene:before {
   content: "";
@@ -52,7 +47,8 @@
   width: 100%;
   height: 100%;
   position: absolute;
-  filter: blur(5px);
+  transform: scale(1.02); /* to remove the "box-shadow" created by blur */
+  filter: blur(10px);
   z-index: -1;
 }
 .scene.blockerPadded:after {
@@ -62,25 +58,6 @@
 }
 .scene:after {
   transition: opacity 0.5s;
-}
-.scene.multipart {
-  background-attachment: fixed, fixed;
-  background-size:
-    calc(0.75 * var(--story-width)) auto,
-    calc(0.75 * var(--story-width)) auto;
-  background-position:
-    calc(50% - 0.375 * var(--story-width)) calc(50% + var(--topNav-height) / 2),
-    calc(50% + 0.375 * var(--story-width)) calc(50% + var(--topNav-height) / 2);
-  background-repeat: no-repeat, no-repeat;
-}
-.scene.multipart:before {
-  /* this doesn't work as expected, only one bg will actually show due to cover + fixed (they overlap)*/
-  background-attachment: fixed, fixed;
-  background-size: cover, cover;
-  background-position:
-    center calc(50% + var(--topNav-height) / 2),
-    center calc(50% + var(--topNav-height) / 2);
-  background-repeat: no-repeat, no-repeat;
 }
 .scenebreak {
   width: 100%;
@@ -484,7 +461,7 @@ audio {
     visibility 0.2s,
     opacity 0.2s;
   position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
+  z-index: 4; /* Sit on top */
   left: 0;
   top: var(--topNav-height);
   width: 100%; /* Full width */
@@ -594,6 +571,11 @@ audio {
   opacity: 0;
   pointer-events: none;
 }
+#storyDisp.bg_only .scene .scene-background,
+#storyDisp[display-mode="2"] .scene .scene-background {
+  opacity: 1;
+  pointer-events: auto;
+}
 #storyDisp.bg_only .scene > .dlBtn,
 #storyDisp[display-mode="2"] .scene > .dlBtn {
   opacity: 0.85;
@@ -641,4 +623,19 @@ html {
 }
 .nav-center {
   overflow: hidden;
+}
+.scene-background {
+  position: absolute;
+  width: var(--story-width);
+  aspect-ratio: var(--aspectratio);
+  background: black;
+  padding: 0;
+  margin: 0;
+  background-repeat: no-repeat;
+  z-index: -1;
+  box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.75);
+  overflow: hidden;
+}
+.scene-background.uninitialized {
+  top: 0;
 }

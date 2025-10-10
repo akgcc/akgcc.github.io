@@ -23,7 +23,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: calc(100% - 10px - var(--topNav-height));
+  min-height: calc(100% - var(--topNav-height));
   align-content: center;
 }
 #filterWrapper input[type="number"] {
