@@ -1355,6 +1355,25 @@ async function genStory(data, avatars = []) {
                                 speaker = 0;
                             }
                             break;
+                        case "animtext":
+                            if (line[2]) {
+                                let html = line[2]
+                                    .replace(
+                                        /<p\s*=\s*(\d+)\s*>/g,
+                                        '<p data-lvl="$1">',
+                                    )
+                                    .replace(/<\/p\s*=\s*\d+\s*>/g, "</p>");
+                                let dlg = makeDialog(
+                                    null,
+                                    html,
+                                    {},
+                                    0,
+                                    0,
+                                    "animtext",
+                                );
+                                getWorkingScene().appendChild(dlg);
+                            }
+                            break;
                         case "sticker":
                         case "subtitle":
                             // chars = {};
@@ -1628,9 +1647,10 @@ async function genStory(data, avatars = []) {
                         case "curtain":
                         case "stickerclear":
                         case "skipnode":
+                        case "animtextclean":
                             break;
                         default:
-                            // console.log("line not parsed:", line);
+                            console.log("line not parsed:", line);
                             break;
                     }
                 } else if (line[2] && !line[2].trim().startsWith("//")) {
