@@ -1488,10 +1488,16 @@ async function genStory(data, avatars = []) {
                             audio.appendChild(sound);
 
                             if (cmd.toLowerCase() == "playsound") {
+                                let btn_wrap = document.createElement("div");
+                                btn_wrap.classList.add("soundBtn");
                                 let btn = document.createElement("i");
                                 btn.classList.add("fas");
                                 btn.classList.add("fa-volume-up");
-                                btn.classList.add("soundBtn");
+                                let label = document.createElement("span");
+                                label.classList.add("fileName");
+                                label.innerHTML = `${soundpath
+                                    .split("/")
+                                    .pop()}`;
                                 audioWrapper = document.createElement("div");
                                 audioWrapper.style.backgroundColor =
                                     lastBlockerColor.split(" ")[0];
@@ -1525,7 +1531,7 @@ async function genStory(data, avatars = []) {
                                     audio.nextSibling.classList.remove(
                                         "playing",
                                     );
-                                btn.addEventListener("click", () => {
+                                btn_wrap.addEventListener("click", () => {
                                     if (audio.paused) {
                                         audio.play();
                                     } else {
@@ -1546,7 +1552,9 @@ async function genStory(data, avatars = []) {
                                     }
                                 });
                                 audioWrapper.appendChild(audio);
-                                audioWrapper.appendChild(btn);
+                                btn_wrap.appendChild(btn);
+                                btn_wrap.appendChild(label);
+                                audioWrapper.appendChild(btn_wrap);
                                 audioWrapper.classList.add("dialog");
                                 audioWrapper.classList.add("soundPlayer");
                                 audioWrapper.audio = audio;
