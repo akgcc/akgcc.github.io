@@ -842,11 +842,9 @@ async function genStory(data, avatars = []) {
                     for (a of preSceneAudios) scene.appendChild(a);
                     preSceneAudios.length = 0;
                 }
-                scene.dataset.bgheight = 0;
-                scene.dataset.bgwidth = 0;
                 prepareBackground(imgurls, options).then(
                     ({ url: _img_url, naturalWidth, naturalHeight }) => {
-                        setSceneSize(naturalWidth, naturalHeight);
+                        alignBackground(scene);
                         let dl_btn = document.createElement("i");
                         dl_btn.classList.add("fas");
                         dl_btn.classList.add("fa-external-link-alt");
@@ -932,27 +930,10 @@ async function genStory(data, avatars = []) {
                     // scaling done by the game, 1.2x for normal (up to 1920x1080) 1.5x for multipart (up to 2760x1080) (factor depends on img size)
                     const internal_scale =
                         (isMultipart ? 2760 : 1920) / naturalWidth;
-                    const scaled_height =
-                        internal_scale * yscalefrom * naturalHeight;
-                    // scaling I am doing locally, scaled to fit the story reader/browser
+                    // scaling I am doing locally, to fit the story reader/browser
                     scene.style.setProperty(
                         "--bscale",
-                        `calc(var(--story-width) / ${naturalWidth}px)`,
-                    );
-                    // the height difference between the fully scaled image and the "browser scaled" image:
-                    // equiv to (full/final height) - (naturalheight*bscale)
-                    // scene.style.setProperty(
-                    //     "--hdiff",
-                    //     `calc(${naturalHeight}px * var(--story-width) / ${naturalWidth}px * (${internal_scale} * ${yscalefrom} - 1) / 2 )`,
-                    // );
-                    scene.style.setProperty(
-                        "--hdiff",
-                        `calc(${
-                            (naturalHeight *
-                                (internal_scale * yscalefrom - 1)) /
-                            2 /
-                            naturalWidth
-                        } * var(--story-width))`,
+                        `calc(var(--story-bg-width) / ${naturalWidth}px)`,
                     );
                     scene.style.setProperty(
                         "--adjustedX",
@@ -964,7 +945,7 @@ async function genStory(data, avatars = []) {
                     );
                     scene.style.setProperty(
                         "--half",
-                        `calc(var(--story-width) / ${
+                        `calc(var(--story-bg-width) / ${
                             naturalWidth / naturalHeight
                         } / 2)`,
                     );
@@ -975,7 +956,7 @@ async function genStory(data, avatars = []) {
 
                     Object.assign(bg.style, {
                         backgroundImage: `url(${finalUrl})`,
-                        backgroundSize: `calc(var(--story-width) * ${
+                        backgroundSize: `calc(var(--story-bg-width) * ${
                             xscalefrom * internal_scale
                         }) auto`,
                         backgroundPositionX: "calc(50% + var(--adjustedX))",
@@ -988,13 +969,6 @@ async function genStory(data, avatars = []) {
                         naturalHeight,
                         url: finalUrl,
                     };
-                }
-                function setSceneSize(w, h) {
-                    scene.dataset.bgheight = h;
-                    scene.dataset.bgwidth = w;
-                    scene.style.setProperty("--bgheight", h);
-                    scene.style.setProperty("--bgwidth", w);
-                    alignBackground(scene);
                 }
             }
             function makeDecisionDialog(args) {
@@ -1886,9 +1860,7 @@ function autoPlayMidPoint() {
 }
 function alignBackground(s) {
     let pos = s.getBoundingClientRect();
-    let imheight = s.dataset.bgheight;
-    let imwidth = s.dataset.bgwidth;
-    const realimheight = (pos.width / imwidth) * imheight;
+    const realimheight = s.bg.offsetHeight;
     const viewportMiddle = window.innerHeight / 2; // middle of viewport, not realMidpoint
     s.bg.classList.remove("uninitialized");
     if (pos.top > realMidpoint - realimheight / 2) {

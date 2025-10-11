@@ -1,14 +1,18 @@
 :root {
   --story-width: min(
     calc((100vmin - var(--topNav-height)) * 16 / 9),
-    calc(100vw - 60px),
-    1920px
-  ); /* 60px to leave space for scrollbar */
+    calc(100vw - var(--scrollbarWidth))
+  );
+  --story-bg-width: min(
+    var(--story-width),
+    calc((100vh - var(--topNav-height)) * 16 / 9)
+  );
   --dialog-size: 5.5em;
+  --aspectratio: 16 / 9;
 }
 @media (orientation: landscape) and (max-width: 1200px) {
   :root {
-    --story-width: 100vw;
+    --story-width: calc(100vw - var(--scrollbarWidth));
   }
 }
 @font-face {
@@ -26,15 +30,14 @@
   overflow: hidden;
   position: relative;
 }
-/* set minHeight according to aspect ratio, default to 16:9 */
+/* set minHeight according to aspect ratio, defaults to 16:9 */
 .scene {
-  --bgwidth: 16;
-  --bgheight: 9;
-  min-height: calc(var(--story-width) / var(--bgwidth) * var(--bgheight));
+  min-height: calc(var(--story-bg-width) / calc(var(--aspectratio)));
 }
 .scene.video {
   /* wider ratio for videos */
-  min-height: calc(var(--story-width) / 13 * 6);
+  min-height: calc(var(--story-bg-width) / 13 * 6);
+  min-height: 0;
 }
 .scene:before {
   content: "";
@@ -362,14 +365,16 @@ audio {
 }
 .scene[bgpos="fixed"] .dlBtn {
   top: calc(
-    50% - (var(--story-width) / var(--bgwidth)) * var(--bgheight) / 2 +
+    50% - var(--story-bg-width) / calc(var(--aspectratio)) / 2 +
       var(--topNav-height) / 2
   );
-  right: calc(50% - var(--story-width) / 2);
+  right: calc(
+    50% - var(--story-width) / 2
+  ); /* use full width (not bg) so its accessible on landscape */
   position: fixed;
 }
 .scene[bgpos="bottom"] .dlBtn {
-  top: calc(100% - var(--story-width) / var(--bgwidth) * var(--bgheight));
+  top: calc(100% - var(--story-bg-width) / calc(var(--aspectratio)));
 }
 
 .itemBtn,
@@ -561,7 +566,7 @@ audio {
   padding: 0;
   margin: 0;
 }
-#storyDisp:not([display-mode="0"]) .soundPlayer i {
+#storyDisp:not([display-mode="0"]) .soundBtn {
   display: none;
 }
 #storyDisp.bg_only .scene:after,
@@ -626,7 +631,7 @@ html {
 }
 .scene-background {
   position: absolute;
-  width: var(--story-width);
+  width: var(--story-bg-width);
   aspect-ratio: var(--aspectratio);
   background: black;
   padding: 0;
@@ -635,6 +640,8 @@ html {
   z-index: -1;
   box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.75);
   overflow: hidden;
+  left: 50%;
+  transform: translateX(-50%);
 }
 .scene-background.uninitialized {
   top: 0;

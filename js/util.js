@@ -146,6 +146,14 @@ if (USE_ALTERNATE_YOSTAR_DATA) {
     "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/master/kr";
 }
 const serverString = localStorage.getItem("server") || "en_US";
+const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+if (scrollbarWidth > 0) {
+  document.documentElement.style.setProperty(
+    "--scrollbarWidth",
+    scrollbarWidth + "px",
+  );
+} else document.documentElement.style.setProperty("--scrollbarWidth", "0px");
+
 const CLASS_MAPPING = {
   WARRIOR: "Guard",
   SUPPORT: "Supporter",
