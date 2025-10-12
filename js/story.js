@@ -738,15 +738,10 @@ async function genStory(data, avatars = []) {
                 chars = {},
                 speakerList = new Set(),
                 preSceneAudios = [],
-                lastBlockerColor = "rgba(0,0,0,0)",
+                lastBlockerColor,
                 hangingBlocker,
                 multiLineData = {};
-            function addBlocker(
-                start_color,
-                end_color,
-                fadein = false,
-                prepend = false,
-            ) {
+            function addBlocker(start_color, end_color, prepend = false) {
                 const blocker = document.createElement("div");
                 blocker.classList.add("dialog");
                 blocker.classList.add("blocker");
@@ -761,34 +756,49 @@ async function genStory(data, avatars = []) {
                     return color;
                 }
                 const blockerOpacity = 1;
-                end_color = colorStringToObject(end_color);
+                if (start_color == undefined) {
+                    start_color = { a: 1 };
+                    blocker.style.setProperty(
+                        "--start-color",
+                        "var(--main-background-color)",
+                    );
+                } else {
+                    blocker.style.setProperty("--start-color", start_color);
+                }
+                end_color_obj = colorStringToObject(end_color);
                 start_color_obj = colorStringToObject(start_color);
                 if (start_color_obj.a == 0 && end_color.a == 0)
                     blocker.classList.add("nochange"); // fading from a=0 to a=0,
+
                 if (
-                    "a" in end_color &&
-                    "r" in end_color &&
-                    "g" in end_color &&
-                    "b" in end_color
+                    "a" in end_color_obj &&
+                    "r" in end_color_obj &&
+                    "g" in end_color_obj &&
+                    "b" in end_color_obj
                 ) {
-                    end_color = `rgba(${end_color.r},${end_color.g},${
-                        end_color.b
-                    },${parseFloat(end_color.a) * blockerOpacity})`;
-                } else if ("a" in end_color) {
+                    end_color = `rgba(${end_color_obj.r},${end_color_obj.g},${
+                        end_color_obj.b
+                    },${parseFloat(end_color_obj.a) * blockerOpacity})`;
+                } else if ("a" in end_color_obj) {
                     end_color = `rgba(0,0,0,${
-                        parseFloat(end_color.a) * blockerOpacity
+                        parseFloat(end_color_obj.a) * blockerOpacity
                     })`;
                 }
-                blocker.style.setProperty("--start-color", start_color);
+
                 blocker.style.setProperty("--end-color", end_color);
-                if (fadein) {
-                    blocker.classList.add("fadein"); // fade to opaque
+
+                if (start_color_obj.a > end_color_obj.a) {
+                    // this is a fadeout
+                    blocker.classList.add("fadeout");
                 } else {
-                    blocker.classList.add("fadeout"); // fade to transparent
+                    blocker.classList.add("fadein");
                 }
                 if (!prepend) lastBlockerColor = end_color;
-                if (prepend) scene.prepend(blocker);
-                else scene.appendChild(blocker);
+                if (scene) {
+                    // if scene isn't init we still can track lastBlockerColor
+                    if (prepend) scene.prepend(blocker);
+                    else scene.appendChild(blocker);
+                }
                 return blocker;
             }
             function addSceneBreak(requireBreak) {
@@ -863,9 +873,8 @@ async function genStory(data, avatars = []) {
                             .match(/\d+(\.\d+)?/g)
                             .map(Number)[3] ?? 1;
                     blocker = addBlocker(
-                        alpha == 1 ? scene_start_color : "rgb(0,0,0)",
+                        alpha > 0 ? scene_start_color : "rgb(0,0,0)",
                         scene_start_color,
-                        false,
                         true,
                     );
                     // if this is the topmost fade, fade from the story header color instead
@@ -1630,12 +1639,8 @@ async function genStory(data, avatars = []) {
                             break;
                         case "blocker":
                             // responsible for fade effects/fade to black for certain lines
-                            if (scene && args && "fadetime" in args) {
-                                addBlocker(
-                                    lastBlockerColor,
-                                    args,
-                                    "a" in args && parseFloat(args.a),
-                                );
+                            if (args && "fadetime" in args) {
+                                addBlocker(lastBlockerColor, args);
                             }
                             break;
                         case "video":
@@ -1682,6 +1687,10 @@ async function genStory(data, avatars = []) {
                         case "stickerclear":
                         case "skipnode":
                         case "animtextclean":
+                        case "interlude":
+                        // sfx
+                        case "focusout":
+                        case "focusin":
                             break;
                         default:
                             console.log("line not parsed:", line);
