@@ -740,12 +740,90 @@ async function genStory(data, avatars = []) {
                 lastBlockerColor = "rgba(0,0,0,0)",
                 hangingBlocker,
                 multiLineData = {};
+            function addBlocker(
+                start_color,
+                end_color,
+                fadein = false,
+                prepend = false,
+            ) {
+                const blocker = document.createElement("div");
+                blocker.classList.add("dialog");
+                blocker.classList.add("blocker");
+                blocker.style.height =
+                    Math.max(1, Math.min(2, parseFloat(args.fadetime))) + "em";
+                function colorStringToObject(color) {
+                    if (typeof color == "object") return color;
+
+                    const [r, g, b, a] = color
+                        .match(/\d+(\.\d+)?/g)
+                        .map(Number);
+                    return { r, g, b, a: a ?? 1 };
+                    return color;
+                }
+                const blockerOpacity = 1;
+                end_color = colorStringToObject(end_color);
+                start_color_obj = colorStringToObject(start_color);
+                if (start_color_obj.a == 0 && end_color.a == 0)
+                    blocker.classList.add("nochange"); // fading from a=0 to a=0,
+                if (
+                    "a" in end_color &&
+                    "r" in end_color &&
+                    "g" in end_color &&
+                    "b" in end_color
+                ) {
+                    end_color = `rgba(${end_color.r},${end_color.g},${
+                        end_color.b
+                    },${parseFloat(end_color.a) * blockerOpacity})`;
+                } else if ("a" in end_color) {
+                    end_color = `rgba(0,0,0,${
+                        parseFloat(end_color.a) * blockerOpacity
+                    })`;
+                }
+                blocker.style.setProperty("--start-color", start_color);
+                blocker.style.setProperty("--end-color", end_color);
+                if (fadein) {
+                    blocker.classList.add("fadein"); // fade to opaque
+                } else {
+                    blocker.classList.add("fadeout"); // fade to transparent
+                }
+                if (!prepend) lastBlockerColor = end_color;
+                if (prepend) scene.prepend(blocker);
+                else scene.appendChild(blocker);
+                return blocker;
+            }
             function addSceneBreak(requireBreak) {
+                // add filler div if needed
+
+                let scene_start_color = "rgba(0,0,0,0)";
+                let end_color = "rgba(0,0,0,1)";
+                if (
+                    parseFloat(
+                        /(?:[\.\d]+,){3}([\.\d]+)/.exec(lastBlockerColor)[1],
+                    ) &&
+                    (!lastBlocker || lastBlocker.classList.contains("fadein"))
+                ) {
+                    // apply opaque blocker color to rest of scene.
+                    end_color = lastBlockerColor.split(" ")[0];
+                    scene.style.setProperty("--fill-blocker", end_color);
+                    scene.classList.add("blockerPadded");
+                    scene_start_color = end_color;
+                }
+                // --fill-blocker should be used as the scenebreak color if no lastblock is found
+
                 let scenebreak = document.createElement("div");
                 scenebreak.classList.add("scenebreak");
                 storyDiv.appendChild(scenebreak);
                 lastBlocker = null;
 
+                Array.from(scene.children).some((el) => {
+                    if (el.classList.contains("dialog")) {
+                        scene_start_color =
+                            el.style.backgroundColor ||
+                            el.style.getPropertyValue("--start-color") ||
+                            "rgba(0,0,0,0)";
+                        return true;
+                    }
+                });
                 Array.from(scene.children)
                     .reverse()
                     .some((el) => {
@@ -753,13 +831,11 @@ async function genStory(data, avatars = []) {
                             lastBlocker = lastBlocker || el;
                             if (el.classList.contains("fadein")) {
                                 //color scenebreak based on last blocker
-                                scenebreak.style.background = `linear-gradient(${el.style.getPropertyValue(
-                                    "--end-color",
-                                )},${el.style.getPropertyValue(
-                                    "--end-color",
-                                )}), linear-gradient(#000,#000)`;
+                                end_color =
+                                    el.style.getPropertyValue("--end-color");
                                 let spacer = document.createElement("div");
                                 spacer.classList.add("blocker");
+                                spacer.classList.add("spacer-blocker");
                                 spacer.style.flex = 99999;
                                 spacer.style.backgroundColor =
                                     el.style.getPropertyValue("--start-color");
@@ -777,20 +853,28 @@ async function genStory(data, avatars = []) {
                             if (el.classList.contains("fadeout")) return true;
                         }
                     });
-
+                let firstDialog = scene.children[1];
                 if (
-                    parseFloat(
-                        /(?:[\.\d]+,){3}([\.\d]+)/.exec(lastBlockerColor)[1],
-                    ) &&
-                    (!lastBlocker || lastBlocker.classList.contains("fadein"))
+                    firstDialog?.classList.contains("spacer-blocker") ||
+                    !firstDialog?.classList.contains("blocker")
                 ) {
-                    // apply opaque blocker color to rest of scene.
-                    scene.style.setProperty(
-                        "--fill-blocker",
-                        lastBlockerColor.split(" ")[0],
+                    const alpha =
+                        scene_start_color
+                            .match(/\d+(\.\d+)?/g)
+                            .map(Number)[3] ?? 1;
+                    blocker = addBlocker(
+                        alpha == 1 ? scene_start_color : "#000",
+                        scene_start_color,
+                        false,
+                        true,
                     );
-                    scene.classList.add("blockerPadded");
                 }
+                scenebreak.style.setProperty(
+                    "--end-color",
+                    end_color.replace(/rgba?\(([^)]+),[^)]+\)/, "rgb($1)"),
+                ); // remove alpha component as scenebreak is solid.
+                scenebreak.style.setProperty("--start-color", "#0000"); // fade out from #0000 otherwise opacity will overlap
+                scenebreak.style.background = `linear-gradient(${end_color},${end_color}), linear-gradient(#000,#000)`;
             }
             function addCurrentScene(requireBreak = false) {
                 // do not add the scene if it has no children, is not an image, and is not full of blockers only.
@@ -1544,46 +1628,11 @@ async function genStory(data, avatars = []) {
                         case "blocker":
                             // responsible for fade effects/fade to black for certain lines
                             if (scene && args && "fadetime" in args) {
-                                let blocker = document.createElement("div");
-                                blocker.classList.add("dialog");
-                                blocker.classList.add("blocker");
-                                blocker.style.height =
-                                    Math.max(
-                                        1,
-                                        Math.min(
-                                            4,
-                                            parseFloat(args.fadetime) * 2,
-                                        ),
-                                    ) + "em";
-                                let color = "rgba(0,0,0,1)";
-                                const blockerOpacity = 1;
-
-                                if (
-                                    "a" in args &&
-                                    "r" in args &&
-                                    "g" in args &&
-                                    "b" in args
-                                ) {
-                                    color = `rgba(${args.r},${args.g},${
-                                        args.b
-                                    },${parseFloat(args.a) * blockerOpacity})`;
-                                } else if ("a" in args) {
-                                    color = `rgba(0,0,0,${
-                                        parseFloat(args.a) * blockerOpacity
-                                    })`;
-                                }
-                                blocker.style.setProperty(
-                                    "--start-color",
+                                addBlocker(
                                     lastBlockerColor,
+                                    args,
+                                    "a" in args && parseFloat(args.a),
                                 );
-                                blocker.style.setProperty("--end-color", color);
-                                if ("a" in args && parseFloat(args.a)) {
-                                    blocker.classList.add("fadein"); // fade to opaque
-                                } else {
-                                    blocker.classList.add("fadeout"); // fade to transparent
-                                }
-                                lastBlockerColor = color;
-                                scene.appendChild(blocker);
                             }
                             break;
                         case "video":
