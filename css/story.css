@@ -29,6 +29,7 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  background: black; /* placeholder if image doesn't load */
 }
 /* set minHeight according to aspect ratio, defaults to 16:9 */
 .scene {
@@ -88,6 +89,7 @@
 }
 .scenebreak::after {
   /* this will be hidden/clipped by the next scene and never visible. */
+  content: none;
   top: 100%;
   background: radial-gradient(
     200% 200% at 50% 100%,

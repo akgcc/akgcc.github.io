@@ -1043,7 +1043,6 @@ async function genStory(data, avatars = []) {
                         "--aspectratio",
                         `${naturalWidth} / ${naturalHeight}`,
                     );
-
                     Object.assign(bg.style, {
                         backgroundImage: `url(${finalUrl})`,
                         backgroundSize: `calc(var(--story-bg-width) * ${
@@ -1052,7 +1051,6 @@ async function genStory(data, avatars = []) {
                         backgroundPositionX: "calc(50% + var(--adjustedX))",
                         backgroundPositionY: "calc(50% + var(--adjustedY))",
                     });
-                    // requestAnimationFrame(() => (scene.style.opacity = 1));
 
                     return {
                         naturalWidth,
@@ -1067,7 +1065,6 @@ async function genStory(data, avatars = []) {
 
                 vals = vals.slice(0, choices.length); // fixes some broken script files.
                 let doctorSpeaking = !(CURRENT_STORY in DecisionNotDoctor);
-                // keys.forEach((key, i) => result[key] = values[i]);
                 let dialog = makeDialog(
                     doctorSpeaking
                         ? { name: "Dr {@nickname}" }
