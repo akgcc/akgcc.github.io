@@ -29,7 +29,6 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  background: black; /* placeholder if image doesn't load */
 }
 /* set minHeight according to aspect ratio, defaults to 16:9 */
 .scene {
@@ -42,7 +41,7 @@
 }
 .scene:before {
   content: "";
-  background-color: var(--main-background-color);
+  background-color: black;
   background-image: var(--background-image-url);
   background-size: cover;
   background-attachment: fixed;
@@ -633,6 +632,12 @@ audio {
   opacity: 0.85;
   pointer-events: auto;
 }
+#storyDisp[display-mode="2"] .scene-background {
+  box-shadow: none;
+}
+#storyDisp[display-mode="2"] .scenebreak::before {
+  content: none;
+}
 #ccselector {
   justify-content: center;
 }
@@ -689,6 +694,7 @@ html {
   overflow: hidden;
   left: 50%;
   transform: translateX(-50%);
+  background-color: black;
 }
 .scene-background.uninitialized {
   top: 0;
