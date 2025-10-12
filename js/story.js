@@ -33,7 +33,8 @@ var operatorData,
     enableSoundAutoplay = false,
     moduleStory,
     rogueStory,
-    storyTable;
+    storyTable,
+    lastBlocker;
 soundQueue.max_size = 5;
 longSoundQueue.max_size = 2;
 const shortAudioMaxLen = 3.5;
@@ -863,18 +864,24 @@ async function genStory(data, avatars = []) {
                             .match(/\d+(\.\d+)?/g)
                             .map(Number)[3] ?? 1;
                     blocker = addBlocker(
-                        alpha == 1 ? scene_start_color : "#000",
+                        alpha == 1 ? scene_start_color : "rgb(0,0,0)",
                         scene_start_color,
                         false,
                         true,
                     );
+                    // if this is the topmost fade, fade from the story header color instead
+                    if (allScenes.length == 1)
+                        blocker.style.setProperty(
+                            "--start-color",
+                            "var(--main-background-color)",
+                        );
                 }
                 scenebreak.style.setProperty(
                     "--end-color",
                     end_color.replace(/rgba?\(([^)]+),[^)]+\)/, "rgb($1)"),
                 ); // remove alpha component as scenebreak is solid.
-                scenebreak.style.setProperty("--start-color", "#0000"); // fade out from #0000 otherwise opacity will overlap
-                scenebreak.style.background = `linear-gradient(${end_color},${end_color}), linear-gradient(#000,#000)`;
+                scenebreak.style.setProperty("--start-color", "rgba(0,0,0,0)"); // fade out from #0000 otherwise opacity will overlap
+                scenebreak.style.background = `linear-gradient(${end_color},${end_color}), linear-gradient(rgb(0,0,0),rgb(0,0,0))`;
             }
             function addCurrentScene(requireBreak = false) {
                 // do not add the scene if it has no children, is not an image, and is not full of blockers only.

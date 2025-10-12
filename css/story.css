@@ -101,7 +101,7 @@
   height: 1em;
 }
 .blocker.nochange {
-  height: 0px;
+  height: 0px !important;
 }
 .blocker.fadein {
   background: radial-gradient(
@@ -426,7 +426,19 @@ audio {
   background: #222e;
   cursor: pointer;
 }
-
+.soundBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.1em 0.3em;
+  font-size: 1.2rem;
+  width: max-content;
+}
+.soundBtn .fileName {
+  display: inline-block;
+  white-space: nowrap;
+  user-select: none;
+}
 @media (hover: hover) {
   .itemBtn:hover,
   .soundBtn:hover {
@@ -696,16 +708,9 @@ html {
     inset 0 0 0 1px rgba(255, 255, 255, 0.15),
     inset 0 0 0.5em rgba(255, 255, 255, 0.1);
 }
-.soundBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3em;
-  padding: 0.1em 0.3em;
-  font-size: 1.2rem;
-  width: max-content;
+.btnPanel {
+  padding-bottom: 8px;
 }
-.soundBtn .fileName {
-  display: inline-block;
-  white-space: nowrap;
-  user-select: none;
+.btnPanel i {
+  font-size: 2em;
 }
