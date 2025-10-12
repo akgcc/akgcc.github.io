@@ -750,8 +750,7 @@ async function genStory(data, avatars = []) {
                 const blocker = document.createElement("div");
                 blocker.classList.add("dialog");
                 blocker.classList.add("blocker");
-                blocker.style.height =
-                    Math.max(1, Math.min(2, parseFloat(args.fadetime))) + "em";
+                // blocker.style.height = Math.max(1, Math.min(2, parseFloat(args.fadetime))) + "em";
                 function colorStringToObject(color) {
                     if (typeof color == "object") return color;
 
