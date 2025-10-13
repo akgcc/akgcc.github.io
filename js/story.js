@@ -1061,7 +1061,6 @@ async function genStory(data, avatars = []) {
                     // internal_scale represents the game autoscaling Images up to fill the screen
                     // coverall should be the same as our --bscale
                     if (options.screenadapt == "coverall") internal_scale = 1;
-
                     // scaling I am doing locally, to fit the story reader/browser
                     scene.style.setProperty(
                         "--bscale",
@@ -1346,6 +1345,7 @@ async function genStory(data, avatars = []) {
                             break;
                         case "moduleimage":
                         case "background":
+                            args.screenadapt = args.screenadapt ?? "coverall";
                         case "gridbg":
                             if (
                                 cmd.toLowerCase() == "gridbg" &&
