@@ -34,7 +34,8 @@ var operatorData,
     moduleStory,
     rogueStory,
     storyTable,
-    lastBlocker;
+    lastBlocker,
+    freshScene;
 soundQueue.max_size = 5;
 longSoundQueue.max_size = 2;
 const shortAudioMaxLen = 3.5;
@@ -934,7 +935,18 @@ async function genStory(data, avatars = []) {
                 }
                 return scene;
             }
+            function applyTween(el, options) {
+                const xscalefrom = options.xscale ?? options.xscalefrom;
+                // const yscalefrom = options.yscale ?? options.yscalefrom;
+                const x = options.x ?? options.xfrom;
+                const y = options.y ?? options.yfrom;
+                if (xscalefrom != null)
+                    el.style.setProperty("--xscalefrom", `${xscalefrom}`);
+                if (x != null) el.style.setProperty("--xfrom", `${x}px`);
+                if (y != null) el.style.setProperty("--yfrom", `${y}px`);
+            }
             function createScene(imgurls, options, cmd) {
+                freshScene = true;
                 const isMultipart = imgurls.length !== 1;
                 chars = {};
                 speaker = 0;
@@ -977,12 +989,6 @@ async function genStory(data, avatars = []) {
 
                 async function prepareBackground(imgUrls, options) {
                     let finalUrl, naturalWidth, naturalHeight;
-                    const xscalefrom =
-                        options.xscale ?? options.xscalefrom ?? 1;
-                    const yscalefrom =
-                        options.yscale ?? options.yscalefrom ?? 1;
-                    const x = options.x ?? options.xfrom ?? 0;
-                    const y = options.y ?? options.yfrom ?? 0;
                     let internal_scale = 1;
                     if (!isMultipart) {
                         // single image: use it directly
@@ -1058,41 +1064,30 @@ async function genStory(data, avatars = []) {
                     // internal_scale represents the game autoscaling Images up to fill the screen
                     // coverall should be the same as our --bscale
                     if (options.screenadapt == "coverall") internal_scale = 1;
+                    const xscalefrom =
+                        options.xscale ?? options.xscalefrom ?? 1;
+                    const x = options.x ?? options.xfrom ?? 0;
+                    const y = options.y ?? options.yfrom ?? 0;
                     // scaling I am doing locally, to fit the story reader/browser
-                    scene.style.setProperty(
+                    // this may have issues on images with <> 16:9 aspect ratio
+                    bg.style.setProperty(
                         "--bscale",
                         `calc(var(--story-bg-width) / ${naturalWidth}px)`,
                     );
                     if (options.screenadapt == "coverall")
-                        scene.style.setProperty("--bscale", `1`);
-                    scene.style.setProperty(
-                        "--adjustedX",
-                        `calc(${x}px * ${internal_scale} * var(--bscale))`,
-                    );
-                    scene.style.setProperty(
-                        "--adjustedY",
-                        `calc(${-y}px * ${internal_scale} * var(--bscale))`,
-                    );
-                    scene.style.setProperty(
-                        "--half",
-                        `calc(var(--story-bg-width) / ${
-                            naturalWidth / naturalHeight
-                        } / 2)`,
-                    );
+                        bg.style.setProperty("--bscale", `1`);
                     const cornerAnchor = ["gridbg", "largebgtween"].includes(
                         cmd,
                     );
                     Object.assign(bg.style, {
                         backgroundImage: `url(${finalUrl})`,
-                        backgroundSize: `calc(var(--story-bg-width) * ${
-                            xscalefrom * internal_scale
-                        }) auto`,
+                        backgroundSize: `calc(var(--story-bg-width) * var(--xscalefrom, ${xscalefrom}) * ${internal_scale}) auto`,
                         backgroundPositionX: `calc(${
                             cornerAnchor ? "0%" : "50%"
-                        } + var(--adjustedX))`,
+                        } + var(--xfrom, ${x}px) * ${internal_scale} * var(--bscale))`,
                         backgroundPositionY: `calc(${
                             cornerAnchor ? "0%" : "50%"
-                        } + var(--adjustedY))`,
+                        } - var(--yfrom, ${y}px) * ${internal_scale} * var(--bscale))`,
                     });
 
                     return {
@@ -1170,6 +1165,7 @@ async function genStory(data, avatars = []) {
                 colorIndex = 0,
                 type = null,
             ) {
+                freshScene = false;
                 let wrap = document.createElement("div");
                 wrap.classList.add("dialog");
                 wrap.classList.add("forceShow");
@@ -1705,6 +1701,7 @@ async function genStory(data, avatars = []) {
                         case "imagetween":
                         case "backgroundtween":
                         case "largebgtween":
+                            if (freshScene) applyTween(scene.bg, args);
                             break;
                         case "header":
                         case "delay":
@@ -1735,6 +1732,7 @@ async function genStory(data, avatars = []) {
                         // vfx
                         case "focusout":
                         case "focusin":
+                        case "warp":
                             break;
                         default:
                             console.log("line not parsed:", line);
