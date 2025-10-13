@@ -747,7 +747,13 @@ async function genStory(data, avatars = []) {
                 blocker.classList.add("blocker");
                 // blocker.style.height = Math.max(1, Math.min(2, parseFloat(args.fadetime))) + "em";
                 function colorStringToObject(color) {
-                    if (typeof color == "object") return color;
+                    // if already an obj convert values to numbers then return.
+                    if (typeof color === "object") {
+                        ["r", "g", "b", "a"].forEach((k) => {
+                            if (k in color) color[k] = Number(color[k]);
+                        });
+                        return color;
+                    }
                     const [r, g, b, a] = color
                         .match(/\d+(\.\d+)?/g)
                         .map(Number);
@@ -782,7 +788,7 @@ async function genStory(data, avatars = []) {
                 }
                 const blockerOpacity = 1;
                 if (allScenes.length == 0) {
-                    start_color = { a: 1 };
+                    start_color = { r: 38, g: 38, b: 38, a: 1 }; // doesn't need to be set exactly, a:1 is all that's needed
                     blocker.style.setProperty(
                         "--start-color",
                         "var(--main-background-color)",
@@ -922,11 +928,14 @@ async function genStory(data, avatars = []) {
                     );
                     blocker.classList.add("special"); // only used for debug
                     // if this is the topmost fade, fade from the story header color instead
-                    if (allScenes.length == 1)
+                    if (allScenes.length == 1) {
                         blocker.style.setProperty(
                             "--start-color",
                             "var(--main-background-color)",
                         );
+                        blocker.classList.remove("nochange");
+                        blocker.classList.add("fadeout"); // looks nicer at top of storyDisp
+                    }
                 }
                 scenebreak.style.setProperty(
                     "--end-color",
