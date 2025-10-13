@@ -77,6 +77,7 @@ const customStoryNames = {
         style: { color: "lightblue" },
     },
 };
+const storyDiv = document.getElementById("storyDisp");
 var CURRENT_STORY;
 get_char_table(false, serverString)
     .then((js) => {
@@ -713,7 +714,6 @@ async function genStory(data, avatars = []) {
                 txt = `[roguebackground(image="${data.storyBackground}")]\n${txt}`;
             }
             const lines = txt.matchAll(/^(\[[^\]]+])?(.*)?$/gim);
-            let storyDiv = document.getElementById("storyDisp");
             key.startsWith("uniequip")
                 ? storyDiv.classList.add("module")
                 : storyDiv.classList.remove("module");
@@ -1116,7 +1116,7 @@ async function genStory(data, avatars = []) {
                     // this may have issues on images with <> 16:9 aspect ratio
                     bg.style.setProperty(
                         "--bscale",
-                        `calc(var(--story-bg-width) / ${naturalWidth}px)`,
+                        `var(--story-width-unitless) / ${naturalWidth}`,
                     );
                     if (options.screenadapt == "coverall")
                         bg.style.setProperty("--bscale", `1`);
@@ -1125,7 +1125,8 @@ async function genStory(data, avatars = []) {
                     );
                     Object.assign(bg.style, {
                         backgroundImage: `url(${finalUrl})`,
-                        backgroundSize: `calc(var(--story-bg-width) * var(--xscalefrom, ${xscalefrom}) * ${internal_scale}) auto`,
+                        // 100% is effectively --story-bg-width
+                        backgroundSize: `calc(100% * var(--xscalefrom, ${xscalefrom}) * ${internal_scale}) auto`,
                         backgroundPositionX: `calc(${
                             cornerAnchor ? "0%" : "50%"
                         } + var(--xfrom, ${x}px) * ${internal_scale} * var(--bscale))`,
@@ -2145,6 +2146,11 @@ function autoPlaySounds() {
 function scrollFunction() {
     autoPlayPoint = autoPlayMidPoint();
     realMidpoint = adjustedMidpoint();
+    // --story-width-unitless is a hack to get this working on firefox.
+    storyDiv.style.setProperty(
+        "--story-width-unitless",
+        `${storyDiv.offsetWidth}`,
+    );
     if (
         document.body.scrollTop > topNavHeight ||
         document.documentElement.scrollTop > topNavHeight
