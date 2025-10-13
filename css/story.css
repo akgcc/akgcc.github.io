@@ -118,6 +118,12 @@
     var(--start-color) 50%
   );
 }
+.blocker.spacer-blocker {
+  flex: 0.8 1 0%;
+}
+.blocker.spacer-blocker.fullHeight {
+  flex: 99999 1 0%;
+}
 #storyDisp {
   display: flex;
   flex-direction: column;

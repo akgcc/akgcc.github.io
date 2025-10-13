@@ -796,9 +796,19 @@ async function genStory(data, avatars = []) {
                     );
                 }
                 end_color_obj = colorStringToObject(end_color);
-
-                if (start_color_obj.a == 0 && end_color_obj.a == 0)
-                    blocker.classList.add("nochange"); // fading from a=0 to a=0,
+                function colorEqual(c1, c2) {
+                    return (
+                        (c1.r ?? 0) == (c2.r ?? 0) &&
+                        (c1.g ?? 0) == (c2.g ?? 0) &&
+                        (c1.b ?? 0) == (c2.b ?? 0) &&
+                        (c1.a ?? 0) == (c2.a ?? 0)
+                    );
+                }
+                if (
+                    (start_color_obj.a == 0 && end_color_obj.a == 0) ||
+                    colorEqual(start_color_obj, end_color_obj)
+                )
+                    blocker.classList.add("nochange"); // set height to 0 if blocker changes nothing
 
                 end_color = colorObjectToString(end_color_obj);
                 blocker.style.setProperty("--end-color", end_color);
@@ -839,15 +849,27 @@ async function genStory(data, avatars = []) {
                         return true;
                     }
                 });
+                let sceneEndsWithFade = true;
                 Array.from(scene.children)
                     .reverse()
                     .some((el) => {
-                        if (el.classList.contains("blocker")) {
+                        if (
+                            el.classList.contains("blocker") &&
+                            !el.classList.contains("nochange")
+                        ) {
                             lastBlocker = lastBlocker || el;
                             if (el.classList.contains("fadein")) {
                                 //color scenebreak based on last blocker
                                 end_color =
                                     el.style.getPropertyValue("--end-color");
+                                let spacer = document.createElement("div");
+                                spacer.classList.add("blocker");
+                                spacer.classList.add("spacer-blocker");
+                                spacer.style.backgroundColor =
+                                    el.style.getPropertyValue("--start-color");
+                                if (sceneEndsWithFade)
+                                    spacer.classList.add("fullHeight");
+                                el.before(spacer);
                                 // if last element is soundplayer, don't need a scene break.
                                 if (
                                     !requireBreak &&
@@ -859,6 +881,9 @@ async function genStory(data, avatars = []) {
                                 return true;
                             }
                             if (el.classList.contains("fadeout")) return true;
+                        } else if (el.classList.contains("dialog")) {
+                            // non-blocker after the blocker, don't expand spacer fully
+                            sceneEndsWithFade = false;
                         }
                     });
                 if (
