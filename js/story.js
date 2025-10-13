@@ -1526,6 +1526,20 @@ async function genStory(data, avatars = []) {
                                 getWorkingScene().appendChild(dlg);
                             }
                             break;
+                        case "title":
+                        case "div":
+                            // [Title] and [Div] used exclusively in IS2 monthlies (for now, hopefully that won't change.)
+                            if (line?.[2]) {
+                                let dlg = makeDialog(
+                                    null,
+                                    line[2],
+                                    {},
+                                    0,
+                                    0,
+                                    "subtitle",
+                                );
+                                getWorkingScene().appendChild(dlg);
+                            }
                         case "sticker":
                         case "subtitle":
                             // chars = {};
@@ -1776,6 +1790,9 @@ async function genStory(data, avatars = []) {
                         case "focusout":
                         case "focusin":
                         case "warp":
+                        case "timersticker":
+                        //on-screen timer (runs in real time)
+                        case "timerclear":
                             break;
                         default:
                             console.log("line not parsed:", line);
