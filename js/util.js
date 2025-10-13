@@ -799,6 +799,15 @@ function countWords(str, server = serverString) {
     return str.trim().split(/\s+/).filter(Boolean).length;
   return str.trim().length;
 }
+function getViewportTop(el) {
+  let top = 0;
+  let node = el;
+  while (node) {
+    top += node.offsetTop || 0;
+    node = node.offsetParent;
+  }
+  return top - window.scrollY;
+}
 window.onload = () => {
   const serverSelect = document.getElementById("serverSelect");
   if (serverSelect) {

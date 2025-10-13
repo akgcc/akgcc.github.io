@@ -928,17 +928,13 @@ async function genStory(data, avatars = []) {
                 storyDiv.appendChild(scene);
                 addSceneBreak(requireBreak);
             }
-            function getWorkingScene(imageScene = false) {
+            function getWorkingScene() {
                 if (!scene) {
-                    scene = createScene(
-                        [uri_background("bg_black")],
-                        {},
-                        imageScene,
-                    );
+                    scene = createScene([uri_background("bg_black")], {}, "");
                 }
                 return scene;
             }
-            function createScene(imgurls, options, isImage) {
+            function createScene(imgurls, options, cmd) {
                 const isMultipart = imgurls.length !== 1;
                 chars = {};
                 speaker = 0;
@@ -949,7 +945,8 @@ async function genStory(data, avatars = []) {
                 bg.classList.add("uninitialized");
                 scene.appendChild(bg);
                 scene.bg = bg;
-                if (isImage) scene.classList.add("image");
+                if (cmd == "image" && options?.image)
+                    scene.classList.add("image");
                 if (hangingBlocker) {
                     scene.appendChild(hangingBlocker);
                     hangingBlocker = null;
@@ -1082,13 +1079,20 @@ async function genStory(data, avatars = []) {
                             naturalWidth / naturalHeight
                         } / 2)`,
                     );
+                    const cornerAnchor = ["gridbg", "largebgtween"].includes(
+                        cmd,
+                    );
                     Object.assign(bg.style, {
                         backgroundImage: `url(${finalUrl})`,
                         backgroundSize: `calc(var(--story-bg-width) * ${
                             xscalefrom * internal_scale
                         }) auto`,
-                        backgroundPositionX: "calc(50% + var(--adjustedX))",
-                        backgroundPositionY: "calc(50% + var(--adjustedY))",
+                        backgroundPositionX: `calc(${
+                            cornerAnchor ? "0%" : "50%"
+                        } + var(--adjustedX))`,
+                        backgroundPositionY: `calc(${
+                            cornerAnchor ? "0%" : "50%"
+                        } + var(--adjustedY))`,
                     });
 
                     return {
@@ -1271,6 +1275,7 @@ async function genStory(data, avatars = []) {
                         /\[\s*?(?:([^=\(\]]+)(?=[\(\]])\(?)?([^\]]*?)\)?\s*?\]/.exec(
                             line[1],
                         );
+                    cmd = cmd?.toLowerCase();
                     if (args) {
                         let tmp = {};
                         Array.from(
@@ -1417,13 +1422,7 @@ async function genStory(data, avatars = []) {
                                     imgurls = [uri_image(args.image)];
                                     break;
                             }
-                            scene = createScene(
-                                imgurls,
-                                args,
-                                cmd.toLowerCase() == "image" &&
-                                    args &&
-                                    args.image,
-                            );
+                            scene = createScene(imgurls, args, cmd);
                             break;
                         case "charslot": // new format (replaces "character")
                             if (args) {
@@ -1703,6 +1702,10 @@ async function genStory(data, avatars = []) {
                             s.classList.add("video");
                             break;
 
+                        case "imagetween":
+                        case "backgroundtween":
+                        case "largebgtween":
+                            break;
                         case "header":
                         case "delay":
                         case "characteraction":
@@ -1715,8 +1718,6 @@ async function genStory(data, avatars = []) {
                         case "musicvolume":
                         case "stopmusic":
                         case "stopsound":
-                        case "imagetween":
-                        case "backgroundtween":
                         case "skiptothis":
                         case "gotopage":
                         case "hideitem":
@@ -1731,7 +1732,7 @@ async function genStory(data, avatars = []) {
                         case "skipnode":
                         case "animtextclean":
                         case "interlude":
-                        // sfx
+                        // vfx
                         case "focusout":
                         case "focusin":
                             break;
@@ -1963,15 +1964,17 @@ function autoPlayMidPoint() {
     // return window.innerHeight * 0.3 + topNavHeight / 2;
 }
 function alignBackground(s) {
-    let pos = s.getBoundingClientRect();
     const realimheight = s.bg.offsetHeight;
     const viewportMiddle = window.innerHeight / 2; // middle of viewport, not realMidpoint
     s.bg.classList.remove("uninitialized");
-    if (pos.top > realMidpoint - realimheight / 2) {
+    // skip getViewportTop as scene.offsetTop is equivalent
+    const sceneTop = s.offsetTop - window.scrollY;
+    const sceneBottom = s.offsetTop + s.offsetHeight - window.scrollY;
+    if (sceneTop > realMidpoint - realimheight / 2) {
         s.bg.style.top = "0";
         s.bg.style.removeProperty("bottom");
         s.setAttribute("bgpos", "top");
-    } else if (pos.bottom < realimheight / 2 + realMidpoint) {
+    } else if (sceneBottom < realimheight / 2 + realMidpoint) {
         s.bg.style.removeProperty("top");
         s.bg.style.bottom = "0";
         s.setAttribute("bgpos", "bottom");
@@ -1988,8 +1991,7 @@ const musicState = { paused: true };
 function playPauseMusic(toggle = false) {
     let targetMusic = allMusic[0];
     allMusic.forEach((a) => {
-        let rect = a.getBoundingClientRect();
-        if (rect.top < autoPlayPoint) {
+        if (getViewportTop(a) < autoPlayPoint) {
             targetMusic = a;
         }
     });
@@ -2012,7 +2014,7 @@ function playPauseMusic(toggle = false) {
 }
 function autoPlaySounds() {
     allSoundButtons.every((container) => {
-        let soundTop = container.getBoundingClientRect().top;
+        let soundTop = getViewportTop(container);
         if (
             soundTop < autoPlayPoint ||
             document.body.scrollTop >
