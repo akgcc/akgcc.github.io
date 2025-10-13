@@ -738,7 +738,7 @@ async function genStory(data, avatars = []) {
                 chars = {},
                 speakerList = new Set(),
                 preSceneAudios = [],
-                lastBlockerColor,
+                lastBlockerColor = "rgba(0,0,0,0)",
                 hangingBlocker,
                 multiLineData = {};
             function addBlocker(start_color, end_color, prepend = false) {
@@ -748,54 +748,71 @@ async function genStory(data, avatars = []) {
                 // blocker.style.height = Math.max(1, Math.min(2, parseFloat(args.fadetime))) + "em";
                 function colorStringToObject(color) {
                     if (typeof color == "object") return color;
-
                     const [r, g, b, a] = color
                         .match(/\d+(\.\d+)?/g)
                         .map(Number);
                     return { r, g, b, a: a ?? 1 };
                     return color;
                 }
+                function colorObjectToString(color) {
+                    if (
+                        "a" in color &&
+                        "r" in color &&
+                        "g" in color &&
+                        "b" in color
+                    ) {
+                        const hasDot = [color.r, color.g, color.b].some((v) =>
+                            String(v).includes("."),
+                        );
+                        const allUnderOne = [color.r, color.g, color.b].every(
+                            (v) => parseFloat(v) <= 1,
+                        );
+                        const normalize = hasDot && allUnderOne ? 255 : 1;
+                        return `rgba(${color.r * normalize},${
+                            color.g * normalize
+                        },${color.b * normalize},${
+                            parseFloat(color.a) * blockerOpacity
+                        })`;
+                    }
+                    if ("a" in color)
+                        return `rgba(0,0,0,${
+                            parseFloat(color.a) * blockerOpacity
+                        })`;
+                    return "rgba(0,0,0,0)";
+                }
                 const blockerOpacity = 1;
-                if (start_color == undefined) {
+                if (allScenes.length == 0) {
                     start_color = { a: 1 };
                     blocker.style.setProperty(
                         "--start-color",
                         "var(--main-background-color)",
                     );
-                } else {
-                    blocker.style.setProperty("--start-color", start_color);
+                }
+                start_color_obj = colorStringToObject(start_color);
+                if (allScenes.length != 0) {
+                    blocker.style.setProperty(
+                        "--start-color",
+                        colorObjectToString(start_color_obj),
+                    );
                 }
                 end_color_obj = colorStringToObject(end_color);
-                start_color_obj = colorStringToObject(start_color);
-                if (start_color_obj.a == 0 && end_color.a == 0)
+
+                if (start_color_obj.a == 0 && end_color_obj.a == 0)
                     blocker.classList.add("nochange"); // fading from a=0 to a=0,
 
-                if (
-                    "a" in end_color_obj &&
-                    "r" in end_color_obj &&
-                    "g" in end_color_obj &&
-                    "b" in end_color_obj
-                ) {
-                    end_color = `rgba(${end_color_obj.r},${end_color_obj.g},${
-                        end_color_obj.b
-                    },${parseFloat(end_color_obj.a) * blockerOpacity})`;
-                } else if ("a" in end_color_obj) {
-                    end_color = `rgba(0,0,0,${
-                        parseFloat(end_color_obj.a) * blockerOpacity
-                    })`;
-                }
-
+                end_color = colorObjectToString(end_color_obj);
                 blocker.style.setProperty("--end-color", end_color);
+                if (!prepend) lastBlockerColor = end_color;
 
                 if (start_color_obj.a > end_color_obj.a) {
-                    // this is a fadeout
+                    // indicates a fadeout
                     blocker.classList.add("fadeout");
                 } else {
                     blocker.classList.add("fadein");
                 }
-                if (!prepend) lastBlockerColor = end_color;
+
                 if (scene) {
-                    // if scene isn't init we still can track lastBlockerColor
+                    // if scene isn't init we can still track lastBlockerColor
                     if (prepend) scene.prepend(blocker);
                     else scene.appendChild(blocker);
                 }
@@ -967,8 +984,9 @@ async function genStory(data, avatars = []) {
                         options.xscale ?? options.xscalefrom ?? 1;
                     const yscalefrom =
                         options.yscale ?? options.yscalefrom ?? 1;
-                    const x = options.x ?? 0;
-                    const y = options.y ?? 0;
+                    const x = options.x ?? options.xfrom ?? 0;
+                    const y = options.y ?? options.yfrom ?? 0;
+                    let internal_scale = 1;
                     if (!isMultipart) {
                         // single image: use it directly
                         finalUrl = imgUrls[0];
@@ -985,11 +1003,11 @@ async function genStory(data, avatars = []) {
                         });
                         naturalWidth = dims.width;
                         naturalHeight = dims.height;
+                        internal_scale = 1080 / dims.height;
                     } else {
                         // multiple images: stitch on canvas
-                        // only use the first 2 images if more are given.
                         const images = await Promise.all(
-                            imgUrls.slice(0, 2).map(
+                            imgUrls.map(
                                 (url) =>
                                     new Promise((resolve) => {
                                         const img = new Image();
@@ -1000,40 +1018,57 @@ async function genStory(data, avatars = []) {
                             ),
                         );
 
-                        naturalWidth = images.reduce(
-                            (sum, img) => sum + img.naturalWidth,
-                            0,
-                        );
-                        naturalHeight = Math.max(
-                            ...images.map((img) => img.naturalHeight),
-                        );
+                        // grid layout — make it roughly square
+                        const cols = Math.ceil(Math.sqrt(images.length));
+                        const rows = Math.ceil(images.length / cols);
 
+                        const tileWidth = options.solidwidth
+                            ? parseInt(options.solidwidth.split("/")[0])
+                            : images[0].naturalWidth;
+                        const tileHeight = options.solidheight
+                            ? parseInt(options.solidheight.split("/")[0])
+                            : images[0].naturalHeight;
+
+                        naturalWidth = tileWidth * cols;
+                        naturalHeight = tileHeight * rows;
+                        internal_scale = 1080 / tileHeight;
+                        if (rows > 1) internal_scale = rows;
                         const canvas = document.createElement("canvas");
                         canvas.width = naturalWidth;
                         canvas.height = naturalHeight;
                         const ctx = canvas.getContext("2d");
 
-                        let x = 0;
-                        for (const img of images) {
-                            ctx.drawImage(img, x, 0);
-                            x += img.naturalWidth;
+                        // draw each tile in grid
+                        for (let i = 0; i < images.length; i++) {
+                            const col = i % cols;
+                            const row = Math.floor(i / cols);
+                            const x = col * tileWidth;
+                            const y = row * tileHeight;
+                            ctx.drawImage(
+                                images[i],
+                                x,
+                                y,
+                                tileWidth,
+                                tileHeight,
+                            );
                         }
-
-                        // finalUrl = canvas.toDataURL();
                         finalUrl = await new Promise((resolve) => {
-                            canvas.toBlob((blob) => {
-                                resolve(URL.createObjectURL(blob));
-                            });
+                            canvas.toBlob((blob) =>
+                                resolve(URL.createObjectURL(blob)),
+                            );
                         });
                     }
-                    // scaling done by the game, 1.2x for normal (up to 1920x1080) 1.5x for multipart (up to 2760x1080) (factor depends on img size)
-                    const internal_scale =
-                        (isMultipart ? 2760 : 1920) / naturalWidth;
+                    // internal_scale represents the game autoscaling Images up to fill the screen
+                    // coverall should be the same as our --bscale
+                    if (options.screenadapt == "coverall") internal_scale = 1;
+
                     // scaling I am doing locally, to fit the story reader/browser
                     scene.style.setProperty(
                         "--bscale",
                         `calc(var(--story-bg-width) / ${naturalWidth}px)`,
                     );
+                    if (options.screenadapt == "coverall")
+                        scene.style.setProperty("--bscale", `1`);
                     scene.style.setProperty(
                         "--adjustedX",
                         `calc(${x}px * ${internal_scale} * var(--bscale))`,
@@ -1047,10 +1082,6 @@ async function genStory(data, avatars = []) {
                         `calc(var(--story-bg-width) / ${
                             naturalWidth / naturalHeight
                         } / 2)`,
-                    );
-                    scene.style.setProperty(
-                        "--aspectratio",
-                        `${naturalWidth} / ${naturalHeight}`,
                     );
                     Object.assign(bg.style, {
                         backgroundImage: `url(${finalUrl})`,
@@ -1315,6 +1346,12 @@ async function genStory(data, avatars = []) {
                             break;
                         case "moduleimage":
                         case "background":
+                        case "gridbg":
+                            if (
+                                cmd.toLowerCase() == "gridbg" &&
+                                (!args || !args.imagegroup)
+                            )
+                                break;
                         case "roguebackground":
                             if (
                                 cmd.toLowerCase() == "background" &&
@@ -1364,6 +1401,12 @@ async function genStory(data, avatars = []) {
                                     imgurls = args.imagegroup
                                         .split("/")
                                         .slice(0, 2)
+                                        .map((x) => uri_background(x));
+                                    lastBackgroundImage = imgurls;
+                                    break;
+                                case "gridbg":
+                                    imgurls = args.imagegroup
+                                        .split("/")
                                         .map((x) => uri_background(x));
                                     lastBackgroundImage = imgurls;
                                     break;
