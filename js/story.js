@@ -34,7 +34,6 @@ var operatorData,
     moduleStory,
     rogueStory,
     storyTable,
-    lastBlocker,
     freshScene;
 soundQueue.max_size = 5;
 longSoundQueue.max_size = 2;
@@ -809,6 +808,7 @@ async function genStory(data, avatars = []) {
                     // indicates a fadeout
                     blocker.classList.add("fadeout");
                 } else {
+                    // if alpha is equal mark as fadein, this will help color scenebreak correctly.
                     blocker.classList.add("fadein");
                 }
 
@@ -824,24 +824,11 @@ async function genStory(data, avatars = []) {
 
                 let scene_start_color = "rgba(0,0,0,0)";
                 let end_color = "rgba(0,0,0,1)";
-                if (
-                    parseFloat(
-                        /(?:[\.\d]+,){3}([\.\d]+)/.exec(lastBlockerColor)[1],
-                    ) &&
-                    (!lastBlocker || lastBlocker.classList.contains("fadein"))
-                ) {
-                    // apply opaque blocker color to rest of scene.
-                    end_color = lastBlockerColor.split(" ")[0];
-                    scene.style.setProperty("--fill-blocker", end_color);
-                    scene.classList.add("blockerPadded");
-                    scene_start_color = end_color;
-                }
-                // --fill-blocker should be used as the scenebreak color if no lastblock is found
 
                 let scenebreak = document.createElement("div");
                 scenebreak.classList.add("scenebreak");
                 storyDiv.appendChild(scenebreak);
-                lastBlocker = null;
+                let lastBlocker = null;
 
                 Array.from(scene.children).some((el) => {
                     if (el.classList.contains("dialog")) {
@@ -861,13 +848,6 @@ async function genStory(data, avatars = []) {
                                 //color scenebreak based on last blocker
                                 end_color =
                                     el.style.getPropertyValue("--end-color");
-                                let spacer = document.createElement("div");
-                                spacer.classList.add("blocker");
-                                spacer.classList.add("spacer-blocker");
-                                spacer.style.flex = 99999;
-                                spacer.style.backgroundColor =
-                                    el.style.getPropertyValue("--start-color");
-                                el.before(spacer);
                                 // if last element is soundplayer, don't need a scene break.
                                 if (
                                     !requireBreak &&
@@ -881,20 +861,41 @@ async function genStory(data, avatars = []) {
                             if (el.classList.contains("fadeout")) return true;
                         }
                     });
+                if (
+                    parseFloat(
+                        /(?:[\.\d]+,){3}([\.\d]+)/.exec(lastBlockerColor)[1],
+                    ) &&
+                    (!lastBlocker || lastBlocker.classList.contains("fadein"))
+                ) {
+                    // apply opaque blocker color to rest of scene.
+                    scene.style.setProperty(
+                        "--fill-blocker",
+                        lastBlockerColor.split(" ")[0],
+                    );
+                    // --fill-blocker should be used as the scenebreak color if no lastblock is found
+                    scene.classList.add("blockerPadded");
+                }
                 let firstDialog = scene.children[1];
                 if (
-                    firstDialog?.classList.contains("spacer-blocker") ||
-                    !firstDialog?.classList.contains("blocker")
+                    !firstDialog?.classList.contains("blocker") ||
+                    firstDialog?.classList.contains("fadein")
                 ) {
                     const alpha =
                         scene_start_color
                             .match(/\d+(\.\d+)?/g)
                             .map(Number)[3] ?? 1;
+                    // set alpha to 1 for start color to match the solid scenebreak
                     blocker = addBlocker(
-                        alpha > 0 ? scene_start_color : "rgb(0,0,0)",
+                        alpha > 0
+                            ? scene_start_color.replace(
+                                  /rgba\(([^,]+,[^,]+,[^,]+),[^)]+\)/,
+                                  "rgb($1)",
+                              )
+                            : "rgb(0,0,0)",
                         scene_start_color,
                         true,
                     );
+                    blocker.classList.add("special"); // only used for debug
                     // if this is the topmost fade, fade from the story header color instead
                     if (allScenes.length == 1)
                         blocker.style.setProperty(
@@ -904,7 +905,10 @@ async function genStory(data, avatars = []) {
                 }
                 scenebreak.style.setProperty(
                     "--end-color",
-                    end_color.replace(/rgba?\(([^)]+),[^)]+\)/, "rgb($1)"),
+                    end_color.replace(
+                        /rgba\(([^,]+,[^,]+,[^,]+),[^)]+\)/,
+                        "rgb($1)",
+                    ),
                 ); // remove alpha component as scenebreak is solid.
                 scenebreak.style.setProperty("--start-color", "rgba(0,0,0,0)"); // fade out from #0000 otherwise opacity will overlap
                 scenebreak.style.background = `linear-gradient(${end_color},${end_color}), linear-gradient(rgb(0,0,0),rgb(0,0,0))`;
@@ -1677,9 +1681,8 @@ async function genStory(data, avatars = []) {
                             break;
                         case "blocker":
                             // responsible for fade effects/fade to black for certain lines
-                            if (args && "fadetime" in args) {
+                            if (args && "fadetime" in args)
                                 addBlocker(lastBlockerColor, args);
-                            }
                             break;
                         case "video":
                             let embed = document.createElement("video");
