@@ -626,15 +626,14 @@ audio {
 #storyDisp[display-mode="2"] .scene .scene-background {
   opacity: 1;
   pointer-events: auto;
+  box-shadow: none;
 }
 #storyDisp.bg_only .scene > .dlBtn,
 #storyDisp[display-mode="2"] .scene > .dlBtn {
   opacity: 0.85;
   pointer-events: auto;
 }
-#storyDisp[display-mode="2"] .scene-background {
-  box-shadow: none;
-}
+#storyDisp.bg_only .scenebreak::before,
 #storyDisp[display-mode="2"] .scenebreak::before {
   content: none;
 }
