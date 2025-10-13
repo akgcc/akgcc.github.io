@@ -420,20 +420,15 @@ audio {
 .itemBtn,
 .soundBtn {
   --btn-size: 2rem;
-  font-size: var(--btn-size);
-  width: var(--btn-size);
   height: var(--btn-size);
   line-height: var(--btn-size);
   text-align: center;
   border: 2px solid #aaa;
   border-radius: 0.25em;
   align-self: center;
-  padding: 0.2em;
   color: #999;
   background: #222e;
   cursor: pointer;
-}
-.soundBtn {
   display: inline-flex;
   align-items: center;
   gap: 0.3em;
@@ -441,6 +436,7 @@ audio {
   font-size: 1.2rem;
   width: max-content;
 }
+.itemBtn .fileName,
 .soundBtn .fileName {
   display: inline-block;
   white-space: nowrap;

@@ -1375,15 +1375,23 @@ async function genStory(data, avatars = []) {
                             imgCount += 1;
                             let wrap = document.createElement("div");
                             wrap.classList.add("dialog");
+                            let btn_wrap = document.createElement("div");
+                            btn_wrap.classList.add("itemBtn");
                             let imgbtn = document.createElement("i");
                             imgbtn.classList.add("fas");
                             imgbtn.classList.add("fa-image");
-                            imgbtn.classList.add("itemBtn");
-                            wrap.appendChild(imgbtn);
+                            btn_wrap.appendChild(imgbtn);
                             const itemsrc = args.is_module
                                 ? uri_uniequip(args.image)
                                 : uri_item_image(args.image);
-                            imgbtn.onclick = () => {
+                            let label = document.createElement("span");
+                            label.classList.add("fileName");
+                            label.innerHTML = `${
+                                itemsrc.split("/").pop().split(".")[0]
+                            }`;
+                            btn_wrap.appendChild(label);
+                            wrap.appendChild(btn_wrap);
+                            btn_wrap.onclick = () => {
                                 enlargeAvatar([itemsrc], true);
                             };
                             getWorkingScene().appendChild(wrap);
