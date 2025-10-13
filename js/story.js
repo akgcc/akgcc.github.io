@@ -34,7 +34,8 @@ var operatorData,
     moduleStory,
     rogueStory,
     storyTable,
-    freshScene;
+    freshScene,
+    storyNameDiv;
 soundQueue.max_size = 5;
 longSoundQueue.max_size = 2;
 const shortAudioMaxLen = 3.5;
@@ -717,22 +718,23 @@ async function genStory(data, avatars = []) {
                 ? storyDiv.classList.add("module")
                 : storyDiv.classList.remove("module");
             storyDiv.innerHTML = "";
-            let title = document.createElement("div");
-            title.classList.add("storyName");
+            storyNameDiv = document.createElement("div");
+            storyNameDiv.classList.add("storyName");
             (avatars || []).forEach((char) => {
                 let img = document.createElement("img");
                 img.src = uri_avatar(encodeURIComponent(char.name));
                 img.classList.add("storyAvatar");
-                title.appendChild(img);
+                storyNameDiv.appendChild(img);
             });
             let titletxt = document.createElement("span");
             titletxt.innerHTML = storyName;
-            title.appendChild(titletxt);
+            storyNameDiv.appendChild(titletxt);
             let readTime = document.createElement("span");
             readTime.classList.add("readtime");
-            title.appendChild(readTime);
-            document.getElementById("storyTitle").innerHTML = title.innerHTML;
-            storyDiv.appendChild(title);
+            storyNameDiv.appendChild(readTime);
+            document.getElementById("storyTitle").innerHTML =
+                storyNameDiv.innerHTML;
+            storyDiv.appendChild(storyNameDiv);
             let scene,
                 speaker = 0,
                 chars = {},
@@ -2128,8 +2130,7 @@ function scrollFunction() {
     }
     titleBottomPos =
         titleBottomPos ||
-        document.querySelector(".storyName").offsetHeight +
-            document.querySelector(".storyName").offsetTop;
+        (storyNameDiv ? storyNameDiv.offsetHeight + storyNameDiv.offsetTop : 0);
     if (
         document.body.scrollTop > titleBottomPos - topNavHeight ||
         document.documentElement.scrollTop > titleBottomPos - topNavHeight
