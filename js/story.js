@@ -917,10 +917,12 @@ async function genStory(data, avatars = []) {
                 // do not add the scene if it has no children, is not an image, and is not full of blockers only.
                 if (!scene) return;
                 if (!scene.classList.contains("image")) {
-                    if (!scene.childElementCount) return;
+                    if (scene.childElementCount == 1) return; // every scene has a scene-background
                     if (
-                        Array.from(scene.childNodes).every((n) =>
-                            n.classList.contains("blocker"),
+                        Array.from(scene.childNodes).every(
+                            (n) =>
+                                n.classList.contains("blocker") ||
+                                n.classList.contains("scene-background"),
                         )
                     )
                         return;
@@ -932,6 +934,7 @@ async function genStory(data, avatars = []) {
                 if (hangingBlocker) hangingBlocker.remove();
                 storyDiv.appendChild(scene);
                 addSceneBreak(requireBreak);
+                return scene;
             }
             function getWorkingScene() {
                 if (!scene) {
@@ -961,7 +964,8 @@ async function genStory(data, avatars = []) {
                 bg.classList.add("uninitialized");
                 scene.appendChild(bg);
                 scene.bg = bg;
-                if (cmd == "image" && options?.image)
+                // mark as image to prevent pruning if the scene is empty
+                if (options?.image || options?.imagegroup)
                     scene.classList.add("image");
                 if (hangingBlocker) {
                     scene.appendChild(hangingBlocker);
