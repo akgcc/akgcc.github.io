@@ -1837,9 +1837,13 @@ async function genStory(data, avatars = []) {
                 }
             }
             addCurrentScene(true);
-            let readTimeMinutes = Math.round(wordCount / 400 + imgCount * 12);
+            let readTimeMinutes = Math.round(
+                wordCount / 400 + (imgCount * 12) / 60,
+            );
             if (serverString == SERVERS.EN)
-                readTimeMinutes = Math.round(wordCount / 250 + imgCount * 12);
+                readTimeMinutes = Math.round(
+                    wordCount / 250 + (imgCount * 12) / 60,
+                );
             if (readTimeMinutes)
                 readTime.innerHTML = `${readTimeMinutes} min read`;
         });
