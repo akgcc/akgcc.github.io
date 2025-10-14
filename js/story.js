@@ -1401,6 +1401,7 @@ async function genStory(data, avatars = []) {
                     )
                         closeDanglingDirectives();
                     switch (cmd) {
+                        case "cgitem":
                         case "showitem":
                             imgCount += 1;
                             let wrap = document.createElement("div");
@@ -1820,6 +1821,7 @@ async function genStory(data, avatars = []) {
                         case "timersticker":
                         //on-screen timer (runs in real time)
                         case "timerclear":
+                        case "hidecgitem":
                             break;
                         default:
                             console.log("line not parsed:", line);
