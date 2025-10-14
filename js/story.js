@@ -2059,7 +2059,8 @@ function alignBackground(s) {
             window.scrollY +
             viewportMiddle -
             getOffsets(s).offsetTop -
-            realimheight / 2
+            realimheight / 2 +
+            topNavHeight / 2
         }px)`;
         s.setAttribute("bgpos", "fixed");
     }
