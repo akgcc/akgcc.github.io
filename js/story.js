@@ -1497,9 +1497,20 @@ async function genStory(data, avatars = []) {
                                 speaker =
                                     CharslotFocusMap[args.focus] ||
                                     CharslotNameMap[args.slot]; // ( this may not be correct for this new format, maybe setting to 1 is still correct )
-                                if (args.name)
+                                if (args.name) {
+                                    // delete other instances of this name in chars to prevent duplicated chars
+                                    const basename = (name) =>
+                                        name.split("#")[0].split("$")[0];
+                                    let _name = basename(args.name);
+                                    for (let _key in chars) {
+                                        if (
+                                            basename(chars[_key]?.name) == _name
+                                        )
+                                            delete chars[_key];
+                                    }
                                     chars[`name${CharslotNameMap[args.slot]}`] =
                                         args;
+                                }
                             } else {
                                 chars = {};
                                 speaker = 0;
