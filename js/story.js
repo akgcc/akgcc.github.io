@@ -2018,9 +2018,12 @@ topNav = document.querySelector("#topNav");
 
 // When the user scrolls down 20px from the top of the document, show the button
 window.onscroll = scrollFunction;
-window.onresize = scrollFunction;
+window.onresize = () => {
+    clearOffsetCache();
+    return scrollFunction();
+};
 function adjustedMidpoint() {
-    topNavHeight = topNavHeight || topNav.offsetHeight;
+    topNavHeight = getOffsets(topNav).offsetHeight;
     return window.innerHeight / 2 + topNavHeight / 2;
 }
 function autoPlayMidPoint() {
@@ -2031,25 +2034,33 @@ function autoPlayMidPoint() {
     // return window.innerHeight * 0.3 + topNavHeight / 2;
 }
 function alignBackground(s) {
-    const realimheight = s.bg.offsetHeight;
+    const realimheight = getOffsets(s.bg).offsetHeight;
     const viewportMiddle = window.innerHeight / 2; // middle of viewport, not realMidpoint
     s.bg.classList.remove("uninitialized");
     // skip getViewportTop as scene.offsetTop is equivalent
-    const sceneTop = s.offsetTop - window.scrollY;
-    const sceneBottom = s.offsetTop + s.offsetHeight - window.scrollY;
+    const sceneTop = getOffsets(s).offsetTop - window.scrollY;
+    const sceneBottom =
+        getOffsets(s).offsetTop + getOffsets(s).offsetHeight - window.scrollY;
     if (sceneTop > realMidpoint - realimheight / 2) {
         s.bg.style.top = "0";
         s.bg.style.removeProperty("bottom");
+        s.bg.style.transform = "translateX(-50%)";
         s.setAttribute("bgpos", "top");
     } else if (sceneBottom < realimheight / 2 + realMidpoint) {
         s.bg.style.removeProperty("top");
         s.bg.style.bottom = "0";
+        s.bg.style.transform = "translateX(-50%)";
         s.setAttribute("bgpos", "bottom");
     } else {
         s.bg.style.removeProperty("bottom");
-        s.bg.style.top = `calc(${
-            window.scrollY + viewportMiddle - s.offsetTop - realimheight / 2
-        }px + var(--topNav-height) / 2)`;
+        s.bg.style.top = "0";
+        // use translate instead of setting top for better performance (allegedly)
+        s.bg.style.transform = `translate(-50%, ${
+            window.scrollY +
+            viewportMiddle -
+            getOffsets(s).offsetTop -
+            realimheight / 2
+        }px)`;
         s.setAttribute("bgpos", "fixed");
     }
 }
@@ -2085,7 +2096,9 @@ function autoPlaySounds() {
         if (
             soundTop < autoPlayPoint ||
             document.body.scrollTop >
-                document.body.offsetHeight - window.innerHeight - topNavHeight
+                getOffsets(document.body).offsetHeight -
+                    window.innerHeight -
+                    topNavHeight
         ) {
             // if scrolled past midpoint OR reached end of story (to make sure the final few sounds get played.)
             if (container.audio.alreadyQueued) return true;
@@ -2124,8 +2137,8 @@ function autoPlaySounds() {
         var i = q.length;
         while (i--) {
             let scene = q[i].parentElement.parentElement;
-            let scene_top = scene.offsetTop;
-            let scene_bot = scene_top + scene.offsetHeight;
+            let scene_top = getOffsets(scene).offsetTop;
+            let scene_bot = scene_top + getOffsets(scene).offsetHeight;
             if (
                 scene_top > disp_bot + realMidpoint ||
                 scene_bot < disp_top - realMidpoint
@@ -2143,13 +2156,18 @@ function autoPlaySounds() {
         }
     }
 }
-function scrollFunction() {
+var scheduledAnimationFrame;
+var unitless_story_width = -1;
+function _throttled_scroll_func() {
     autoPlayPoint = autoPlayMidPoint();
     realMidpoint = adjustedMidpoint();
     // --story-width-unitless is a hack to get this working on firefox.
+    unitless_story_width_tmp = getOffsets(storyDiv).offsetWidth;
+    if (unitless_story_width != unitless_story_width_tmp)
+        unitless_story_width = unitless_story_width_tmp;
     storyDiv.style.setProperty(
         "--story-width-unitless",
-        `${storyDiv.offsetWidth}`,
+        `${unitless_story_width}`,
     );
     if (
         document.body.scrollTop > topNavHeight ||
@@ -2161,7 +2179,10 @@ function scrollFunction() {
     }
     titleBottomPos =
         titleBottomPos ||
-        (storyNameDiv ? storyNameDiv.offsetHeight + storyNameDiv.offsetTop : 0);
+        (storyNameDiv
+            ? getOffsets(storyNameDiv).offsetHeight +
+              getOffsets(storyNameDiv).offsetTop
+            : 0);
     if (
         document.body.scrollTop > titleBottomPos - topNavHeight ||
         document.documentElement.scrollTop > titleBottomPos - topNavHeight
@@ -2177,6 +2198,12 @@ function scrollFunction() {
     });
     if (document.body.scrollTop > 0 && enableSoundAutoplay) autoPlaySounds();
     playPauseMusic();
+    scheduledAnimationFrame = false;
+}
+function scrollFunction() {
+    if (scheduledAnimationFrame) return;
+    scheduledAnimationFrame = true;
+    requestAnimationFrame(_throttled_scroll_func);
 }
 
 // When the user clicks on the button, scroll to the top of the document

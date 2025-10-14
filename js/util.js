@@ -803,10 +803,27 @@ function getViewportTop(el) {
   let top = 0;
   let node = el;
   while (node) {
-    top += node.offsetTop || 0;
+    top += getOffsets(node).offsetTop || 0;
     node = node.offsetParent;
   }
   return top - window.scrollY;
+}
+const offsetCache = new Map();
+function getOffsets(el) {
+  if (offsetCache.has(el)) {
+    return offsetCache.get(el);
+  }
+  const offsets = {
+    offsetTop: el.offsetTop,
+    offsetHeight: el.offsetHeight,
+    offsetWidth: el.offsetWidth,
+    offsetLeft: el.offsetLeft,
+  };
+  offsetCache.set(el, offsets);
+  return offsets;
+}
+function clearOffsetCache() {
+  offsetCache.clear();
 }
 window.onload = () => {
   const serverSelect = document.getElementById("serverSelect");

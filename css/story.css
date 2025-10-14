@@ -696,6 +696,7 @@ html {
   left: 50%;
   transform: translateX(-50%);
   background-color: black;
+  will-change: transform;
 }
 .scene-background.uninitialized {
   top: 0;
