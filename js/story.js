@@ -980,9 +980,16 @@ async function genStory(data, avatars = []) {
             }
             function applyTween(el, options) {
                 const xscalefrom = options.xscale ?? options.xscalefrom;
-                // const yscalefrom = options.yscale ?? options.yscalefrom;
-                const x = options.x ?? options.xfrom;
-                const y = options.y ?? options.yfrom;
+                const x =
+                    options.xto != null && options.xfrom != null
+                        ? (Number(options.xfrom) + Number(options.xto)) / 2
+                        : options.x ?? options.xfrom;
+
+                const y =
+                    options.yto != null && options.yfrom != null
+                        ? (Number(options.yfrom) + Number(options.yto)) / 2
+                        : options.y ?? options.yfrom;
+
                 if (xscalefrom != null)
                     el.style.setProperty("--xscalefrom", `${xscalefrom}`);
                 if (x != null) el.style.setProperty("--xfrom", `${x}px`);
@@ -1075,41 +1082,44 @@ async function genStory(data, avatars = []) {
                                     }),
                             ),
                         );
-
-                        // grid layout — make it roughly square
-                        const cols = Math.ceil(Math.sqrt(images.length));
-                        const rows = Math.ceil(images.length / cols);
+                        const w_split = options.solidwidth.split("/");
+                        const h_split = options.solidheight.split("/");
+                        const isGrid = w_split.length == h_split.length;
+                        const cols = isGrid
+                            ? Math.ceil(Math.sqrt(images.length))
+                            : w_split.length;
+                        const rows = isGrid ? cols : h_split.length;
 
                         const tileWidth = options.solidwidth
-                            ? parseInt(options.solidwidth.split("/")[0])
+                            ? parseInt(w_split[0])
                             : images[0].naturalWidth;
                         const tileHeight = options.solidheight
-                            ? parseInt(options.solidheight.split("/")[0])
+                            ? parseInt(h_split[0])
                             : images[0].naturalHeight;
-
                         naturalWidth = tileWidth * cols;
                         naturalHeight = tileHeight * rows;
                         internal_scale = 1080 / tileHeight;
-                        if (rows > 1) internal_scale = rows;
+                        if (rows > 1 && cols > 1) internal_scale = rows;
                         const canvas = document.createElement("canvas");
                         canvas.width = naturalWidth;
                         canvas.height = naturalHeight;
                         const ctx = canvas.getContext("2d");
 
-                        // draw each tile in grid
-                        for (let i = 0; i < images.length; i++) {
-                            const col = i % cols;
-                            const row = Math.floor(i / cols);
-                            const x = col * tileWidth;
-                            const y = row * tileHeight;
-                            ctx.drawImage(
-                                images[i],
-                                x,
-                                y,
-                                tileWidth,
-                                tileHeight,
-                            );
+                        for (let row = 0; row < rows; row++) {
+                            for (let col = 0; col < cols; col++) {
+                                const x = col * tileWidth;
+                                const y = row * tileHeight;
+
+                                ctx.drawImage(
+                                    images[row * cols + col],
+                                    x,
+                                    y,
+                                    tileWidth,
+                                    tileHeight,
+                                );
+                            }
                         }
+
                         finalUrl = await new Promise((resolve) => {
                             canvas.toBlob((blob) =>
                                 resolve(URL.createObjectURL(blob)),
@@ -1118,7 +1128,10 @@ async function genStory(data, avatars = []) {
                     }
                     // internal_scale represents the game autoscaling Images up to fill the screen
                     // coverall should be the same as our --bscale
-                    if (options.screenadapt == "coverall") internal_scale = 1;
+                    const coverall = ["coverall", "showall"].includes(
+                        options.screenadapt,
+                    );
+                    if (coverall) internal_scale = 1;
                     const xscalefrom =
                         options.xscale ?? options.xscalefrom ?? 1;
                     const x = options.x ?? options.xfrom ?? 0;
@@ -1129,8 +1142,7 @@ async function genStory(data, avatars = []) {
                         "--bscale",
                         `var(--story-width-unitless) / ${naturalWidth}`,
                     );
-                    if (options.screenadapt == "coverall")
-                        bg.style.setProperty("--bscale", `1`);
+                    if (coverall) bg.style.setProperty("--bscale", `1`);
                     const cornerAnchor = ["gridbg", "largebgtween"].includes(
                         cmd,
                     );
@@ -1145,6 +1157,12 @@ async function genStory(data, avatars = []) {
                             cornerAnchor ? "0%" : "50%"
                         } - var(--yfrom, ${y}px) * ${internal_scale} * var(--bscale))`,
                     });
+                    if (cmd == "verticalbg") {
+                        // flip y
+                        bg.style.backgroundPositionY = `calc(${
+                            cornerAnchor ? "0%" : "50%"
+                        } + var(--yfrom, ${y}px) * ${internal_scale} * var(--bscale))`;
+                    }
 
                     return {
                         naturalWidth,
@@ -1370,10 +1388,7 @@ async function genStory(data, avatars = []) {
                     // check for dangling multilines (and potentially other dialog features) at the end of the file or otherwise:
                     // this list is surely missing some directives...
                     if (
-                        (!args &&
-                            ["dialog", "charslot"].includes(
-                                cmd.toLowerCase(),
-                            )) ||
+                        (!args && ["dialog", "charslot"].includes(cmd)) ||
                         [
                             "image",
                             "background",
@@ -1382,10 +1397,10 @@ async function genStory(data, avatars = []) {
                             "blocker",
                             "predicate",
                             "video",
-                        ].includes(cmd.toLowerCase())
+                        ].includes(cmd)
                     )
                         closeDanglingDirectives();
-                    switch (cmd.toLowerCase()) {
+                    switch (cmd) {
                         case "showitem":
                             imgCount += 1;
                             let wrap = document.createElement("div");
@@ -1413,32 +1428,26 @@ async function genStory(data, avatars = []) {
                             break;
                         case "moduleimage":
                         case "background":
-                            args.screenadapt = args.screenadapt ?? "coverall";
+                        case "largebg":
+                        case "verticalbg":
                         case "gridbg":
                             if (
-                                cmd.toLowerCase() == "gridbg" &&
+                                ["gridbg", "verticalbg", "largebg"].includes(
+                                    cmd,
+                                ) &&
                                 (!args || !args.imagegroup)
                             )
                                 break;
                         case "roguebackground":
+                        case "image":
                             if (
-                                cmd.toLowerCase() == "background" &&
+                                ["image", "background"].includes(cmd) &&
                                 (!args || !args.image)
                             )
                                 break;
-                        case "largebg":
-                            if (
-                                cmd.toLowerCase() == "largebg" &&
-                                (!args || !args.imagegroup)
-                            )
-                                break;
-                        case "image":
-                            if (
-                                cmd.toLowerCase() == "image" &&
-                                (!args || !args.image) &&
-                                (!scene || !scene.classList.contains("image"))
-                            )
-                                break;
+                            if (cmd == "background")
+                                args.screenadapt =
+                                    args.screenadapt ?? "coverall";
                             // insert new div when background changes and set to current scene
                             let wasDisplayingImage = false;
                             if (scene) {
@@ -1447,7 +1456,7 @@ async function genStory(data, avatars = []) {
                                 addCurrentScene();
                             }
                             let imgurls = [uri_background("bg_black")];
-                            switch (cmd.toLowerCase()) {
+                            switch (cmd) {
                                 case "image":
                                     if (!args || !args.image) {
                                         if (
@@ -1466,13 +1475,8 @@ async function genStory(data, avatars = []) {
                                     lastBackgroundImage = imgurls;
                                     break;
                                 case "largebg":
-                                    imgurls = args.imagegroup
-                                        .split("/")
-                                        .slice(0, 2)
-                                        .map((x) => uri_background(x));
-                                    lastBackgroundImage = imgurls;
-                                    break;
                                 case "gridbg":
+                                case "verticalbg":
                                     imgurls = args.imagegroup
                                         .split("/")
                                         .map((x) => uri_background(x));
@@ -1651,7 +1655,7 @@ async function genStory(data, avatars = []) {
                             const audio = document.createElement("audio");
                             let audioWrapper;
                             audio.setAttribute("controls", "");
-                            if (cmd.toLowerCase() == "playmusic") {
+                            if (cmd == "playmusic") {
                                 audio.setAttribute("loop", "");
                                 audio.classList.add("music");
                                 allMusic.push(audio);
@@ -1676,7 +1680,7 @@ async function genStory(data, avatars = []) {
                             sound.setAttribute("type", "audio/wav");
                             audio.appendChild(sound);
 
-                            if (cmd.toLowerCase() == "playsound") {
+                            if (cmd == "playsound") {
                                 let btn_wrap = document.createElement("div");
                                 btn_wrap.classList.add("soundBtn");
                                 let btn = document.createElement("i");
