@@ -352,7 +352,7 @@ audio {
 #volControl {
   display: flex;
   align-items: center;
-  margin: 0 1em 0 0;
+  margin: 0 0.35rem 0 0;
 }
 .vol-spacer {
   /* flex: 1; */
@@ -470,13 +470,13 @@ audio {
   font-size: 1.5em;
 }
 #volControl #playPauseBtn {
-  margin: 0 0.4em;
+  margin: 0 0.35rem 0 0;
 }
 #volControl #playPauseBtn i {
   font-size: 1em;
 }
 #volSlider {
-  margin: 0 0.4em;
+  margin: 0 0.35rem;
   -webkit-appearance: none; /* Override default CSS styles */
   appearance: none;
   /* height: 25px; /* Specified height */

@@ -826,6 +826,9 @@ function clearOffsetCache() {
   offsetCache.clear();
 }
 window.onload = () => {
+  const title = document.getElementById("pageTitle");
+  if (title) title.href = location.origin + location.pathname;
+
   const serverSelect = document.getElementById("serverSelect");
   if (serverSelect) {
     const dd_content = serverSelect.querySelector(".dropdown-content");
