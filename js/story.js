@@ -1018,10 +1018,21 @@ async function genStory(data, avatars = []) {
                         dl_btn.classList.add("fas");
                         dl_btn.classList.add("fa-external-link-alt");
                         dl_btn.classList.add("dlBtn");
-                        scene.appendChild(dl_btn);
+                        var tempHideAll = null;
+                        dl_btn.onmouseover = () => {
+                            tempHideAll = setTimeout(
+                                () => storyDiv.classList.add("bg_only"),
+                                250,
+                            );
+                        };
+                        dl_btn.onmouseout = () => {
+                            clearTimeout(tempHideAll);
+                            storyDiv.classList.remove("bg_only");
+                        };
                         dl_btn.addEventListener("click", function () {
                             window.open(_img_url, "_blank");
                         });
+                        scene.appendChild(dl_btn);
                         scene.style.setProperty(
                             "--background-image-url",
                             `url("${_img_url}")`,
@@ -2227,18 +2238,15 @@ volSlider.oninput = () => {
 const toggleVisBtn = document.getElementById("visButton");
 var tempHideAll = null;
 toggleVisBtn.onmouseover = () => {
-    tempHideAll = setTimeout(
-        () => document.getElementById("storyDisp").classList.add("bg_only"),
-        250,
-    );
+    tempHideAll = setTimeout(() => storyDiv.classList.add("bg_only"), 250);
 };
 toggleVisBtn.onmouseout = () => {
     clearTimeout(tempHideAll);
-    document.getElementById("storyDisp").classList.remove("bg_only");
+    storyDiv.classList.remove("bg_only");
 };
 toggleVisBtn.addEventListener("click", () => {
     clearTimeout(tempHideAll);
-    document.getElementById("storyDisp").classList.remove("bg_only");
+    storyDiv.classList.remove("bg_only");
 });
 var dialogVisibilityState = 0;
 toggleVisBtn.onclick = () => {
