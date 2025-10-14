@@ -1197,7 +1197,7 @@ async function genStory(data, avatars = []) {
                                         : el.classList.add("hidden");
                                 });
                             });
-                        scrollFunction();
+                        scrollFunction(true); // changing decision can change scene sizes so clear cache
                     };
                 });
                 return dialog;
@@ -1257,7 +1257,10 @@ async function genStory(data, avatars = []) {
                                     chars[key],
                                     key === "avg",
                                 );
-                                if (isActive) avatar.classList.add("active");
+                                if (isActive) {
+                                    avatar.classList.add("active");
+                                    txt.classList.add("active");
+                                }
                                 if (all_speaking) {
                                     if (left.childElementCount == 0)
                                         left.appendChild(avatar);
@@ -2018,10 +2021,7 @@ topNav = document.querySelector("#topNav");
 
 // When the user scrolls down 20px from the top of the document, show the button
 window.onscroll = scrollFunction;
-window.onresize = () => {
-    clearOffsetCache();
-    return scrollFunction();
-};
+window.onresize = () => scrollFunction(true);
 function adjustedMidpoint() {
     topNavHeight = getOffsets(topNav).offsetHeight;
     return window.innerHeight / 2 + topNavHeight / 2;
@@ -2201,10 +2201,13 @@ function _throttled_scroll_func() {
     playPauseMusic();
     scheduledAnimationFrame = false;
 }
-function scrollFunction() {
+function scrollFunction(bustCache = false) {
     if (scheduledAnimationFrame) return;
     scheduledAnimationFrame = true;
-    requestAnimationFrame(_throttled_scroll_func);
+    requestAnimationFrame(() => {
+        if (bustCache) clearOffsetCache();
+        return _throttled_scroll_func();
+    });
 }
 
 // When the user clicks on the button, scroll to the top of the document
@@ -2261,7 +2264,7 @@ toggleVisBtn.onclick = () => {
             icon.classList.add("fa-low-vision");
             break;
     }
-    scrollFunction();
+    scrollFunction(true); // changing to mode 1 will change scene sizes so clear cache
 };
 const toggleSfxBtn = document.getElementById("sfxButton");
 toggleSfxBtn.onclick = () => {
