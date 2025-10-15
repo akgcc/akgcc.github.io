@@ -94,27 +94,38 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 			4: 14,
 			5: 11,
 		};
+		const RARITY_TAG_IDS = new Set(Object.values(RARITY_TO_TAGID));
+
 		Object.values(RECRUIT_POOL).forEach((op) => {
-			op.fullTagList = op.tagList.map(
-				(x) => lowercase_tag_name_map[x.toLowerCase()],
+			const fullTagList = new Set(
+				op.tagList.map((x) => lowercase_tag_name_map[x.toLowerCase()]),
 			);
+
 			const positionTagId = POSITION_TO_TAGID[op.position.toLowerCase()];
-			if (positionTagId !== undefined) {
-				op.fullTagList.push(TAG_MAP[positionTagId]);
-			}
+			if (positionTagId !== undefined)
+				fullTagList.add(TAG_MAP[positionTagId]);
+
 			const professionTagId =
 				PROFESSION_TO_TAGID[op.profession.toLowerCase()];
-			if (professionTagId !== undefined) {
-				op.fullTagList.push(TAG_MAP[professionTagId]);
-			}
-			op.fullTagList.tagNamesNoRarity = op.fullTagList.map(
-				(tag) => tag.tagName,
-			);
+			if (professionTagId !== undefined)
+				fullTagList.add(TAG_MAP[professionTagId]);
+
+			// tagNamesNoRarity: array of tag names after removing rarity tags
+			op.tagNamesNoRarity = Array.from(
+				fullTagList.difference(RARITY_TAG_IDS),
+			)
+				.map((tag) => tag.tagName)
+				.sort((a, b) => a.localeCompare(b));
+
 			const rarityTagId = RARITY_TO_TAGID[op.rarity];
 			if (rarityTagId !== undefined) {
-				op.fullTagList.push(TAG_MAP[rarityTagId]);
+				fullTagList.add(TAG_MAP[rarityTagId]);
 			}
-			op.fullTagList.tagNames = op.fullTagList.map((tag) => tag.tagName);
+
+			// tagNames: array of tag names after adding rarity
+			op.tagNames = Array.from(fullTagList)
+				.map((tag) => tag.tagName)
+				.sort((a, b) => a.localeCompare(b));
 		});
 
 		Object.keys(TAG_CATEGORIES).forEach((category) => {
@@ -261,12 +272,12 @@ function findTagCombos() {
 	const res = {};
 	function get_valid_combos(low_rarity_ops, high_rarity_ops) {
 		Object.values(high_rarity_ops).forEach((op) => {
-			getCombinations(op.fullTagList.tagNamesNoRarity)
+			getCombinations(op.tagNamesNoRarity)
 				.sort((a, b) => a.length - b.length)
 				.forEach((subset) => {
 					let invalid = low_rarity_ops.some((lowrarityop) =>
 						isSuperset(
-							new Set(lowrarityop.fullTagList.tagNamesNoRarity),
+							new Set(lowrarityop.tagNamesNoRarity),
 							new Set(subset),
 						),
 					);
@@ -442,11 +453,7 @@ function calculateResults() {
 		Object.values(RECRUIT_POOL)
 			.filter((op) => hasTopOp || op.rarity < 5)
 			.forEach((op) => {
-				if (
-					tags.every((tag) =>
-						op.fullTagList.tagNames.includes(tag.tagName),
-					)
-				) {
+				if (tags.every((tag) => op.tagNames.includes(tag.tagName))) {
 					matches.push(op);
 				}
 			});
@@ -536,7 +543,7 @@ function calculateResults() {
 				selectedOp = e.currentTarget;
 				selectedOp.classList.toggle("checked");
 				opTagList.innerHTML = "";
-				op.fullTagList.tagNames.forEach((tag) => {
+				op.tagNames.forEach((tag) => {
 					let el = document.createElement("div");
 					el.innerHTML = tag;
 					el.classList.add("tag");
