@@ -1004,7 +1004,7 @@ async function genStory(data, avatars = []) {
                 scene.classList.add("scene");
                 const bg = document.createElement("div");
                 bg.classList.add("scene-background");
-                bg.classList.add("uninitialized");
+                bg.classList.add("top");
                 scene.appendChild(bg);
                 scene.bg = bg;
                 // mark as image to prevent pruning if the scene is empty
@@ -2067,34 +2067,16 @@ function autoPlayMidPoint() {
 }
 function alignBackground(s) {
     const realimheight = getOffsets(s.bg).offsetHeight;
-    const viewportMiddle = window.innerHeight / 2; // middle of viewport, not realMidpoint
-    s.bg.classList.remove("uninitialized");
     // skip getViewportTop as scene.offsetTop is equivalent
     const sceneTop = getOffsets(s).offsetTop - window.scrollY;
-    const sceneBottom =
-        getOffsets(s).offsetTop + getOffsets(s).offsetHeight - window.scrollY;
+    const sceneBottom = sceneTop + getOffsets(s).offsetHeight;
+    s.classList.remove("top", "bottom", "fixed");
     if (sceneTop > realMidpoint - realimheight / 2) {
-        s.bg.style.top = "0";
-        s.bg.style.removeProperty("bottom");
-        s.bg.style.transform = "translateX(-50%)";
-        s.setAttribute("bgpos", "top");
+        s.classList.add("top");
     } else if (sceneBottom < realimheight / 2 + realMidpoint) {
-        s.bg.style.removeProperty("top");
-        s.bg.style.bottom = "0";
-        s.bg.style.transform = "translateX(-50%)";
-        s.setAttribute("bgpos", "bottom");
+        s.classList.add("bottom");
     } else {
-        s.bg.style.removeProperty("bottom");
-        s.bg.style.top = "0";
-        // use translate instead of setting top for better performance (allegedly)
-        s.bg.style.transform = `translate(-50%, ${
-            window.scrollY +
-            viewportMiddle -
-            getOffsets(s).offsetTop -
-            realimheight / 2 +
-            topNavHeight / 2
-        }px)`;
-        s.setAttribute("bgpos", "fixed");
+        s.classList.add("fixed");
     }
 }
 document.getElementById("playPauseBtn").onclick = () => playPauseMusic(true);

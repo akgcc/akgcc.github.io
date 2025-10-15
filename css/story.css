@@ -404,7 +404,7 @@ audio {
 #avatarModal .dlBtn {
   margin: 0.25em;
 }
-.scene[bgpos="fixed"] .dlBtn {
+.scene.fixed .dlBtn {
   top: calc(
     50% - var(--story-bg-width) / calc(var(--aspectratio)) / 2 +
       var(--topNav-height) / 2
@@ -414,7 +414,7 @@ audio {
   ); /* use full width (not bg) so its accessible on landscape */
   position: fixed;
 }
-.scene[bgpos="bottom"] .dlBtn {
+.scene.bottom .dlBtn {
   top: calc(100% - var(--story-bg-width) / calc(var(--aspectratio)));
 }
 
@@ -684,7 +684,6 @@ html {
   overflow: hidden;
 }
 .scene-background {
-  position: absolute;
   width: var(--story-bg-width);
   aspect-ratio: var(--aspectratio);
   background: black;
@@ -699,8 +698,18 @@ html {
   background-color: black;
   will-change: transform;
 }
-.scene-background.uninitialized {
+.scene.top .scene-background {
+  position: absolute;
   top: 0;
+}
+.scene.bottom .scene-background {
+  position: absolute;
+  bottom: 0;
+}
+.scene.fixed .scene-background {
+  position: fixed;
+  top: calc(50% + var(--topNav-height) / 2);
+  transform: translate(-50%, -50%);
 }
 .dialog p {
   display: block;
