@@ -1018,7 +1018,8 @@ async function genStory(data, avatars = []) {
                     for (a of preSceneAudios) scene.appendChild(a);
                     preSceneAudios.length = 0;
                 }
-                prepareBackground(imgurls, options).then(
+                scene.backgroundPromise = prepareBackground(imgurls, options);
+                scene.backgroundPromise.then(
                     ({ url: _img_url, naturalWidth, naturalHeight }) => {
                         alignBackground(scene);
                         let dl_btn = document.createElement("i");
@@ -1848,6 +1849,16 @@ async function genStory(data, avatars = []) {
                 }
             }
             addCurrentScene(true);
+            Promise.all(allScenes.map((scene) => scene.backgroundPromise)).then(
+                () => {
+                    clearOffsetCache();
+                    realMidpoint = adjustedMidpoint();
+                    autoPlayPoint = autoPlayMidPoint();
+                    allScenes.forEach((s) => {
+                        alignBackground(s);
+                    });
+                },
+            );
             let readTimeMinutes = Math.round(
                 wordCount / 400 + (imgCount * 12) / 60,
             );
@@ -2174,8 +2185,8 @@ function autoPlaySounds() {
 var scheduledAnimationFrame;
 var unitless_story_width = -1;
 function _throttled_scroll_func() {
-    autoPlayPoint = autoPlayMidPoint();
     realMidpoint = adjustedMidpoint();
+    autoPlayPoint = autoPlayMidPoint();
     // --story-width-unitless is a hack to get this working on firefox.
     unitless_story_width_tmp = getOffsets(storyDiv).offsetWidth;
     if (unitless_story_width != unitless_story_width_tmp)
