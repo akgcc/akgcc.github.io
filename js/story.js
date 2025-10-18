@@ -992,8 +992,8 @@ async function genStory(data, avatars = []) {
 
                 if (xscalefrom != null)
                     el.style.setProperty("--xscalefrom", `${xscalefrom}`);
-                if (x != null) el.style.setProperty("--xfrom", `${x}px`);
-                if (y != null) el.style.setProperty("--yfrom", `${y}px`);
+                if (x != null) el.style.setProperty("--xfrom", `${x}`);
+                if (y != null) el.style.setProperty("--yfrom", `${y}`);
             }
             function createScene(imgurls, options, cmd) {
                 freshScene = true;
@@ -1005,6 +1005,8 @@ async function genStory(data, avatars = []) {
                 const bg = document.createElement("div");
                 bg.classList.add("scene-background");
                 bg.classList.add("top");
+                const bgimg = document.createElement("img");
+                bg.appendChild(bgimg);
                 scene.appendChild(bg);
                 scene.bg = bg;
                 // mark as image to prevent pruning if the scene is empty
@@ -1052,83 +1054,79 @@ async function genStory(data, avatars = []) {
 
                 async function prepareBackground(imgUrls, options) {
                     let finalUrl, naturalWidth, naturalHeight;
-                    let internal_scale = 1;
+                    let internal_scale = 1.2;
+                    let dimsPromise = null;
+                    let urlPromise = null;
                     if (!isMultipart) {
                         // single image: use it directly
                         finalUrl = imgUrls[0];
-
-                        // get natural size without creating extra <img> in DOM
-                        const dims = await new Promise((resolve) => {
-                            const img = new Image();
-                            img.src = finalUrl;
-                            img.onload = () =>
+                        dimsPromise = new Promise((resolve) => {
+                            bgimg.src = finalUrl;
+                            bgimg.onload = () =>
                                 resolve({
-                                    width: img.naturalWidth,
-                                    height: img.naturalHeight,
+                                    width: bgimg.naturalWidth,
+                                    height: bgimg.naturalHeight,
                                 });
                         });
-                        naturalWidth = dims.width;
-                        naturalHeight = dims.height;
-                        internal_scale = 1080 / dims.height;
+                        // internal_scale = 1080 / dims.height; // decided to hardcode instead at 1.2 (for now)
                     } else {
                         // multiple images: stitch on canvas
-                        const images = await Promise.all(
-                            imgUrls.map(
-                                (url) =>
-                                    new Promise((resolve) => {
-                                        const img = new Image();
-                                        img.src = url;
-                                        img.crossOrigin = "anonymous";
-                                        img.onload = () => resolve(img);
-                                    }),
-                            ),
-                        );
                         const w_split = options.solidwidth.split("/");
                         const h_split = options.solidheight.split("/");
                         const isGrid = w_split.length == h_split.length;
                         const cols = isGrid
-                            ? Math.ceil(Math.sqrt(images.length))
+                            ? Math.ceil(Math.sqrt(imgUrls.length))
                             : w_split.length;
                         const rows = isGrid ? cols : h_split.length;
 
                         const tileWidth = options.solidwidth
                             ? parseInt(w_split[0])
-                            : images[0].naturalWidth;
+                            : 960; // images[0].naturalWidth; can't use these as we no longer await image loading
                         const tileHeight = options.solidheight
                             ? parseInt(h_split[0])
-                            : images[0].naturalHeight;
+                            : 540; // images[0].naturalHeight;
                         naturalWidth = tileWidth * cols;
                         naturalHeight = tileHeight * rows;
-                        internal_scale = 1080 / tileHeight;
-                        if (rows > 1 && cols > 1) internal_scale = rows;
+                        internal_scale = 0.9;
                         const canvas = document.createElement("canvas");
                         canvas.width = naturalWidth;
                         canvas.height = naturalHeight;
                         const ctx = canvas.getContext("2d");
-
-                        for (let row = 0; row < rows; row++) {
-                            for (let col = 0; col < cols; col++) {
-                                const x = col * tileWidth;
-                                const y = row * tileHeight;
-
-                                ctx.drawImage(
-                                    images[row * cols + col],
-                                    x,
-                                    y,
-                                    tileWidth,
-                                    tileHeight,
-                                );
-                            }
-                        }
-
-                        finalUrl = await new Promise((resolve) => {
-                            canvas.toBlob((blob) =>
-                                resolve(URL.createObjectURL(blob)),
+                        urlPromise = Promise.all(
+                            imgUrls.map(
+                                (url) =>
+                                    new Promise((resolve) => {
+                                        const img = new Image();
+                                        img.crossOrigin = "anonymous";
+                                        img.src = url;
+                                        img.onload = () => resolve(img);
+                                    }),
+                            ),
+                        )
+                            .then((images) => {
+                                for (let row = 0; row < rows; row++) {
+                                    for (let col = 0; col < cols; col++) {
+                                        const x = col * tileWidth;
+                                        const y = row * tileHeight;
+                                        ctx.drawImage(
+                                            images[row * cols + col],
+                                            x,
+                                            y,
+                                            tileWidth,
+                                            tileHeight,
+                                        );
+                                    }
+                                }
+                            })
+                            .then(
+                                () =>
+                                    new Promise((resolve) =>
+                                        canvas.toBlob((blob) =>
+                                            resolve(URL.createObjectURL(blob)),
+                                        ),
+                                    ),
                             );
-                        });
                     }
-                    // internal_scale represents the game autoscaling Images up to fill the screen
-                    // coverall should be the same as our --bscale
                     const coverall = ["coverall", "showall"].includes(
                         options.screenadapt,
                     );
@@ -1137,37 +1135,44 @@ async function genStory(data, avatars = []) {
                         options.xscale ?? options.xscalefrom ?? 1;
                     const x = options.x ?? options.xfrom ?? 0;
                     const y = options.y ?? options.yfrom ?? 0;
-                    // scaling I am doing locally, to fit the story reader/browser
-                    // this may have issues on images with <> 16:9 aspect ratio
-                    bg.style.setProperty(
-                        "--bscale",
-                        `var(--story-width-unitless) / ${naturalWidth}`,
-                    );
-                    if (coverall) bg.style.setProperty("--bscale", `1`);
-                    const cornerAnchor = ["gridbg", "largebgtween"].includes(
-                        cmd,
-                    );
-                    Object.assign(bg.style, {
-                        backgroundImage: `url(${finalUrl})`,
-                        // 100% is effectively --story-bg-width
-                        backgroundSize: `calc(100% * var(--xscalefrom, ${xscalefrom}) * ${internal_scale}) auto`,
-                        backgroundPositionX: `calc(${
-                            cornerAnchor ? "0%" : "50%"
-                        } + var(--xfrom, ${x}px) * ${internal_scale} * var(--bscale))`,
-                        backgroundPositionY: `calc(${
-                            cornerAnchor ? "0%" : "50%"
-                        } - var(--yfrom, ${y}px) * ${internal_scale} * var(--bscale))`,
-                    });
-                    if (cmd == "verticalbg") {
-                        // flip y
-                        bg.style.backgroundPositionY = `calc(${
-                            cornerAnchor ? "0%" : "50%"
-                        } + var(--yfrom, ${y}px) * ${internal_scale} * var(--bscale))`;
-                    }
 
+                    bgimg.style.objectFit = "cover";
+                    bgimg.style.width = "100%";
+                    bgimg.style.top = "50%";
+                    bgimg.style.position = "absolute";
+                    let sscale = 0.75;
+                    let scale_percent = 1;
+                    if (["largebg", "gridbg", "verticalbg"].includes(cmd)) {
+                        internal_scale = 0.9;
+                        scale_percent =
+                            ((naturalWidth / 960) * sscale) / internal_scale;
+                        bgimg.style.width = `${scale_percent * 100}%`;
+                    }
+                    bgimg.style.transform = `translateY(-50%) matrix(${
+                        internal_scale * xscalefrom
+                    },0,0,${internal_scale * xscalefrom},
+                    calc(var(--xfrom, ${x}) * var(--story-width-unitless) / 960 * ${sscale}),
+                    calc(${
+                        cmd == "verticalbg" ? "-1 * " : ""
+                    }var(--yfrom, ${-y}) * var(--story-width-unitless) / 960 * ${sscale}))`;
+                    // failed clamp bandaid attempt: clamp(\
+                    // calc((1 - ${scale_percent} * (1 + ${internal_scale}) / 2) * var(--story-width-unitless)),\
+                    // calc(${x} * var(--story-width-unitless) / 960 * ${sscale}),\
+                    // calc(-1 * var(--story-width-unitless) * ${scale_percent} * (1 - ${internal_scale}) / 2)\
+                    // ),
+
+                    const dims = await (dimsPromise ??
+                        Promise.resolve({
+                            width: naturalWidth,
+                            height: naturalHeight,
+                        }));
+                    if (urlPromise) {
+                        finalUrl = await urlPromise;
+                        bgimg.src = finalUrl;
+                    }
                     return {
-                        naturalWidth,
-                        naturalHeight,
+                        naturalWidth: dims.width,
+                        naturalHeight: dims.height,
                         url: finalUrl,
                     };
                 }
