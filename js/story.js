@@ -1127,9 +1127,9 @@ async function genStory(data, avatars = []) {
                                     ),
                             );
                     }
-                    const coverall = ["coverall", "showall"].includes(
-                        options.screenadapt,
-                    );
+                    const coverall =
+                        ["coverall", "showall"].includes(options.screenadapt) ||
+                        (cmd == "background" && !options.xscalefrom); // force non-scaled backgrounds to coverall
                     if (coverall) internal_scale = 1;
                     const xscalefrom =
                         options.xscale ?? options.xscalefrom ?? 1;
@@ -1155,8 +1155,8 @@ async function genStory(data, avatars = []) {
                     bgimg.style.transform = `translateY(-50%) matrix(var(--totalscale),0,0,var(--totalscale),
                     calc(var(--xfrom, ${x}) * var(--story-width-unitless) / 960 * ${sscale}),
                     calc(${
-                        cmd == "verticalbg" ? "-1 * " : ""
-                    }var(--yfrom, ${y}) * var(--story-width-unitless) / 960 * ${sscale}))`;
+                        cmd == "verticalbg" ? "1" : "-1"
+                    } * var(--yfrom, ${y}) * var(--story-width-unitless) / 960 * ${sscale}))`;
                     // failed clamp bandaid attempt: clamp(\
                     // calc((1 - ${scale_percent} * (1 + ${internal_scale}) / 2) * var(--story-width-unitless)),\
                     // calc(${x} * var(--story-width-unitless) / 960 * ${sscale}),\
@@ -1454,9 +1454,6 @@ async function genStory(data, avatars = []) {
                                 (!args || !args.image)
                             )
                                 break;
-                            if (cmd == "background")
-                                args.screenadapt =
-                                    args.screenadapt ?? "coverall";
                             // insert new div when background changes and set to current scene
                             let wasDisplayingImage = false;
                             if (scene) {
