@@ -1010,7 +1010,7 @@ async function genStory(data, avatars = []) {
                 scene.appendChild(bg);
                 scene.bg = bg;
                 // mark as image to prevent pruning if the scene is empty
-                if (options?.image || options?.imagegroup)
+                if (options?.image || options?.imagegroup || options?.cggroup)
                     scene.classList.add("image");
                 if (hangingBlocker) {
                     scene.appendChild(hangingBlocker);
@@ -1444,7 +1444,7 @@ async function genStory(data, avatars = []) {
                                 ["gridbg", "verticalbg", "largebg"].includes(
                                     cmd,
                                 ) &&
-                                (!args || !args.imagegroup)
+                                (!args || (!args.imagegroup && !args.cggroup))
                             )
                                 break;
                         case "roguebackground":
@@ -1484,8 +1484,13 @@ async function genStory(data, avatars = []) {
                                 case "gridbg":
                                 case "verticalbg":
                                     imgurls = args.imagegroup
-                                        .split("/")
-                                        .map((x) => uri_background(x));
+                                        ? args.imagegroup
+                                              .split("/")
+                                              .map((x) => uri_background(x))
+                                        : // args.cggroup instead:
+                                          args.cggroup
+                                              .split("/")
+                                              .map((x) => uri_image(x));
                                     lastBackgroundImage = imgurls;
                                     break;
                                 case "moduleimage":
