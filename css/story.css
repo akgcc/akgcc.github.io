@@ -129,6 +129,7 @@
   flex-direction: column;
   max-width: var(--story-width);
   margin: 0 auto;
+  overflow: hidden;
 }
 .dialog {
   display: flex;

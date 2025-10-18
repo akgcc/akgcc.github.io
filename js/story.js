@@ -1148,13 +1148,15 @@ async function genStory(data, avatars = []) {
                             ((naturalWidth / 960) * sscale) / internal_scale;
                         bgimg.style.width = `${scale_percent * 100}%`;
                     }
-                    bgimg.style.transform = `translateY(-50%) matrix(${
-                        internal_scale * xscalefrom
-                    },0,0,${internal_scale * xscalefrom},
+                    bg.style.setProperty(
+                        "--totalscale",
+                        `calc(${internal_scale} * var(--xscalefrom, ${xscalefrom}))`,
+                    );
+                    bgimg.style.transform = `translateY(-50%) matrix(var(--totalscale),0,0,var(--totalscale),
                     calc(var(--xfrom, ${x}) * var(--story-width-unitless) / 960 * ${sscale}),
                     calc(${
                         cmd == "verticalbg" ? "-1 * " : ""
-                    }var(--yfrom, ${-y}) * var(--story-width-unitless) / 960 * ${sscale}))`;
+                    }var(--yfrom, ${y}) * var(--story-width-unitless) / 960 * ${sscale}))`;
                     // failed clamp bandaid attempt: clamp(\
                     // calc((1 - ${scale_percent} * (1 + ${internal_scale}) / 2) * var(--story-width-unitless)),\
                     // calc(${x} * var(--story-width-unitless) / 960 * ${sscale}),\
