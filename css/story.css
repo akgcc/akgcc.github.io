@@ -686,7 +686,6 @@ html {
 .scene-background {
   width: var(--story-bg-width);
   aspect-ratio: var(--aspectratio);
-  background: black;
   padding: 0;
   margin: 0;
   background-repeat: no-repeat;
@@ -695,8 +694,8 @@ html {
   overflow: hidden;
   left: 50%;
   transform: translateX(-50%);
-  background-color: black;
-  will-change: transform;
+  background: #0000;
+  background-color: #0000;
 }
 .scene.top .scene-background {
   position: absolute;
