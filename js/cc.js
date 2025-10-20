@@ -457,12 +457,13 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
     // stylesheet.sheet.insertRule("@media (hover: hover) { body #filters.hidden {"+"top: calc(-"+(filtercontainer.offsetHeight-10)+"px + var(--topNav-height) + 10px);"+"}}", 0);
     // }).observe(filtercontainer)
     function activatefiltercontainer(e) {
-      if (e.type == "mousedown") filtercontainer.classList.add("active");
+      if (e.type === "pointerdown") filtercontainer.classList.add("active");
       else filtercontainer.classList.remove("active");
     }
-    filtercontainer.addEventListener("mousedown", activatefiltercontainer);
-    filtercontainer.addEventListener("mouseup", activatefiltercontainer);
-    filtercontainer.addEventListener("mouseleave", activatefiltercontainer);
+
+    filtercontainer.addEventListener("pointerdown", activatefiltercontainer);
+    filtercontainer.addEventListener("pointerup", activatefiltercontainer);
+    filtercontainer.addEventListener("pointerleave", activatefiltercontainer);
 
     var filtertoggle = document.getElementById("filterToggle");
     function adjustBasedOnScroll() {
@@ -508,9 +509,9 @@ fetch(`${DATA_BASE[SERVERS.EN]}/gamedata/excel/skill_table.json`)
         filtercontainer.classList.remove("canSlide");
         var canSlideOnLeave = (e) => {
           adjustBasedOnScroll();
-          filtertoggle.removeEventListener("mouseleave", canSlideOnLeave);
+          filtertoggle.removeEventListener("pointerleave", canSlideOnLeave);
         };
-        filtertoggle.addEventListener("mouseleave", canSlideOnLeave);
+        filtertoggle.addEventListener("pointerleave", canSlideOnLeave);
       }
       icon.classList.toggle("fa-caret-up");
       icon.classList.toggle("fa-caret-down");

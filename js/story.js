@@ -34,7 +34,6 @@ var operatorData,
     moduleStory,
     rogueStory,
     storyTable,
-    freshScene,
     storyNameDiv;
 soundQueue.max_size = 5;
 longSoundQueue.max_size = 2;
@@ -680,6 +679,8 @@ async function genStory(data, avatars = []) {
     lastPredicate = { 1: [], 2: [], 3: [] }; // prevents catastrophic failure in an edge case
     wordCount = 0;
     imgCount = 0;
+    let freshScene = false;
+    const bgAnimations = [];
     async function getModuleStory(key) {
         return {
             //bg_corridor is a good alternate
@@ -1045,11 +1046,17 @@ async function genStory(data, avatars = []) {
                                 : "linear",
                         });
                         anim.pause();
-                        bg.parentElement.addEventListener("mouseenter", () =>
-                            anim.play(),
+                        bgAnimations.push(anim);
+                        bg.parentElement.addEventListener(
+                            "pointerenter",
+                            (e) => {
+                                bgAnimations.forEach((a) => a.pause());
+                                anim.play();
+                            },
                         );
-                        bg.parentElement.addEventListener("mouseleave", () =>
-                            anim.pause(),
+                        bg.parentElement.addEventListener(
+                            "pointerleave",
+                            (e) => e.pointerType === "mouse" && anim.pause(),
                         );
                     }
                 }
@@ -1112,17 +1119,18 @@ async function genStory(data, avatars = []) {
                         dl_btn.classList.add("fa-external-link-alt");
                         dl_btn.classList.add("dlBtn");
                         var tempHideAll = null;
-                        dl_btn.onmouseover = () => {
+                        dl_btn.addEventListener("pointerenter", () => {
                             tempHideAll = setTimeout(
                                 () => storyDiv.classList.add("bg_only"),
                                 250,
                             );
-                        };
-                        dl_btn.onmouseout = () => {
+                        });
+                        dl_btn.addEventListener("pointerleave", () => {
                             clearTimeout(tempHideAll);
                             storyDiv.classList.remove("bg_only");
-                        };
-                        dl_btn.addEventListener("click", function () {
+                        });
+                        dl_btn.addEventListener("click", () => {
+                            clearTimeout(tempHideAll);
                             window.open(_img_url, "_blank");
                         });
                         scene.appendChild(dl_btn);
@@ -2377,13 +2385,15 @@ volSlider.oninput = () => {
 
 const toggleVisBtn = document.getElementById("visButton");
 var tempHideAll = null;
-toggleVisBtn.onmouseover = () => {
+toggleVisBtn.addEventListener("pointerenter", () => {
     tempHideAll = setTimeout(() => storyDiv.classList.add("bg_only"), 250);
-};
-toggleVisBtn.onmouseout = () => {
+});
+
+toggleVisBtn.addEventListener("pointerleave", () => {
     clearTimeout(tempHideAll);
     storyDiv.classList.remove("bg_only");
-};
+});
+
 toggleVisBtn.addEventListener("click", () => {
     clearTimeout(tempHideAll);
     storyDiv.classList.remove("bg_only");
