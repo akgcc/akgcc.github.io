@@ -751,9 +751,13 @@ async function genStory(data, avatars = []) {
                 function colorStringToObject(color) {
                     // if already an obj convert values to numbers then return.
                     if (typeof color === "object") {
+                        const colorkeys = ["r", "g", "b", "a"];
+                        const nocolor = !colorkeys.some((k) => k in color);
                         ["r", "g", "b", "a"].forEach((k) => {
                             if (k in color) color[k] = Number(color[k]);
+                            if (nocolor) color[k] = 0;
                         });
+                        if (nocolor) color.a = 1;
                         return color;
                     }
                     const [r, g, b, a] = color
@@ -821,7 +825,6 @@ async function genStory(data, avatars = []) {
                 end_color = colorObjectToString(end_color_obj);
                 blocker.style.setProperty("--end-color", end_color);
                 if (!prepend) lastBlockerColor = end_color;
-
                 if (start_color_obj.a > end_color_obj.a) {
                     // indicates a fadeout
                     blocker.classList.add("fadeout");
@@ -908,7 +911,7 @@ async function genStory(data, avatars = []) {
                     // --fill-blocker should be used as the scenebreak color if no lastblock is found
                     scene.classList.add("blockerPadded");
                 }
-                let firstDialog = scene.children[1];
+                let firstDialog = scene.children?.[1];
                 if (
                     !firstDialog?.classList.contains("blocker") ||
                     firstDialog?.classList.contains("fadein")
@@ -916,7 +919,7 @@ async function genStory(data, avatars = []) {
                     const alpha =
                         scene_start_color
                             .match(/\d+(\.\d+)?/g)
-                            .map(Number)[3] ?? 1;
+                            .map(Number)?.[3] ?? 1;
                     // set alpha to 1 for start color to match the solid scenebreak
                     blocker = addBlocker(
                         alpha > 0
@@ -998,9 +1001,9 @@ async function genStory(data, avatars = []) {
                 inoutbounce: "cubic-bezier(0.8, 0, 0.2, 1)",
             };
             function applyTween(bg, options) {
-                const xscalefrom = options.xscale ?? options.xscalefrom;
-                const x = options.xto ?? options.x ?? options.xfrom;
-                const y = options.yto ?? options.y ?? options.yfrom;
+                let xscalefrom = options.xscale ?? options.xscalefrom;
+                let xfrom = options.xto ?? options.x ?? options.xfrom;
+                let yfrom = options.yto ?? options.y ?? options.yfrom;
 
                 // animate if duration is given.
                 if (options.duration != null) {
@@ -1027,8 +1030,12 @@ async function genStory(data, avatars = []) {
                         );
                         second["--yfrom"] = Number(options.yto);
                     }
-
-                    if (first && second) {
+                    if (options.duration < 0.1) {
+                        // some are duration .01 or similar; skip the animation and just set values immediately.
+                        xscalefrom = second?.["--xscalefrom"] ?? xscalefrom;
+                        xfrom = second?.["--xfrom"] ?? xfrom;
+                        yfrom = second?.["--yfrom"] ?? yfrom;
+                    } else if (first && second) {
                         const anim = bg.animate([first, second], {
                             duration: 1000 * options.duration,
                             iterations: 1,
@@ -1051,13 +1058,13 @@ async function genStory(data, avatars = []) {
                     bg.style.setProperty("--xscalefrom", `${xscalefrom}`);
                     bg.xscalefrom = xscalefrom;
                 }
-                if (x != null) {
-                    bg.style.setProperty("--xfrom", `${x}`);
-                    bg.xfrom = x;
+                if (xfrom != null) {
+                    bg.style.setProperty("--xfrom", `${xfrom}`);
+                    bg.xfrom = xfrom;
                 }
-                if (y != null) {
-                    bg.style.setProperty("--yfrom", `${y}`);
-                    bg.yfrom = y;
+                if (yfrom != null) {
+                    bg.style.setProperty("--yfrom", `${yfrom}`);
+                    bg.yfrom = yfrom;
                 }
             }
             function createScene(imgurls, options, cmd) {
@@ -1603,6 +1610,25 @@ async function genStory(data, avatars = []) {
                             }
                             scene = createScene(imgurls, args, cmd);
                             break;
+                        case "character":
+                            if (args) {
+                                speaker = parseInt(args.focus) || 1; // set to 1 if focus key doesnt exist.
+                                chars = {};
+                                let current = null;
+                                Object.keys(args).forEach((k) => {
+                                    if (k.startsWith("name")) {
+                                        chars[k] = { name: args[k] };
+                                        current = k;
+                                    }
+                                    if (current) {
+                                        chars[current][k] = args[k];
+                                    }
+                                });
+                            } else {
+                                chars = {};
+                                speaker = 0;
+                            }
+                            break;
                         case "charslot": // new format (replaces "character")
                             if (args) {
                                 speaker =
@@ -1642,19 +1668,6 @@ async function genStory(data, avatars = []) {
                                 if (args.end) {
                                     endMultiLine();
                                 }
-                            }
-                            break;
-                        case "character":
-                            if (args) {
-                                speaker = parseInt(args.focus) || 1; // set to 1 if focus key doesnt exist.
-                                chars = {};
-                                Object.keys(args).forEach((k) => {
-                                    if (k.startsWith("name"))
-                                        chars[k] = { name: args[k] };
-                                });
-                            } else {
-                                chars = {};
-                                speaker = 0;
                             }
                             break;
                         case "animtext":
@@ -2109,8 +2122,8 @@ function avatarImg(data, isAvatar = false) {
 
     // add effects:
     if (data.ato) img.style.opacity = data.ato;
-    const bstart = data.bstart ?? 0;
-    const bend = data.bend ?? 0;
+    const bstart = data.bstart ?? data.blackstart ?? data.blackstart2 ?? 0;
+    const bend = data.bend ?? data.blackend ?? data.blackend2 ?? 0;
     if (bend > 0) img.style.filter = "brightness(0)";
     let wrap = document.createElement("div");
     wrap.classList.add("avatar");
