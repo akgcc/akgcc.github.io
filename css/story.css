@@ -1,11 +1,11 @@
 :root {
   --story-width: min(
-    calc((100vmin - var(--topNav-height)) * 16 / 9),
-    calc(100vw - var(--scrollbarWidth))
+    (100vmin - var(--topNav-height)) * 16 / 9,
+    100vw - var(--scrollbarWidth)
   );
   --story-bg-width: min(
     var(--story-width),
-    calc((100vh - var(--topNav-height)) * 16 / 9)
+    (100vh - var(--topNav-height)) * 16 / 9
   );
   --dialog-size: 5.5em;
   --aspectratio: 16 / 9;
@@ -697,6 +697,25 @@ html {
   transform: translateX(-50%);
   background: #0000;
   background-color: #0000;
+}
+.scene-background .bg-scale-wrap {
+  height: 100%;
+  width: 100%;
+  transform: scale(calc(var(--totalScale)));
+  transform-origin: calc(
+      var(--story-scale) * (var(--halfWidth) + var(--xmod, 0))
+    )
+    calc(var(--story-scale) * (var(--halfHeight) + var(--ymod, 0)));
+}
+.scene-background img {
+  transform: translate(
+    calc(var(--story-scale) * var(--xmod, 0)),
+    calc(var(--story-scale) * var(--ymod, 0))
+  );
+  display: block;
+  object-fit: cover;
+  width: 100%;
+  position: absolute;
 }
 .scene.top .scene-background {
   position: absolute;

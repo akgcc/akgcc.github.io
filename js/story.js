@@ -1005,8 +1005,11 @@ async function genStory(data, avatars = []) {
                 const bg = document.createElement("div");
                 bg.classList.add("scene-background");
                 bg.classList.add("top");
+                const bgscale = document.createElement("div");
+                bgscale.classList.add("bg-scale-wrap");
+                bg.appendChild(bgscale);
                 const bgimg = document.createElement("img");
-                bg.appendChild(bgimg);
+                bgscale.appendChild(bgimg);
                 scene.appendChild(bg);
                 scene.bg = bg;
                 // mark as image to prevent pruning if the scene is empty
@@ -1053,10 +1056,14 @@ async function genStory(data, avatars = []) {
                 return scene;
 
                 async function prepareBackground(imgUrls, options) {
-                    let finalUrl, naturalWidth, naturalHeight;
-                    let internal_scale = 1.2;
+                    let finalUrl;
+                    const gameViewport = { width: 1280, height: 720 };
+                    let naturalWidth = gameViewport.width;
+                    let naturalHeight = gameViewport.height;
                     let dimsPromise = null;
                     let urlPromise = null;
+                    let tileWidth = gameViewport.width;
+                    let tileHeight = gameViewport.height;
                     if (!isMultipart) {
                         // single image: use it directly
                         finalUrl = imgUrls[0];
@@ -1068,26 +1075,26 @@ async function genStory(data, avatars = []) {
                                     height: bgimg.naturalHeight,
                                 });
                         });
-                        // internal_scale = 1080 / dims.height; // decided to hardcode instead at 1.2 (for now)
                     } else {
                         // multiple images: stitch on canvas
-                        const w_split = options.solidwidth.split("/");
-                        const h_split = options.solidheight.split("/");
+                        const w_split = options.solidwidth
+                            .split("/")
+                            .map((x) => Number(x.replace(",", "")));
+                        const h_split = options.solidheight
+                            .split("/")
+                            .map((x) => Number(x.replace(",", "")));
                         const isGrid = w_split.length == h_split.length;
                         const cols = isGrid
                             ? Math.ceil(Math.sqrt(imgUrls.length))
                             : w_split.length;
                         const rows = isGrid ? cols : h_split.length;
 
-                        const tileWidth = options.solidwidth
-                            ? parseInt(w_split[0])
-                            : 960; // images[0].naturalWidth; can't use these as we no longer await image loading
-                        const tileHeight = options.solidheight
-                            ? parseInt(h_split[0])
-                            : 540; // images[0].naturalHeight;
+                        tileWidth = options.solidwidth ? w_split[0] : tileWidth; // images[0].naturalWidth; can't use these as we no longer await image loading
+                        tileHeight = options.solidheight
+                            ? h_split[0]
+                            : tileHeight;
                         naturalWidth = tileWidth * cols;
                         naturalHeight = tileHeight * rows;
-                        internal_scale = 0.9;
                         const canvas = document.createElement("canvas");
                         canvas.width = naturalWidth;
                         canvas.height = naturalHeight;
@@ -1127,47 +1134,79 @@ async function genStory(data, avatars = []) {
                                     ),
                             );
                     }
-                    const coverall =
-                        ["coverall", "showall"].includes(options.screenadapt) ||
-                        (cmd == "background" && !options.xscalefrom); // force non-scaled backgrounds to coverall
-                    if (coverall) internal_scale = 1;
                     const xscalefrom =
                         options.xscale ?? options.xscalefrom ?? 1;
                     const x = options.x ?? options.xfrom ?? 0;
                     const y = options.y ?? options.yfrom ?? 0;
 
-                    bgimg.style.objectFit = "cover";
-                    bgimg.style.width = "100%";
-                    bgimg.style.top = "50%";
-                    bgimg.style.position = "absolute";
-                    let sscale = 0.75;
-                    let scale_percent = 1;
-                    if (["largebg", "gridbg", "verticalbg"].includes(cmd)) {
-                        internal_scale = 0.9;
-                        scale_percent =
-                            ((naturalWidth / 960) * sscale) / internal_scale;
-                        bgimg.style.width = `${scale_percent * 100}%`;
+                    if (isMultipart) {
+                        bgimg.style.width = `${
+                            (naturalWidth / gameViewport.width) * 100
+                        }%`;
                     }
-                    bg.style.setProperty(
-                        "--totalscale",
-                        `calc(${internal_scale} * var(--xscalefrom, ${xscalefrom}))`,
-                    );
-                    bgimg.style.transform = `translateY(-50%) matrix(var(--totalscale),0,0,var(--totalscale),
-                    calc(var(--xfrom, ${x}) * var(--story-width-unitless) / 960 * ${sscale}),
-                    calc(${
-                        cmd == "verticalbg" ? "1" : "-1"
-                    } * var(--yfrom, ${y}) * var(--story-width-unitless) / 960 * ${sscale}))`;
-                    // failed clamp bandaid attempt: clamp(\
-                    // calc((1 - ${scale_percent} * (1 + ${internal_scale}) / 2) * var(--story-width-unitless)),\
-                    // calc(${x} * var(--story-width-unitless) / 960 * ${sscale}),\
-                    // calc(-1 * var(--story-width-unitless) * ${scale_percent} * (1 - ${internal_scale}) / 2)\
-                    // ),
 
+                    // full process is something like this:
+                    // 0. multiply all following translates by the scale factor aka browser viewport width : 1280 (ingame viewport is 1280x720)
+                    // 1. translate image so the top left subimage (if composite) is centered on the viewport, then translate by x/y
+                    // 2. scale around the center of the IMAGE, not the viewport. (requires subtracting step 1 translate to transform-origin)
+                    // 3. if background/coverall, scale so the image covers the ingame viewport (1280x720)
+                    // currently I only focused on width so if there is an image with height>width this will likely break.
+
+                    // half dims used to set transform-origin.
+                    bg.style.setProperty(
+                        "--halfWidth",
+                        `${
+                            isMultipart
+                                ? naturalWidth / 2
+                                : gameViewport.width / 2
+                        }`,
+                    );
+                    bg.style.setProperty(
+                        "--halfHeight",
+                        `${
+                            isMultipart
+                                ? naturalHeight / 2
+                                : gameViewport.height / 2
+                        }`,
+                    );
+                    bg.style.setProperty(
+                        "--totalScale",
+                        `var(--fit-scale, 1) * var(--xscalefrom, 1)`,
+                    );
+                    // for single images these are just 1280 / 720 and cancel to 0.
+                    bg.style.setProperty("--tileWidth", `${tileWidth}`);
+                    bg.style.setProperty("--tileHeight", `${tileHeight}`);
+                    applyTween(bg, options); // set CSS vars.
+                    bg.style.setProperty(
+                        "--xmod",
+                        `((1280 - var(--tileWidth)) / 2 + var(--xfrom, 0))`,
+                    );
+                    bg.style.setProperty(
+                        "--ymod",
+                        `((720 - var(--tileHeight)) / 2 - var(--yfrom, 0))`,
+                    );
+                    // scaling to the browser's viewport, separate from game's scaling.
+                    bg.style.setProperty(
+                        "--story-scale",
+                        `var(--story-bg-width) / 1280`,
+                    );
+
+                    const coverall =
+                        ["coverall", "showall"].includes(options.screenadapt) ||
+                        (cmd == "background" && !options.xscalefrom); // force non-scaled backgrounds to coverall
                     const dims = await (dimsPromise ??
                         Promise.resolve({
                             width: naturalWidth,
                             height: naturalHeight,
                         }));
+                    if (!isMultipart && !coverall)
+                        bg.style.setProperty(
+                            "--fit-scale",
+                            `${Math.max(
+                                1920 / dims.width,
+                                1080 / dims.height, // this is probably wrong as it uses 1920x1080 instead of 1280x720, but it looks right.
+                            )}`,
+                        );
                     if (urlPromise) {
                         finalUrl = await urlPromise;
                         bgimg.src = finalUrl;
@@ -2192,18 +2231,9 @@ function autoPlaySounds() {
     }
 }
 var scheduledAnimationFrame;
-var unitless_story_width = -1;
 function _throttled_scroll_func() {
     realMidpoint = adjustedMidpoint();
     autoPlayPoint = autoPlayMidPoint();
-    // --story-width-unitless is a hack to get this working on firefox.
-    unitless_story_width_tmp = getOffsets(storyDiv).offsetWidth;
-    if (unitless_story_width != unitless_story_width_tmp)
-        unitless_story_width = unitless_story_width_tmp;
-    storyDiv.style.setProperty(
-        "--story-width-unitless",
-        `${unitless_story_width}`,
-    );
     if (
         document.body.scrollTop > topNavHeight ||
         document.documentElement.scrollTop > topNavHeight
