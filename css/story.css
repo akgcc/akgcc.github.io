@@ -1,7 +1,8 @@
 :root {
   --story-width: min(
     (100vmin - var(--topNav-height)) * 16 / 9,
-    100vw - var(--scrollbarWidth)
+    100vw - var(--scrollbarWidth),
+    1920px
   );
   --story-bg-width: min(
     var(--story-width),
@@ -15,13 +16,13 @@
     --story-width: calc(100vw - var(--scrollbarWidth));
   }
 }
-@font-face {
+/*@font-face {
   font-family: "vn";
   src: url("../../webfonts/vn.woff2") format("woff2");
 }
 .dialog {
-  /*font-family: "vn";*/
-}
+  font-family: "vn";
+}*/
 .scene {
   width: 100%;
   padding: 0;

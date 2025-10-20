@@ -1030,12 +1030,11 @@ async function genStory(data, avatars = []) {
                         );
                         second["--yfrom"] = Number(options.yto);
                     }
-                    if (options.duration < 0.1) {
-                        // some are duration .01 or similar; skip the animation and just set values immediately.
-                        xscalefrom = second?.["--xscalefrom"] ?? xscalefrom;
-                        xfrom = second?.["--xfrom"] ?? xfrom;
-                        yfrom = second?.["--yfrom"] ?? yfrom;
-                    } else if (first && second) {
+                    xscalefrom = second?.["--xscalefrom"] ?? xscalefrom;
+                    xfrom = second?.["--xfrom"] ?? xfrom;
+                    yfrom = second?.["--yfrom"] ?? yfrom;
+                    // some are duration .01 or similar; skip the animation and set values immediately.
+                    if (first && second && options.duration > 0.1) {
                         const anim = bg.animate([first, second], {
                             duration: 1000 * options.duration,
                             iterations: 1,
@@ -1066,6 +1065,14 @@ async function genStory(data, avatars = []) {
                     bg.style.setProperty("--yfrom", `${yfrom}`);
                     bg.yfrom = yfrom;
                 }
+            }
+            function cloneScene(oldScene) {
+                [imgurls, options, cmd] = oldScene.args;
+                for (const key of ["xfrom", "yfrom", "xscalefrom"]) {
+                    if (oldScene.bg[key] !== undefined)
+                        options[key] = oldScene.bg[key];
+                }
+                return createScene.apply(null, oldScene.args);
             }
             function createScene(imgurls, options, cmd) {
                 freshScene = true;
@@ -1921,14 +1928,10 @@ async function genStory(data, avatars = []) {
                         case "imagetween":
                         case "backgroundtween":
                         case "largebgtween":
-                            // mid-scene tweens are currently ignored unless they have block=true
                             if (freshScene) applyTween(scene.bg, args);
-                            else if (
-                                args?.block?.toLowerCase() == "true" &&
-                                scene
-                            ) {
+                            else if (scene) {
                                 addCurrentScene();
-                                scene = createScene.apply(null, scene.args);
+                                scene = cloneScene(scene);
                                 applyTween(scene.bg, args);
                             }
                             break;
