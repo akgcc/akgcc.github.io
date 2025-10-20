@@ -978,22 +978,87 @@ async function genStory(data, avatars = []) {
                 }
                 return scene;
             }
-            function applyTween(el, options) {
+            const easingMap = {
+                // no idea if these are accurate they're from chatGPT lmao
+                linear: "cubic-bezier(0.0, 0.0, 1.0, 1.0)",
+                inquad: "cubic-bezier(0.55, 0.085, 0.68, 0.53)",
+                outquad: "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                inoutquad: "cubic-bezier(0.455, 0.03, 0.515, 0.955)",
+                incubic: "cubic-bezier(0.55, 0.055, 0.675, 0.19)",
+                outcubic: "cubic-bezier(0.215, 0.61, 0.355, 1.0)",
+                inoutcubic: "cubic-bezier(0.645, 0.045, 0.355, 1.0)",
+                inquart: "cubic-bezier(0.895, 0.03, 0.685, 0.22)",
+                outquart: "cubic-bezier(0.165, 0.84, 0.44, 1.0)",
+                inoutquart: "cubic-bezier(0.77, 0.0, 0.175, 1.0)",
+                inquint: "cubic-bezier(0.755, 0.05, 0.855, 0.06)",
+                outquint: "cubic-bezier(0.23, 1.0, 0.32, 1.0)",
+                inoutquint: "cubic-bezier(0.86, 0.0, 0.07, 1.0)",
+                inbounce: "cubic-bezier(0.8, 0, 1, 1)",
+                outbounce: "cubic-bezier(0, 0, 0.2, 1)",
+                inoutbounce: "cubic-bezier(0.8, 0, 0.2, 1)",
+            };
+            function applyTween(bg, options) {
                 const xscalefrom = options.xscale ?? options.xscalefrom;
-                const x =
-                    options.xto != null && options.xfrom != null
-                        ? (Number(options.xfrom) + Number(options.xto)) / 2
-                        : options.x ?? options.xfrom;
+                const x = options.xto ?? options.x ?? options.xfrom;
+                const y = options.yto ?? options.y ?? options.yfrom;
 
-                const y =
-                    options.yto != null && options.yfrom != null
-                        ? (Number(options.yfrom) + Number(options.yto)) / 2
-                        : options.y ?? options.yfrom;
+                // animate if duration is given.
+                if (options.duration != null) {
+                    const first = {};
+                    const second = {};
 
-                if (xscalefrom != null)
-                    el.style.setProperty("--xscalefrom", `${xscalefrom}`);
-                if (x != null) el.style.setProperty("--xfrom", `${x}`);
-                if (y != null) el.style.setProperty("--yfrom", `${y}`);
+                    if (options.xscaleto != null) {
+                        first["--xscalefrom"] = Number(
+                            options.xscalefrom ?? bg.xscalefrom ?? 1,
+                        );
+                        second["--xscalefrom"] = Number(options.xscaleto);
+                    }
+
+                    if (options.xto != null) {
+                        first["--xfrom"] = Number(
+                            options.xfrom ?? bg.xfrom ?? 0,
+                        );
+                        second["--xfrom"] = Number(options.xto);
+                    }
+
+                    if (options.yto != null) {
+                        first["--yfrom"] = Number(
+                            options.yfrom ?? bg.yfrom ?? 0,
+                        );
+                        second["--yfrom"] = Number(options.yto);
+                    }
+
+                    if (first && second) {
+                        const anim = bg.animate([first, second], {
+                            duration: 1000 * options.duration,
+                            iterations: 1,
+                            fill: "forwards",
+                            easing: options.ease
+                                ? easingMap[options.ease.toLowerCase()] ??
+                                  "ease-in-out"
+                                : "linear",
+                        });
+                        anim.pause();
+                        bg.parentElement.addEventListener("mouseenter", () =>
+                            anim.play(),
+                        );
+                        bg.parentElement.addEventListener("mouseleave", () =>
+                            anim.pause(),
+                        );
+                    }
+                }
+                if (xscalefrom != null) {
+                    bg.style.setProperty("--xscalefrom", `${xscalefrom}`);
+                    bg.xscalefrom = xscalefrom;
+                }
+                if (x != null) {
+                    bg.style.setProperty("--xfrom", `${x}`);
+                    bg.xfrom = x;
+                }
+                if (y != null) {
+                    bg.style.setProperty("--yfrom", `${y}`);
+                    bg.yfrom = y;
+                }
             }
             function createScene(imgurls, options, cmd) {
                 freshScene = true;
@@ -1002,6 +1067,7 @@ async function genStory(data, avatars = []) {
                 speaker = 0;
                 const scene = document.createElement("div");
                 scene.classList.add("scene");
+                scene.args = Array.from(arguments);
                 const bg = document.createElement("div");
                 bg.classList.add("scene-background");
                 bg.classList.add("top");
@@ -1134,10 +1200,6 @@ async function genStory(data, avatars = []) {
                                     ),
                             );
                     }
-                    const xscalefrom =
-                        options.xscale ?? options.xscalefrom ?? 1;
-                    const x = options.x ?? options.xfrom ?? 0;
-                    const y = options.y ?? options.yfrom ?? 0;
 
                     if (isMultipart) {
                         bgimg.style.width = `${
@@ -1846,7 +1908,16 @@ async function genStory(data, avatars = []) {
                         case "imagetween":
                         case "backgroundtween":
                         case "largebgtween":
+                            // mid-scene tweens are currently ignored unless they have block=true
                             if (freshScene) applyTween(scene.bg, args);
+                            else if (
+                                args?.block?.toLowerCase() == "true" &&
+                                scene
+                            ) {
+                                addCurrentScene();
+                                scene = createScene.apply(null, scene.args);
+                                applyTween(scene.bg, args);
+                            }
                             break;
                         case "header":
                         case "delay":

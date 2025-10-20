@@ -684,6 +684,21 @@ html {
 .nav-center {
   overflow: hidden;
 }
+@property --xfrom {
+  syntax: "<number>";
+  initial-value: 0;
+  inherits: false;
+}
+@property --yfrom {
+  syntax: "<number>";
+  initial-value: 0;
+  inherits: false;
+}
+@property --xscalefrom {
+  syntax: "<number>";
+  initial-value: 1;
+  inherits: false;
+}
 .scene-background {
   width: var(--story-bg-width);
   aspect-ratio: var(--aspectratio);
