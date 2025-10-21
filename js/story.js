@@ -995,8 +995,12 @@ async function genStory(data, avatars = []) {
                     5: "225deg",
                     7: "135deg",
                 };
-                const f = fillfrom * 100;
-                const t = fillto * 100;
+                let f = fillfrom * 100;
+                let t = fillto * 100;
+
+                if (f > t) {
+                    [f, t] = [t, f];
+                }
                 const dir = dirMap[direction];
                 if (!dir) return;
 
@@ -1111,10 +1115,17 @@ async function genStory(data, avatars = []) {
                     if (oldScene.bg[key] !== undefined)
                         options[key] = oldScene.bg[key];
                 }
-                return createScene.apply(null, oldScene.args);
+                return createScene(imgurls, options, cmd, true);
             }
-            function createScene(imgurls, options, cmd) {
+            function createScene(
+                imgurls,
+                options,
+                cmd,
+                preserve_curtains = false,
+            ) {
+                // preserve_curtains is used for tweens and other effects that use the "same" scene (cloneScene)
                 freshScene = true;
+                if (!preserve_curtains) activeCurtains = null;
                 const isMultipart = imgurls.length !== 1;
                 chars = {};
                 speaker = 0;
