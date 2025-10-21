@@ -11,6 +11,7 @@
   --dialog-size: 5.5em;
   --aspectratio: 16 / 9;
   --story-scale: var(--story-bg-width) / 1280;
+  --story-scale-unitless: var(--story-bg-width) / 1280px;
 }
 @media (orientation: landscape) and (max-width: 1200px) {
   :root {

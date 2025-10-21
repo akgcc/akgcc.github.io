@@ -1617,7 +1617,7 @@ async function genStory(data, avatars = []) {
                             cg.style.zIndex = Number(args.layer);
                             cg.style.transform = `translate(-50%, 0) \
                             translate(calc(${x} * var(--story-scale)), calc(${y} * var(--story-scale))) \
-                            scale(calc(var(--story-scale) / 1px * ${
+                            scale(calc(var(--story-scale-unitless) * ${
                                 Number(args?.sfrom) ? Number(args.sfrom) : 1
                             }))`;
                             cg.style.transformOrigin = "center bottom";
@@ -2544,3 +2544,28 @@ toggleSfxBtn.onclick = () => {
     icon.classList.toggle("fa-volume-up");
     icon.classList.toggle("fa-volume-mute");
 };
+const isFirefox = typeof InstallTrigger !== "undefined";
+function updateStoryWidth() {
+    const topNavHeight = getOffsets(topNav).offsetHeight;
+    const vw = window.innerWidth,
+        vh = window.innerHeight;
+    const vmin = Math.min(vw, vh);
+
+    const storyWidth = Math.min(
+        ((vmin - topNavHeight) * 16) / 9,
+        vw - scrollbarWidth,
+        1920,
+    );
+    const storyBgWidth = Math.min(storyWidth, ((vh - topNavHeight) * 16) / 9);
+
+    const root = document.documentElement;
+    root.style.setProperty("--story-width", storyWidth + "px");
+    root.style.setProperty("--story-bg-width", storyBgWidth + "px");
+    root.style.setProperty("--story-scale-unitless", storyBgWidth / 1280);
+}
+if (isFirefox) {
+    // firefox strict calc() rules make all this necessary.
+    updateStoryWidth();
+    window.addEventListener("resize", () => setTimeout(updateStoryWidth, 50));
+    window.addEventListener("orientationchange", updateStoryWidth);
+}
