@@ -795,8 +795,7 @@ async function genStory(data, avatars = []) {
                 multiLineData = {};
             function addBlocker(start_color, end_color, prepend = false) {
                 const blocker = document.createElement("div");
-                blocker.classList.add("dialog");
-                blocker.classList.add("blocker");
+                blocker.classList.add("dialog", "blocker");
                 // blocker.style.height = Math.max(1, Math.min(2, parseFloat(args.fadetime))) + "em";
                 function colorStringToObject(color) {
                     // if already an obj convert values to numbers then return.
@@ -924,8 +923,10 @@ async function genStory(data, avatars = []) {
                                 end_color =
                                     el.style.getPropertyValue("--end-color");
                                 let spacer = document.createElement("div");
-                                spacer.classList.add("blocker");
-                                spacer.classList.add("spacer-blocker");
+                                spacer.classList.add(
+                                    "blocker",
+                                    "spacer-blocker",
+                                );
                                 spacer.style.backgroundColor =
                                     el.style.getPropertyValue("--start-color");
                                 if (sceneEndsWithFade)
@@ -1198,8 +1199,7 @@ async function genStory(data, avatars = []) {
                 newScene.classList.add("scene");
                 newScene.args = Array.from(arguments);
                 const bg = document.createElement("div");
-                bg.classList.add("scene-background");
-                bg.classList.add("top");
+                bg.classList.add("scene-background", "top");
                 const bgscale = document.createElement("div");
                 bgscale.classList.add("bg-scale-wrap");
                 bg.appendChild(bgscale);
@@ -1501,8 +1501,7 @@ async function genStory(data, avatars = []) {
                 freshScene = false;
                 applyActiveCurtains();
                 let wrap = document.createElement("div");
-                wrap.classList.add("dialog");
-                wrap.classList.add("forceShow");
+                wrap.classList.add("dialog", "forceShow");
                 if (type) wrap.classList.add(type);
                 wrap.style.backgroundColor = lastBlockerColor.split(" ")[0];
                 let left = document.createElement("div");
@@ -1699,8 +1698,7 @@ async function genStory(data, avatars = []) {
                             let btn_wrap = document.createElement("div");
                             btn_wrap.classList.add("itemBtn", "interactable");
                             let imgbtn = document.createElement("i");
-                            imgbtn.classList.add("fas");
-                            imgbtn.classList.add("fa-image");
+                            imgbtn.classList.add("fas", "fa-image");
                             btn_wrap.appendChild(imgbtn);
                             const itemsrc = args.is_module
                                 ? uri_uniequip(args.image)
@@ -1997,8 +1995,7 @@ async function genStory(data, avatars = []) {
                                     "interactable",
                                 );
                                 let btn = document.createElement("i");
-                                btn.classList.add("fas");
-                                btn.classList.add("fa-volume-up");
+                                btn.classList.add("fas", "fa-volume-up");
                                 let label = document.createElement("span");
                                 label.classList.add("fileName");
                                 label.innerHTML = `${soundpath
@@ -2061,8 +2058,10 @@ async function genStory(data, avatars = []) {
                                 btn_wrap.appendChild(btn);
                                 btn_wrap.appendChild(label);
                                 audioWrapper.appendChild(btn_wrap);
-                                audioWrapper.classList.add("dialog");
-                                audioWrapper.classList.add("soundPlayer");
+                                audioWrapper.classList.add(
+                                    "dialog",
+                                    "soundPlayer",
+                                );
                                 audioWrapper.audio = audio;
                                 audioWrapper.btn = btn;
                                 allSoundButtons.push(audioWrapper);
@@ -2347,10 +2346,7 @@ function avatarImg(data, isAvatar = false) {
     const bend = data.bend ?? data.blackend ?? data.blackend2 ?? 0;
     if (bend > 0) img.style.filter = "brightness(0)";
     let wrap = document.createElement("div");
-    wrap.classList.add("avatar");
-    wrap.classList.add("npc");
-    wrap.classList.add("initial");
-    wrap.classList.add("interactable");
+    wrap.classList.add("avatar", "npc", "initial", "interactable");
     wrap.appendChild(img);
     wrap.onclick = (e) => {
         // e.stopPropagation();
@@ -2619,9 +2615,7 @@ var dialogVisibilityState = 0;
 toggleVisBtn.onclick = () => {
     dialogVisibilityState = (dialogVisibilityState + 1) % 3;
     let icon = toggleVisBtn.querySelector("i");
-    icon.classList.remove("fa-eye-slash");
-    icon.classList.remove("fa-eye");
-    icon.classList.remove("fa-low-vision");
+    icon.classList.remove("fa-eye-slash", "fa-eye", "fa-low-vision");
     document
         .getElementById("storyDisp")
         .setAttribute("display-mode", dialogVisibilityState);
@@ -2676,8 +2670,8 @@ if (isFirefox) {
 // logic to enable long press = show bg
 const MOVE_THRESHOLD = window.matchMedia("(pointer: coarse)").matches ? 10 : 6;
 let holdTimer = null;
-let startX, startY;
 let pointerHeld = null;
+let startX, startY;
 function isInteractivePath(el, pe) {
     let curr = el;
     while (curr && curr !== storyDiv) {

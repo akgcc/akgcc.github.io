@@ -8,8 +8,7 @@ const OWNERSHIP_E2_NAME = "E2";
 const OVERALL_E2_NAME = "E2 (Overall)";
 POLLS.forEach((poll) => {
   let a = document.createElement("a");
-  a.classList.add("rightButton");
-  a.classList.add("button");
+  a.classList.add("rightButton", "button");
   a.href = "/poll" + poll;
   if (poll == window.location.hash) a.classList.add("checked");
   a.innerHTML = poll;

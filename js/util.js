@@ -358,8 +358,7 @@ function thumbnail_tooltip(chart_canvas, even_rows_only = false) {
     tooltipEl.className = ""; // clear all classes
     let beforeRect = tooltipEl.getBoundingClientRect();
     tooltipEl.style.cssText = "";
-    tooltipEl.classList.add("x" + tooltip.xAlign);
-    tooltipEl.classList.add("y" + tooltip.yAlign);
+    tooltipEl.classList.add("x" + tooltip.xAlign, "y" + tooltip.yAlign);
     var innerHtml = "";
     let title = tooltip.title[0] || tooltip.body[0].lines[0].split(":")[0]; // for pie chart legend
     innerHtml =
@@ -658,10 +657,9 @@ function CreateOpCheckbox(
 ) {
   let operatorName = operator.name;
   var checkboxDiv = document.createElement("div");
-  checkboxDiv.classList.add("operatorCheckbox");
+  checkboxDiv.classList.add("operatorCheckbox", "show");
   checkboxDiv.dataset.class = operator.profession;
   checkboxDiv.dataset.rarity = operator.rarity;
-  checkboxDiv.classList.add("show");
   if (order) checkboxDiv.style.order = order;
   if (data1map) {
     let count = data1map[operatorName] || 0;

@@ -47,9 +47,7 @@ fetch(`${DATA_BASE[SERVERS.CN]}/gamedata/excel/zone_table.json`)
 		ISLIST.reverse().forEach((is) => {
 			const a = document.createElement("a");
 			buttonMap[is.substring(1)] = a;
-			a.classList.add("rightButton");
-			a.classList.add("button");
-			a.classList.add("isb");
+			a.classList.add("rightButton", "button", "isb");
 			if (is == window.location.hash) a.classList.add("checked");
 			a.innerHTML = is;
 			document
@@ -212,9 +210,8 @@ function addItem(data, variants = undefined) {
 		variants.forEach((v) => {
 			let btn = document.createElement("div");
 			let variantLetter = v.id[v.id.length - 1]; // will be a,b, or c
-			btn.classList.add("variantBtn");
+			btn.classList.add("variantBtn", variantLetter);
 			btn.innerHTML = v.name[v.name.length - 1];
-			btn.classList.add(variantLetter);
 			btn_container.appendChild(btn);
 			btn.addEventListener("click", (e) => {
 				let wasChecked = btn.classList.contains("checked");
