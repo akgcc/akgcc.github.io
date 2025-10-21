@@ -1325,10 +1325,6 @@ async function genStory(data, avatars = []) {
                         `((720 - var(--tileHeight)) / 2 - var(--yfrom, 0))`,
                     );
                     // scaling to the browser's viewport, separate from game's scaling.
-                    bg.style.setProperty(
-                        "--story-scale",
-                        `var(--story-bg-width) / 1280`,
-                    );
 
                     const coverall =
                         ["coverall", "showall"].includes(options.screenadapt) ||
@@ -1589,6 +1585,7 @@ async function genStory(data, avatars = []) {
                     switch (cmd) {
                         case "cgitem":
                             // very basic implementation, these are meant to be animated.
+                            // ato and afrom are ignored atm
                             if (
                                 !args ||
                                 !args.image ||
@@ -1605,10 +1602,15 @@ async function genStory(data, avatars = []) {
                             cg.classList.add("cgitem");
                             cg.src = uri_item_image(args.image);
                             [x, y] = args.pfrom.split(",").map(Number);
-                            cg.style.bottom = `calc(${y} * var(--story-scale))`;
-                            cg.style.left = `calc(${x} * var(--story-scale))`;
-                            if (Number(args?.sfrom))
-                                cg.style.scale = Number(args.sfrom);
+                            cg.style.left = "50%";
+                            cg.style.bottom = 0;
+                            cg.style.zIndex = layer;
+                            cg.style.transform = `translate(-50%, 0) \
+                            translate(calc(${x} * var(--story-scale)), calc(${y} * var(--story-scale))) \
+                            scale(calc(var(--story-scale) / 1px * ${
+                                Number(args?.sfrom) ? Number(args.sfrom) : 1
+                            }))`;
+                            cg.style.transformOrigin = "center bottom";
                             scene.bg.appendChild(cg);
                             scene.cgLayers[args.layer] = cg;
                             break;
