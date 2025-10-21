@@ -681,6 +681,7 @@ async function genStory(data, avatars = []) {
     imgCount = 0;
     let freshScene = false;
     const bgAnimations = [];
+    let activeCurtains = null;
     async function getModuleStory(key) {
         return {
             //bg_corridor is a good alternate
@@ -982,6 +983,37 @@ async function genStory(data, avatars = []) {
                 }
                 return scene;
             }
+            function addCurtain(fillfrom, fillto, direction) {
+                const fadePixels = 8; // fade length in pixels
+                const dirMap = {
+                    0: "to bottom",
+                    4: "to top",
+                    6: "to right",
+                    2: "to left",
+                    1: "45deg",
+                    3: "315deg",
+                    5: "225deg",
+                    7: "135deg",
+                };
+                const f = fillfrom * 100;
+                const t = fillto * 100;
+                const dir = dirMap[direction];
+                if (!dir) return;
+
+                const gradient = `linear-gradient(${dir}, black ${f}%, black ${t}%, transparent calc(${t}% + ${fadePixels}px), transparent 100%)`;
+
+                activeCurtains = activeCurtains
+                    ? `${activeCurtains}, ${gradient}`
+                    : gradient;
+
+                applyActiveCurtains(scene);
+            }
+
+            function applyActiveCurtains(scene) {
+                if (activeCurtains && scene) {
+                    scene.bg.style.setProperty("--curtains", activeCurtains);
+                }
+            }
             const easingMap = {
                 // no idea if these are accurate they're from chatGPT lmao
                 linear: "cubic-bezier(0.0, 0.0, 1.0, 1.0)",
@@ -1140,6 +1172,7 @@ async function genStory(data, avatars = []) {
                         );
                     },
                 );
+                applyActiveCurtains(scene);
                 allScenes.push(scene);
                 return scene;
 
@@ -1943,6 +1976,19 @@ async function genStory(data, avatars = []) {
                                 applyTween(scene.bg, args);
                             }
                             break;
+                        case "curtain":
+                            if (
+                                args?.fillto != null &&
+                                args?.fillfrom != null &&
+                                args?.direction != null
+                            )
+                                addCurtain(
+                                    Number(args.fillfrom),
+                                    Number(args.fillto),
+                                    Number(args.direction),
+                                );
+                            else activeCurtains = null; // [curtain] clears all active curtains.
+                            break;
                         case "header":
                         case "delay":
                         case "characteraction":
@@ -1964,7 +2010,6 @@ async function genStory(data, avatars = []) {
                         // new after QB:
                         case "effect":
                         case "bgeffect":
-                        case "curtain":
                         case "stickerclear":
                         case "skipnode":
                         case "animtextclean":
@@ -1977,6 +2022,9 @@ async function genStory(data, avatars = []) {
                         //on-screen timer (runs in real time)
                         case "timerclear":
                         case "hidecgitem":
+                        case "imagerotate":
+                            // this can be handled and even animated in applyTween
+                            // but it's almost always a fade out in game and ends up looking jank in the reader
                             break;
                         default:
                             console.log("line not parsed:", line);
