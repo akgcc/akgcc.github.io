@@ -771,7 +771,7 @@ async function genStory(data, avatars = []) {
             });
 
             document.getElementById("storyTitle").innerHTML =
-                storyNameDiv.innerHTML;
+                titletxt.innerHTML;
             storyDiv.appendChild(storyNameDiv);
             let scene,
                 speaker = 0,
@@ -1157,11 +1157,12 @@ async function genStory(data, avatars = []) {
             function cloneScene(oldScene) {
                 // used to add effects to a scene, not a perfect clone as stuff like .last_cmd is not preserved.
                 // copy over everything from the old scene as the clone is not technically a new scene (according to the script)
+                const [_imgurls, _options, _cmd] = oldScene.args;
                 for (const key of ["xfrom", "yfrom", "xscalefrom"]) {
                     if (oldScene.bg[key] !== undefined)
-                        options[key] = oldScene.bg[key];
+                        _options[key] = oldScene.bg[key];
                 }
-                return createScene.apply(null, oldScene.args);
+                return createScene(_imgurls, _options, _cmd);
             }
             function appendCGItem(bg, key, cg) {
                 if (key in bg.cgImages) {
@@ -2164,6 +2165,7 @@ async function genStory(data, avatars = []) {
                 );
             if (readTimeMinutes)
                 readTime.innerHTML = `${readTimeMinutes} min read`;
+            else readTime.innerHTML = `<1 min read`;
         });
 }
 function playWhenReady(audio) {
