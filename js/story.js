@@ -682,6 +682,7 @@ async function genStory(data, avatars = []) {
     let freshScene = false;
     const bgAnimations = [];
     let activeCurtains = null;
+    let floatingCGImages = {};
     async function getModuleStory(key) {
         return {
             //bg_corridor is a good alternate
@@ -968,6 +969,15 @@ async function genStory(data, avatars = []) {
                     )
                         return;
                 }
+                // remove stray cgs because they like to put them immediately before [Image] in the script.
+                if (
+                    scene?.last_cmd?.cmd == "cgitem" &&
+                    scene?.last_cmd?.args?.image
+                ) {
+                    // cgitem may not exist if it had ato=0 or something and was ignored.
+                    scene.bg.cgImages[scene.last_cmd.args.image]?.remove();
+                    delete scene.bg.cgImages[scene.last_cmd.args.image];
+                }
                 // remove stray blocker (add it to the next scene later)
                 hangingBlocker = scene.querySelector(
                     ".blocker.fadeout:last-child",
@@ -1117,14 +1127,14 @@ async function genStory(data, avatars = []) {
                     if (oldScene.bg[key] !== undefined)
                         options[key] = oldScene.bg[key];
                 }
-                const newScene = createScene(imgurls, options, cmd, true);
-                for (const layer in oldScene.cgLayers) {
-                    const oldNode = oldScene.cgLayers[layer];
-                    const newNode = oldNode.cloneNode(true);
-                    newScene.bg.appendChild(newNode);
-                    newScene.cgLayers[layer] = newNode;
+                return createScene(imgurls, options, cmd, true);
+            }
+            function appendCGItem(bg, key, cg) {
+                if (key in bg.cgImages) {
+                    // delete old one to prevent duplicates
+                    bg.cgImages[key].remove();
                 }
-                return newScene;
+                bg.cgImages[key] = bg.appendChild(cg);
             }
             function createScene(
                 imgurls,
@@ -1138,9 +1148,9 @@ async function genStory(data, avatars = []) {
                 const isMultipart = imgurls.length !== 1;
                 chars = {};
                 speaker = 0;
-                const scene = document.createElement("div");
-                scene.classList.add("scene");
-                scene.args = Array.from(arguments);
+                const newScene = document.createElement("div");
+                newScene.classList.add("scene");
+                newScene.args = Array.from(arguments);
                 const bg = document.createElement("div");
                 bg.classList.add("scene-background");
                 bg.classList.add("top");
@@ -1150,23 +1160,30 @@ async function genStory(data, avatars = []) {
                 const bgimg = document.createElement("img");
                 bgimg.classList.add("bgimg");
                 bgscale.appendChild(bgimg);
-                scene.appendChild(bg);
-                scene.bg = bg;
+                newScene.appendChild(bg);
+                newScene.bg = bg;
+                bg.cgImages = {};
+                for (const key in floatingCGImages) {
+                    appendCGItem(bg, key, floatingCGImages[key].cloneNode());
+                }
                 // mark as image to prevent pruning if the scene is empty
                 if (options?.image || options?.imagegroup || options?.cggroup)
-                    scene.classList.add("image");
+                    newScene.classList.add("image");
                 if (hangingBlocker) {
-                    scene.appendChild(hangingBlocker);
+                    newScene.appendChild(hangingBlocker);
                     hangingBlocker = null;
                 }
                 if (preSceneAudios.length) {
-                    for (a of preSceneAudios) scene.appendChild(a);
+                    for (a of preSceneAudios) newScene.appendChild(a);
                     preSceneAudios.length = 0;
                 }
-                scene.backgroundPromise = prepareBackground(imgurls, options);
-                scene.backgroundPromise.then(
+                newScene.backgroundPromise = prepareBackground(
+                    imgurls,
+                    options,
+                );
+                newScene.backgroundPromise.then(
                     ({ url: _img_url, naturalWidth, naturalHeight }) => {
-                        alignBackground(scene);
+                        alignBackground(newScene);
                         let dl_btn = document.createElement("i");
                         dl_btn.classList.add("fas");
                         dl_btn.classList.add("fa-external-link-alt");
@@ -1186,17 +1203,16 @@ async function genStory(data, avatars = []) {
                             clearTimeout(tempHideAll);
                             window.open(_img_url, "_blank");
                         });
-                        scene.appendChild(dl_btn);
-                        scene.style.setProperty(
+                        newScene.appendChild(dl_btn);
+                        newScene.style.setProperty(
                             "--background-image-url",
                             `url("${_img_url}")`,
                         );
                     },
                 );
-                applyActiveCurtains(scene);
-                allScenes.push(scene);
-                scene.cgLayers = {};
-                return scene;
+                applyActiveCurtains(newScene);
+                allScenes.push(newScene);
+                return newScene;
 
                 async function prepareBackground(imgUrls, options) {
                     let finalUrl;
@@ -1586,33 +1602,34 @@ async function genStory(data, avatars = []) {
                         case "cgitem":
                             // very basic implementation, these are meant to be animated.
                             // ato and afrom are ignored atm
-                            if (
-                                !args ||
-                                !args.image ||
-                                !args.pfrom ||
-                                !args.layer
-                            )
-                                break;
-                            let layer = Number(args.layer);
-                            if (args.layer in scene.cgLayers) {
-                                scene.cgLayers[args.layer].remove();
-                            }
+                            if (!args || !args.image || !args.layer) break;
+                            if (Number(args?.ato) === 0) break; // ignore "ending" cgs, hopefully they are correctly remove with [hidecgitem]
                             scene = getWorkingScene();
                             let cg = document.createElement("img");
                             cg.classList.add("cgitem");
                             cg.src = uri_item_image(args.image);
-                            [x, y] = args.pfrom.split(",").map(Number);
+                            let x = 0;
+                            let y = 0;
+                            if (args.pfrom)
+                                [x, y] = args.pfrom.split(",").map(Number);
                             cg.style.left = "50%";
                             cg.style.bottom = 0;
-                            cg.style.zIndex = layer;
+                            cg.style.zIndex = Number(args.layer);
                             cg.style.transform = `translate(-50%, 0) \
                             translate(calc(${x} * var(--story-scale)), calc(${y} * var(--story-scale))) \
                             scale(calc(var(--story-scale) / 1px * ${
                                 Number(args?.sfrom) ? Number(args.sfrom) : 1
                             }))`;
                             cg.style.transformOrigin = "center bottom";
-                            scene.bg.appendChild(cg);
-                            scene.cgLayers[args.layer] = cg;
+                            floatingCGImages[args.image] = cg;
+                            appendCGItem(scene.bg, args.image, cg);
+                            break;
+                        case "hidecgitem":
+                            if (args.image) {
+                                delete floatingCGImages[args.image];
+                            } else {
+                                floatingCGImages = {};
+                            }
                             break;
                         case "showitem":
                             imgCount += 1;
@@ -2069,7 +2086,6 @@ async function genStory(data, avatars = []) {
                         case "timersticker":
                         //on-screen timer (runs in real time)
                         case "timerclear":
-                        case "hidecgitem":
                         case "imagerotate":
                             // this can be handled and even animated in applyTween
                             // but it's almost always a fade out in game and ends up looking jank in the reader
@@ -2086,6 +2102,7 @@ async function genStory(data, avatars = []) {
                     dlg.classList.add("narration");
                     getWorkingScene().appendChild(dlg);
                 }
+                if (scene && cmd) scene.last_cmd = { cmd, args };
             }
             addCurrentScene(true);
             Promise.all(allScenes.map((scene) => scene.backgroundPromise)).then(
