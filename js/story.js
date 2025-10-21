@@ -1127,7 +1127,7 @@ async function genStory(data, avatars = []) {
                     if (oldScene.bg[key] !== undefined)
                         options[key] = oldScene.bg[key];
                 }
-                return createScene(imgurls, options, cmd, true);
+                return createScene(imgurls, options, cmd);
             }
             function appendCGItem(bg, key, cg) {
                 if (key in bg.cgImages) {
@@ -1136,15 +1136,8 @@ async function genStory(data, avatars = []) {
                 }
                 bg.cgImages[key] = bg.appendChild(cg);
             }
-            function createScene(
-                imgurls,
-                options,
-                cmd,
-                preserve_effects = false,
-            ) {
-                // preserve_effects is true for tweens and other effects that cloneScene (in game it would be the same scene)
+            function createScene(imgurls, options, cmd) {
                 freshScene = true;
-                if (!preserve_effects) activeCurtains = null;
                 const isMultipart = imgurls.length !== 1;
                 chars = {};
                 speaker = 0;
