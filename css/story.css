@@ -727,7 +727,7 @@ html {
     )
     calc(var(--story-scale) * (var(--halfHeight) + var(--ymod, 0)));
 }
-.scene-background img {
+.scene-background .bgimg {
   transform: translate(
     calc(var(--story-scale) * var(--xmod, 0)),
     calc(var(--story-scale) * var(--ymod, 0))
@@ -749,6 +749,19 @@ html {
   position: fixed;
   top: calc(50% + var(--topNav-height) / 2);
   transform: translate(-50%, -50%);
+}
+/* [curtain]s */
+.scene-background::before {
+  z-index: 1;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--curtains);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
 }
 .dialog p {
   display: block;
@@ -773,15 +786,6 @@ html {
 .btnPanel i {
   font-size: 2em;
 }
-.scene-background::before {
-  z-index: 1;
-  content: "";
+.cgitem {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--curtains);
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
 }

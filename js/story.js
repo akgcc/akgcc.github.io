@@ -1110,22 +1110,31 @@ async function genStory(data, avatars = []) {
                 }
             }
             function cloneScene(oldScene) {
+                // used to add effects to a scene
+                // copy over everything from the old scene as the clone is not technically a new scene (according to the script)
                 [imgurls, options, cmd] = oldScene.args;
                 for (const key of ["xfrom", "yfrom", "xscalefrom"]) {
                     if (oldScene.bg[key] !== undefined)
                         options[key] = oldScene.bg[key];
                 }
-                return createScene(imgurls, options, cmd, true);
+                const newScene = createScene(imgurls, options, cmd, true);
+                for (const layer in oldScene.cgLayers) {
+                    const oldNode = oldScene.cgLayers[layer];
+                    const newNode = oldNode.cloneNode(true);
+                    newScene.bg.appendChild(newNode);
+                    newScene.cgLayers[layer] = newNode;
+                }
+                return newScene;
             }
             function createScene(
                 imgurls,
                 options,
                 cmd,
-                preserve_curtains = false,
+                preserve_effects = false,
             ) {
-                // preserve_curtains is used for tweens and other effects that use the "same" scene (cloneScene)
+                // preserve_effects is true for tweens and other effects that cloneScene (in game it would be the same scene)
                 freshScene = true;
-                if (!preserve_curtains) activeCurtains = null;
+                if (!preserve_effects) activeCurtains = null;
                 const isMultipart = imgurls.length !== 1;
                 chars = {};
                 speaker = 0;
@@ -1139,6 +1148,7 @@ async function genStory(data, avatars = []) {
                 bgscale.classList.add("bg-scale-wrap");
                 bg.appendChild(bgscale);
                 const bgimg = document.createElement("img");
+                bgimg.classList.add("bgimg");
                 bgscale.appendChild(bgimg);
                 scene.appendChild(bg);
                 scene.bg = bg;
@@ -1185,6 +1195,7 @@ async function genStory(data, avatars = []) {
                 );
                 applyActiveCurtains(scene);
                 allScenes.push(scene);
+                scene.cgLayers = {};
                 return scene;
 
                 async function prepareBackground(imgUrls, options) {
@@ -1577,6 +1588,30 @@ async function genStory(data, avatars = []) {
                         closeDanglingDirectives();
                     switch (cmd) {
                         case "cgitem":
+                            // very basic implementation, these are meant to be animated.
+                            if (
+                                !args ||
+                                !args.image ||
+                                !args.pfrom ||
+                                !args.layer
+                            )
+                                break;
+                            let layer = Number(args.layer);
+                            if (args.layer in scene.cgLayers) {
+                                scene.cgLayers[args.layer].remove();
+                            }
+                            scene = getWorkingScene();
+                            let cg = document.createElement("img");
+                            cg.classList.add("cgitem");
+                            cg.src = uri_item_image(args.image);
+                            [x, y] = args.pfrom.split(",").map(Number);
+                            cg.style.bottom = `calc(${y} * var(--story-scale))`;
+                            cg.style.left = `calc(${x} * var(--story-scale))`;
+                            if (Number(args?.sfrom))
+                                cg.style.scale = Number(args.sfrom);
+                            scene.bg.appendChild(cg);
+                            scene.cgLayers[args.layer] = cg;
+                            break;
                         case "showitem":
                             imgCount += 1;
                             let wrap = document.createElement("div");
