@@ -71,6 +71,7 @@ const dirMap = {
     5: "225deg",
     7: "135deg",
 };
+const HOLD_MS = 250;
 const DecisionNotDoctor = {
     "mini&act13d0&3": "avg_4133_logos_1#1$1",
     "side&act19side&0": "avg_128_plosis_1#1$1",
@@ -1204,6 +1205,11 @@ async function genStory(data, avatars = []) {
                 bg.appendChild(bgscale);
                 const bgimg = document.createElement("img");
                 bgimg.classList.add("bgimg");
+                if (window.matchMedia("(pointer: coarse)").matches) {
+                    bgimg.addEventListener("contextmenu", (e) =>
+                        e.preventDefault(),
+                    );
+                }
                 bgscale.appendChild(bgimg);
                 newScene.appendChild(bg);
                 newScene.bg = bg;
@@ -1233,14 +1239,17 @@ async function genStory(data, avatars = []) {
                     ({ url: _img_url, naturalWidth, naturalHeight }) => {
                         alignBackground(newScene);
                         let dl_btn = document.createElement("i");
-                        dl_btn.classList.add("fas");
-                        dl_btn.classList.add("fa-external-link-alt");
-                        dl_btn.classList.add("dlBtn");
+                        dl_btn.classList.add(
+                            "fas",
+                            "fa-external-link-alt",
+                            "dlBtn",
+                            "interactable",
+                        );
                         var tempHideAll = null;
                         dl_btn.addEventListener("pointerenter", () => {
                             tempHideAll = setTimeout(
                                 () => storyDiv.classList.add("bg_only"),
-                                250,
+                                HOLD_MS,
                             );
                         });
                         dl_btn.addEventListener("pointerleave", () => {
@@ -1501,12 +1510,13 @@ async function genStory(data, avatars = []) {
                 let right = document.createElement("div");
                 right.classList.add("dialog-right");
                 let nameplate = document.createElement("div");
-                nameplate.classList.add("dialog-name");
+                nameplate.classList.add("dialog-name", "interactable-text");
                 let txt = document.createElement("div");
                 txt.classList.add("text");
                 txt.dataset.name = "";
                 txt.style.setProperty("--name-color", "#777");
                 let blocktxt = document.createElement("div");
+                blocktxt.classList.add("interactable-text");
                 blocktxt.innerHTML = dialogLine
                     .replace(/^(?:\\r\\n|\\r|\\n)+/, "")
                     .replace(/^(?:\\r\\n|\\r|\\n)+$/, "")
@@ -1687,7 +1697,7 @@ async function genStory(data, avatars = []) {
                             let wrap = document.createElement("div");
                             wrap.classList.add("dialog");
                             let btn_wrap = document.createElement("div");
-                            btn_wrap.classList.add("itemBtn");
+                            btn_wrap.classList.add("itemBtn", "interactable");
                             let imgbtn = document.createElement("i");
                             imgbtn.classList.add("fas");
                             imgbtn.classList.add("fa-image");
@@ -1982,7 +1992,10 @@ async function genStory(data, avatars = []) {
 
                             if (cmd == "playsound") {
                                 let btn_wrap = document.createElement("div");
-                                btn_wrap.classList.add("soundBtn");
+                                btn_wrap.classList.add(
+                                    "soundBtn",
+                                    "interactable",
+                                );
                                 let btn = document.createElement("i");
                                 btn.classList.add("fas");
                                 btn.classList.add("fa-volume-up");
@@ -2337,6 +2350,7 @@ function avatarImg(data, isAvatar = false) {
     wrap.classList.add("avatar");
     wrap.classList.add("npc");
     wrap.classList.add("initial");
+    wrap.classList.add("interactable");
     wrap.appendChild(img);
     wrap.onclick = (e) => {
         // e.stopPropagation();
@@ -2387,9 +2401,12 @@ function enlargeAvatar(src_array, cover = false, bstart = 0, bend = 0) {
     }
     content.appendChild(im);
     let dl_btn = document.createElement("i");
-    dl_btn.classList.add("fas");
-    dl_btn.classList.add("fa-external-link-alt");
-    dl_btn.classList.add("dlBtn");
+    dl_btn.classList.add(
+        "fas",
+        "fa-external-link-alt",
+        "dlBtn",
+        "interactable",
+    );
     content.appendChild(dl_btn);
     dl_btn.addEventListener("click", function () {
         window.open(im.src);
@@ -2403,8 +2420,11 @@ titlediv = document.getElementById("storyTitle");
 topNav = document.querySelector("#topNav");
 
 // When the user scrolls down 20px from the top of the document, show the button
-window.onscroll = scrollFunction;
-window.onresize = () => scrollFunction(true);
+window.addEventListener("scroll", scrollFunction, { passive: true });
+window.addEventListener("resize", () => scrollFunction(true), {
+    passive: true,
+});
+
 function adjustedMidpoint() {
     topNavHeight = getOffsets(topNav).offsetHeight;
     return window.innerHeight / 2 + topNavHeight / 2;
@@ -2583,7 +2603,7 @@ volSlider.oninput = () => {
 const toggleVisBtn = document.getElementById("visButton");
 var tempHideAll = null;
 toggleVisBtn.addEventListener("pointerenter", () => {
-    tempHideAll = setTimeout(() => storyDiv.classList.add("bg_only"), 250);
+    tempHideAll = setTimeout(() => storyDiv.classList.add("bg_only"), HOLD_MS);
 });
 
 toggleVisBtn.addEventListener("pointerleave", () => {
@@ -2653,3 +2673,74 @@ if (isFirefox) {
     window.addEventListener("resize", () => setTimeout(updateStoryWidth, 50));
     window.addEventListener("orientationchange", updateStoryWidth);
 }
+// logic to enable long press = show bg
+const MOVE_THRESHOLD = window.matchMedia("(pointer: coarse)").matches ? 10 : 6;
+let holdTimer = null;
+let startX, startY;
+let pointerHeld = null;
+function isInteractivePath(el, pe) {
+    let curr = el;
+    while (curr && curr !== storyDiv) {
+        if (
+            curr.classList &&
+            (curr.classList.contains("interactable") ||
+                (pe.pointerType === "touch" &&
+                    curr.classList.contains("interactable-text")))
+        )
+            return true;
+        curr = curr.parentElement;
+    }
+    return false;
+}
+function _cancelHold() {
+    clearTimeout(holdTimer);
+    storyDiv.classList.remove("bg_only");
+    pointerHeld = null;
+}
+document.addEventListener(
+    "pointerdown",
+    (e) => {
+        if (!e.isPrimary && e.pointerType === "touch") return; // ignore multi-finger gestures
+        const rect = storyDiv.getBoundingClientRect();
+        if (
+            e.clientX < rect.left ||
+            e.clientX > rect.right ||
+            e.clientY < rect.top ||
+            e.clientY > rect.bottom
+        ) {
+            return;
+        }
+
+        pointerHeld = true;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        holdTimer = setTimeout(() => {
+            if (
+                isInteractivePath(
+                    document.elementFromPoint(e.clientX, e.clientY),
+                    e,
+                )
+            )
+                return;
+            storyDiv.classList.add("bg_only");
+        }, HOLD_MS);
+    },
+    { passive: true },
+);
+document.addEventListener(
+    "pointermove",
+    (e) => {
+        if (!pointerHeld) return;
+        if (
+            Math.hypot(e.clientX - startX, e.clientY - startY) > MOVE_THRESHOLD
+        ) {
+            _cancelHold();
+        }
+    },
+    { passive: true },
+);
+
+["pointerup", "pointercancel", "pointerleave"].forEach((ev) =>
+    document.addEventListener(ev, _cancelHold, { passive: true }),
+);
