@@ -1042,11 +1042,12 @@ async function genStory(data, avatars = []) {
                 }
                 return scene;
             }
-            function addCurtain(fillfrom, fillto, direction) {
+            function addCurtain(fillfrom, fillto, directionRaw) {
                 // this some potential cases:
                 // 1. curtains that don't start at 0
                 // 2. segmented curtains, with gaps of transparency
                 // 3. probably more I didn't think of
+                const direction = Number(directionRaw);
                 const fade = 8; //pixels
                 const dir = dirMap[direction];
                 if (!dir) return;
@@ -1081,6 +1082,61 @@ async function genStory(data, avatars = []) {
             function resetCurtains() {
                 activeCurtainsCSS = null;
                 activeCurtains = {};
+            }
+            function getCurtainCoverage(curtains) {
+                // chatGPT func
+                const size = 30;
+                let covered = 0;
+                for (let y = 0; y < size; y++) {
+                    for (let x = 0; x < size; x++) {
+                        const px = ((x + 0.5) / size) * 100;
+                        const py = ((y + 0.5) / size) * 100;
+
+                        const isCovered = Object.entries(curtains).some(
+                            ([dir, [start, end]]) => {
+                                const s = Math.min(start, end);
+                                const e = Math.max(start, end);
+
+                                switch (dir) {
+                                    case "0":
+                                        return py >= s && py <= e; // to bottom
+                                    case "4":
+                                        return py >= s && py <= e; // to top
+                                    case "6":
+                                        return px >= s && px <= e; // to right
+                                    case "2":
+                                        return px >= s && px <= e; // to left
+                                    case "1":
+                                        return (
+                                            (px + py) / 2 >= s &&
+                                            (px + py) / 2 <= e
+                                        ); // 45deg
+                                    case "3":
+                                        return (
+                                            (px + (100 - py)) / 2 >= s &&
+                                            (px + (100 - py)) / 2 <= e
+                                        ); // 315deg
+                                    case "5":
+                                        return (
+                                            (100 - px + (100 - py)) / 2 >= s &&
+                                            (100 - px + (100 - py)) / 2 <= e
+                                        ); // 225deg
+                                    case "7":
+                                        return (
+                                            (100 - px + py) / 2 >= s &&
+                                            (100 - px + py) / 2 <= e
+                                        ); // 135deg
+                                    default:
+                                        return false;
+                                }
+                            },
+                        );
+
+                        if (isCovered) covered++;
+                    }
+                }
+
+                return (covered / (size * size)) * 100;
             }
             const easingMap = {
                 // no idea if these are accurate they're from chatGPT lmao
@@ -1173,7 +1229,7 @@ async function genStory(data, avatars = []) {
                     bg.yfrom = yfrom;
                 }
             }
-            function cloneScene(oldScene) {
+            function cloneScene(oldScene, markCloned = true) {
                 // used to add effects to a scene, not a perfect clone as stuff like .last_cmd is not preserved.
                 // copy over everything from the old scene as the clone is not technically a new scene (according to the script)
                 const [_imgurls, _options, _cmd] = oldScene.args;
@@ -1181,7 +1237,7 @@ async function genStory(data, avatars = []) {
                     if (oldScene.bg[key] !== undefined)
                         _options[key] = oldScene.bg[key];
                 }
-                return createScene(_imgurls, _options, _cmd, true);
+                return createScene(_imgurls, _options, _cmd, markCloned);
             }
             function appendCGItem(bg, key, cg) {
                 if (key in bg.cgImages) {
@@ -1218,9 +1274,13 @@ async function genStory(data, avatars = []) {
                     appendCGItem(bg, key, floatingCGImages[key].cloneNode());
                 }
                 // mark as image to prevent pruning even if the scene is empty
+                // dont mark bg_black as an image.
                 if (
                     !cloned &&
-                    (options?.image || options?.imagegroup || options?.cggroup)
+                    (options?.image ||
+                        options?.imagegroup ||
+                        options?.cggroup) &&
+                    imgurls[0] != uri_background("bg_black")
                 )
                     newScene.classList.add("image");
                 if (hangingBlocker) {
@@ -1685,7 +1745,7 @@ async function genStory(data, avatars = []) {
                             appendCGItem(scene.bg, args.image, cg);
                             break;
                         case "hidecgitem":
-                            if (args.image) {
+                            if (args?.image) {
                                 delete floatingCGImages[args.image];
                             } else {
                                 floatingCGImages = {};
@@ -2100,7 +2160,8 @@ async function genStory(data, avatars = []) {
                             if (freshScene) applyTween(scene.bg, args);
                             else if (scene) {
                                 addCurrentScene();
-                                scene = cloneScene(scene);
+                                // don't mark this as a clone since tweens are used for vfx
+                                scene = cloneScene(scene, false);
                                 applyTween(scene.bg, args);
                             }
                             break;
@@ -2115,15 +2176,22 @@ async function genStory(data, avatars = []) {
                                     scene &&
                                     !(scene?.last_cmd?.cmd == "curtain")
                                 ) {
-                                    addCurrentScene();
-                                    scene = cloneScene(scene);
-                                    scene.last_cmd = { cmd, args }; // set last_cmd so it can chain for multiple curtains.
+                                    cloneWithCurtain();
                                 }
                                 addCurtain(
                                     Number(args.fillfrom),
                                     Number(args.fillto),
                                     Number(args.direction),
                                 );
+                                if (getCurtainCoverage(activeCurtains) > 90) {
+                                    // if curtain would result in over 90% of the screen black--make a new scene.
+                                    cloneWithCurtain();
+                                }
+                                function cloneWithCurtain() {
+                                    addCurrentScene();
+                                    scene = cloneScene(scene);
+                                    scene.last_cmd = { cmd, args }; // set last_cmd so it can chain for multiple curtains.
+                                }
                             } else resetCurtains(); // [curtain] clears all active curtains.
                             break;
                         case "header":
