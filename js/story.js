@@ -1120,14 +1120,13 @@ async function genStory(data, avatars = []) {
                 }
             }
             function cloneScene(oldScene) {
-                // used to add effects to a scene
+                // used to add effects to a scene, not a perfect clone as stuff like .last_cmd is not preserved.
                 // copy over everything from the old scene as the clone is not technically a new scene (according to the script)
-                [imgurls, options, cmd] = oldScene.args;
                 for (const key of ["xfrom", "yfrom", "xscalefrom"]) {
                     if (oldScene.bg[key] !== undefined)
                         options[key] = oldScene.bg[key];
                 }
-                return createScene(imgurls, options, cmd);
+                return createScene.apply(null, oldScene.args);
             }
             function appendCGItem(bg, key, cg) {
                 if (key in bg.cgImages) {
@@ -1531,27 +1530,22 @@ async function genStory(data, avatars = []) {
                 if (Object.keys(multiLineData).length !== 0) endMultiLine();
             }
             for (const line of lines) {
-                // console.log(line, predicateQueue, referenceQueue);
-                // console.log(line[0], activeReferences, referenceQueue);
-                // console.log(predicateQueue.length, "==", referenceQueue.length);
-                if (line[1]) {
-                    [_, cmd, args] =
-                        /\[\s*?(?:([^=\(\]]+)(?=[\(\]])\(?)?([^\]]*?)\)?\s*?\]/.exec(
-                            line[1],
-                        );
-                    cmd = cmd?.toLowerCase();
-                    if (args) {
-                        let tmp = {};
-                        Array.from(
-                            args.matchAll(
-                                /("?[^=", ]+"?)\s*=\s*"?((?<=")[^"]*|[^,]*)/gim,
-                            ),
-                        ).forEach((l) => {
-                            tmp[l[1].toLowerCase()] = l[2];
-                        });
-                        args = tmp;
-                    }
-                }
+                [_, _cmd, _args] = line[1]
+                    ? /\[\s*?(?:([^=\(\]]+)(?=[\(\]])\(?)?([^\]]*?)\)?\s*?\]/.exec(
+                          line[1],
+                      )
+                    : [null, null, null];
+                // really gross but I need these to be const
+                const cmd = _cmd?.toLowerCase();
+                const args = _args
+                    ? Object.fromEntries(
+                          Array.from(
+                              _args.matchAll(
+                                  /("?[^=", ]+"?)\s*=\s*"?((?<=")[^"]*|[^,]*)/gim,
+                              ),
+                          ).map((l) => [l[1].toLowerCase(), l[2]]),
+                      )
+                    : null;
                 if (
                     line[1] &&
                     args &&
@@ -1575,7 +1569,6 @@ async function genStory(data, avatars = []) {
                     getWorkingScene().appendChild(dlg);
                 } else if (line[1] && cmd) {
                     // group 1 alone indicates stage direction
-
                     // check for dangling multilines (and potentially other dialog features) at the end of the file or otherwise:
                     // this list is surely missing some directives...
                     if (
@@ -1668,6 +1661,7 @@ async function genStory(data, avatars = []) {
                                 (!args || !args.image)
                             )
                                 break;
+                            if (cmd == "image") activeCurtains = null; // [Image] clears curtains, I think. not sure what else does
                             // insert new div when background changes and set to current scene
                             let wasDisplayingImage = false;
                             if (scene) {
@@ -2039,13 +2033,22 @@ async function genStory(data, avatars = []) {
                                 args?.fillto != null &&
                                 args?.fillfrom != null &&
                                 args?.direction != null
-                            )
+                            ) {
+                                if (
+                                    activeCurtains &&
+                                    scene &&
+                                    !(scene?.last_cmd?.cmd == "curtain")
+                                ) {
+                                    addCurrentScene();
+                                    scene = cloneScene(scene);
+                                    scene.last_cmd = { cmd, args }; // set last_cmd so it can chain for multiple curtains.
+                                }
                                 addCurtain(
                                     Number(args.fillfrom),
                                     Number(args.fillto),
                                     Number(args.direction),
                                 );
-                            else activeCurtains = null; // [curtain] clears all active curtains.
+                            } else activeCurtains = null; // [curtain] clears all active curtains.
                             break;
                         case "header":
                         case "delay":
