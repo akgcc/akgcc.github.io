@@ -735,6 +735,41 @@ async function genStory(data, avatars = []) {
             let readTime = document.createElement("span");
             readTime.classList.add("readtime");
             storyNameDiv.appendChild(readTime);
+            const docName = document.createElement("span");
+            docName.classList.add("docName");
+
+            const drPrefix = document.createElement("span");
+            drPrefix.textContent = "Dr. ";
+            docName.appendChild(drPrefix);
+
+            const editableName = document.createElement("span");
+            editableName.classList.add("editableName");
+            editableName.contentEditable = "true";
+            editableName.textContent =
+                localStorage.getItem("docName") || "{@nickname}";
+            docName.appendChild(editableName);
+
+            storyNameDiv.appendChild(docName);
+
+            const maxLength = 24;
+            editableName.addEventListener("beforeinput", (e) => {
+                const text = editableName.textContent;
+                const selection = window.getSelection();
+                if (e.inputType.startsWith("delete")) return;
+                if (selection.toString().length > 0) return;
+                if (text.length >= maxLength) {
+                    e.preventDefault();
+                }
+            });
+            editableName.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                }
+            });
+            editableName.addEventListener("input", () => {
+                localStorage.setItem("docName", editableName.textContent);
+            });
+
             document.getElementById("storyTitle").innerHTML =
                 storyNameDiv.innerHTML;
             storyDiv.appendChild(storyNameDiv);
@@ -1369,7 +1404,12 @@ async function genStory(data, avatars = []) {
                 let doctorSpeaking = !(CURRENT_STORY in DecisionNotDoctor);
                 let dialog = makeDialog(
                     doctorSpeaking
-                        ? { name: "Dr {@nickname}" }
+                        ? {
+                              name: `Dr. ${
+                                  localStorage.getItem("docName") ||
+                                  "{@nickname}"
+                              }`,
+                          }
                         : { name: "speaker" },
                     choices[0],
                     doctorSpeaking
@@ -1449,7 +1489,11 @@ async function genStory(data, avatars = []) {
                 blocktxt.innerHTML = dialogLine
                     .replace(/^(?:\\r\\n|\\r|\\n)+/, "")
                     .replace(/^(?:\\r\\n|\\r|\\n)+$/, "")
-                    .replace(/\\r\\n|\\r|\\n/g, "<br />");
+                    .replace(/\\r\\n|\\r|\\n/g, "<br />")
+                    .replace(
+                        /\{@nickname\}/gi,
+                        localStorage.getItem("docName") || "{@nickname}",
+                    );
                 wordCount += countWords(blocktxt.innerHTML);
                 txt.appendChild(blocktxt);
                 wrap.appendChild(left);

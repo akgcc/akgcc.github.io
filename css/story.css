@@ -328,9 +328,12 @@ img.storyAvatar {
   position: relative;
 }
 .readtime {
-  position: absolute;
   right: 0;
-  margin-right: 0.4em;
+  margin-right: 0.5em;
+}
+.readtime,
+.docName {
+  position: absolute;
   top: 50%;
   transform: translateY(-50%);
   white-space: nowrap;
@@ -338,6 +341,21 @@ img.storyAvatar {
   color: var(--light-text-color);
   overflow: hidden;
 }
+.docName {
+  left: 0;
+  margin-left: 0.5em;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.editableName {
+  padding: 3px;
+  max-width: 26ch;
+  outline: none;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .storySelect {
   font-size: 1.2em;
   padding-right: 0.3em;
