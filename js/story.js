@@ -61,6 +61,16 @@ const CharslotNameMap = {
     r: 3,
     right: 3,
 };
+const dirMap = {
+    0: "to bottom",
+    4: "to top",
+    6: "to right",
+    2: "to left",
+    1: "45deg",
+    3: "315deg",
+    5: "225deg",
+    7: "135deg",
+};
 const DecisionNotDoctor = {
     "mini&act13d0&3": "avg_4133_logos_1#1$1",
     "side&act19side&0": "avg_128_plosis_1#1$1",
@@ -681,7 +691,8 @@ async function genStory(data, avatars = []) {
     imgCount = 0;
     let freshScene = false;
     const bgAnimations = [];
-    let activeCurtains = null;
+    let activeCurtains = {};
+    let activeCurtainsCSS = null;
     let floatingCGImages = {};
     async function getModuleStory(key) {
         return {
@@ -996,10 +1007,11 @@ async function genStory(data, avatars = []) {
                 if (!scene.classList.contains("image")) {
                     if (scene.childElementCount == 1) return; // every scene has a scene-background
                     if (
-                        Array.from(scene.childNodes).every(
-                            (n) =>
-                                n.classList.contains("blocker") ||
-                                n.classList.contains("scene-background"),
+                        // this might be an issue if theres a non-image scene with only cgitems
+                        Array.from(scene.childNodes).every((n) =>
+                            ["blocker", "scene-background"].some((c) =>
+                                n.classList.contains(c),
+                            ),
                         )
                     )
                         return;
@@ -1029,39 +1041,44 @@ async function genStory(data, avatars = []) {
                 return scene;
             }
             function addCurtain(fillfrom, fillto, direction) {
-                const fadePixels = 8; // fade length in pixels
-                const dirMap = {
-                    0: "to bottom",
-                    4: "to top",
-                    6: "to right",
-                    2: "to left",
-                    1: "45deg",
-                    3: "315deg",
-                    5: "225deg",
-                    7: "135deg",
-                };
-                let f = fillfrom * 100;
-                let t = fillto * 100;
-
-                if (f > t) {
-                    [f, t] = [t, f];
-                }
+                // this some potential cases:
+                // 1. curtains that don't start at 0
+                // 2. segmented curtains, with gaps of transparency
+                // 3. probably more I didn't think of
+                const fade = 8; //pixels
                 const dir = dirMap[direction];
                 if (!dir) return;
-
-                const gradient = `linear-gradient(${dir}, black ${f}%, black ${t}%, transparent calc(${t}% + ${fadePixels}px), transparent 100%)`;
-
-                activeCurtains = activeCurtains
-                    ? `${activeCurtains}, ${gradient}`
-                    : gradient;
-
-                applyActiveCurtains(scene);
+                let f = fillfrom * 100;
+                let t = fillto * 100;
+                const c = activeCurtains[direction] || [0, 0];
+                // if expanding (from < to), extend to max range
+                if (f <= t) {
+                    c[0] = Math.min(c[0], f);
+                    c[1] = Math.max(c[1], t);
+                } else {
+                    // if shrinking (from > to), contract to that range
+                    c[1] = t;
+                }
+                activeCurtains[direction] = c;
+                if (c[1] <= c[0]) {
+                    delete activeCurtains[direction];
+                }
+                activeCurtainsCSS = Object.entries(activeCurtains)
+                    .map(
+                        ([d, [a, b]]) =>
+                            `linear-gradient(${dirMap[d]},black ${a}%,black ${b}%,transparent calc(${b}% + ${fade}px),transparent 100%)`,
+                    )
+                    .join(",");
             }
 
-            function applyActiveCurtains(scene) {
-                if (activeCurtains && scene) {
-                    scene.bg.style.setProperty("--curtains", activeCurtains);
+            function applyActiveCurtains() {
+                if (activeCurtainsCSS && scene) {
+                    scene.bg.style.setProperty("--curtains", activeCurtainsCSS);
                 }
+            }
+            function resetCurtains() {
+                activeCurtainsCSS = null;
+                activeCurtains = {};
             }
             const easingMap = {
                 // no idea if these are accurate they're from chatGPT lmao
@@ -1162,7 +1179,7 @@ async function genStory(data, avatars = []) {
                     if (oldScene.bg[key] !== undefined)
                         _options[key] = oldScene.bg[key];
                 }
-                return createScene(_imgurls, _options, _cmd);
+                return createScene(_imgurls, _options, _cmd, true);
             }
             function appendCGItem(bg, key, cg) {
                 if (key in bg.cgImages) {
@@ -1171,7 +1188,7 @@ async function genStory(data, avatars = []) {
                 }
                 bg.cgImages[key] = bg.appendChild(cg);
             }
-            function createScene(imgurls, options, cmd) {
+            function createScene(imgurls, options, cmd, cloned = false) {
                 freshScene = true;
                 const isMultipart = imgurls.length !== 1;
                 chars = {};
@@ -1194,8 +1211,11 @@ async function genStory(data, avatars = []) {
                 for (const key in floatingCGImages) {
                     appendCGItem(bg, key, floatingCGImages[key].cloneNode());
                 }
-                // mark as image to prevent pruning if the scene is empty
-                if (options?.image || options?.imagegroup || options?.cggroup)
+                // mark as image to prevent pruning even if the scene is empty
+                if (
+                    !cloned &&
+                    (options?.image || options?.imagegroup || options?.cggroup)
+                )
                     newScene.classList.add("image");
                 if (hangingBlocker) {
                     newScene.appendChild(hangingBlocker);
@@ -1238,7 +1258,6 @@ async function genStory(data, avatars = []) {
                         );
                     },
                 );
-                applyActiveCurtains(newScene);
                 allScenes.push(newScene);
                 return newScene;
 
@@ -1471,6 +1490,7 @@ async function genStory(data, avatars = []) {
                 type = null,
             ) {
                 freshScene = false;
+                applyActiveCurtains();
                 let wrap = document.createElement("div");
                 wrap.classList.add("dialog");
                 wrap.classList.add("forceShow");
@@ -1706,7 +1726,6 @@ async function genStory(data, avatars = []) {
                                 (!args || !args.image)
                             )
                                 break;
-                            if (cmd == "image") activeCurtains = null; // [Image] clears curtains, I think. not sure what else does
                             // insert new div when background changes and set to current scene
                             let wasDisplayingImage = false;
                             if (scene) {
@@ -2080,7 +2099,7 @@ async function genStory(data, avatars = []) {
                                 args?.direction != null
                             ) {
                                 if (
-                                    activeCurtains &&
+                                    activeCurtainsCSS &&
                                     scene &&
                                     !(scene?.last_cmd?.cmd == "curtain")
                                 ) {
@@ -2093,7 +2112,7 @@ async function genStory(data, avatars = []) {
                                     Number(args.fillto),
                                     Number(args.direction),
                                 );
-                            } else activeCurtains = null; // [curtain] clears all active curtains.
+                            } else resetCurtains(); // [curtain] clears all active curtains.
                             break;
                         case "header":
                         case "delay":
@@ -2143,7 +2162,30 @@ async function genStory(data, avatars = []) {
                     dlg.classList.add("narration");
                     getWorkingScene().appendChild(dlg);
                 }
-                if (scene && cmd) scene.last_cmd = { cmd, args };
+                if (scene && cmd) {
+                    // prevent preemptive curtains from being applied to the "previous" scene
+                    // these directives indicate an "active" scene (stuff is happening)
+                    // makeDialog also applies curtains and covers most cases.
+                    // maybe should include all tween/rotate directives too...
+                    if (
+                        [
+                            "blocker",
+                            "delay",
+                            "image",
+                            "showitem",
+                            "playsound",
+                            "playmusic",
+                            "focusout",
+                            "focusin",
+                            "timersticker",
+                            "camerashake",
+                            "cameraeffect",
+                        ].includes(cmd)
+                    ) {
+                        applyActiveCurtains();
+                    }
+                    scene.last_cmd = { cmd, args };
+                }
             }
             addCurrentScene(true);
             Promise.all(allScenes.map((scene) => scene.backgroundPromise)).then(
