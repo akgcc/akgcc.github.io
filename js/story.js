@@ -51,7 +51,9 @@ const CharslotFocusMap = {
     r: 3,
     right: 3,
     all: 99,
+    a: 99,
     none: -1,
+    n: -1,
 };
 const CharslotNameMap = {
     l: "", // these 2 *should* be able to be set to 1, but leaving it like this for safety
