@@ -584,9 +584,9 @@ get_char_table(false, serverString)
             buildSecondSelector(uppercat, false);
 
             // change server & reload page if CN exclusive
-            if (!(cat in storyReview)) {
+            if (!(cat in storyReview) && !(serverString == SERVERS.CN)) {
                 if (!sessionStorage.getItem("userChange")) {
-                    localStorage.setItem("server", "zh_CN");
+                    localStorage.setItem("server", SERVERS.CN);
                     location.reload();
                 } else {
                     cat =
