@@ -1580,11 +1580,16 @@ async function genStory(data, avatars = []) {
                 blocktxt.classList.add("interactable-text");
                 blocktxt.innerHTML = dialogLine
                     .replace(/^(?:\\r\\n|\\r|\\n)+/, "")
-                    .replace(/^(?:\\r\\n|\\r|\\n)+$/, "")
+                    .replace(/(?:\\r\\n|\\r|\\n)+$/, "")
                     .replace(/\\r\\n|\\r|\\n/g, "<br />")
+                    .replace(/\\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;")
                     .replace(
                         /\{@nickname\}/gi,
                         localStorage.getItem("docName") || "{@nickname}",
+                    )
+                    .replace(
+                        /<color=([#\w]+)>([\s\S]*?)<\/color>/gi,
+                        '<span style="color: $1;">$2</span>',
                     );
                 wordCount += countWords(blocktxt.innerHTML);
                 txt.appendChild(blocktxt);
