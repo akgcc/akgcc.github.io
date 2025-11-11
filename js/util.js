@@ -67,6 +67,12 @@ function uri_video(vidPath, source = ASSET_SOURCE.LOCAL) {
   }
 }
 function uri_roguelike_item(imageName, source = ASSET_SOURCE.LOCAL) {
+  if (/_copper_/.test(imageName)) {
+    imageName = imageName
+      .replace("_change", "")
+      .replace("_buff", "")
+      .replace(/_[a-zA-Z]$/, "");
+  }
   switch (source) {
     case ASSET_SOURCE.LOCAL:
       return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/arts/ui/rogueliketopic/itempic/${imageName}.png`.toLowerCase();
