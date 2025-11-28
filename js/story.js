@@ -628,8 +628,8 @@ get_char_table(false, serverString)
                         (storyReview[k].remakeStartTime > 0
                             ? storyReview[k].remakeStartTime
                             : storyReview[k].startTime > 0
-                            ? storyReview[k].startTime
-                            : storyReview[k].startShowTime) <
+                              ? storyReview[k].startTime
+                              : storyReview[k].startShowTime) <
                             Date.now() / 1000 - 60 * 60 * 12,
                 )
                 .sort(
@@ -637,13 +637,13 @@ get_char_table(false, serverString)
                         (storyReview[a].remakeStartTime > 0
                             ? storyReview[a].remakeStartTime
                             : storyReview[a].startTime > 0
-                            ? storyReview[a].startTime
-                            : storyReview[a].startShowTime) -
+                              ? storyReview[a].startTime
+                              : storyReview[a].startShowTime) -
                         (storyReview[b].remakeStartTime > 0
                             ? storyReview[b].remakeStartTime
                             : storyReview[b].startTime > 0
-                            ? storyReview[b].startTime
-                            : storyReview[b].startShowTime),
+                              ? storyReview[b].startTime
+                              : storyReview[b].startShowTime),
                 )
                 .slice(-1)[0];
             let newHash = "#";
@@ -712,9 +712,10 @@ async function genStory(data, avatars = []) {
         };
     }
 
-    return await (key.startsWith("uniequip")
-        ? getModuleStory(key)
-        : fetch(`${DATA_BASE[serverString]}/gamedata/story/${key}.txt`)
+    return await (
+        key.startsWith("uniequip")
+            ? getModuleStory(key)
+            : fetch(`${DATA_BASE[serverString]}/gamedata/story/${key}.txt`)
     )
         .then((r) => {
             if (!r.ok) {
@@ -1044,11 +1045,12 @@ async function genStory(data, avatars = []) {
                 }
                 return scene;
             }
-            function addCurtain(fillfrom, fillto, directionRaw) {
+            function addCurtain({ fillfrom, fillto, directionRaw, a }) {
                 // this some potential cases:
                 // 1. curtains that don't start at 0
                 // 2. segmented curtains, with gaps of transparency
                 // 3. probably more I didn't think of
+                if (a === 0) return;
                 const direction = Number(directionRaw);
                 const fade = 8; //pixels
                 const dir = dirMap[direction];
@@ -1199,8 +1201,8 @@ async function genStory(data, avatars = []) {
                             iterations: 1,
                             fill: "forwards",
                             easing: options.ease
-                                ? easingMap[options.ease.toLowerCase()] ??
-                                  "ease-in-out"
+                                ? (easingMap[options.ease.toLowerCase()] ??
+                                  "ease-in-out")
                                 : "linear",
                         });
                         anim.pause();
@@ -1537,8 +1539,8 @@ async function genStory(data, avatars = []) {
                                 a == thispredicate
                                     ? 1
                                     : b == thispredicate
-                                    ? -1
-                                    : 0,
+                                      ? -1
+                                      : 0,
                             )
                             .forEach((p) => {
                                 predicate[p].forEach((el) => {
@@ -2185,11 +2187,7 @@ async function genStory(data, avatars = []) {
                                 ) {
                                     cloneWithCurtain();
                                 }
-                                addCurtain(
-                                    Number(args.fillfrom),
-                                    Number(args.fillto),
-                                    Number(args.direction),
-                                );
+                                addCurtain(args);
                                 if (getCurtainCoverage(activeCurtains) > 90) {
                                     // if curtain would result in over 90% of the screen black--make a new scene.
                                     cloneWithCurtain();
