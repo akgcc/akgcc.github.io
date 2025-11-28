@@ -1045,13 +1045,16 @@ async function genStory(data, avatars = []) {
                 }
                 return scene;
             }
-            function addCurtain({ fillfrom, fillto, directionRaw, a }) {
+            function addCurtain({ fillfrom, fillto, direction, a }) {
                 // this some potential cases:
                 // 1. curtains that don't start at 0
                 // 2. segmented curtains, with gaps of transparency
                 // 3. probably more I didn't think of
+                fillfrom = Number(fillfrom);
+                fillto = Number(fillto);
+                direction = Number(direction);
+                a = Number(a);
                 if (a === 0) return;
-                const direction = Number(directionRaw);
                 const fade = 8; //pixels
                 const dir = dirMap[direction];
                 if (!dir) return;
