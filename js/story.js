@@ -1045,6 +1045,12 @@ async function genStory(data, avatars = []) {
                 }
                 return scene;
             }
+            function cloneCurrentScene(cmd = null, args = null) {
+                // adds current scene and replaces it with a copy
+                if (!addCurrentScene()) return;
+                scene = cloneScene(scene);
+                if (cmd) scene.last_cmd = { cmd, args }; // set last_cmd so it can chain for multiple curtains.
+            }
             function addCurtain({ fillfrom, fillto, direction, a }) {
                 // this some potential cases:
                 // 1. curtains that don't start at 0
@@ -1992,7 +1998,7 @@ async function genStory(data, avatars = []) {
                                     ),
                                 );
                                 getWorkingScene().appendChild(dlg);
-                            }
+                            } else cloneCurrentScene(cmd, args);
                             break;
                         case "decision":
                             getWorkingScene().appendChild(
@@ -2188,17 +2194,12 @@ async function genStory(data, avatars = []) {
                                     scene &&
                                     !(scene?.last_cmd?.cmd == "curtain")
                                 ) {
-                                    cloneWithCurtain();
+                                    cloneCurrentScene(cmd, args);
                                 }
                                 addCurtain(args);
                                 if (getCurtainCoverage(activeCurtains) > 90) {
                                     // if curtain would result in over 90% of the screen black--make a new scene.
-                                    cloneWithCurtain();
-                                }
-                                function cloneWithCurtain() {
-                                    addCurrentScene();
-                                    scene = cloneScene(scene);
-                                    scene.last_cmd = { cmd, args }; // set last_cmd so it can chain for multiple curtains.
+                                    cloneCurrentScene(cmd, args);
                                 }
                             } else resetCurtains(); // [curtain] clears all active curtains.
                             break;
