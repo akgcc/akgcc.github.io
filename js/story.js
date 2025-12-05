@@ -2152,8 +2152,10 @@ async function genStory(data, avatars = []) {
                             break;
                         case "blocker":
                             // responsible for fade effects/fade to black for certain lines
-                            if (args && "fadetime" in args)
+                            if (args && "fadetime" in args) {
+                                if ("image" in args) args.a = 0; // make image blockers invisible
                                 addBlocker(lastBlockerColor, args);
+                            }
                             break;
                         case "video":
                             let embed = document.createElement("video");
