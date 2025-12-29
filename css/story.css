@@ -340,6 +340,7 @@ img.storyAvatar {
   font-size: 0.6em;
   color: var(--light-text-color);
   overflow: hidden;
+  padding: 2px;
 }
 .docName {
   left: 0;
@@ -354,8 +355,16 @@ img.storyAvatar {
   outline: none;
   overflow: hidden;
   white-space: nowrap;
+  border-radius: 2px;
 }
-
+.editableName:hover {
+  outline: 1px solid #4a90e2;
+  background-color: #0003;
+}
+.editableName:focus {
+  outline: 2px solid #4a90e2;
+  background-color: #0006;
+}
 .storySelect {
   font-size: 1.2em;
   padding-right: 0.3em;
