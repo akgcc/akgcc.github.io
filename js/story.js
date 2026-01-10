@@ -1750,15 +1750,22 @@ async function genStory(data, avatars = []) {
                             let y = 0;
                             if (args.pfrom)
                                 [x, y] = args.pfrom.split(",").map(Number);
+                            center = "translate(-50%, 0%)";
+                            cg.style.transformOrigin = "center bottom";
+                            if (/act48side/.test(CURRENT_STORY)) {
+                                cg.style.top = "50%";
+                                center = "translate(-50%, -50%)";
+                                cg.style.transformOrigin = "center";
+                            } else {
+                                cg.style.bottom = 0;
+                            }
                             cg.style.left = "50%";
-                            cg.style.bottom = 0;
                             cg.style.zIndex = Number(args.layer);
-                            cg.style.transform = `translate(-50%, 0) \
-                            translate(calc(${x} * var(--story-scale)), calc(${y} * var(--story-scale))) \
+                            cg.style.transform = `${center} \
+                            translate(calc(${x} * var(--story-scale)), calc(${-y} * var(--story-scale))) \
                             scale(calc(var(--story-scale-unitless) * ${
                                 Number(args?.sfrom) ? Number(args.sfrom) : 1
                             }))`;
-                            cg.style.transformOrigin = "center bottom";
                             floatingCGImages[args.image] = cg;
                             appendCGItem(scene.bg, args.image, cg);
                             break;
