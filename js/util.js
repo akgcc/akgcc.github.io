@@ -206,6 +206,7 @@ const GAMEPRESS_NAME_MAP = {
   Pozëmka: "Позёмка",
   "Reed the Flame Shadow": "Reed The Flame Shadow",
   "Fang the Fire-Sharpened": "Fang the Fire-sharpened",
+  "Eyjafjalla the Hvit Aska": "Eyjafjalla the Hvít Aska",
 };
 const charIdMap = {};
 // maps some en names to their appellations

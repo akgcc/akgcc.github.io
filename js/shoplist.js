@@ -332,7 +332,7 @@ fetch(
 				},
 				layout: {
 					padding: {
-						right: 30,
+						right: 40,
 					},
 				},
 				indexAxis: "y",
@@ -377,6 +377,14 @@ fetch(
 					y: {
 						ticks: {
 							padding: 20,
+							callback: function (value, index, values) {
+								const name = this.getLabelForValue(value);
+								const tokens = name.split(" ");
+								if (tokens[1]?.toLowerCase() === "the") {
+									return tokens[0] + " Alter";
+								}
+								return name;
+							},
 						},
 					},
 				},
