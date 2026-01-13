@@ -387,10 +387,13 @@ fetch(
 							callback: function (value, index, values) {
 								const name = this.getLabelForValue(value);
 								const tokens = name.split(" ");
-								if (tokens[1]?.toLowerCase() === "the") {
-									return tokens[0] + " Alter";
-								}
-								return name;
+								const theIndex = tokens.findIndex(
+									(t) => t.toLowerCase() === "the",
+								);
+								if (theIndex === -1) return name;
+								return (
+									tokens.slice(0, theIndex).join(" ") + " Alt"
+								);
 							},
 						},
 					},
