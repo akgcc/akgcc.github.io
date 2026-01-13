@@ -207,6 +207,11 @@ fetch(
 								args.meta._dataset.parsing.xAxisKey
 							],
 						);
+					// don't draw if this pt lies to the left of the visible area.
+					if (x.getValueForPixel(x_pos) < x.min) {
+						ctx.restore();
+						continue;
+					}
 					let y_pos = y.getPixelForValue(
 						chart.data.datasets[args.index].data[i][
 							args.meta._dataset.parsing.yAxisKey
@@ -364,6 +369,7 @@ fetch(
 							color: "#777",
 							// borderColor: "#aaa",
 						},
+						ticks: { minRotation: 30 },
 					},
 					x1: {
 						position: "top",
@@ -373,6 +379,7 @@ fetch(
 						},
 						min: SERVER_STARTS[selectedServer],
 						max: Date.now(),
+						ticks: { minRotation: 30 },
 					},
 					y: {
 						ticks: {
@@ -425,6 +432,55 @@ fetch(
 				redrawCharts();
 			};
 		}
+
+		var periodbtns = document.createElement("div");
+		periodbtns.id = "barPeriods";
+		periodbtns.classList.add("sortdiv");
+		document.getElementById("periodSelect").appendChild(periodbtns);
+		label = document.createElement("label");
+		label.innerHTML = "Period:";
+		periodbtns.appendChild(label);
+		var start = SERVER_STARTS["CN"];
+		var now = new Date();
+		var diffYears = Math.floor((now - start) / (1000 * 60 * 60 * 24 * 365)); // full years
+		// generate 2-year increments
+		var periods = [];
+		for (var y = 2; y <= diffYears; y += 2) {
+			periods.push(y + "y");
+		}
+		periods.push("ALL");
+		periods.forEach(function (p) {
+			var btn = document.createElement("div");
+			btn.classList = "sorter button";
+			if (p === "ALL") btn.classList.add("checked");
+			btn.dataset.period = p;
+			btn.innerHTML = p;
+			periodbtns.appendChild(btn);
+			btn.onclick = function (e) {
+				Array.from(periodbtns.childNodes).forEach(function (x) {
+					x.classList.remove("checked");
+				});
+				e.currentTarget.classList.add("checked");
+
+				selectedPeriod = p;
+
+				// determine min based on period
+				var minDate;
+				if (p === "ALL") {
+					minDate = SERVER_STARTS[selectedServer];
+				} else {
+					var yearsAgo = parseInt(p);
+					minDate = new Date();
+					minDate.setFullYear(minDate.getFullYear() - yearsAgo);
+				}
+				if (minDate < SERVER_STARTS[selectedServer]) {
+					minDate = SERVER_STARTS[selectedServer];
+				}
+				barGraph.options.scales.x.min = minDate;
+				barGraph.options.scales.x1.min = minDate;
+				redrawCharts();
+			};
+		});
 
 		const raritybtns = document.createElement("div");
 		raritybtns.id = "barRarities";
