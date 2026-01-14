@@ -20,9 +20,8 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 
       if (value.length == 8) {
         debounceTimeout = setTimeout(() => {
-          fetch(
-            `https://proxy.corsfix.com/?https://account.yo-star.com/api/game/gachas?key=ark&index=1&size=9999&uid=${value}`,
-          )
+          //https://account.yo-star.com/api/game/gachas?key=ark&index=1&size=9999&uid=${value}
+          fetch(`https://yostarcors.ndcdev.workers.dev/?uid=${value}`)
             .then((res) => res.json())
             .then((data) => {
               saveToLocal(value, data);
