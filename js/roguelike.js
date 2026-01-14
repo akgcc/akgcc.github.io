@@ -25,11 +25,13 @@ document.getElementById("ascensionSlider").oninput = function () {
 	}
 	if (variant === null) {
 		document
-			.querySelectorAll(`.variantBtn.checked`)
+			.querySelectorAll(`.variantBtn.checked:not(.copper)`)
 			.forEach((btn) => btn.click());
 	} else {
 		document
-			.querySelectorAll(`.variantBtn.${variant}:not(.checked)`)
+			.querySelectorAll(
+				`.variantBtn.${variant}:not(.checked):not(.copper)`,
+			)
 			.forEach((btn) => btn.click());
 	}
 };
@@ -125,13 +127,25 @@ function loadItems(is) {
 			return acc;
 		}, {});
 		for (const [key, value] of Object.entries(filtered_table)) {
-			addItem(value, variants_table[key]);
+			if (value.type === "COPPER")
+				addItem(
+					value,
+					variants_table[key.substring(0, key.length - 2)],
+				);
+			else addItem(value, variants_table[key]);
 		}
 		document
 			.querySelectorAll("#topNav .nav-right > .isb")
 			.forEach((e) => e.classList.remove("checked"));
 		buttonMap[is].classList.add("checked");
 	});
+}
+function formatColors(text) {
+	// converts <color=#000000> tags into <span> with style=color
+	return text.replace(
+		/<color\s*=\s*(#[0-9a-fA-F]{6})>([\s\S]*?)<\/color>/gi,
+		'<span style="color:$1">$2</span>',
+	);
 }
 function addItem(data, variants = undefined) {
 	let item = document.createElement("div");
@@ -199,38 +213,44 @@ function addItem(data, variants = undefined) {
 	unlock.innerHTML = data.unlockCondDesc;
 	const effect = document.createElement("div");
 	effect.classList.add("rl_effect");
-	effect.innerHTML = data.usage;
+	effect.innerHTML = formatColors(data.usage);
 	let spacer = document.createElement("div");
 	spacer.classList.add("rl_inner_spacer");
 	let bot_border = document.createElement("div");
 	bot_border.classList.add("rl_bottom_trim");
-
 	if (variants) {
 		let btn_container = document.createElement("div");
 		btn_container.classList.add("variant_selectors");
 		inner.appendChild(btn_container);
 		variants.forEach((v) => {
 			let btn = document.createElement("div");
-			let variantLetter = v.id[v.id.length - 1]; // will be a,b, or c
+			let variantLetter = v.id[v.id.length - 1]; // will be a, b, or c
 			btn.classList.add("variantBtn", variantLetter);
 			btn.innerHTML = v.name[v.name.length - 1];
+			if (v.type === "COPPER") {
+				btn.innerHTML = v.id[v.id.length - 1];
+				btn.classList.add("copper");
+			}
 			btn_container.appendChild(btn);
 			btn.addEventListener("click", (e) => {
 				let wasChecked = btn.classList.contains("checked");
 				if (wasChecked) {
 					//revert to normal data
-					effect.innerHTML = data.usage;
+					effect.innerHTML = formatColors(data.usage);
 				} else {
 					btn.parentElement
 						.querySelectorAll(".variantBtn")
 						.forEach((e) => e.classList.remove("checked"));
 					// show data for this one
-					effect.innerHTML = v.usage;
+					effect.innerHTML = formatColors(v.usage);
 				}
 
 				btn.classList.toggle("checked");
 			});
-			if (variantLetter === "c") {
+			if (
+				(v.type === "COPPER" && variantLetter === "a") ||
+				(v.type !== "COPPER" && variantLetter === "c")
+			) {
 				btn.click();
 			}
 		});
