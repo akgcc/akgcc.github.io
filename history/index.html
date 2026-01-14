@@ -1,0 +1,57 @@
+<html>
+  <head>
+    <title>Pull History</title>
+    <link type="text/css" href="/css/reset.css" rel="stylesheet" />
+    <link type="text/css" href="/css/style.css" rel="stylesheet" />
+    <link type="text/css" href="/css/style2.css" rel="stylesheet" />
+    <link type="text/css" href="/css/history.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="/css/all.min.css" />
+    <script type="text/javascript" src="/js/util.js"></script>
+    <meta charset="UTF-8" />
+  </head>
+  <body ontouchstart>
+    <div id="topNav">
+      <div class="nav-left">
+        <a id="pageTitle">Pull History</a>
+      </div>
+      <div class="nav-right">
+        <div class="nav-dropdown rightButton" id="serverSelect">
+          <div class="dropbtn button">
+            EN
+            <i class="fa fa-caret-down"></i>
+          </div>
+          <div class="dropdown-content"></div>
+        </div>
+        <a class="rightButton button iconButton" href="/" id="homeButton"></a>
+      </div>
+    </div>
+    <div id="rlfilters">
+      <div id="filterButtons">
+        <div class="sliderBox" id="filterAscension">
+          <span>User ID: </span>
+          <input
+            class="filterSlider"
+            id="idInput"
+            type="text"
+            inputmode="numeric"
+            pattern="\d*"
+            min="0"
+            step="1"
+            placeholder="8-digit ID"
+          />
+        </div>
+        <div class="infoContainer">
+      <i class="fa fa-info-circle infoIcon"></i>
+      <div class="infoPanel">
+        <p>
+          This entire page was AISlop crapGPT vibecoded very quickly and very poorly, expect bugs.
+          Only tested on EN. Adding other YoStar servers should be trivial but I may need help with obtaining API endpoints.
+        </p>
+      </div>
+    </div>
+      </div>
+    </div>
+    <div id="gachaCards"></div>
+    <script type="text/javascript" src="/js/history.js"></script>
+  </body>
+</html>

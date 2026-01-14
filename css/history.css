@@ -1,0 +1,244 @@
+#idInput {
+	flex: 1; /* let input take remaining space */
+	padding: 10px 12px;
+	font-size: 16px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	box-sizing: border-box;
+}
+
+#rlfilters {
+	display: inline-block;
+	width: 100%;
+	padding-top: 0.25em;
+	padding-left: 0.25em;
+}
+#rlfilters.hidden {
+	display: none;
+}
+
+#gachaCards {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	padding: 16px;
+}
+/* ===================== */
+/* Card container        */
+/* ===================== */
+.gacha-card {
+	width: 240px;
+	display: flex;
+	flex-direction: column;
+	background: linear-gradient(#262626, #222);
+	border: 1px solid #333;
+	border-radius: 12px;
+	color: #e6e6e6;
+	font-family: "Segoe UI", Roboto, sans-serif;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+	overflow: hidden; /* keep header/background clipped */
+}
+
+/* ===================== */
+/* Header (top corners only) */
+/* ===================== */
+.card-header {
+	padding: 10px 12px;
+	text-align: center;
+	font-weight: 600;
+	font-size: 0.95rem;
+	background: #1e1e1e;
+	border-bottom: 1px solid #333;
+	border-top-left-radius: 12px;
+	border-top-right-radius: 12px;
+}
+
+/* ===================== */
+/* Type highlights       */
+/* ===================== */
+/* Standard banner header */
+.gacha-card.standard .card-header {
+	background-color: #2a2a2a; /* neutral dark */
+	color: #ffffff; /* white text */
+}
+
+.gacha-card.kernel .card-header {
+	background-color: #1a2e4f;
+	color: #66ccff;
+}
+
+.gacha-card.limited .card-header {
+	background-color: #3f2b00;
+	color: gold;
+}
+
+/* ===================== */
+/* Stats rows            */
+/* ===================== */
+.card-rows {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	padding: 10px;
+}
+
+.row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 10px;
+	font-size: 0.85rem;
+	background: #1f1f1f;
+	border: 1px solid #333;
+	border-radius: 6px;
+}
+
+.row span {
+	font-weight: 600;
+	color: #ffffff;
+}
+
+/* ===================== */
+/* 6★ pulls              */
+/* ===================== */
+.sixstar-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	padding: 8px 10px 10px;
+	/* no border-radius here */
+}
+
+.sixstar-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 8px;
+	font-size: 0.75rem;
+	background: #1b1b1b;
+	border: 1px solid #333;
+	border-radius: 6px; /* only local radius */
+	color: #d0d0d0;
+	white-space: nowrap;
+}
+
+.sixstar-pity {
+	min-width: 1.6em;
+	text-align: right;
+	font-weight: 600;
+	color: #ffcc66;
+}
+
+/* Container next to sliderBox */
+.infoContainer {
+	display: inline-block;
+	position: relative;
+	margin-left: 10px; /* spacing from sliderBox */
+	vertical-align: top;
+}
+
+/* Info icon */
+.infoIcon {
+	font-size: 20px;
+	color: #2fac78;
+	cursor: pointer;
+}
+
+/* Info panel (manual) */
+.infoPanel {
+	display: none; /* hidden by default */
+	position: absolute;
+	top: 100%; /* below the icon */
+	left: 0;
+	width: 300px; /* adjust as needed */
+	max-width: 90vw;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	padding: 12px;
+	border-radius: 6px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+	z-index: 50;
+	font-size: 14px;
+	line-height: 1.4;
+}
+
+/* Show panel on hover */
+.infoContainer:hover .infoPanel {
+	display: block;
+}
+
+/* Optional: style scrollable content if manual is long */
+.infoPanel p {
+	max-height: 200px;
+	overflow-y: auto;
+}
+/* Keep inline with your sliderBox style */
+.infoContainer {
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 0.5em; /* space from sliderBox */
+	position: relative;
+}
+
+.infoIcon {
+	font-size: 1.2rem;
+	color: var(--main-text-color);
+	cursor: pointer;
+	display: inline-block;
+	line-height: 1.2rem;
+}
+
+/* Panel hidden by default */
+.infoPanel {
+	display: none;
+	background: var(--main-background-color);
+	border: 1px solid white;
+	border-radius: 0.2em;
+	padding: 0.5em;
+	max-width: 25em;
+	font-size: 1rem;
+	line-height: 1.2rem;
+	margin-top: 0.25em;
+}
+
+/* Show panel on hover */
+.infoContainer:hover .infoPanel {
+	display: block;
+}
+/* Make filterButtons a flex container so children align center vertically */
+#filterButtons {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center; /* <-- centers sliderBox and icon vertically */
+	gap: 0.25em; /* optional spacing between items */
+}
+
+.infoContainer {
+	display: inline-flex; /* inline + flex */
+	align-items: center; /* vertically center icon with slider */
+	position: relative;
+}
+
+.infoIcon {
+	font-size: 1.2rem;
+	color: var(--main-text-color);
+	cursor: pointer;
+	display: inline-block;
+	line-height: 1;
+}
+
+.infoPanel {
+	display: none;
+	background: var(--main-background-color);
+	border: 1px solid white;
+	border-radius: 0.2em;
+	padding: 0.5em;
+	max-width: 25em;
+	font-size: 1rem;
+	line-height: 1.2rem;
+	margin-top: 0.25em;
+}
+
+.infoContainer:hover .infoPanel {
+	display: block;
+}
