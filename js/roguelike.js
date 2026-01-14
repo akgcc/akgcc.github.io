@@ -140,12 +140,15 @@ function loadItems(is) {
 		buttonMap[is].classList.add("checked");
 	});
 }
-function formatColors(text) {
+function formatTags(text) {
 	// converts <color=#000000> tags into <span> with style=color
-	return text.replace(
-		/<color\s*=\s*(#[0-9a-fA-F]{6})>([\s\S]*?)<\/color>/gi,
-		'<span style="color:$1">$2</span>',
-	);
+	return text
+		.replace(/\\n/g, "\n")
+		.replace(
+			/<color\s*=\s*(#[0-9a-fA-F]{6})>([\s\S]*?)<\/color>/gi,
+			'<span style="color:$1">$2</span>',
+		)
+		.replace(/\r?\n/g, "<br>");
 }
 function addItem(data, variants = undefined) {
 	let item = document.createElement("div");
@@ -213,7 +216,7 @@ function addItem(data, variants = undefined) {
 	unlock.innerHTML = data.unlockCondDesc;
 	const effect = document.createElement("div");
 	effect.classList.add("rl_effect");
-	effect.innerHTML = formatColors(data.usage);
+	effect.innerHTML = formatTags(data.usage);
 	let spacer = document.createElement("div");
 	spacer.classList.add("rl_inner_spacer");
 	let bot_border = document.createElement("div");
@@ -236,13 +239,13 @@ function addItem(data, variants = undefined) {
 				let wasChecked = btn.classList.contains("checked");
 				if (wasChecked) {
 					//revert to normal data
-					effect.innerHTML = formatColors(data.usage);
+					effect.innerHTML = formatTags(data.usage);
 				} else {
 					btn.parentElement
 						.querySelectorAll(".variantBtn")
 						.forEach((e) => e.classList.remove("checked"));
 					// show data for this one
-					effect.innerHTML = formatColors(v.usage);
+					effect.innerHTML = formatTags(v.usage);
 				}
 
 				btn.classList.toggle("checked");
