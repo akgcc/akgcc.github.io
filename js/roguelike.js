@@ -103,7 +103,7 @@ function loadItems(is) {
 	} else filterDiv.classList.add("hidden");
 	fetchItemTable(is).then((table) => {
 		const variants_table = {};
-		const IS_VARIANT = /_[abcd]$/;
+		const IS_VARIANT = /_[a-z]$/;
 		Object.values(table)
 			.filter((r) => r.id.match(IS_VARIANT))
 			.forEach((v) => {
@@ -111,12 +111,14 @@ function loadItems(is) {
 				variants_table[base] = variants_table[base] || [];
 				variants_table[base].push(v);
 			});
+		// is6 tongbao are "variants" with base "_a"
 		const filtered_keys = Object.keys(table).filter(
 			(key) =>
 				!BANNED_TYPES.includes(table[key].type) &&
 				table[key].description &&
 				table[key].description.trim() &&
-				!key.match(IS_VARIANT),
+				(!key.match(IS_VARIANT) ||
+					(table[key].type === "COPPER" && key.endsWith("a"))),
 		);
 		const filtered_table = filtered_keys.reduce((acc, key) => {
 			acc[key] = table[key];
