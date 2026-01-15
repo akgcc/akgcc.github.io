@@ -138,6 +138,52 @@
 	font-size: 1rem;
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
+/* ===================== */
+/* Status / Error cards  */
+/* ===================== */
+
+.gacha-card.status {
+	width: 100%; /* span full container */
+	max-width: 600px; /* keep it readable */
+	margin: 40px auto; /* center with breathing room */
+
+	background: linear-gradient(#1f1f1f, #1b1b1b);
+	border-radius: 14px;
+	border: 1px solid #444;
+
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+
+	text-align: center;
+	opacity: 1;
+}
+
+/* Inner content */
+.gacha-card.status .card-body {
+	padding: 28px 24px;
+	font-size: 0.95rem;
+	line-height: 1.4;
+	color: #e6e6e6;
+	white-space: pre-line; /* allow \n in messages */
+}
+
+/* Info (neutral) */
+.gacha-card.status.info {
+	border-color: #555;
+}
+
+.gacha-card.status.info .card-body {
+	color: #d0d0d0;
+}
+
+/* Error (stronger, but not obnoxious) */
+.gacha-card.status.error {
+	border-color: #c44;
+	background: linear-gradient(#241a1a, #1d1515);
+}
+
+.gacha-card.status.error .card-body {
+	color: #ffb3b3;
+}
 
 /* ===================== */
 /* Stats rows            */
@@ -361,3 +407,16 @@
 	font-weight: 600;
 	color: #ffffff;
 }
+/* Pull order toggle */
+/*.pullOrderBox {
+	white-space: nowrap;
+}
+
+.pullOrderBox .button {
+	margin-left: 0.25em;
+}
+
+.pullOrderBox .button.checked {
+	font-weight: 600;
+}
+*/

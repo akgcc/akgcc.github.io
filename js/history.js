@@ -34,7 +34,22 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
           )
             .then((res) => res.json())
             .then((data) => {
-              if (data.message === "ok") saveToLocal(value, data);
+              if (data.message !== "ok") {
+                showStatusCard("Failed to fetch gacha data.", "error");
+                return;
+              }
+
+              const rows = data.data?.rows || [];
+
+              if (!rows.length) {
+                showStatusCard(
+                  `No gacha data found for user: ${value}\nMake sure you have selected the correct server.`,
+                  "info",
+                );
+                return;
+              }
+
+              saveToLocal(value, data);
               calculateAndDisplayCards(value);
             })
             .catch((err) => console.error("Fetch error:", err));
@@ -142,6 +157,22 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 
       localStorage.setItem("gachaData", JSON.stringify(storage));
     }
+    function showStatusCard(message, type = "error") {
+      const container = document.getElementById("gachaCards");
+      if (!container) return;
+
+      container.innerHTML = "";
+
+      const card = document.createElement("div");
+      card.className = `gacha-card status ${type}`;
+
+      const body = document.createElement("div");
+      body.className = "card-body";
+      body.textContent = message;
+
+      card.appendChild(body);
+      container.appendChild(card);
+    }
 
     function addGachaCard({
       headerText,
@@ -208,11 +239,39 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 
       container.appendChild(card);
     }
+    function fixTenPullOrder(rows) {
+      const fixed = [];
+      let i = 0;
+
+      while (i < rows.length) {
+        let j = i + 1;
+
+        // find consecutive rows with same timestamp
+        while (j < rows.length && rows[j].at === rows[i].at) {
+          j++;
+        }
+
+        const chunk = rows.slice(i, j);
+
+        // reverse only if it's a multi-pull (10-pull shows up as same timestamp)
+        if (chunk.length === 10) {
+          chunk.reverse();
+        }
+
+        fixed.push(...chunk);
+        i = j;
+      }
+
+      return fixed;
+    }
 
     function calculateAndDisplayCards(userId) {
       const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
-      const userData = storage[serverString]?.[userId]?.data?.rows || [];
-      if (!userData.length) return;
+      const rawRows = storage[serverString]?.[userId]?.data?.rows || [];
+      if (!rawRows.length) return;
+
+      const userData =
+        pullOrderMode === "ingame" ? fixTenPullOrder(rawRows) : rawRows;
 
       const groups = {
         standard: [],
@@ -468,4 +527,23 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
         "text/csv;charset=utf-8",
       );
     };
+    let pullOrderMode = "ingame";
+
+    document.querySelectorAll(".pullOrderBox .button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mode = btn.dataset.order;
+        if (mode === pullOrderMode) return;
+
+        pullOrderMode = mode;
+
+        document
+          .querySelectorAll(".pullOrderBox .button")
+          .forEach((b) => b.classList.toggle("checked", b === btn));
+
+        const uid = idInput.value;
+        if (uid && uid.length === 8) {
+          calculateAndDisplayCards(uid);
+        }
+      });
+    });
   });
