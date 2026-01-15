@@ -425,3 +425,27 @@
 	align-items: center;
 	gap: 0.4rem;
 }
+
+.gacha-card.status.loading .card-body {
+	display: flex;
+	align-items: center;
+	justify-content: center; /* ← THIS was missing */
+	gap: 8px;
+}
+
+.gacha-card.status.loading .card-body::before {
+	content: "";
+	width: 14px;
+	height: 14px;
+	border: 2px solid #aaa;
+	border-top-color: white;
+	border-radius: 50%;
+	animation: spin 0.8s linear infinite;
+	flex-shrink: 0;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
