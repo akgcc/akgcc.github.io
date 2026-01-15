@@ -225,7 +225,6 @@
 .sixstar-item {
 	display: inline-flex;
 	align-items: center;
-	gap: 6px;
 	padding: 4px 8px;
 	font-size: 0.75rem;
 	background: #1b1b1b;
@@ -420,3 +419,9 @@
 	font-weight: 600;
 }
 */
+
+.sliderbox {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
