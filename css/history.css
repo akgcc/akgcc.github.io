@@ -56,20 +56,87 @@
 /* ===================== */
 /* Type highlights       */
 /* ===================== */
-/* Standard banner header */
+/* ===================== */
+/* Standard cards: very dark muted headers (~10% lightness) */
+.gacha-card.standard:nth-child(5n + 1) .card-header {
+	background-color: hsl(180, 20%, 10%);
+} /* dark teal */
+.gacha-card.standard:nth-child(5n + 2) .card-header {
+	background-color: hsl(300, 20%, 10%);
+} /* dark purple */
+.gacha-card.standard:nth-child(5n + 3) .card-header {
+	background-color: hsl(60, 20%, 10%);
+} /* dark olive */
+.gacha-card.standard:nth-child(5n + 4) .card-header {
+	background-color: hsl(120, 20%, 10%);
+} /* dark green */
+.gacha-card.standard:nth-child(5n + 5) .card-header {
+	background-color: hsl(30, 20%, 10%);
+} /* dark brown */
 .gacha-card.standard .card-header {
-	background-color: #2a2a2a; /* neutral dark */
-	color: #ffffff; /* white text */
+	color: #e0e0e0; /* slightly lighter muted text */
+	font-weight: 600;
+}
+
+/* ===================== */
+/* Kernel cards: ultra-subtle muted blue, same darkness as other cards */
+.gacha-card.kernel {
+	background: linear-gradient(
+		#212429,
+		/* very dark, mostly neutral with tiny hint of blue */ #1c1e23
+			/* slightly darker bottom */
+	);
+	border: 1px solid #333; /* subtle edge like other cards */
+	border-radius: 12px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35); /* subtle depth */
 }
 
 .gacha-card.kernel .card-header {
-	background-color: #1a2e4f;
+	background-color: #1a2e4f; /* slightly stronger dark blue header for readability */
 	color: #66ccff;
+	font-weight: 600;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); /* subtle 3D lift */
+	border-bottom: 1px solid #13203b; /* subtle separation from body */
 }
 
+.gacha-card.limited {
+	background: linear-gradient(
+		#26231c,
+		/* very dark brown top — mostly neutral, just a hint of gold */ #1f1c16
+			/* darker bottom */
+	);
+	border: 1px solid #333; /* subtle edge */
+	border-radius: 12px;
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35); /* subtle depth */
+}
+
+/* ===================== */
+/* Limited cards: flat dark brown for gold text readability */
 .gacha-card.limited .card-header {
-	background-color: #3f2b00;
+	background-color: #553800;
 	color: gold;
+	font-weight: 600;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Overview header: distinct but muted */
+.gacha-card.overview .card-header {
+	background-color: #3a3a3a; /* slightly brighter than body, visible but not bright */
+	color: #ffffff;
+	font-weight: 700;
+	font-size: 1rem;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); /* subtle 3D effect */
+	border-bottom: 1px solid #333; /* subtle separation */
+}
+
+/* ===================== */
+/* Overview cards: brighter flat gray header for contrast */
+.gacha-card.overview .card-header {
+	background-color: #444; /* brighter than card body */
+	color: #ffffff;
+	font-weight: 700;
+	font-size: 1rem;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* ===================== */
@@ -241,4 +308,56 @@
 
 .infoContainer:hover .infoPanel {
 	display: block;
+}
+
+/* ===================== */
+/* Stat rows: default dark */
+.gacha-card .card-rows .row {
+	background-color: #2f2f2f; /* base dark for all rows */
+	border: 1px solid #333;
+	border-radius: 6px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 10px;
+	font-size: 0.85rem;
+	color: #e6e6e6;
+}
+
+/* ===================== */
+/* Stat rows: dark muted but clearly distinct from card background */
+.gacha-card .card-rows .row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 10px;
+	font-size: 0.85rem;
+	border: 1px solid #333;
+	border-radius: 6px;
+	color: #e6e6e6;
+}
+
+.gacha-card .card-rows .row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 10px;
+	font-size: 0.85rem;
+	border-radius: 6px;
+	color: #e6e6e6;
+	background-color: rgba(70, 70, 70, 0.7);
+	border: 1px solid rgba(50, 50, 50, 0.7);
+}
+
+.gacha-card .card-rows .row:nth-child(2) {
+	background-color: rgba(65, 65, 65, 0.7);
+}
+
+.gacha-card .card-rows .row:nth-child(3) {
+	background-color: rgba(60, 60, 60, 0.7); /* visible everywhere */
+}
+
+.gacha-card .card-rows .row span {
+	font-weight: 600;
+	color: #ffffff;
 }

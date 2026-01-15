@@ -6,8 +6,12 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
   .then((js) => {
     gachaDetail = js;
     (gachaDetail?.gachaPoolClient || []).forEach((p) => {
+      // skip generic standard banner names starting with "Rare Operators" (case-insensitive)
+      if (/^rare operators/i.test(p.gachaPoolName)) return;
+
       gachaNameByPoolId[p.gachaPoolId] = p.gachaPoolName;
     });
+
     return get_char_table(false, serverString, false);
   })
   .then((js) => {
@@ -19,18 +23,37 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       clearTimeout(debounceTimeout);
 
       if (value.length == 8) {
+        // Update the URL if we have a valid UID
+        const url = new URL(window.location);
+        url.searchParams.set("uid", value);
+        window.history.replaceState({}, "", url);
         debounceTimeout = setTimeout(() => {
           //https://account.yo-star.com/api/game/gachas?key=ark&index=1&size=9999&uid=${value}
           fetch(`https://yostarcors.ndcdev.workers.dev/?uid=${value}`)
             .then((res) => res.json())
             .then((data) => {
-              saveToLocal(value, data);
+              if (data.message === "ok") saveToLocal(value, data);
               calculateAndDisplayCards(value);
             })
             .catch((err) => console.error("Fetch error:", err));
         }, 200);
       }
     });
+
+    // Auto-fill UID from URL after the listener exists
+    (function loadUidFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const uid = params.get("uid");
+
+      if (uid && /^\d{8}$/.test(uid)) {
+        // only accept 8-digit UID
+        idInput.value = uid;
+
+        // trigger the listener after setting the value
+        idInput.dispatchEvent(new Event("input", { bubbles: true }));
+      }
+    })();
+
     function normalizeExistingStars() {
       const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
 
@@ -142,23 +165,16 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       const rowsContainer = document.createElement("div");
       rowsContainer.className = "card-rows";
 
-      // Row data with optional distinct colors
+      // Row data without colors
       const rowsData = [
-        {
-          text: `Total Pulls: <span>${lifetimePulls}</span>`,
-          bg: "#3a3a3a",
-        },
-        { text: `Current Pity: <span>${currentPity}</span>`, bg: "#444444" },
-        {
-          text: `Overall 6★ Rate: <span>${overall6StarRate}</span>`,
-          bg: "#3f3f3f",
-        },
+        { text: `Total Pulls: <span>${lifetimePulls}</span>` },
+        { text: `Current Pity: <span>${currentPity}</span>` },
+        { text: `Overall 6★ Rate: <span>${overall6StarRate}</span>` },
       ];
 
-      rowsData.forEach(({ text, bg }) => {
+      rowsData.forEach(({ text }) => {
         const row = document.createElement("div");
-        row.className = "row";
-        row.style.backgroundColor = bg;
+        row.className = "row"; // just the class, no inline bg
         row.innerHTML = text;
         rowsContainer.appendChild(row);
       });
@@ -214,8 +230,8 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
         ) {
           groups.standard.push(row);
         } else if (
-          // pid.startsWith("FESCLASSIC_") ||
-          pid.startsWith("CLASSIC_")
+          pid.startsWith("CLASSIC_") ||
+          pid.startsWith("FESCLASSIC_")
         ) {
           groups.kernel.push(row);
         } else if (pid.startsWith("LIMITED_") || pid.startsWith("LINKAGE_")) {
@@ -229,7 +245,13 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
         limitedByPool[r.poolId].push(r);
       });
 
-      // Helper to calculate stats
+      const standardByPool = {};
+      groups.standard.forEach((r) => {
+        if (!standardByPool[r.poolId]) standardByPool[r.poolId] = [];
+        standardByPool[r.poolId].push(r);
+      });
+
+      // Helper to calculate stats (same as before)
       function getStats(rows) {
         if (!rows.length)
           return {
@@ -239,55 +261,50 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
             sixStars: [],
           };
 
-        // Reverse once: oldest → newest
-        const orderedRows = [...rows].reverse();
+        const orderedRows = [...rows].reverse(); // oldest → newest
 
         const totalPulls = orderedRows.length;
         let sixStars = [];
         let pullsSinceLastSix = 0;
 
         orderedRows.forEach((r) => {
-          pullsSinceLastSix++; // include this pull
-
+          pullsSinceLastSix++;
           if (r.star === 6) {
             sixStars.push({
               charId: r.charId,
               charName: operatorData[r.charId]?.name || r.charId,
-              pity: pullsSinceLastSix, // includes the 6★ itself
+              pity: pullsSinceLastSix,
             });
-            pullsSinceLastSix = 0; // reset for next pull
+            pullsSinceLastSix = 0;
           }
         });
 
-        const currentPity = pullsSinceLastSix; // pulls since last 6★
-
-        const overall6StarRate =
-          ((sixStars.length / totalPulls) * 100).toFixed(2) + "%";
-
         return {
           lifetimePulls: totalPulls,
-          currentPity,
-          overall6StarRate,
-          sixStars, // oldest first, newest last
+          currentPity: pullsSinceLastSix,
+          overall6StarRate:
+            ((sixStars.length / totalPulls) * 100).toFixed(2) + "%",
+          sixStars,
         };
       }
 
       // Clear old cards
       const container = document.getElementById("gachaCards");
       container.innerHTML = "";
-      // Standard
-      if (groups.standard.length) {
-        // DO NOT sort by .at — order is already correct from fetch
-        addGachaCard({
-          headerText: "Standard Headhunting",
-          type: "standard",
-          ...getStats(groups.standard),
-        });
-      }
-
+      // Overall card (all pulls, no pity meaning)
+      addGachaCard({
+        headerText: "Overall",
+        type: "overview",
+        lifetimePulls: userData.length,
+        currentPity: "-",
+        overall6StarRate:
+          (
+            (userData.filter((r) => r.star === 6).length / userData.length) *
+            100
+          ).toFixed(2) + "%",
+      });
       // Limited banners
       Object.entries(limitedByPool).forEach(([poolId, rows]) => {
-        // DO NOT sort by .at
         const bannerName = gachaNameByPoolId[poolId] || poolId;
         addGachaCard({
           headerText: bannerName,
@@ -296,28 +313,37 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
         });
       });
 
+      // Standard: Overall grouped card
+      if (groups.standard.length) {
+        addGachaCard({
+          headerText: "Standard (Combined)",
+          type: "overview",
+          ...getStats(groups.standard),
+        });
+      }
+
+      // Standard: Individual banner cards
+      Object.entries(standardByPool).forEach(([poolId, rows]) => {
+        const bannerName = gachaNameByPoolId[poolId] || poolId;
+        const stats = getStats(rows); // keeps sixStars, overall6StarRate, etc.
+
+        // Only override pity for display
+        addGachaCard({
+          headerText: bannerName,
+          type: "standard",
+          ...stats,
+          currentPity: "-", // hide pity
+        });
+      });
+
       // Kernel
       if (groups.kernel.length) {
-        // DO NOT sort by .at
         addGachaCard({
           headerText: "Kernel Headhunting",
           type: "kernel",
           ...getStats(groups.kernel),
         });
       }
-
-      // Overall card (all pulls, no pity meaning)
-      addGachaCard({
-        headerText: "Overall",
-        type: "standard",
-        lifetimePulls: userData.length,
-        currentPity: "-", // meaningless
-        overall6StarRate:
-          (
-            (userData.filter((r) => r.star === 6).length / userData.length) *
-            100
-          ).toFixed(2) + "%",
-      });
     }
 
     const exportJsonBtn = document.getElementById("exportJsonBtn");
