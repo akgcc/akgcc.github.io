@@ -29,7 +29,9 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
         window.history.replaceState({}, "", url);
         debounceTimeout = setTimeout(() => {
           //https://account.yo-star.com/api/game/gachas?key=ark&index=1&size=9999&uid=${value}
-          fetch(`https://yostarcors.ndcdev.workers.dev/?uid=${value}`)
+          fetch(
+            `https://yostarcors.ndcdev.workers.dev/?uid=${value}&server=${serverString}`,
+          )
             .then((res) => res.json())
             .then((data) => {
               if (data.message === "ok") saveToLocal(value, data);
