@@ -31,13 +31,34 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
         }, 200);
       }
     });
+    function normalizeExistingStars() {
+      const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
+
+      if (!storage[serverString]) return;
+
+      const users = Object.keys(storage[serverString]);
+      users.forEach((userId) => {
+        const userData = storage[serverString][userId]?.data?.rows || [];
+        userData.forEach((r) => {
+          r.star = parseInt(r.star, 10); // convert "6星" -> 6
+        });
+        // update count in case something changed
+        storage[serverString][userId].data.count = userData.length;
+      });
+
+      localStorage.setItem("gachaData", JSON.stringify(storage));
+    }
+    normalizeExistingStars();
+
     function saveToLocal(userId, fetchData) {
       // Load existing storage
       let storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
       if (!storage[serverString]) storage[serverString] = {};
 
       const newRows = fetchData.data?.rows || [];
-
+      newRows.forEach((r) => {
+        r.star = parseInt(r.star, 10); // convert "6星" -> 6
+      });
       // Initialize user data if missing
       if (!storage[serverString][userId]) {
         if (fetchData.message === "ok") {
@@ -228,7 +249,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
         orderedRows.forEach((r) => {
           pullsSinceLastSix++; // include this pull
 
-          if (r.star === "6星") {
+          if (r.star === 6) {
             sixStars.push({
               charId: r.charId,
               charName: operatorData[r.charId]?.name || r.charId,
@@ -293,10 +314,130 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
         currentPity: "-", // meaningless
         overall6StarRate:
           (
-            (userData.filter((r) => r.star === "6星").length /
-              userData.length) *
+            (userData.filter((r) => r.star === 6).length / userData.length) *
             100
           ).toFixed(2) + "%",
       });
     }
+
+    const exportJsonBtn = document.getElementById("exportJsonBtn");
+    const exportCsvBtn = document.getElementById("exportCsvBtn");
+
+    function getActiveUserRows() {
+      const userId = idInput.value;
+      if (!userId || userId.length !== 8) return null;
+
+      const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
+      return storage[serverString]?.[userId]?.data?.rows || null;
+    }
+    function formatLocalDateTime(ts = Date.now()) {
+      const d = new Date(ts);
+
+      const pad = (n) => String(n).padStart(2, "0");
+
+      return (
+        d.getFullYear() +
+        "-" +
+        pad(d.getMonth() + 1) +
+        "-" +
+        pad(d.getDate()) +
+        " " +
+        pad(d.getHours()) +
+        ":" +
+        pad(d.getMinutes()) +
+        ":" +
+        pad(d.getSeconds())
+      );
+    }
+
+    function downloadFile(filename, content, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    exportJsonBtn.onclick = () => {
+      const rows = getActiveUserRows();
+      if (!rows) return alert("No data to export");
+
+      const exportedRows = rows.map((r) => ({
+        ...r,
+        charName: operatorData[r.charId]?.name || r.charName || "",
+        poolName: gachaNameByPoolId[r.poolId] || r.poolName || "",
+        star: r.star,
+      }));
+
+      const payload = {
+        server: serverString,
+        userId: idInput.value,
+        exportedAt: Date.now(),
+        exportedAtStr: formatLocalDateTime(),
+        rows: exportedRows,
+      };
+
+      downloadFile(
+        `gacha_${serverString}_${idInput.value}.json`,
+        JSON.stringify(payload, null, 2),
+        "application/json",
+      );
+    };
+
+    exportCsvBtn.onclick = () => {
+      const rows = getActiveUserRows();
+      if (!rows || !rows.length) return alert("No data to export");
+
+      const headers = [
+        "charId",
+        "charName",
+        "star",
+        "color",
+        "poolId",
+        "poolName",
+        "typeName",
+        "at",
+        "atStr",
+      ];
+
+      const csvEscape = (v) => {
+        if (v == null) return "";
+        const s = String(v);
+        return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+
+      const lines = [];
+      lines.push(headers.join(","));
+
+      rows.forEach((r) => {
+        lines.push(
+          [
+            r.charId,
+            operatorData[r.charId]?.name || r.charName || "",
+            r.star,
+            r.color,
+            r.poolId,
+            gachaNameByPoolId[r.poolId] || r.poolName || "",
+            r.typeName,
+            r.at,
+            r.atStr,
+          ]
+            .map(csvEscape)
+            .join(","),
+        );
+      });
+
+      const csv = lines.join("\r\n") + "\r\n";
+
+      downloadFile(
+        `gacha_${serverString}_${idInput.value}.csv`,
+        csv,
+        "text/csv;charset=utf-8",
+      );
+    };
   });
