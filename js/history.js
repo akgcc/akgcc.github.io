@@ -189,6 +189,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       lifetimePulls,
       currentPity,
       overall6StarRate,
+      overall5StarRate,
       sixStars,
       type, // <- new
     }) {
@@ -212,7 +213,12 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       const rowsData = [
         { text: `Total Pulls: <span>${lifetimePulls}</span>` },
         { text: `Current Pity: <span>${currentPity}</span>` },
-        { text: `Overall 6★ Rate: <span>${overall6StarRate}</span>` },
+        {
+          text: `<div>Overall <span data-rarity="5">6★</span> Rate:</div> <span>${overall6StarRate}</span>`,
+        },
+        {
+          text: `<div>Overall <span data-rarity="4">5★</span> Rate:</div> <span>${overall5StarRate}</span>`,
+        },
       ];
 
       rowsData.forEach(({ text }) => {
@@ -329,9 +335,9 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
             lifetimePulls: 0,
             currentPity: 0,
             overall6StarRate: "0%",
+            overall5StarRate: "0%",
             sixStars: [],
           };
-
         const orderedRows = [...rows].reverse(); // oldest → newest
 
         const totalPulls = orderedRows.length;
@@ -355,6 +361,11 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
           currentPity: pullsSinceLastSix,
           overall6StarRate:
             ((sixStars.length / totalPulls) * 100).toFixed(2) + "%",
+          overall5StarRate:
+            (
+              (orderedRows.filter((r) => r.star === 5).length / totalPulls) *
+              100
+            ).toFixed(2) + "%",
           sixStars,
         };
       }
@@ -363,16 +374,14 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       const container = document.getElementById("gachaCards");
       container.innerHTML = "";
       // Overall card (all pulls, no pity meaning)
+      const overallStats = getStats(userData);
       addGachaCard({
         headerText: "Overall",
         type: "overview",
-        lifetimePulls: userData.length,
-        currentPity: "-",
-        overall6StarRate:
-          (
-            (userData.filter((r) => r.star === 6).length / userData.length) *
-            100
-          ).toFixed(2) + "%",
+        lifetimePulls: overallStats.lifetimePulls,
+        currentPity: "-", // override if needed
+        overall6StarRate: overallStats.overall6StarRate,
+        overall5StarRate: overallStats.overall5StarRate,
       });
       // Limited banners
       Object.entries(limitedByPool).forEach(([poolId, rows]) => {

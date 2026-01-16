@@ -444,3 +444,6 @@
 .button.danger:hover {
 	background: red;
 }
+.gacha-card .card-rows .row span[data-rarity] {
+	color: rgb(var(--base-color));
+}

@@ -67,11 +67,16 @@ body.clear-mode .riskHeader[data-count="1"]::after {
 .cardContainer,
 .cardContainer img,
 .cardContainer:after {
-  transition: transform 0.1s ease-in-out, filter 0.1s,
+  transition:
+    transform 0.1s ease-in-out,
+    filter 0.1s,
     z-index 0.1s cubic-bezier(0, 1, 1, 0);
 }
 .cardContainer:hover {
-  transition: transform 0.1s ease-in-out, filter 0.1s, z-index 0s;
+  transition:
+    transform 0.1s ease-in-out,
+    filter 0.1s,
+    z-index 0s;
 }
 .dupe-thumbs > img[data-group="2"],
 .cardContainer[data-group="2"]:before,
@@ -282,7 +287,9 @@ body {
 
 .opskillCheckbox._selected,
 .operatorCheckbox._selected {
-  box-shadow: 0 0 2pt 1pt #dddddd, 1px 1px 2px var(--operator-shadow-color);
+  box-shadow:
+    0 0 2pt 1pt #dddddd,
+    1px 1px 2px var(--operator-shadow-color);
   background-color: rgb(35, 35, 35);
   transform: scale(var(--operator-selected-scale));
 }
@@ -299,7 +306,8 @@ body {
     box-shadow: 1px 1px 3px 1px var(--operator-shadow-color);
   }
   .operatorCheckbox._selected:hover {
-    box-shadow: 0 0 2pt 1pt #dddddd,
+    box-shadow:
+      0 0 2pt 1pt #dddddd,
       1px 1px 3px 1px var(--operator-shadow-color);
   }
 }
@@ -751,12 +759,14 @@ body.icon-mode .riskContainer {
   padding-left: 0.15em;
 }
 .operatorCheckbox._selected[data-selsk]:not([data-selsk="0"]) {
-  box-shadow: 0 0 2pt 1pt var(--operator-skill-selected-color),
+  box-shadow:
+    0 0 2pt 1pt var(--operator-skill-selected-color),
     1px 1px 2px var(--operator-shadow-color);
 }
 @media (hover: hover) {
   .operatorCheckbox._selected[data-selsk]:not([data-selsk="0"]):hover {
-    box-shadow: 0 0 2pt 1pt var(--operator-skill-selected-color),
+    box-shadow:
+      0 0 2pt 1pt var(--operator-skill-selected-color),
       1px 1px 3px 1px var(--operator-shadow-color);
   }
 }
@@ -879,39 +889,28 @@ body.icon-mode .riskContainer {
   }
 }
 #red-btn._selected {
-  box-shadow: 0 0 2pt 1pt var(--operator-skill-selected-color),
+  box-shadow:
+    0 0 2pt 1pt var(--operator-skill-selected-color),
     1px 1px 2px var(--operator-shadow-color);
   background-color: rgb(35, 35, 35);
   transform: none;
 }
 
-.operatorCheckbox[data-rarity="5"],
-.opImgWrapper[data-rarity="5"],
-.tag[data-rarity="5"] {
+[data-rarity="5"] {
   --base-color: 255, 102, 0;
 }
-.operatorCheckbox[data-rarity="4"],
-.opImgWrapper[data-rarity="4"],
-.tag[data-rarity="4"] {
+[data-rarity="4"] {
   --base-color: 255, 174, 0;
 }
-.operatorCheckbox[data-rarity="3"],
-.opImgWrapper[data-rarity="3"],
-.tag[data-rarity="3"] {
+[data-rarity="3"] {
   --base-color: 219, 177, 219;
 }
-.operatorCheckbox[data-rarity="2"],
-.opImgWrapper[data-rarity="2"],
-.tag[data-rarity="2"] {
+[data-rarity="2"] {
   --base-color: 0, 178, 246;
 }
-.operatorCheckbox[data-rarity="1"],
-.opImgWrapper[data-rarity="1"],
-.tag[data-rarity="1"] {
+[data-rarity="1"] {
   --base-color: 220, 229, 55;
 }
-.operatorCheckbox[data-rarity="0"],
-.opImgWrapper[data-rarity="0"],
-.tag[data-rarity="0"] {
+[data-rarity="0"] {
   --base-color: 159, 159, 159;
 }
