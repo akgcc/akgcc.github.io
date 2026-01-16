@@ -406,19 +406,6 @@
 	font-weight: 600;
 	color: #ffffff;
 }
-/* Pull order toggle */
-/*.pullOrderBox {
-	white-space: nowrap;
-}
-
-.pullOrderBox .button {
-	margin-left: 0.25em;
-}
-
-.pullOrderBox .button.checked {
-	font-weight: 600;
-}
-*/
 
 .sliderbox {
 	display: flex;
@@ -448,4 +435,12 @@
 	to {
 		transform: rotate(360deg);
 	}
+}
+.button.danger {
+	color: red;
+	border-color: red;
+}
+
+.button.danger:hover {
+	background: red;
 }

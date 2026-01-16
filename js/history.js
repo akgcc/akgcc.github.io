@@ -124,19 +124,28 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       // Boundary-based overlap detection
       let overlapIndex = 0;
       const maxCheck = Math.min(existingRows.length, newRows.length);
+      function cmpRows(oldRow, newRow) {
+        return (
+          oldRow.charId === newRow.charId &&
+          oldRow.poolId === newRow.poolId &&
+          oldRow.at === newRow.at
+        );
+      }
 
-      // Compare newest→oldest: storage[0] = newest, newRows[0] = newest
-      for (let i = 0; i < maxCheck; i++) {
-        const existingRow = existingRows[i]; // newest first
-        const newRow = newRows[newRows.length - maxCheck + i]; // oldest of new batch
+      // Find largest k where:
+      // existingRows[0..k-1] === newRows[newLen-k .. newLen-1]
+      for (let k = maxCheck; k > 0; k--) {
+        let ok = true;
 
-        if (
-          existingRow.charId === newRow.charId &&
-          existingRow.poolId === newRow.poolId &&
-          existingRow.star === newRow.star
-        ) {
-          overlapIndex++;
-        } else {
+        for (let i = 0; i < k; i++) {
+          if (!cmpRows(existingRows[i], newRows[newRows.length - k + i])) {
+            ok = false;
+            break;
+          }
+        }
+
+        if (ok) {
+          overlapIndex = k;
           break;
         }
       }
@@ -547,4 +556,41 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
         }
       });
     });
+    const clearDataBtn = document.getElementById("resetUserDataBtn");
+
+    clearDataBtn.onclick = () => {
+      const userId = idInput.value;
+
+      if (!userId || userId.length !== 8) {
+        alert("Enter a valid 8-digit User ID first.");
+        return;
+      }
+
+      if (
+        !confirm(
+          `This will delete all gacha data older than 90 days for:\n\n` +
+            `UID: ${userId}\n` +
+            `Server: ${serverString}\n\n` +
+            `This cannot be undone.`,
+        )
+      ) {
+        return;
+      }
+
+      const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
+
+      if (storage[serverString]?.[userId]) {
+        delete storage[serverString][userId];
+
+        // clean empty server bucket
+        if (!Object.keys(storage[serverString]).length) {
+          delete storage[serverString];
+        }
+
+        localStorage.setItem("gachaData", JSON.stringify(storage));
+      }
+
+      // Re-run the exact same flow as URL autofill
+      idInput.dispatchEvent(new Event("input", { bubbles: true }));
+    };
   });
