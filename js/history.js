@@ -1,7 +1,9 @@
 const idInput = document.getElementById("idInput");
 let debounceTimeout;
 const gachaNameByPoolId = {};
-fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
+const serverString_Yostar =
+  serverString == SERVERS.CN ? SERVERS.EN : serverString;
+fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
   .then((res) => fixedJson(res))
   .then((js) => {
     gachaDetail = js;
@@ -12,7 +14,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       gachaNameByPoolId[p.gachaPoolId] = p.gachaPoolName;
     });
 
-    return get_char_table(false, serverString, false);
+    return get_char_table(false, serverString_Yostar, false);
   })
   .then((js) => {
     operatorData = js;
@@ -31,7 +33,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
           showStatusCard(`Fetching pull history for user: ${value}`, "loading");
           //https://account.yo-star.com/api/game/gachas?key=ark&index=1&size=9999&uid=${value}
           fetch(
-            `https://yostarcors.ndcdev.workers.dev/?uid=${value}&server=${serverString}`,
+            `https://yostarcors.ndcdev.workers.dev/?uid=${value}&server=${serverString_Yostar}`,
           )
             .then((res) => res.json())
             .then((data) => {
@@ -75,16 +77,16 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
     function normalizeExistingStars() {
       const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
 
-      if (!storage[serverString]) return;
+      if (!storage[serverString_Yostar]) return;
 
-      const users = Object.keys(storage[serverString]);
+      const users = Object.keys(storage[serverString_Yostar]);
       users.forEach((userId) => {
-        const userData = storage[serverString][userId]?.data?.rows || [];
+        const userData = storage[serverString_Yostar][userId]?.data?.rows || [];
         userData.forEach((r) => {
           r.star = parseInt(r.star, 10); // convert "6星" -> 6
         });
         // update count in case something changed
-        storage[serverString][userId].data.count = userData.length;
+        storage[serverString_Yostar][userId].data.count = userData.length;
       });
 
       localStorage.setItem("gachaData", JSON.stringify(storage));
@@ -94,16 +96,16 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
     function saveToLocal(userId, fetchData) {
       // Load existing storage
       let storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
-      if (!storage[serverString]) storage[serverString] = {};
+      if (!storage[serverString_Yostar]) storage[serverString_Yostar] = {};
 
       const newRows = fetchData.data?.rows || [];
       newRows.forEach((r) => {
         r.star = parseInt(r.star, 10); // convert "6星" -> 6
       });
       // Initialize user data if missing
-      if (!storage[serverString][userId]) {
+      if (!storage[serverString_Yostar][userId]) {
         if (fetchData.message === "ok") {
-          storage[serverString][userId] = {
+          storage[serverString_Yostar][userId] = {
             data: {
               rows: newRows,
               count: newRows.length,
@@ -118,7 +120,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       // Only merge if fetch succeeded
       if (fetchData.message !== "ok") return;
 
-      const existing = storage[serverString][userId];
+      const existing = storage[serverString_Yostar][userId];
       const existingRows = existing.data?.rows || [];
 
       // Boundary-based overlap detection
@@ -157,7 +159,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       const mergedRows = [...rowsToPrepend, ...existingRows];
 
       // Save back to localStorage
-      storage[serverString][userId] = {
+      storage[serverString_Yostar][userId] = {
         data: {
           rows: mergedRows,
           count: mergedRows.length,
@@ -283,7 +285,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 
     function calculateAndDisplayCards(userId) {
       const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
-      const rawRows = storage[serverString]?.[userId]?.data?.rows || [];
+      const rawRows = storage[serverString_Yostar]?.[userId]?.data?.rows || [];
       if (!rawRows.length) return;
 
       const userData =
@@ -434,7 +436,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       if (!userId || userId.length !== 8) return null;
 
       const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
-      return storage[serverString]?.[userId]?.data?.rows || null;
+      return storage[serverString_Yostar]?.[userId]?.data?.rows || null;
     }
     function formatLocalDateTime(ts = Date.now()) {
       const d = new Date(ts);
@@ -481,7 +483,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       }));
 
       const payload = {
-        server: serverString,
+        server: serverString_Yostar,
         userId: idInput.value,
         exportedAt: Date.now(),
         exportedAtStr: formatLocalDateTime(),
@@ -489,7 +491,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       };
 
       downloadFile(
-        `gacha_${serverString}_${idInput.value}.json`,
+        `gacha_${serverString_Yostar}_${idInput.value}.json`,
         JSON.stringify(payload, null, 2),
         "application/json",
       );
@@ -541,7 +543,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
       const csv = lines.join("\r\n") + "\r\n";
 
       downloadFile(
-        `gacha_${serverString}_${idInput.value}.csv`,
+        `gacha_${serverString_Yostar}_${idInput.value}.csv`,
         csv,
         "text/csv;charset=utf-8",
       );
@@ -579,7 +581,7 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
         !confirm(
           `This will delete all gacha data older than 90 days for:\n\n` +
             `UID: ${userId}\n` +
-            `Server: ${serverString}\n\n` +
+            `Server: ${serverString_Yostar}\n\n` +
             `This cannot be undone.`,
         )
       ) {
@@ -588,12 +590,12 @@ fetch(`${DATA_BASE[serverString]}/gamedata/excel/gacha_table.json`)
 
       const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
 
-      if (storage[serverString]?.[userId]) {
-        delete storage[serverString][userId];
+      if (storage[serverString_Yostar]?.[userId]) {
+        delete storage[serverString_Yostar][userId];
 
         // clean empty server bucket
-        if (!Object.keys(storage[serverString]).length) {
-          delete storage[serverString];
+        if (!Object.keys(storage[serverString_Yostar]).length) {
+          delete storage[serverString_Yostar];
         }
 
         localStorage.setItem("gachaData", JSON.stringify(storage));
