@@ -3,17 +3,21 @@ const DATA_SOURCE =
 const DATA_SOURCE_YOSTAR =
   "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData_YoStar/main/";
 const USE_ALTERNATE_DATA_SOURCE = true; // use ArknightsAssets instead of ArknightsGameData
-const DATA_SOURCE_LOCAL =
-  "https://raw.githubusercontent.com/akgcc/arkdata/main/";
 // const DATA_SOURCE =
 //   "https://raw.githubusercontent.com/Aceship/AN-EN-Tags/master/json/gamedata/";
 // const CC_DATA_SOURCE =
 //   "https://raw.githubusercontent.com/Kengxxiao/ArknightsGameData/master/";
+// const DATA_SOURCE_LOCAL =
+//   "https://raw.githubusercontent.com/akgcc/arkdata/main/";
+const DATA_SOURCE_LOCAL = "https://cdn.jsdelivr.net/gh/akgcc/arkdata@main/";
 const ASSET_SOURCE = {
-  LOCAL: "https://raw.githubusercontent.com/akgcc/arkdata/main/assets/",
-  ACESHIP: "https://raw.githubusercontent.com/Aceship/Arknight-Images/main/",
+  // LOCAL: "https://raw.githubusercontent.com/akgcc/arkdata/main/assets/",
+  LOCAL: `${DATA_SOURCE_LOCAL}assets/`,
+  // ACESHIP: "https://raw.githubusercontent.com/Aceship/Arknight-Images/main/",
+  ACESHIP: "https://cdn.jsdelivr.net/gh/Aceship/Arknight-Images@main/",
   ARKWAIFU: "https://arkwaifu.cc/api/v1/arts/REPLACEME/variants/origin/content",
 };
+
 // do not modify SERVERS even if you change data source as this is used locally as well.
 const SERVERS = {
   EN: "en_US",
@@ -55,14 +59,14 @@ function uri_background(imageName, source = ASSET_SOURCE.LOCAL) {
 }
 function uri_video(vidPath, source = ASSET_SOURCE.LOCAL) {
   switch (source) {
-    // case ASSET_SOURCE.LOCAL:
-    //   return `${ASSET_SOURCE.LOCAL}torappu/dynamicassets/avg/backgrounds/${imageName}.png`.toLowerCase();
-    // case ASSET_SOURCE.ACESHIP:
-    //   return `${ASSET_SOURCE.ACESHIP}avg/backgrounds/${imageName}.png`;
-    // case ASSET_SOURCE.ARKWAIFU:
-    //   return ASSET_SOURCE.ARKWAIFU.replace(/REPLACEME/, imageName);
     default:
       return `${ASSET_SOURCE.LOCAL}raw/${vidPath}`.toLowerCase();
+  }
+}
+function uri_thumb(imageName, source = ASSET_SOURCE.LOCAL) {
+  switch (source) {
+    default:
+      return `${DATA_SOURCE_LOCAL}thumbs/${imageName}.webp`.toLowerCase();
   }
 }
 function uri_roguelike_item(imageName, source = ASSET_SOURCE.LOCAL) {

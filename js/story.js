@@ -2379,11 +2379,7 @@ function avatarImg(data, isAvatar = false) {
         uri_character(encodeURIComponent(full_name), ASSET_SOURCE.ARKWAIFU),
     );
     src_array.unshift(uri_character(encodeURIComponent(full_name))); // put internal path second
-    src_array.unshift(
-        `${DATA_SOURCE_LOCAL}thumbs/${encodeURIComponent(
-            full_name,
-        ).toLowerCase()}.webp`,
-    ); // put thumb path first
+    src_array.unshift(uri_thumb(encodeURIComponent(full_name))); // put thumb path first
 
     if (isAvatar) {
         // only used in is#2 stories
