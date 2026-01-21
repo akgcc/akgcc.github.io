@@ -1,7 +1,5 @@
-const idInput = document.getElementById("idInput");
-let debounceTimeout;
 const gachaNameByPoolId = {};
-
+const CREDENTIALS = {};
 const AUTH_API = "https://yostarcors.ndcdev.workers.dev/";
 // const AUTH_API = "http://localhost:8787/";
 const serverString_Yostar =
@@ -21,20 +19,6 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
   })
   .then((js) => {
     operatorData = js;
-
-    // Auto-fill UID from URL after the listener exists
-    (function loadUidFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      const uid = params.get("uid");
-
-      if (uid && /^\d{8}$/.test(uid)) {
-        // only accept 8-digit UID
-        idInput.value = uid;
-
-        // trigger the listener after setting the value
-        idInput.dispatchEvent(new Event("input", { bubbles: true }));
-      }
-    })();
 
     function saveToLocal(userId, fetchData) {
       // Load existing storage
@@ -376,8 +360,8 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
     const exportCsvBtn = document.getElementById("exportCsvBtn");
 
     function getActiveUserRows() {
-      const userId = idInput.value;
-      if (!userId || userId.length !== 8) return null;
+      const userId = CREDENTIALS?.uid;
+      if (!userId) return null;
 
       const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
       return storage[serverString_Yostar]?.[userId]?.data?.rows || null;
@@ -428,14 +412,14 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
 
       const payload = {
         server: serverString_Yostar,
-        userId: idInput.value,
+        userId: CREDENTIALS?.uid,
         exportedAt: Date.now(),
         exportedAtStr: formatLocalDateTime(),
         rows: exportedRows,
       };
 
       downloadFile(
-        `gacha_${serverString_Yostar}_${idInput.value}.json`,
+        `gacha_${serverString_Yostar}_${CREDENTIALS?.uid}.json`,
         JSON.stringify(payload, null, 2),
         "application/json",
       );
@@ -487,7 +471,7 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
       const csv = lines.join("\r\n") + "\r\n";
 
       downloadFile(
-        `gacha_${serverString_Yostar}_${idInput.value}.csv`,
+        `gacha_${serverString_Yostar}_${CREDENTIALS?.uid}.csv`,
         csv,
         "text/csv;charset=utf-8",
       );
@@ -505,8 +489,8 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
           .querySelectorAll(".pullOrderBox .button")
           .forEach((b) => b.classList.toggle("checked", b === btn));
 
-        const uid = idInput.value;
-        if (uid && uid.length === 8) {
+        const uid = CREDENTIALS?.uid;
+        if (uid) {
           calculateAndDisplayCards(uid);
         }
       });
@@ -514,10 +498,10 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
     const clearDataBtn = document.getElementById("resetUserDataBtn");
 
     clearDataBtn.onclick = () => {
-      const userId = idInput.value;
+      const userId = CREDENTIALS?.uid;
 
-      if (!userId || userId.length !== 8) {
-        alert("Enter a valid 8-digit User ID first.");
+      if (!userId) {
+        alert("Login first.");
         return;
       }
 
@@ -546,7 +530,7 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
       }
 
       // Re-run the exact same flow as URL autofill
-      idInput.dispatchEvent(new Event("input", { bubbles: true }));
+      showStatusCard("No gacha data found.", "info");
     };
     // YOSTAR LOGIN SECTION //
 
@@ -564,7 +548,7 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
 
     let yostarCookies = allCookies[serverString_Yostar] || {};
     let currentUid = yostarCookies.uid;
-
+    CREDENTIALS.uid = currentUid;
     console.log(
       "in storage",
       localStorage.getItem("yostarCookies"),
@@ -620,7 +604,7 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
         }
 
         const uid = result.data.data.uid;
-
+        CREDENTIALS.uid = uid;
         // Store top-level cookies and uid
         yostarCookies.YSSID = result.cookies.YSSID;
         yostarCookies["YSSID.sig"] = result.cookies["YSSID.sig"];
