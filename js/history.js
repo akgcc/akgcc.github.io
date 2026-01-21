@@ -576,10 +576,13 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
     const loginMessage = document.getElementById("loginMessage");
 
     // Load top-level login data
-    let yostarCookies = JSON.parse(
+    const allCookies = JSON.parse(
       localStorage.getItem("yostarCookies") || "{}",
     );
+
+    let yostarCookies = allCookies[serverString_Yostar] || {};
     let currentUid = yostarCookies.uid;
+
     console.log(
       "in storage",
       localStorage.getItem("yostarCookies"),
@@ -637,12 +640,13 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
         const uid = result.data.data.uid;
 
         // Store top-level cookies and uid
-        yostarCookies = {
-          YSSID: result.cookies.YSSID,
-          "YSSID.sig": result.cookies["YSSID.sig"],
-          uid,
-        };
-        localStorage.setItem("yostarCookies", JSON.stringify(yostarCookies));
+        yostarCookies.YSSID = result.cookies.YSSID;
+        yostarCookies["YSSID.sig"] = result.cookies["YSSID.sig"];
+        yostarCookies.uid = uid;
+
+        allCookies[serverString_Yostar] = yostarCookies;
+
+        localStorage.setItem("yostarCookies", JSON.stringify(allCookies));
 
         loginMessage.textContent = `Logged in! UID: ${uid}`;
         fetchPullsForUid(uid, yostarCookies);
@@ -673,9 +677,11 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
           ? data.pulls
           : data.pulls?.data?.rows || [];
 
-        if (data.pulls?.code === 401 || !rows.length) {
+        if (data.pulls?.code === 401) {
           // Token expired, clear stored cookies
-          localStorage.removeItem("yostarCookies");
+          delete allCookies[serverString_Yostar];
+          localStorage.setItem("yostarCookies", JSON.stringify(allCookies));
+
           loginMessage.textContent = "Session expired. Please login again.";
           showStatusCard("No gacha data found.", "info");
           return;
