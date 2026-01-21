@@ -530,7 +530,10 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
       }
 
       // Re-run the exact same flow as URL autofill
-      showStatusCard("No gacha data found.", "info");
+      showStatusCard(
+        "Data deleted, refresh the page to fetch fresh data.",
+        "info",
+      );
     };
     // YOSTAR LOGIN SECTION //
 

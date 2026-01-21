@@ -6,7 +6,7 @@ input.filterSlider {
 	border-radius: 6px;
 	box-sizing: border-box;
 }
-#loginMessage{
+#loginMessage {
 	color: #d00;
 }
 
@@ -449,4 +449,7 @@ input.filterSlider {
 }
 .gacha-card .card-rows .row span[data-rarity] {
 	color: rgb(var(--base-color));
+}
+#rlfilters img {
+	height: 1.4em;
 }
