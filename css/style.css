@@ -386,6 +386,7 @@ body {
 }
 
 .button {
+  white-space: nowrap;
   cursor: pointer;
 }
 .rightButton,

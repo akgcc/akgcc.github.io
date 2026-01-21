@@ -1,6 +1,9 @@
 const idInput = document.getElementById("idInput");
 let debounceTimeout;
 const gachaNameByPoolId = {};
+
+const AUTH_API = "https://yostarcors.ndcdev.workers.dev/";
+// const AUTH_API = "http://localhost:8787/";
 const serverString_Yostar =
   serverString == SERVERS.CN ? SERVERS.EN : serverString;
 fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
@@ -18,47 +21,6 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
   })
   .then((js) => {
     operatorData = js;
-    idInput.addEventListener("input", () => {
-      idInput.value = idInput.value.replace(/\D/g, "");
-      const value = idInput.value;
-
-      clearTimeout(debounceTimeout);
-
-      if (value.length == 8) {
-        // Update the URL if we have a valid UID
-        const url = new URL(window.location);
-        url.searchParams.set("uid", value);
-        window.history.replaceState({}, "", url);
-        debounceTimeout = setTimeout(() => {
-          showStatusCard(`Fetching pull history for user: ${value}`, "loading");
-          //https://account.yo-star.com/api/game/gachas?key=ark&index=1&size=9999&uid=${value}
-          fetch(
-            `https://yostarcors.ndcdev.workers.dev/?uid=${value}&server=${serverString_Yostar}`,
-          )
-            .then((res) => res.json())
-            .then((data) => {
-              if (data.message !== "ok") {
-                showStatusCard("Failed to fetch gacha data.", "error");
-                return;
-              }
-
-              const rows = data.data?.rows || [];
-
-              if (!rows.length) {
-                showStatusCard(
-                  `No gacha data found for user: ${value}\nMake sure you have selected the correct server.`,
-                  "info",
-                );
-                return;
-              }
-
-              saveToLocal(value, data);
-              calculateAndDisplayCards(value);
-            })
-            .catch((err) => console.error("Fetch error:", err));
-        }, 200);
-      }
-    });
 
     // Auto-fill UID from URL after the listener exists
     (function loadUidFromUrl() {
@@ -74,24 +36,24 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
       }
     })();
 
-    function normalizeExistingStars() {
-      const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
+    // function normalizeExistingStars() {
+    //   const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
 
-      if (!storage[serverString_Yostar]) return;
+    //   if (!storage[serverString_Yostar]) return;
 
-      const users = Object.keys(storage[serverString_Yostar]);
-      users.forEach((userId) => {
-        const userData = storage[serverString_Yostar][userId]?.data?.rows || [];
-        userData.forEach((r) => {
-          r.star = parseInt(r.star, 10); // convert "6星" -> 6
-        });
-        // update count in case something changed
-        storage[serverString_Yostar][userId].data.count = userData.length;
-      });
+    //   const users = Object.keys(storage[serverString_Yostar]);
+    //   users.forEach((userId) => {
+    //     const userData = storage[serverString_Yostar][userId]?.data?.rows || [];
+    //     userData.forEach((r) => {
+    //       r.star = parseInt(r.star, 10); // convert "6星" -> 6
+    //     });
+    //     // update count in case something changed
+    //     storage[serverString_Yostar][userId].data.count = userData.length;
+    //   });
 
-      localStorage.setItem("gachaData", JSON.stringify(storage));
-    }
-    normalizeExistingStars();
+    //   localStorage.setItem("gachaData", JSON.stringify(storage));
+    // }
+    // normalizeExistingStars();
 
     function saveToLocal(userId, fetchData) {
       // Load existing storage
@@ -604,4 +566,135 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
       // Re-run the exact same flow as URL autofill
       idInput.dispatchEvent(new Event("input", { bubbles: true }));
     };
+    // YOSTAR LOGIN SECTION //
+
+    // Elements
+    const emailInput = document.getElementById("emailInput");
+    const codeInput = document.getElementById("codeInput");
+    const sendCodeBtn = document.getElementById("sendCodeBtn");
+    const loginBtn = document.getElementById("loginBtn");
+    const loginMessage = document.getElementById("loginMessage");
+
+    // Load top-level login data
+    let yostarCookies = JSON.parse(
+      localStorage.getItem("yostarCookies") || "{}",
+    );
+    let currentUid = yostarCookies.uid;
+    console.log(
+      "in storage",
+      localStorage.getItem("yostarCookies"),
+      yostarCookies,
+      currentUid,
+    );
+    // If logged in, auto-fetch
+    if (yostarCookies.YSSID && yostarCookies["YSSID.sig"] && currentUid) {
+      fetchPullsForUid(currentUid, yostarCookies);
+    }
+    // Send email code
+    sendCodeBtn.onclick = async () => {
+      const email = emailInput.value.trim();
+      if (!email) return (loginMessage.textContent = "Enter your email.");
+      loginMessage.textContent = "Sending code...";
+      try {
+        const res = await fetch(AUTH_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, server: serverString_Yostar }),
+        });
+        const data = await res.json();
+        if (data.status === "CODE_SENT") {
+          loginMessage.textContent = "Code sent! Check your email.";
+        } else {
+          loginMessage.textContent = "Failed to send code.";
+        }
+      } catch (e) {
+        loginMessage.textContent = "Error sending code.";
+        console.error(e);
+      }
+    };
+
+    // Submit code + login
+    loginBtn.onclick = async () => {
+      const email = emailInput.value.trim();
+      const code = codeInput.value.trim();
+
+      if (!email || !code)
+        return (loginMessage.textContent = "Enter email and code.");
+      loginMessage.textContent = "Logging in...";
+      try {
+        const res = await fetch(AUTH_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, code, server: serverString_Yostar }),
+        });
+        const result = await res.json();
+
+        if (!result.cookies || !result.data?.data?.uid) {
+          loginMessage.textContent = "Login failed.";
+          return;
+        }
+
+        const uid = result.data.data.uid;
+
+        // Store top-level cookies and uid
+        yostarCookies = {
+          YSSID: result.cookies.YSSID,
+          "YSSID.sig": result.cookies["YSSID.sig"],
+          uid,
+        };
+        localStorage.setItem("yostarCookies", JSON.stringify(yostarCookies));
+
+        loginMessage.textContent = `Logged in! UID: ${uid}`;
+        fetchPullsForUid(uid, yostarCookies);
+      } catch (e) {
+        loginMessage.textContent = "Login error.";
+        console.error(e);
+      }
+    };
+
+    // Fetch gacha pulls using stored cookies and uid
+    async function fetchPullsForUid(uid, cookies) {
+      loginMessage.textContent = `Fetching gacha data for UID ${uid}...`;
+      try {
+        const res = await fetch(AUTH_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            YSSID: cookies.YSSID,
+            YSSID_sig: cookies["YSSID.sig"],
+            server: serverString_Yostar,
+          }),
+        });
+
+        const data = await res.json();
+
+        // Check if token expired
+        const rows = Array.isArray(data.pulls)
+          ? data.pulls
+          : data.pulls?.data?.rows || [];
+
+        if (data.pulls?.code === 401 || !rows.length) {
+          // Token expired, clear stored cookies
+          localStorage.removeItem("yostarCookies");
+          loginMessage.textContent = "Session expired. Please login again.";
+          showStatusCard("No gacha data found.", "info");
+          return;
+        }
+
+        // Save rows under serverString_Yostar -> uid
+        const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
+        if (!storage[serverString_Yostar]) storage[serverString_Yostar] = {};
+        storage[serverString_Yostar][uid] = {
+          data: { rows, count: rows.length },
+          timestamp: Date.now(),
+        };
+        localStorage.setItem("gachaData", JSON.stringify(storage));
+
+        calculateAndDisplayCards(uid);
+        loginMessage.textContent = "Data loaded!";
+      } catch (e) {
+        loginMessage.textContent = "Failed to fetch gacha data.";
+        console.error(e);
+      }
+    }
   });

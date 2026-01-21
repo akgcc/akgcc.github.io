@@ -1,10 +1,13 @@
-#idInput {
+input.filterSlider {
 	flex: 1; /* let input take remaining space */
 	padding: 10px 12px;
 	font-size: 16px;
 	border: 1px solid #ccc;
 	border-radius: 6px;
 	box-sizing: border-box;
+}
+#loginMessage{
+	color: #d00;
 }
 
 #rlfilters {

@@ -27,18 +27,31 @@
     </div>
     <div id="rlfilters">
       <div id="filterButtons">
-        <div class="sliderBox" id="filterAscension">
-          <span>User ID: </span>
-          <input
-            class="filterSlider"
-            id="idInput"
-            type="text"
-            inputmode="numeric"
-            pattern="\d*"
-            min="0"
-            step="1"
-            placeholder="8-digit ID"
+        <div class="sliderBox">
+          <img
+            src="https://webusstatic.yo-star.com/misc/yostar-official-2024-h5/main/h5/favicon.ico"
           />
+          <span>Email: </span>
+          <input
+            id="emailInput"
+            type="email"
+            placeholder="you@example.com"
+            autocomplete="username"
+            class="filterSlider"
+          />
+          <div id="sendCodeBtn" class="button">Send Code</div>
+          <span>Code: </span>
+          <input
+            id="codeInput"
+            type="text"
+            placeholder="Enter code"
+            autocomplete="one-time-code"
+            class="filterSlider"
+          />
+          <div id="loginBtn" class="button">Login</div>
+          <div id="loginMessage"></div>
+        </div>
+        <div class="sliderBox exportBox">
           <div id="exportJsonBtn" class="button">Export JSON</div>
           <div id="exportCsvBtn" class="button">Export CSV</div>
         </div>
@@ -60,6 +73,11 @@
             <p>
               10-pulls in Yostar's data appear in the opposite order as they do
               in game. Export will always be in the original (Yostar) order.
+            </p>
+            <br />
+            <p>
+              Authentication is now required (sorry). Currently only Yostar
+              email accounts are supported (no login via Gmail, Facebook, etc.)
             </p>
           </div>
         </div>
