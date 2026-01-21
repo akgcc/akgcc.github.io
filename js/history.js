@@ -36,25 +36,6 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
       }
     })();
 
-    // function normalizeExistingStars() {
-    //   const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
-
-    //   if (!storage[serverString_Yostar]) return;
-
-    //   const users = Object.keys(storage[serverString_Yostar]);
-    //   users.forEach((userId) => {
-    //     const userData = storage[serverString_Yostar][userId]?.data?.rows || [];
-    //     userData.forEach((r) => {
-    //       r.star = parseInt(r.star, 10); // convert "6星" -> 6
-    //     });
-    //     // update count in case something changed
-    //     storage[serverString_Yostar][userId].data.count = userData.length;
-    //   });
-
-    //   localStorage.setItem("gachaData", JSON.stringify(storage));
-    // }
-    // normalizeExistingStars();
-
     function saveToLocal(userId, fetchData) {
       // Load existing storage
       let storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
@@ -131,6 +112,7 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
 
       localStorage.setItem("gachaData", JSON.stringify(storage));
     }
+
     function showStatusCard(message, type = "error") {
       const container = document.getElementById("gachaCards");
       if (!container) return;
@@ -673,11 +655,14 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
         const data = await res.json();
 
         // Check if token expired
-        const rows = Array.isArray(data.pulls)
-          ? data.pulls
-          : data.pulls?.data?.rows || [];
+        const rows = data.pulls?.data?.rows || [];
+        if (!rows.length) {
+          loginMessage.textContent = "No gacha data found for this user.";
+          showStatusCard("No gacha data found.", "info");
+          return;
+        }
 
-        if (data.pulls?.code === 401) {
+        if (data?.pulls?.message !== "ok" || data.pulls?.code === 401) {
           // Token expired, clear stored cookies
           delete allCookies[serverString_Yostar];
           localStorage.setItem("yostarCookies", JSON.stringify(allCookies));
@@ -688,14 +673,7 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
         }
 
         // Save rows under serverString_Yostar -> uid
-        const storage = JSON.parse(localStorage.getItem("gachaData") || "{}");
-        if (!storage[serverString_Yostar]) storage[serverString_Yostar] = {};
-        storage[serverString_Yostar][uid] = {
-          data: { rows, count: rows.length },
-          timestamp: Date.now(),
-        };
-        localStorage.setItem("gachaData", JSON.stringify(storage));
-
+        saveToLocal(uid, data.pulls);
         calculateAndDisplayCards(uid);
         loginMessage.textContent = "Data loaded!";
       } catch (e) {
