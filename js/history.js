@@ -508,7 +508,7 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
       if (
         !confirm(
           `This will delete all gacha data older than 90 days for:\n\n` +
-            `UID: ${userId}\n` +
+            `Yostar UID: ${userId}\n` +
             `Server: ${serverString_Yostar}\n\n` +
             `This cannot be undone.`,
         )
@@ -536,6 +536,15 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
       );
     };
     // YOSTAR LOGIN SECTION //
+    function setLoginButtonState(loggedIn) {
+      if (loggedIn) {
+        loginBtn.textContent = "Logout";
+        loginBtn.classList.add("logout");
+      } else {
+        loginBtn.textContent = "Login";
+        loginBtn.classList.remove("logout");
+      }
+    }
 
     // Elements
     const emailInput = document.getElementById("emailInput");
@@ -587,11 +596,48 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
 
     // Submit code + login
     loginBtn.onclick = async () => {
+      // LOGOUT MODE
+      if (CREDENTIALS.uid) {
+        loginMessage.textContent = "Logging out...";
+        try {
+          const res = await fetch(`${AUTH_API}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              YSSID: yostarCookies.YSSID,
+              YSSID_sig: yostarCookies["YSSID.sig"],
+              server: serverString_Yostar,
+              logout: true,
+            }),
+          });
+          const data = await res.json();
+          if (data.status !== 200) throw new Error("Logout Failed");
+        } catch (e) {
+          console.warn("Logout request failed", e);
+          return (loginMessage.textContent = "Logout failed.");
+        }
+
+        // Clear credentials
+        delete allCookies[serverString_Yostar];
+        localStorage.setItem("yostarCookies", JSON.stringify(allCookies));
+
+        CREDENTIALS.uid = null;
+        yostarCookies = {};
+
+        setLoginButtonState(false);
+        loginMessage.textContent = "Logged out.";
+
+        showStatusCard("Logged out.", "info");
+        return;
+      }
+
+      // LOGIN MODE (existing behavior)
       const email = emailInput.value.trim();
       const code = codeInput.value.trim();
 
       if (!email || !code)
         return (loginMessage.textContent = "Enter email and code.");
+
       loginMessage.textContent = "Logging in...";
       try {
         const res = await fetch(AUTH_API, {
@@ -599,6 +645,7 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, code, server: serverString_Yostar }),
         });
+
         const result = await res.json();
 
         if (!result.cookies || !result.data?.data?.uid) {
@@ -608,13 +655,12 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
 
         const uid = result.data.data.uid;
         CREDENTIALS.uid = uid;
-        // Store top-level cookies and uid
+
         yostarCookies.YSSID = result.cookies.YSSID;
         yostarCookies["YSSID.sig"] = result.cookies["YSSID.sig"];
         yostarCookies.uid = uid;
 
         allCookies[serverString_Yostar] = yostarCookies;
-
         localStorage.setItem("yostarCookies", JSON.stringify(allCookies));
 
         loginMessage.textContent = `Logged in! UID: ${uid}`;
@@ -663,6 +709,7 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
         saveToLocal(uid, data.pulls);
         calculateAndDisplayCards(uid);
         loginMessage.textContent = "Data loaded!";
+        setLoginButtonState(true);
       } catch (e) {
         loginMessage.textContent = "Failed to fetch gacha data.";
         console.error(e);

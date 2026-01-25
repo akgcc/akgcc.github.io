@@ -453,3 +453,9 @@ input.filterSlider {
 #rlfilters img {
 	height: 1.4em;
 }
+.button.logout {
+	background: #9225;
+}
+img.yostar {
+	filter: invert(100%);
+}
