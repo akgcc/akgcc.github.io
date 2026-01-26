@@ -50,40 +50,14 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
       const existing = storage[serverString_Yostar][userId];
       const existingRows = existing.data?.rows || [];
 
-      // Boundary-based overlap detection
-      let overlapIndex = 0;
-      const maxCheck = Math.min(existingRows.length, newRows.length);
-      function cmpRows(oldRow, newRow) {
-        return (
-          String(oldRow.charId || "") === String(newRow.charId || "") &&
-          String(oldRow.poolId || "") === String(newRow.poolId || "") &&
-          String(oldRow.at || "") === String(newRow.at || "")
-        );
-      }
-
-      // Find largest k where:
-      // existingRows[0..k-1] === newRows[newLen-k .. newLen-1]
-      for (let k = maxCheck; k > 0; k--) {
-        let ok = true;
-
-        for (let i = 0; i < k; i++) {
-          if (!cmpRows(existingRows[i], newRows[newRows.length - k + i])) {
-            ok = false;
-            break;
-          }
-        }
-
-        if (ok) {
-          overlapIndex = k;
-          break;
-        }
-      }
-
-      // Take the non-overlapping rows from the **front of newRows** (newest → oldest)
-      const rowsToPrepend = newRows.slice(0, newRows.length - overlapIndex);
-
-      // Merge: prepend new rows, keep newest→oldest order
-      const mergedRows = [...rowsToPrepend, ...existingRows];
+      // Set-based overlap detection
+      const existingSet = new Set(
+        existingRows.map((r) => `${r.charId}|${r.poolId}|${r.at}`),
+      );
+      const newUniqueRows = newRows.filter(
+        (r) => !existingSet.has(`${r.charId}|${r.poolId}|${r.at}`),
+      );
+      const mergedRows = [...newUniqueRows, ...existingRows];
 
       // Save back to localStorage
       storage[serverString_Yostar][userId] = {
