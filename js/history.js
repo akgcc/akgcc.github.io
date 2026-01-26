@@ -55,9 +55,9 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
       const maxCheck = Math.min(existingRows.length, newRows.length);
       function cmpRows(oldRow, newRow) {
         return (
-          oldRow.charId === newRow.charId &&
-          oldRow.poolId === newRow.poolId &&
-          oldRow.at === newRow.at
+          String(oldRow.charId || "") === String(newRow.charId || "") &&
+          String(oldRow.poolId || "") === String(newRow.poolId || "") &&
+          String(oldRow.at || "") === String(newRow.at || "")
         );
       }
 
