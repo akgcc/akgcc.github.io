@@ -171,13 +171,17 @@ html.translated-rtl .rl_title .mtl_title {
 }
 
 .variant_selectors {
+	--padding: 8px;
 	display: flex;
 	flex-direction: column;
 	position: absolute;
 	top: 2.7em; /*below titlebar which is 2.7em */
 	right: 0;
-	padding-top: 10px;
+	padding-top: var(--padding);
 	z-index: 1;
+	max-height: calc(
+		100% - (1.8em * 1.5) - 3px - var(--padding)
+	); /* subtract .rl_title size and bottom deco */
 }
 
 .variantBtn {
@@ -191,6 +195,11 @@ html.translated-rtl .rl_title .mtl_title {
 	cursor: pointer;
 	position: relative;
 	user-select: none;
+	flex-shrink: 1;
+	min-height: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .variantBtn:hover {
