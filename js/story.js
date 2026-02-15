@@ -1594,6 +1594,7 @@ async function genStory(data, avatars = []) {
                     .replace(/(?:\\r\\n|\\r|\\n)+$/, "")
                     .replace(/\\r\\n|\\r|\\n/g, "<br />")
                     .replace(/\\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;")
+                    .replace(/\{@nbs\}/gi, "&nbsp;")
                     .replace(
                         /\{@nickname\}/gi,
                         localStorage.getItem("docName") || "{@nickname}",
