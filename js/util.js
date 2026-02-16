@@ -11,7 +11,7 @@ const USE_ALTERNATE_DATA_SOURCE = true; // use ArknightsAssets instead of Arknig
 //   "https://raw.githubusercontent.com/akgcc/arkdata/main/";
 const DATA_SOURCE_LOCAL = "https://cdn.jsdelivr.net/gh/akgcc/arkdata@main/";
 const ASSET_SOURCE = {
-  // LOCAL: "https://raw.githubusercontent.com/akgcc/arkdata/main/assets/",
+  RAW: "https://raw.githubusercontent.com/akgcc/arkdata/main/assets/",
   LOCAL: `${DATA_SOURCE_LOCAL}assets/`,
   // ACESHIP: "https://raw.githubusercontent.com/Aceship/Arknight-Images/main/",
   ACESHIP: "https://cdn.jsdelivr.net/gh/Aceship/Arknight-Images@main/",
@@ -60,7 +60,7 @@ function uri_background(imageName, source = ASSET_SOURCE.LOCAL) {
 function uri_video(vidPath, source = ASSET_SOURCE.LOCAL) {
   switch (source) {
     default:
-      return `${ASSET_SOURCE.LOCAL}raw/${vidPath}`.toLowerCase();
+      return `${ASSET_SOURCE.RAW}raw/${vidPath}`.toLowerCase();
   }
 }
 function uri_thumb(imageName, source = ASSET_SOURCE.LOCAL) {
