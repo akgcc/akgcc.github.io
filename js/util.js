@@ -17,10 +17,7 @@ const ASSET_SOURCE = {
 };
 // do not modify SERVERS even if you change data source as this is used locally as well.
 const SERVERS = {
-  EN: "en_US",
-  JP: "ja_JP",
-  KR: "ko_KR",
-  CN: "zh_CN",
+  TH: "th_TH"
 };
 // data URI gen:
 function uri_sound(soundpath, source = ASSET_SOURCE.LOCAL) {
@@ -145,7 +142,8 @@ if (USE_ALTERNATE_YOSTAR_DATA) {
   DATA_BASE[SERVERS.KR] =
     "https://raw.githubusercontent.com/ArknightsAssets/ArknightsGamedata/master/kr";
 }
-const serverString = localStorage.getItem("server") || "en_US";
+DATA_BASE[SERVERS.TH] = "/gamedata/th_TH"
+const serverString = localStorage.getItem("server") || "th_TH";
 const CLASS_MAPPING = {
   WARRIOR: "Guard",
   SUPPORT: "Supporter",

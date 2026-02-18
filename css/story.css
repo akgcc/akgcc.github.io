@@ -6,8 +6,28 @@
   font-family: "vn";
   src: url("../../webfonts/vn.woff2") format("woff2");
 }
+
+@font-face {
+  /* Thai Normal Dialogue */
+  font-family: 'Anuphan-Light';
+  src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/Anuphan/Anuphan-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  /* unicode-range: U+0E00-0E7F; */
+}
+
+@font-face {
+  /* Thai Story Title */
+  font-family: 'Mitr-Bold';
+  src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/Mitr/Mitr-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 .dialog {
-  /*font-family: "vn";*/
+  font-family: "Anuphan-Light","vn"; 
 }
 .scene {
   width: 100%;
@@ -207,6 +227,11 @@
 .text:not([data-name=""]) {
   min-height: calc(var(--dialog-size) / 1.3);
 }
+
+.text :not(.dialog-name){
+  line-height: 140%;
+}
+
 .text:not([data-name=""]) .dialog-name {
   /*.text:before {
   content: attr(data-name);*/
@@ -268,6 +293,7 @@
 }
 #storyTitle,
 .storyName {
+  font-family: 'Mitr-Bold';
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,3 +1,13 @@
+@font-face {
+  /* Thai */
+  font-family: 'Anuphan-Light';
+  src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/Anuphan/Anuphan-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  unicode-range: U+0E00-0E7F;
+}
+
 .cardContainer img {
   width: 256px;
   height: 144px;
@@ -210,7 +220,7 @@ html {
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Anuphan-Light ,Arial, Helvetica, sans-serif;
 }
 
 :root {

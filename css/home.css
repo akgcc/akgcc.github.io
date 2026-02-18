@@ -31,12 +31,22 @@
   left: 6px;
   font-size: 24px;
   color: whitesmoke;
-  font-family: airstrike;
+  font-family: Anuphan-Light, airstrike;
   text-shadow: 0 0 2px black;
 }
 @font-face {
   font-family: "airstrike";
   src: url("../webfonts/airstrike.ttf") format("truetype");
+}
+
+@font-face {
+  /* Thai Normal Dialogue */
+  font-family: 'Anuphan-Light';
+  src: url('https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/Anuphan/Anuphan-Regular.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  unicode-range: U+0E00-0E7F;
 }
 .btnContainer a:active img {
   /*-webkit-box-shadow: 0pt 0pt 1pt 1pt #111;
