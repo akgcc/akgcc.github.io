@@ -513,3 +513,21 @@ img.yostar {
 .card-footer {
 	border-radius: 0 0 12px 12px;
 }
+.table-wrapper::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+	background: #1a1a1a;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+	background: #3a3a3a;
+	border-radius: 6px;
+	border: 2px solid #1a1a1a;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}
