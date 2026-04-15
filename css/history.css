@@ -45,7 +45,8 @@ input.filterSlider {
 /* ===================== */
 /* Header (top corners only) */
 /* ===================== */
-.card-header {
+.card-header,
+.card-footer {
 	padding: 10px 12px;
 	text-align: center;
 	font-weight: 600;
@@ -458,4 +459,57 @@ input.filterSlider {
 }
 img.yostar {
 	filter: invert(100%);
+}
+
+/* Below here is new code for All Pulls table */
+
+/* Table container (separate from cards) */
+#gachaTable {
+	margin: 16px;
+}
+
+/* Table card only affects itself */
+.table-card {
+	width: 100%;
+	margin: 0 auto; /* center it */
+}
+
+/* Table styling */
+.table-wrapper {
+	max-height: 500px;
+	overflow: auto;
+}
+
+.gacha-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.gacha-table th,
+.gacha-table td {
+	padding: 6px 10px;
+	border-bottom: 1px solid #333;
+	text-align: left;
+}
+
+.gacha-table th {
+	position: sticky;
+	top: 0;
+	background: #1e1e1e;
+	z-index: 1;
+}
+
+.gacha-table tr[data-rarity] {
+	color: rgb(var(--base-color));
+}
+.gacha-table tbody tr:nth-child(odd) {
+	background: rgba(255, 255, 255, 0.015);
+}
+
+.gacha-table tbody tr:nth-child(even) {
+	background: rgba(255, 255, 255, 0.03);
+}
+.card-footer {
+	border-radius: 0 0 12px 12px;
 }

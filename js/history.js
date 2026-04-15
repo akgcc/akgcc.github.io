@@ -87,7 +87,73 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
       card.appendChild(body);
       container.appendChild(card);
     }
+    function addGachaTableCard({ headerText, rows }) {
+      const container = document.getElementById("gachaTable");
+      if (!container) return;
 
+      const card = document.createElement("div");
+      card.className = "gacha-card table-card";
+
+      // Header
+      const header = document.createElement("div");
+      header.className = "card-header";
+      header.textContent = headerText || "All Pulls";
+      card.appendChild(header);
+
+      // Wrapper
+      const wrapper = document.createElement("div");
+      wrapper.className = "table-wrapper";
+
+      const table = document.createElement("table");
+      table.className = "gacha-table";
+
+      // Footer
+      const footer = document.createElement("div");
+      footer.className = "card-footer";
+
+      // Header row
+      const thead = document.createElement("thead");
+      thead.innerHTML = `
+        <tr>
+          <th>Date</th>
+          <th>Operator</th>
+          <th>Rarity</th>
+          <th>Banner</th>
+        </tr>
+      `;
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+
+      const fragment = document.createDocumentFragment();
+
+      rows.forEach((r) => {
+        const tr = document.createElement("tr");
+        tr.setAttribute("data-rarity", r.star - 1);
+        const name = operatorData[r.charId]?.name || r.charId;
+        const banner = gachaNameByPoolId[r.poolId] || r.poolId;
+
+        // Format date
+        const date = r.atStr || "-";
+
+        tr.innerHTML = `
+      <td>${date}</td>
+      <td>${name}</td>
+      <td data-rarity="${r.star - 1}">${"★".repeat(r.star)}</td>
+      <td>${banner}</td>
+    `;
+
+        fragment.appendChild(tr);
+      });
+
+      tbody.appendChild(fragment);
+      table.appendChild(tbody);
+      wrapper.appendChild(table);
+      card.appendChild(wrapper);
+      card.appendChild(footer);
+
+      container.appendChild(card);
+    }
     function addGachaCard({
       headerText,
       lifetimePulls,
@@ -193,46 +259,7 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
       const userData =
         pullOrderMode === "ingame" ? fixTenPullOrder(rawRows) : rawRows;
 
-      const groups = {
-        standard: [],
-        kernel: [],
-        limited: [],
-      };
-
-      // Assign rows to groups based on actual poolId patterns
-      userData.forEach((row) => {
-        const pid = row.poolId;
-        if (!pid) return;
-
-        if (
-          pid.startsWith("SINGLE_") ||
-          pid.startsWith("DOUBLE_") ||
-          pid.startsWith("NORM_")
-        ) {
-          groups.standard.push(row);
-        } else if (
-          pid.startsWith("CLASSIC_") ||
-          pid.startsWith("FESCLASSIC_")
-        ) {
-          groups.kernel.push(row);
-        } else if (pid.startsWith("LIMITED_") || pid.startsWith("LINKAGE_")) {
-          groups.limited.push(row);
-        }
-      });
-
-      const limitedByPool = {};
-      groups.limited.forEach((r) => {
-        if (!limitedByPool[r.poolId]) limitedByPool[r.poolId] = [];
-        limitedByPool[r.poolId].push(r);
-      });
-
-      const standardByPool = {};
-      groups.standard.forEach((r) => {
-        if (!standardByPool[r.poolId]) standardByPool[r.poolId] = [];
-        standardByPool[r.poolId].push(r);
-      });
-
-      // Helper to calculate stats (same as before)
+      // --- Helper to calculate stats ---
       function getStats(rows) {
         if (!rows.length)
           return {
@@ -242,6 +269,7 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
             overall5StarRate: "0%",
             sixStars: [],
           };
+
         const orderedRows = [...rows].reverse(); // oldest → newest
 
         const totalPulls = orderedRows.length;
@@ -274,60 +302,91 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
         };
       }
 
-      // Clear old cards
+      // --- Build ordered banner map (preserves first appearance) ---
+      const bannerMap = new Map();
+
+      userData.forEach((row) => {
+        const pid = row.poolId;
+        if (!pid) return;
+
+        let type = null;
+
+        if (
+          pid.startsWith("SINGLE_") ||
+          pid.startsWith("DOUBLE_") ||
+          pid.startsWith("NORM_")
+        ) {
+          type = "standard";
+        } else if (
+          pid.startsWith("CLASSIC_") ||
+          pid.startsWith("FESCLASSIC_")
+        ) {
+          type = "kernel";
+        } else if (pid.startsWith("LIMITED_") || pid.startsWith("LINKAGE_")) {
+          type = "limited";
+        }
+
+        if (!type) return;
+
+        if (!bannerMap.has(pid)) {
+          bannerMap.set(pid, {
+            type,
+            rows: [],
+          });
+        }
+
+        bannerMap.get(pid).rows.push(row);
+      });
+
+      // --- Clear UI ---
       const container = document.getElementById("gachaCards");
+      const tableContainer = document.getElementById("gachaTable");
       container.innerHTML = "";
-      // Overall card (all pulls, no pity meaning)
+      tableContainer.innerHTML = "";
+
+      // --- 1. Overall (always first) ---
       const overallStats = getStats(userData);
       addGachaCard({
         headerText: "Overall",
         type: "overview",
         lifetimePulls: overallStats.lifetimePulls,
-        currentPity: "-", // override if needed
+        currentPity: "-",
         overall6StarRate: overallStats.overall6StarRate,
         overall5StarRate: overallStats.overall5StarRate,
       });
-      // Limited banners
-      Object.entries(limitedByPool).forEach(([poolId, rows]) => {
-        const bannerName = gachaNameByPoolId[poolId] || poolId;
-        addGachaCard({
-          headerText: bannerName,
-          type: "limited",
-          ...getStats(rows),
-        });
+      // --- All Pulls Table (right after Overall) ---
+      addGachaTableCard({
+        headerText: "All Pulls",
+        rows: userData,
       });
+      // --- 3. Standard combined (always last) ---
+      const standardRows = userData.filter(
+        (r) =>
+          r.poolId?.startsWith("SINGLE_") ||
+          r.poolId?.startsWith("DOUBLE_") ||
+          r.poolId?.startsWith("NORM_"),
+      );
 
-      // Standard: Overall grouped card
-      if (groups.standard.length) {
+      if (standardRows.length) {
         addGachaCard({
           headerText: "Standard (Combined)",
           type: "overview",
-          ...getStats(groups.standard),
+          ...getStats(standardRows),
         });
       }
 
-      // Standard: Individual banner cards
-      Object.entries(standardByPool).forEach(([poolId, rows]) => {
+      // --- 2. Render banners in preserved order ---
+      bannerMap.forEach(({ type, rows }, poolId) => {
         const bannerName = gachaNameByPoolId[poolId] || poolId;
-        const stats = getStats(rows); // keeps sixStars, overall6StarRate, etc.
+        const stats = getStats(rows);
 
-        // Only override pity for display
         addGachaCard({
           headerText: bannerName,
-          type: "standard",
+          type,
           ...stats,
-          currentPity: "-", // hide pity
+          ...(type === "standard" ? { currentPity: "-" } : {}),
         });
       });
-
-      // Kernel
-      if (groups.kernel.length) {
-        addGachaCard({
-          headerText: "Kernel Headhunting",
-          type: "kernel",
-          ...getStats(groups.kernel),
-        });
-      }
     }
 
     const exportJsonBtn = document.getElementById("exportJsonBtn");
@@ -535,12 +594,6 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
     let yostarCookies = allCookies[serverString_Yostar] || {};
     let currentUid = yostarCookies.uid;
     CREDENTIALS.uid = currentUid;
-    console.log(
-      "in storage",
-      localStorage.getItem("yostarCookies"),
-      yostarCookies,
-      currentUid,
-    );
     // If logged in, auto-fetch
     if (yostarCookies.YSSID && yostarCookies["YSSID.sig"] && currentUid) {
       fetchPullsForUid(currentUid, yostarCookies);
