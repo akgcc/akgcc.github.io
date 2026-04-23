@@ -354,18 +354,19 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
         overall6StarRate: overallStats.overall6StarRate,
         overall5StarRate: overallStats.overall5StarRate,
       });
-      // --- All Pulls Table (right after Overall) ---
+      // --- All Pulls Table ---
       addGachaTableCard({
         headerText: "All Pulls",
         rows: userData,
       });
-      // --- 3. Standard combined (always last) ---
-      const standardRows = userData.filter(
-        (r) =>
-          r.poolId?.startsWith("SINGLE_") ||
-          r.poolId?.startsWith("DOUBLE_") ||
-          r.poolId?.startsWith("NORM_"),
-      );
+      // --- 2. Standard combined ---
+      const standardRows = [];
+
+      bannerMap.forEach(({ type, rows }) => {
+        if (type === "standard") {
+          standardRows.push(...rows);
+        }
+      });
 
       if (standardRows.length) {
         addGachaCard({
@@ -374,17 +375,33 @@ fetch(`${DATA_BASE[serverString_Yostar]}/gamedata/excel/gacha_table.json`)
           ...getStats(standardRows),
         });
       }
+      // --- 2.5. Kernel combined ---
+      const kernelRows = [];
 
-      // --- 2. Render banners in preserved order ---
+      bannerMap.forEach(({ type, rows }) => {
+        if (type === "kernel") {
+          kernelRows.push(...rows);
+        }
+      });
+
+      if (kernelRows.length) {
+        addGachaCard({
+          headerText: "Kernel (Combined)",
+          type: "overview",
+          ...getStats(kernelRows),
+        });
+      }
+      // --- 3. Render banners in preserved order ---
       bannerMap.forEach(({ type, rows }, poolId) => {
         const bannerName = gachaNameByPoolId[poolId] || poolId;
         const stats = getStats(rows);
-
         addGachaCard({
           headerText: bannerName,
           type,
           ...stats,
-          ...(type === "standard" ? { currentPity: "-" } : {}),
+          ...(["standard", "kernel"].includes(type)
+            ? { currentPity: "-" }
+            : {}),
         });
       });
     }
