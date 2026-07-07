@@ -240,6 +240,10 @@ get_char_table(false, serverString)
             name: "Ceobe's Fungimist",
             infoUnlockDatas: [
                 {
+                    storyName: "Entry",
+                    storyTxt: `activities/act12d6/level_act12d6_entry`,
+                },
+                {
                     storyName: "迷尘幻梦",
                     storyTxt: "activities/act12d6/level_act12d6_ending_1",
                 },
@@ -264,7 +268,11 @@ get_char_table(false, serverString)
             };
             is_num = /_(\d)/.exec(rogue_key)[1];
             is_name = `IS${parseInt(is_num) + 1}`;
-
+            // add entry story:
+            storyReview[rogue_key].infoUnlockDatas.push({
+                storyName: "Entry",
+                storyTxt: `obt/roguelike/ro${is_num}/level_rogue${is_num}_entry`,
+            });
             const endbook =
                 rogueStory.details[rogue_key].archiveComp.endbook.endbook;
             if (!Object.keys(endbook).length) {
