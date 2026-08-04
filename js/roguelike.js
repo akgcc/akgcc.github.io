@@ -142,11 +142,17 @@ function loadItems(is) {
 }
 function formatTags(text) {
 	// converts <color=#000000> tags into <span> with style=color
+	if (text === null)
+		return "";
 	return text
 		.replace(/\\n/g, "\n")
 		.replace(
 			/<color\s*=\s*(#[0-9a-fA-F]{6})>([\s\S]*?)<\/color>/gi,
 			'<span style="color:$1">$2</span>',
+		)
+		.replace(
+			/<(?:\$|@)ba\.[^>]*>([\s\S]*?)<\/>/gi,
+			'<span style="color:#0098DC">$1</span>',
 		)
 		.replace(/\r?\n/g, "<br>");
 }
@@ -210,7 +216,7 @@ function addItem(data, variants = undefined) {
 	inner.classList.add("rl_inner");
 	let desc = document.createElement("div");
 	desc.classList.add("rl_desc");
-	desc.innerHTML = data.description;
+	desc.innerHTML = formatTags(data.description);
 	let unlock = document.createElement("div");
 	unlock.classList.add("rl_unlock");
 	unlock.innerHTML = data.unlockCondDesc;
@@ -272,9 +278,9 @@ function addItem(data, variants = undefined) {
 	itemList.appendChild(item);
 
 	let totalTextLen =
-		data.description.length +
-		(data.unlockCondDesc ? data.unlockCondDesc.length : 0) +
-		data.usage.length;
+		desc.innerHTML.length +
+		unlock.innerHTML.length +
+		effect.innerHTML.length;
 	if (totalTextLen > 500) item.classList.add("smallText");
 
 	// squish title text
